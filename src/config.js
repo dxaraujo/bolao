@@ -1,3 +1,3 @@
-const backendURI = process.env.BACKEND_URI || 'http://localhost:3001/'
+const backendURI = process.env.BACKEND_URI || BACKEND_URI || 'http://localhost:3001/'
 console.log(backendURI)
 export default backendURI

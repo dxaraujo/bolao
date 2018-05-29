@@ -57,10 +57,10 @@ class TimeList extends Component {
 						<thead>
 							<tr className='d-flex'>
 								<th className='text-center col-1'>#</th>
-								<th className='col-md-6 col-sm-5'>Nome</th>
+								<th className='col-5'>Nome</th>
 								<th className='col-2'>Sigla</th>
 								<th className='text-center col-2'>Bandeira</th>
-								<th className='text-center col-md-1 col-sm-2'></th>
+								<th className='text-center col-2'></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -68,10 +68,10 @@ class TimeList extends Component {
 								return (
 									<tr key={idx} className='d-flex'>
 										<td className='text-center col-1'>{idx + 1}</td>
-										<td className='col-md-6 col-sm-5'>{time.nome}</td>
+										<td className='col-5'>{time.nome}</td>
 										<td className='col-2'>{time.sigla}</td>
 										<td className='text-center col-2'><i className={`flag-icon flag-icon-${time.bandeira} h4`} style={{ margin: '0px' }}></i></td>
-										<td className='text-center col-md-1 col-sm-2'>
+										<td className='text-center col-2'>
 											<ButtonGroup>
 												<Button size='sm' color='success' onClick={() => this.update(time)}>
 													<i className='fas fa-edit'></i>

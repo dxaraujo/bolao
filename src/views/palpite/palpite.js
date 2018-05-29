@@ -19,16 +19,16 @@ class Palpite extends Component {
 				{grupos.map((grupo, idx) => {
 					return (
 						<div key={idx} className='col-sm-6 col-md-4'>
-							<Card style={{ borderRadius: '15px' }}>
-								<CardHeader className='text-center bg-light-blue text-white h5' style={{ borderRadius: '15px 15px 0px 0px' }}>{grupo.nome}</CardHeader>
-								<CardBody style={{ padding: '0px', borderRadius: '0px 0px 15px 15px' }}>
+							<Card>
+								<CardHeader className='text-center bg-light-blue text-white h5'>{grupo.nome}</CardHeader>
+								<CardBody>
 									{grupo.rodadas.map((rodada, idx2) => {
 										return (
-											<div key={idx2} style={{ borderRadius: '0px 0px 15px 15px' }}>
+											<div key={idx2}>
 												<div className='text-center bg-gray-200'><strong>{rodada.nome}</strong></div>
 												{rodada.partidas.map((partida, idx3) => {
 													return (
-														<div key={idx3} className='bg-gray-100 rodada' style={(rodada.partidas.length - 1) === idx3 ? { borderRadius: '0px 0px 15px 15px' } : {}}>
+														<div key={idx3} className='bg-gray-100 rodada'>
 															<div className='nomeTimeA'>
 																<span className='h6'>{partida.timeA.nome}</span>
 															</div>

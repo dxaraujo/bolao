@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
+import moment from 'moment'
 
 import { Card, CardHeader, CardBody, CardFooter, Table, ButtonGroup, Button } from 'reactstrap'
 import Swal from 'sweetalert2'
@@ -60,16 +61,17 @@ class PartidaList extends Component {
 	render() {
 		const partidas = this.props.partidas
 		return (
-			<Card style={{ borderRadius: '15px' }}>
-				<CardHeader style={{ borderRadius: '15px 15px 0px 0px' }}>Lista de Partidas</CardHeader>
+			<Card>
+				<CardHeader>Lista de Partidas</CardHeader>
 				<CardBody style={{ padding: '0px' }}>
 					<Table responsive striped borderless>
 						<thead>
 							<tr className='d-flex'>
 								<th className='text-center col-1'>#</th>
-								<th className='col-2'>Fase</th>
+								<th className='col-1'>Fase</th>
 								<th className='col-1'>Grupo</th>
-								<th className='col-2'>rodada</th>
+								<th className='col-1'>rodada</th>
+								<th className='col-2'>Data</th>
 								<th className='col-2'>TimeA</th>
 								<th className='col-2'>TimeB</th>
 								<th className='text-center col-1'><i className='fas fa-check text-secondary'></i></th>
@@ -81,9 +83,10 @@ class PartidaList extends Component {
 								return (
 									<tr key={idx} className='d-flex'>
 										<td className='text-center col-1'>{idx + 1}</td>
-										<td className='col-2'>{partida.fase}</td>
+										<td className='col-1'>{partida.fase}</td>
 										<td className='col-1'>{partida.grupo}</td>
-										<td className='col-2'>{partida.rodada}</td>
+										<td className='col-1'>{partida.rodada}</td>
+										<th className='col-2'>{moment(partida.data, 'YYYY/MM/DD hh:mm:ss').format('DD/MM/YYYY HH:mm')}</th>
 										<td className='col-2'>{this.popularTime(partida.timeA)}</td>
 										<td className='col-2'>{this.popularTime(partida.timeB)}</td>
 										<td className='text-center col-1'><i className={`fas fa-check text-${partida.liberado ? 'success' : 'secondary'}`}></i></td>
@@ -103,7 +106,7 @@ class PartidaList extends Component {
 						</tbody>
 					</Table>
 				</CardBody>
-				<CardFooter className='app-card-footer d-flex flex-row-reverse' style={{ borderRadius: '0px 0px 15px 15px' }}>
+				<CardFooter className='app-card-footer d-flex flex-row-reverse'>
 					<Button color='success' size='sm' onClick={this.create}>
 						<i className='fas fa-plus-circle'></i> Adicionar
 					</Button>

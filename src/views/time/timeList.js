@@ -50,8 +50,8 @@ class TimeList extends Component {
 	render() {
 		const times = this.props.times
 		return (
-			<Card style={{ borderRadius: '15px' }}>
-				<CardHeader style={{ borderRadius: '15px 15px 0px 0px' }}>Lista de Times</CardHeader>
+			<Card>
+				<CardHeader>Lista de Times</CardHeader>
 				<CardBody style={{ padding: '0px' }}>
 					<Table responsive striped borderless>
 						<thead>
@@ -87,7 +87,7 @@ class TimeList extends Component {
 						</tbody>
 					</Table>
 				</CardBody>
-				<CardFooter className='app-card-footer d-flex flex-row-reverse' style={{ borderRadius: '0px 0px 15px 15px' }}>
+				<CardFooter className='app-card-footer d-flex flex-row-reverse'>
 					<Button color='success' size='sm' onClick={this.create}>
 						<i className='fas fa-plus-circle'></i> Adicionar
 					</Button>

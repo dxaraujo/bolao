@@ -1,4 +1,6 @@
-import URL from '../../config'
+import backendURI from '../../config'
+
+const URL = `${backendURI}/time`
 
 const authFetch = (url, options) => {
 	const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' }

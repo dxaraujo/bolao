@@ -4,7 +4,9 @@
 }
 
 .card {
-	margin-bottom: 0px !important
+	margin-bottom: 0px !important;
+	border: none !important;
+	border-radius: 0px !important
 }
 
 .col,

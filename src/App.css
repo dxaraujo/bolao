@@ -1,0 +1,56 @@
+.container-fluid {
+	margin-top: 30px !important;
+}
+
+.grupo {
+	background-color: #FFFFFF
+}
+
+.rodada {
+	display: grid;
+	grid-template-columns: 10fr 4fr 3fr 1fr 3fr 4fr 10fr;
+	grid-template-rows: 40px;
+	grid-column-gap: 2px;
+	grid-row-gap: 2px;
+	align-items: center;
+}
+
+.nomeTimeA {
+	justify-self: end;
+}
+
+.bandeiraTimeA {
+	justify-self: center;
+	margin-bottom: 0px
+}
+
+.palpiteTimeA {
+	justify-self: center;
+	padding: 2px;
+	text-align: center;
+}
+
+.divisorPalpite {
+	justify-self: center;
+}
+
+.palpiteTimeB {
+	justify-self: center;
+	padding: 2px;
+	text-align: center;
+}
+
+.bandeiraTimeB {
+	justify-self: center;
+	margin-bottom: 0px;
+}
+
+.nomeTimeB {
+	justify-self: start;
+}
+
+.horaPartida {
+	justify-self: center;
+	font-size: 0.7rem;
+	grid-column: 1/8;
+}

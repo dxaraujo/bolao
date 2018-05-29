@@ -49,7 +49,7 @@ class Palpite extends Component {
 																<span className='h6'>{partida.timeB.nome}</span>
 															</div>
 															<div className='horaPartida'>
-																<span className='horaPartida text-secundary'>{moment(partida.data, 'YYYY/MM/DD hh:mm a').format('DD/MM/YYYY HH:mm')}</span>
+																<span className='horaPartida text-secundary'>{moment(partida.data, 'YYYY/MM/DD hh:mm:ss').format('DD/MM/YYYY HH:mm')}</span>
 															</div>
 														</div>
 													)

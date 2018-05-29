@@ -34,7 +34,7 @@ const withAuth = (Comp) => {
 			}
 		}
 		render() {
-			return this.state.user ? (
+			return (
 				<Comp history={this.props.history}
 					location={this.props.location}
 					match={this.props.match}
@@ -43,7 +43,7 @@ const withAuth = (Comp) => {
 					fetch={this.authService.fetch}
 					logout={this.authService.logout}
 				/>
-			) : (null)
+			)
 		}
 	}
 }

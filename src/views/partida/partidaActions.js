@@ -1,6 +1,6 @@
 import backendURI from '../../config'
 
-const URL = `${backendURI}/partida`
+const URL = `${backendURI}/api/partida`
 
 const authFetch = (url, options) => {
 	const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' }

@@ -14,7 +14,7 @@ import withAuth from '../components/withAuth'
 class FullLayout extends Component {
 	render() {
 		return (
-			<div className='app header-fixed footer-fixed'>
+			<div className='app footer-fixed'>
 				<ToastContainer />
 				<AppHeader fixed>
 					<Header {...this.props} />

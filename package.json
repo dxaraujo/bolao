@@ -32,10 +32,12 @@
 		"redux-multi": "^0.1.12",
 		"redux-promise": "^0.6.0",
 		"redux-thunk": "^2.3.0",
+		"serve": "^7.1.1",
 		"sweetalert2": "^7.20.5"
 	},
 	"scripts": {
-		"start": "react-scripts start",
+		"dev": "react-scripts start",
+		"start": "serve ./build",
 		"build": "react-scripts build",
 		"test": "react-scripts test --env=jsdom",
 		"eject": "react-scripts eject"

@@ -17,7 +17,8 @@ const withAuth = (Comp) => {
 		}
 		checkIfAuthenticated() {
 			const pathname = this.props.history.location
-			if (pathname != '/login' && pathname != '/signup' && pathname != '/validateToken') {
+			console.log(pathname)
+			if (pathname !== '/login' && pathname !== '/signup' && pathname !== '/validateToken') {
 				if (!this.authService.loggedIn()) {
 					this.setState({ user: null })
 					this.props.history.replace('/login')

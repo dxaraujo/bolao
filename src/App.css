@@ -20,8 +20,7 @@
 .col,
 .col-sm-12,
 .col-md-6,
-.col-lg-4,
-.col-xl-3 {
+.col-lg-4 {
 	padding: 0px !important;
 }
 
@@ -35,7 +34,7 @@
 
 .rodada {
 	display: grid;
-	grid-template-columns: 10fr 4fr 3fr 1fr 3fr 4fr 10fr;
+	grid-template-columns: 10fr 35px 30px 10px 30px 35px 10fr;
 	grid-template-rows: 40px;
 	grid-column-gap: 2px;
 	grid-row-gap: 2px;

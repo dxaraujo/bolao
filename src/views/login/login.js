@@ -14,7 +14,7 @@ class Login extends Component {
 
 	handleSubmit(event) {
 		event.preventDefault();
-		authService.login(this.state.username, this.state.password).then(res => {
+		this.props.login(this.state.username, this.state.password).then(res => {
 			this.props.history.replace('/');
 		}).catch(err => {
 			alert(err);

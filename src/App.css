@@ -3,7 +3,14 @@
 	padding: 0px !important;
 }
 
-.col {
+.card {
+	margin-bottom: 0px !important
+}
+
+.col,
+.col-sm06,
+.col-md-6,
+.col-lg-4 {
 	padding: 0px !important;
 }
 

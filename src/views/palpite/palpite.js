@@ -18,7 +18,7 @@ class Palpite extends Component {
 			<div className='row'>
 				{grupos.map((grupo, idx) => {
 					return (
-						<div key={idx} className='col-sm-6 col-md-4'>
+						<div key={idx} className='col-sm-12 col-md-6 col-lg-4'>
 							<Card>
 								<CardHeader className='text-center bg-light-blue text-white h5'>{grupo.nome}</CardHeader>
 								<CardBody>

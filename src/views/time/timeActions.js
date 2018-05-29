@@ -1,4 +1,4 @@
-import URL from '../config'
+import URL from '../../config'
 
 const authFetch = (url, options) => {
 	const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' }

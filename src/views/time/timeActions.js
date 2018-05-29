@@ -1,4 +1,4 @@
-const URL = 'http://127.0.0.1:3001/api/time'
+import URL from '../config'
 
 const authFetch = (url, options) => {
 	const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' }

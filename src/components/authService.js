@@ -1,9 +1,10 @@
 import decode from 'jwt-decode';
+import backendURI from '../config'
 
 export default class AuthService {
 
-	constructor(url) {
-		this.url = url
+	constructor() {
+		this.url = backendURI
 		this.fetch = this.fetch.bind(this)
 		this.login = this.login.bind(this)
 		this.logout = this.logout.bind(this)

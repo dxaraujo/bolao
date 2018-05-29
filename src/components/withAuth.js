@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import AuthService from './authService'
 
-const withAuth = (Comp, url) => {
-	const authService = new AuthService(url);
+const withAuth = (Comp) => {
+	const authService = new AuthService();
 	return class Authenticated extends Component {
 		constructor(props) {
 			super(props)
@@ -16,6 +16,7 @@ const withAuth = (Comp, url) => {
 			this.checkIfAuthenticated()
 		}
 		checkIfAuthenticated() {
+			console.log(this.props)
 			if (!this.authService.loggedIn()) {
 				this.setState({ user: null })
 				this.props.history.replace('/login')

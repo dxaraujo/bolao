@@ -37,7 +37,7 @@
 	},
 	"scripts": {
 		"dev": "react-scripts start",
-		"start": "react-scripts build && serve ./build",
+		"start": "react-scripts build && serve -s ./build",
 		"build": "react-scripts build",
 		"test": "react-scripts test --env=jsdom",
 		"eject": "react-scripts eject"

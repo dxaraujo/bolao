@@ -16,18 +16,20 @@ const withAuth = (Comp) => {
 			this.checkIfAuthenticated()
 		}
 		checkIfAuthenticated() {
-			console.log(this.props)
-			if (!this.authService.loggedIn()) {
-				this.setState({ user: null })
-				this.props.history.replace('/login')
-			} else {
-				try {
-					const profile = this.authService.getAuthenticatedUser()
-					this.setState({ user: profile })
-				}
-				catch (err) {
-					this.authService.logout()
+			const pathname = this.props.history.location
+			if (pathname != '/login' && pathname != '/signup' && pathname != '/validateToken') {
+				if (!this.authService.loggedIn()) {
+					this.setState({ user: null })
 					this.props.history.replace('/login')
+				} else {
+					try {
+						const profile = this.authService.getAuthenticatedUser()
+						this.setState({ user: profile })
+					}
+					catch (err) {
+						this.authService.logout()
+						this.props.history.replace('/login')
+					}
 				}
 			}
 		}

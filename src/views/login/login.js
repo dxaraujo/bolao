@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux';
+
 import { Form, Button, Card, CardBody, CardGroup, Col, Container, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
 
+import { loggedUser } from '../user/userActions'
 import withAuth from '../../components/withAuth'
 
 class Login extends Component {
@@ -14,7 +18,8 @@ class Login extends Component {
 
 	handleSubmit(event) {
 		event.preventDefault();
-		this.props.login(this.state.username, this.state.password).then(res => {
+		this.props.login(this.state.username, this.state.password).then(user => {
+			this.props.login(user)
 			this.props.history.replace('/');
 		}).catch(err => {
 			alert(err);
@@ -22,8 +27,7 @@ class Login extends Component {
 	}
 
 	handleChange(event) {
-		this.setState({ ...this.state, [event.target.name]: event.target.value }
-		)
+		this.setState({ ...this.state, [event.target.name]: event.target.value })
 	}
 
 	render() {
@@ -83,4 +87,6 @@ class Login extends Component {
 	}
 }
 
-export default withAuth(Login)
+const mapDispatchToProps = dispatch => bindActionCreators({ loggedUser }, dispatch)
+
+export default connect(mapDispatchToProps)(withAuth(Login))

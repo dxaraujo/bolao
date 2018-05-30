@@ -102,3 +102,57 @@ footer {
 	grid-template-columns: 45px 10fr 10fr 10fr 10fr 120px 120px 30px 85px;
 	align-items: center;
 }
+
+.gridUsers {
+	display: grid;
+	grid-template-columns: 45px 45px 54px auto 75px;
+	align-items: center;
+}
+
+.goldTrophy {
+	color: #FFD700;
+}
+
+.silverTrophy {
+	color: #C0C0C0;
+}
+
+.bronzeTrophy {
+	color: #CD7F32
+}
+
+.divplayers {
+	display: grid;
+	grid-template-columns: 1fr 105px 1fr;
+	height: 200px;
+	background-attachment: #FFFFFF;
+	background-image: url('./assets/img/podium.png');
+	background-position: center bottom;
+	background-repeat: no-repeat;
+	margin-bottom: 20px;
+}
+
+.player1 {
+	position: relative;
+	justify-self: center;
+	width: 75px;
+	height: 75px;
+	margin-top: 20px;
+	border-radius: 50%
+}
+
+.player2 {
+	justify-self: right;
+	width: 75px;
+	height: 75px;
+	margin-top: 40px;
+	border-radius: 50%
+}
+
+.player3 {
+	justify-self: left;
+	width: 75px;
+	height: 75px;
+	margin-top: 60px;
+	border-radius: 50%
+}

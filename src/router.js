@@ -27,13 +27,19 @@ const Palpite = Loadable({
 	loading: Loading,
 });
 
+const Classificacao = Loadable({
+	loader: () => import('./views/classificacao/classificacao'),
+	loading: Loading,
+});
+
 const routes = [
 	{ path: '/', exact: true, component: FullLayout },
 	{ path: '/dashboard', component: Dashboard },
 	{ path: '/time', component: Time },
 	{ path: '/partida', component: Partida },
 	{ path: '/palpite', exact: true, component: Palpite },
-	{ path: '/palpite/:fase', component: Palpite }
+	{ path: '/palpite/:fase', component: Palpite },
+	{ path: '/classificacao', component: Classificacao }
 ];
 
 export default routes

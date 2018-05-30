@@ -9,12 +9,13 @@ import promise from 'redux-promise'
 import thunk from 'redux-thunk'
 
 import App from './App'
-import { timeReducer, partidaReducer, palpiteReducer } from './reducers';
+import { timeReducer, partidaReducer, palpiteReducer, userReducer } from './reducers';
 
 const reducers = combineReducers({
 	timeStore: timeReducer,
 	partidaStore: partidaReducer,
-	palpiteStore: palpiteReducer
+	palpiteStore: palpiteReducer,
+	userStore: userReducer
 });
 
 const devTools = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()

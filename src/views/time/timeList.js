@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
 
-import { Card, CardHeader, CardBody, CardFooter, Table, ButtonGroup, Button } from 'reactstrap'
+import { Card, CardHeader, CardBody, Table, ButtonGroup, Button } from 'reactstrap'
 import Swal from 'sweetalert2'
 
 import { search, select, remove } from './timeActions'

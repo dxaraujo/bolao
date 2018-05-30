@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
 import moment from 'moment'
 
-import { Card, CardHeader, CardBody, CardFooter, Table, ButtonGroup, Button } from 'reactstrap'
+import { Card, CardHeader, CardBody, Table, ButtonGroup, Button } from 'reactstrap'
 import Swal from 'sweetalert2'
 
 import { search as searchTimes } from '../time/timeActions'

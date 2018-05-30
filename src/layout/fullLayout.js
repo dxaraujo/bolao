@@ -36,15 +36,17 @@ class FullLayout extends Component {
 		let newNavPalpites = []
 		nav.push(...navigationsLinks)
 		nav.push(...navigationsPalpites)
-		this.props.fases.forEach(fase => {
-			//if (fase.status) {
-				newNavPalpites.push({
-					name: `${fase.nome}`,
-					url: `/palpite/${fase._id}`,
-					icon: 'fas fa-futbol',
-				})
-			//}
-		})
+		if (this.props.fases && this.props.fases.lenth > 0) {
+			this.props.fases.forEach(fase => {
+				//if (fase.status) {
+					newNavPalpites.push({
+						name: `${fase.nome}`,
+						url: `/palpite/${fase._id}`,
+						icon: 'fas fa-futbol',
+					})
+				//}
+			})
+		}
 		nav.push(...newNavPalpites)
 		nav.push(...navigationsAdmin)
 		console.log(nav)

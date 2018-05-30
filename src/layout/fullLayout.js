@@ -23,6 +23,7 @@ class FullLayout extends Component {
 		this.state = { nav: { items: [] } }
 	}
 	componentWillMount() {
+		console.log("Chegou aqui")
 		this.props.search()
 	}
 	componentWillReceiveProps(nextProps) {

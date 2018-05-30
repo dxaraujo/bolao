@@ -8,7 +8,6 @@ import If from '../../components/if'
 import { search } from '../user/userActions'
 
 import blackAvatar from '../../assets/img/blankavatar.png'
-import podium from '../../assets/img/podium.png'
 
 class Classificacao extends Component {
 	componentWillMount() {

@@ -4,7 +4,7 @@ const initialState = { fases: [] }
 
 export default function (state = initialState, action) {
 	switch (action.type) {
-		case USER_SEARCH:
+		case FASE_SEARCH:
 			return {
 				fases: action.payload.data
 			};

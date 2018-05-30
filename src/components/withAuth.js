@@ -7,7 +7,6 @@ const withAuth = (Comp) => {
 		constructor(props) {
 			super(props)
 			this.authService = authService
-			this.state = { user: null }
 		}
 		componentWillReceiveProps() {
 			this.checkIfAuthenticated()
@@ -19,29 +18,16 @@ const withAuth = (Comp) => {
 			const pathname = this.props.history.location.pathname
 			if (pathname !== '/login' && pathname !== '/signup' && pathname !== '/validateToken') {
 				if (!this.authService.loggedIn()) {
-					this.setState({ user: null })
 					this.props.history.replace('/login')
-				} else {
-					try {
-						const profile = this.authService.getAuthenticatedUser()
-						this.setState({ user: profile })
-					}
-					catch (err) {
-						this.authService.logout()
-						this.props.history.replace('/login')
-					}
 				}
 			}
 		}
 		render() {
 			return (
-				<Comp history={this.props.history}
+				<Comp {...this.authService}
+					history={this.props.history}
 					location={this.props.location}
 					match={this.props.match}
-					user={this.state.user}
-					login={this.authService.login}
-					fetch={this.authService.fetch}
-					logout={this.authService.logout}
 				/>
 			)
 		}

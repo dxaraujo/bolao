@@ -71,31 +71,31 @@ class PartidaList extends Component {
 				<CardBody style={{ padding: '0px' }}>
 					<Table responsive striped borderless>
 						<thead>
-							<tr className='d-flex'>
-								<th className='text-center col-1'>#</th>
-								<th className='col-1'>Fase</th>
-								<th className='col-1'>Grupo</th>
-								<th className='col-1'>rodada</th>
-								<th className='col-2'>Data</th>
-								<th className='col-2'>TimeA</th>
-								<th className='col-2'>TimeB</th>
-								<th className='text-center col-1'><i className='fas fa-check text-secondary'></i></th>
-								<th className='text-center col-1'></th>
+							<tr className='gridPartidas'>
+								<th className='text-center'>#</th>
+								<th>Fase</th>
+								<th>Grupo</th>
+								<th>rodada</th>
+								<th>Data</th>
+								<th>TimeA</th>
+								<th>TimeB</th>
+								<th className='text-center'><i className='fas fa-check text-secondary'></i></th>
+								<th className='text-center'></th>
 							</tr>
 						</thead>
 						<tbody>
 							{partidas.map((partida, idx) => {
 								return (
-									<tr key={idx} className='d-flex'>
-										<td className='text-center col-1'>{idx + 1}</td>
-										<td className='col-1'>{partida.fase}</td>
-										<td className='col-1'>{partida.grupo}</td>
-										<td className='col-1'>{partida.rodada}</td>
-										<th className='col-2'>{moment(partida.data, 'YYYY/MM/DD hh:mm:ss').format('DD/MM/YYYY HH:mm')}</th>
-										<td className='col-2'>{this.popularTime(partida.timeA)}</td>
-										<td className='col-2'>{this.popularTime(partida.timeB)}</td>
-										<td className='text-center col-1'><i className={`fas fa-check text-${partida.liberado ? 'success' : 'secondary'}`}></i></td>
-										<td className='text-center col-1'>
+									<tr key={idx} className='gridPartidas'>
+										<td className='text-center'>{idx + 1}</td>
+										<td>{partida.fase}</td>
+										<td>{partida.grupo}</td>
+										<td>{partida.rodada}</td>
+										<th>{moment(partida.data, 'YYYY/MM/DD hh:mm:ss').format('DD/MM/YYYY HH:mm')}</th>
+										<td>{this.popularTime(partida.timeA)}</td>
+										<td>{this.popularTime(partida.timeB)}</td>
+										<td className='text-center'><i className={`fas fa-check text-${partida.liberado ? 'success' : 'secondary'}`}></i></td>
+										<td className='text-center'>
 											<ButtonGroup>
 												<Button size='sm' color='success' onClick={() => this.update(partida)}>
 													<i className='fas fa-edit'></i>
@@ -111,8 +111,6 @@ class PartidaList extends Component {
 						</tbody>
 					</Table>
 				</CardBody>
-				<CardFooter className='app-card-footer d-flex flex-row-reverse'>
-				</CardFooter>
 			</Card>
 		)
 	}

@@ -93,12 +93,12 @@ footer {
 
 .gridTime {
 	display: grid;
-	grid-template-columns: 1fr 50fr 10fr 10fr 7fr;
+	grid-template-columns: 45px 28fr 15fr 15fr 85px;
 	align-items: center;
 }
 
 .gridPartidas {
-	justify-self: center;
-	font-size: 0.7rem;
-	grid-column: 1/8;
+	display: grid;
+	grid-template-columns: 45px 10fr 10fr 10fr 10fr 120px 120px 30px 85px;
+	align-items: center;
 }

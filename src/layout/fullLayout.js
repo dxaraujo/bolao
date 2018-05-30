@@ -84,7 +84,7 @@ class FullLayout extends Component {
 							</div>
 						</AppSidebarHeader>
 						<AppSidebarForm />
-						<If test={this.props.fases.length}>
+						<If test={this.props.fases.length > 0}>
 							<AppSidebarNav navConfig={navigation} />
 						</If>
 						<AppSidebarFooter />

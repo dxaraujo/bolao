@@ -7,7 +7,7 @@ export default function (state = initialState, action) {
 		case FASE_SEARCH:
 			return {
 				fases: action.payload.data
-			};
+			}
 		default:
 			return state;
 	}

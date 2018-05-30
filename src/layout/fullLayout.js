@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom'
 
 import { Container, Badge } from 'reactstrap'
-import { AppHeader, AppFooter, AppSidebar, AppSidebarHeader, AppSidebarForm, AppSidebarNav, AppSidebarFooter, AppSidebarMinimizer } from '@coreui/react'
+import { AppHeader, AppFooter, AppSidebar, AppSidebarHeader, AppSidebarNav, AppSidebarMinimizer } from '@coreui/react'
 import { ToastContainer } from "react-toastify";
 
 import { search } from '../views/fase/faseActions'
@@ -14,49 +14,47 @@ import routes from '../router'
 import Header from './header'
 import Footer from './footer'
 import withAuth from '../components/withAuth'
-import If from '../components/if'
 
 import blackAvatar from '../assets/img/blankavatar.png'
 
 class FullLayout extends Component {
 	constructor(props) {
 		super(props)
-		this.state = { nav: { items: this.proccessNavigation() }}
+		this.state = { nav: { items: [] } }
 	}
-	componentDidMount() {
+	componentWillMount() {
 		this.props.search()
-		this.proccessNavigation()
 	}
-	componentWillReceiveProps() {
-		this.props.search()
-		this.proccessNavigation()
+	componentWillReceiveProps(nextProps) {
+		this.proccessNavigation(nextProps.fases)
 	}
-	proccessNavigation() {
-		let nav = []
+	proccessNavigation(fases) {
+		let navv = []
 		let newNavPalpites = []
-		nav.push(...navigationsLinks)
-		nav.push(...navigationsPalpites)
-		if (this.props.fases && this.props.fases.length > 0) {
-			this.props.fases.forEach(fase => {
-				//if (fase.status) {
-					newNavPalpites.push({
-						name: `${fase.nome}`,
-						url: `/palpite/${fase._id}`,
-						icon: 'fas fa-futbol',
-					})
-				//}
+
+		navv.push(...navigationsLinks)
+		navv.push(...navigationsPalpites)
+
+		fases.forEach(fase => {
+			//if (fase.status) {
+			newNavPalpites.push({
+				name: `${fase.nome}`,
+				url: `/palpite/${fase._id}`,
+				icon: 'fas fa-futbol',
 			})
+			//}
+		})
+
+		navv.push(...newNavPalpites)
+
+		if (this.props.getAuthenticatedUser().isAdmin) {
+			navv.push(...navigationsAdmin)
 		}
-		nav.push(...newNavPalpites)
-		if (this.props.user && this.props.user.isAdmin) {
-			nav.push(...navigationsAdmin)
-		}
-		console.log(nav)
-		this.setState({ items: nav})
+		this.setState({ nav: { items: navv } })
 	}
 	render() {
 		const navigation = this.state.nav
-		const user = this.props.user 
+		const user = this.props.getAuthenticatedUser()
 		return (
 			<div className='app'>
 				<ToastContainer />
@@ -66,12 +64,12 @@ class FullLayout extends Component {
 				<div className='app-body'>
 					<AppSidebar key={navigation} fixed display='lg'>
 						<AppSidebarHeader>
-							<div style={{ backgroundColor: '#494F54', padding: '20px' }}>
+							<div style={{ backgroundColor: '#494F54', padding: '10px' }}>
 								<div style={{ maxHeight: '70px', textAlign: 'left' }}>
-									<img alt='avatar' className='img-avatar' src={user ? user.avatar ? user.avatar : blackAvatar : blackAvatar} width='50px' height='50px' />
+									<img alt='avatar' className='img-avatar' src={user.avatar ? user.avatar : blackAvatar} width='50px' height='50px' />
 								</div>
 								<div style={{ maxHeight: '20px', minHeight: '20px', textAlign: 'left', marginTop: '5px', marginBottom: '10px' }}>
-									<span>{user ? user.nome : blackAvatar}</span>
+									<span>{user.name}</span>
 								</div>
 								<div style={{ maxHeight: '15px', minHeight: '15px', textAlign: 'left', marginBottom: '10px' }}>
 									<Badge color="success" style={{ marginRight: '10px' }}>
@@ -87,11 +85,7 @@ class FullLayout extends Component {
 								</div>
 							</div>
 						</AppSidebarHeader>
-						<AppSidebarForm />
-						<If test={this.props.fases.length > 0}>
-							<AppSidebarNav navConfig={navigation} />
-						</If>
-						<AppSidebarFooter />
+						<AppSidebarNav navConfig={navigation} />
 						<AppSidebarMinimizer />
 					</AppSidebar>
 					<main className='main'>
@@ -115,7 +109,7 @@ class FullLayout extends Component {
 	} yarn
 }
 
-const mapStateToProps = state => ({ user: state.userStore.loggedUser, fases: state.faseStore.fases })
+const mapStateToProps = state => ({ fases: state.faseStore.fases })
 const mapDispatchToProps = dispatch => bindActionCreators({ search }, dispatch)
 
 export default withAuth(connect(mapStateToProps, mapDispatchToProps)(FullLayout))

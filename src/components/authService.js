@@ -8,6 +8,7 @@ export default class AuthService {
 		this.fetch = this.fetch.bind(this)
 		this.login = this.login.bind(this)
 		this.logout = this.logout.bind(this)
+		this.getAuthenticatedUser = this.getAuthenticatedUser.bind(this)
 	}
 
 	login(username, password) {
@@ -42,8 +43,9 @@ export default class AuthService {
 		return localStorage.getItem('jwt_token')
 	}
 
-	logout() {
+	logout(callback) {
 		localStorage.removeItem('jwt_token');
+		callback()
 	}
 
 	getAuthenticatedUser() {

@@ -1,27 +1,31 @@
 import { USER_SEARCH, LOGIN, USER_UPDATE, USER_HANDLER } from './userActions'
 
-const initialState = { users: [], loggedUser: {} }
+const initialState = { users: [], user: {} }
 
 export default function (state = initialState, action) {
 	switch (action.type) {
-		case USER_SEARCH:
+		case LOGIN:
 			return {
 				...state,
-				users: action.payload.data
+				user: action.payload
 			};
-		case LOGIN:
 		case USER_UPDATE:
 			return {
 				...state,
-				loggedUser: action.payload.data
+				user: action.payload.data
 			};
 		case USER_HANDLER:
 			return {
 				...state,
 				loggedUser: {
-					...state.loggedUser,
+					...state.user,
 					[action.payload.name]: action.payload.value
 				}
+			};
+		case USER_SEARCH:
+			return {
+				...state,
+				users: action.payload.data
 			};
 		default:
 			return state;

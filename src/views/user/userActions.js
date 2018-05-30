@@ -15,8 +15,8 @@ export const USER_SEARCH = 'USER_SEARCH';
 export const USER_UPDATE = 'USER_UPDATE';
 export const USER_HANDLER = 'USER_HANDLER';
 
-export const loggedUser = user => {
-	return { type: LOGIN, payload: { data: user } }
+export const setUser = user => {
+	return { type: LOGIN, payload: user }
 }
 
 export const search = () => {

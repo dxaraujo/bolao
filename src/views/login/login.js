@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import { Form, Button, Card, CardBody, CardGroup, Col, Container, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
 
-import { loggedUser } from '../user/userActions'
+import { setUser } from '../user/userActions'
 import withAuth from '../../components/withAuth'
 
 class Login extends Component {
@@ -19,10 +19,7 @@ class Login extends Component {
 	handleSubmit(event) {
 		event.preventDefault();
 		this.props.login(this.state.username, this.state.password).then(user => {
-			this.props.login(user)
 			this.props.history.replace('/');
-		}).catch(err => {
-			alert(err);
 		})
 	}
 
@@ -87,6 +84,7 @@ class Login extends Component {
 	}
 }
 
-const mapDispatchToProps = dispatch => bindActionCreators({ loggedUser }, dispatch)
+const mapStateToProps = state => ({ user: state.userStore.user })
+const mapDispatchToProps = dispatch => bindActionCreators({ setUser }, dispatch)
 
-export default connect(mapDispatchToProps)(withAuth(Login))
+export default withAuth(connect(mapStateToProps, mapDispatchToProps)(Login))

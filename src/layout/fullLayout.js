@@ -23,13 +23,14 @@ class FullLayout extends Component {
 		this.state = { nav: { items: [] } }
 	}
 	componentWillMount() {
-		console.log("Chegou aqui")
 		this.props.search()
+
 	}
 	componentWillReceiveProps(nextProps) {
 		this.proccessNavigation(nextProps.fases)
 	}
 	proccessNavigation(fases) {
+
 		let navv = []
 		let newNavPalpites = []
 
@@ -37,13 +38,13 @@ class FullLayout extends Component {
 		navv.push(...navigationsPalpites)
 
 		fases.forEach(fase => {
-			//if (fase.status) {
-			newNavPalpites.push({
-				name: `${fase.nome}`,
-				url: `/palpite/${fase._id}`,
-				icon: 'fas fa-futbol',
-			})
-			//}
+			if (fase.status) {
+				newNavPalpites.push({
+					name: `${fase.nome}`,
+					url: `/palpite/${fase._id}`,
+					icon: 'fas fa-futbol',
+				})
+			}
 		})
 
 		navv.push(...newNavPalpites)
@@ -51,6 +52,7 @@ class FullLayout extends Component {
 		if (this.props.getAuthenticatedUser().isAdmin) {
 			navv.push(...navigationsAdmin)
 		}
+
 		this.setState({ nav: { items: navv } })
 	}
 	render() {
@@ -66,14 +68,14 @@ class FullLayout extends Component {
 					<AppSidebar key={navigation} fixed display='lg'>
 						<AppSidebarHeader>
 							<div style={{ backgroundColor: '#494F54', padding: '10px' }}>
-								<div style={{ maxHeight: '70px', textAlign: 'left' }}>
+								<div style={{ maxHeight: '50px', textAlign: 'left' }}>
 									<img alt='avatar' className='img-avatar' src={user.avatar ? user.avatar : blackAvatar} width='50px' height='50px' />
 								</div>
-								<div style={{ maxHeight: '20px', minHeight: '20px', textAlign: 'left', marginTop: '5px', marginBottom: '10px' }}>
+								<div style={{ maxHeight: '15px', minHeight: '15px', textAlign: 'left', marginTop: '5px', marginBottom: '5px' }}>
 									<span>{user.name}</span>
 								</div>
-								<div style={{ maxHeight: '15px', minHeight: '15px', textAlign: 'left', marginBottom: '10px' }}>
-									<Badge color="success" style={{ marginRight: '10px' }}>
+								<div style={{ maxHeight: '10px', minHeight: '10px', textAlign: 'left', marginBottom: '5px' }}>
+									<Badge color="success" style={{ marginRight: '5px' }}>
 										<a href='/dashboard' className='badgeLink'>
 											Trocar Senha
 										</a>

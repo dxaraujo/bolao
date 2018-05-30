@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import AuthService from './authService'
 
 const withAuth = (Comp) => {
+	let authenticated = false
 	const authService = new AuthService();
 	return class Authenticated extends Component {
 		constructor(props) {
@@ -19,17 +20,21 @@ const withAuth = (Comp) => {
 			if (pathname !== '/login' && pathname !== '/signup' && pathname !== '/validateToken') {
 				if (!this.authService.loggedIn()) {
 					this.props.history.replace('/login')
+				} else {
+					authenticated = true
 				}
+			} else {
+				authenticated = true
 			}
 		}
 		render() {
-			return (
+			return authenticated ? (
 				<Comp {...this.authService}
 					history={this.props.history}
 					location={this.props.location}
 					match={this.props.match}
 				/>
-			)
+			) : null
 		}
 	}
 }

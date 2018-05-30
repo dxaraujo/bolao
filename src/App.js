@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom'
 
 import FullLayout from './layout/fullLayout'
 import { Login } from './views'
@@ -29,6 +29,7 @@ class App extends Component {
 				<Switch>
 					<Route path='/login' component={Login} />
 					<Route path='/' component={FullLayout} />
+					<Redirect from="*" to="/" />
 				</Switch>
 			</Router>
 		)

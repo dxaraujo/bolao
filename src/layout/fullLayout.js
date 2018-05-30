@@ -48,7 +48,9 @@ class FullLayout extends Component {
 			})
 		}
 		nav.push(...newNavPalpites)
-		nav.push(...navigationsAdmin)
+		if (this.props.user && this.props.user.isAdmin) {
+			nav.push(...navigationsAdmin)
+		}
 		console.log(nav)
 		this.setState({ items: nav})
 	}

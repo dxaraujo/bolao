@@ -25,11 +25,11 @@ class FullLayout extends Component {
 	}
 	componentDidMount() {
 		this.props.search()
-		proccessNavigation()
+		this.proccessNavigation()
 	}
 	componentWillReceiveProps() {
 		this.props.search()
-		proccessNavigation()
+		this.proccessNavigation()
 	}
 	proccessNavigation() {
 		let nav = []
@@ -58,13 +58,13 @@ class FullLayout extends Component {
 		const navigation = this.state.nav
 		const user = this.props.user 
 		return (
-			<div key={navigation} className='app'>
+			<div className='app'>
 				<ToastContainer />
 				<AppHeader fixed>
 					<Header {...this.props} />
 				</AppHeader>
 				<div className='app-body'>
-					<AppSidebar fixed display='lg'>
+					<AppSidebar key={navigation} fixed display='lg'>
 						<AppSidebarHeader>
 							<div style={{ backgroundColor: '#494F54', padding: '20px' }}>
 								<div style={{ maxHeight: '70px', textAlign: 'left' }}>

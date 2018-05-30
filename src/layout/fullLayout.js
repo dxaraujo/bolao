@@ -25,18 +25,18 @@ class FullLayout extends Component {
 	}
 	componentDidMount() {
 		this.props.search()
-		this.setState({ nav: { items: this.proccessNavigation() }})
+		proccessNavigation()
 	}
 	componentWillReceiveProps() {
 		this.props.search()
-		this.setState({ nav: { items: this.proccessNavigation() }})
+		proccessNavigation()
 	}
 	proccessNavigation() {
 		let nav = []
 		let newNavPalpites = []
 		nav.push(...navigationsLinks)
 		nav.push(...navigationsPalpites)
-		if (this.props.fases && this.props.fases.lenth > 0) {
+		if (this.props.fases && this.props.fases.length > 0) {
 			this.props.fases.forEach(fase => {
 				//if (fase.status) {
 					newNavPalpites.push({
@@ -50,7 +50,7 @@ class FullLayout extends Component {
 		nav.push(...newNavPalpites)
 		nav.push(...navigationsAdmin)
 		console.log(nav)
-		return nav
+		this.setState({ items: nav})
 	}
 	render() {
 		const navigation = this.state.nav

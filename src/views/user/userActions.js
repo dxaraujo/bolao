@@ -1,15 +1,7 @@
 import backendURI from '../../config'
+import authFetch from '../../utils/fetchUtil'
 
 const URL = `${backendURI}/api/user`
-
-const authFetch = (url, options) => {
-	const headers = { 'Accept': 'application/json', 'Content-Type': 'application/json' }
-	const token = localStorage.getItem('jwt_token')
-	if (token) {
-		headers['Authorization'] = 'Bearer ' + token
-	}
-	return fetch(url, { headers, ...options }).then(response => response.json())
-}
 
 const submit = (user, method, action) => {
 	const id = user._id ? user._id : ''

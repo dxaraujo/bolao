@@ -51,27 +51,32 @@ class TimeList extends Component {
 		const times = this.props.times
 		return (
 			<Card>
-				<CardHeader>Lista de Times</CardHeader>
+				<CardHeader>
+					Lista de Times
+					<Button color='success' size='sm' className='float-right mb-0' onClick={this.create}>
+						<i className='fas fa-plus-circle'></i> Adicionar
+					</Button>
+				</CardHeader>
 				<CardBody style={{ padding: '0px' }}>
 					<Table responsive striped borderless>
 						<thead>
-							<tr className='d-flex'>
-								<th className='text-center col-1'>#</th>
-								<th className='col-5'>Nome</th>
-								<th className='col-2'>Sigla</th>
-								<th className='text-center col-2'>Bandeira</th>
-								<th className='text-center col-2'></th>
+							<tr className='gridTime'>
+								<th className='text-center'>#</th>
+								<th>Nome</th>
+								<th className='text-center'>Sigla</th>
+								<th className='text-center'>Bandeira</th>
+								<th className='text-center'></th>
 							</tr>
 						</thead>
 						<tbody>
 							{times.map((time, idx) => {
 								return (
-									<tr key={idx} className='d-flex'>
-										<td className='text-center col-1'>{idx + 1}</td>
-										<td className='col-5'>{time.nome}</td>
-										<td className='col-2'>{time.sigla}</td>
-										<td className='text-center col-2'><i className={`flag-icon flag-icon-${time.bandeira} h4`} style={{ margin: '0px' }}></i></td>
-										<td className='text-center col-2'>
+									<tr key={idx} className='gridTime'>
+										<td className='text-center'>{idx + 1}</td>
+										<td>{time.nome}</td>
+										<td className='text-center'>{time.sigla}</td>
+										<td className='text-center'><i className={`flag-icon flag-icon-${time.bandeira} h4`} style={{ margin: '0px' }}></i></td>
+										<td className='text-center'>
 											<ButtonGroup>
 												<Button size='sm' color='success' onClick={() => this.update(time)}>
 													<i className='fas fa-edit'></i>
@@ -87,11 +92,6 @@ class TimeList extends Component {
 						</tbody>
 					</Table>
 				</CardBody>
-				<CardFooter className='app-card-footer d-flex flex-row-reverse'>
-					<Button color='success' size='sm' onClick={this.create}>
-						<i className='fas fa-plus-circle'></i> Adicionar
-					</Button>
-				</CardFooter>
 			</Card>
 		)
 	}

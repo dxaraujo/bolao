@@ -90,3 +90,15 @@ footer {
 	font-size: 0.7rem;
 	grid-column: 1/8;
 }
+
+.gridTime {
+	display: grid;
+	grid-template-columns: 1fr 50fr 10fr 10fr 7fr;
+	align-items: center;
+}
+
+.gridPartidas {
+	justify-self: center;
+	font-size: 0.7rem;
+	grid-column: 1/8;
+}

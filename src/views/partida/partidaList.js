@@ -62,7 +62,12 @@ class PartidaList extends Component {
 		const partidas = this.props.partidas
 		return (
 			<Card>
-				<CardHeader>Lista de Partidas</CardHeader>
+				<CardHeader>
+					Lista de Partidas
+					<Button color='success' size='sm' className='float-right mb-0' onClick={this.create}>
+						<i className='fas fa-plus-circle'></i> Adicionar
+					</Button>
+				</CardHeader>
 				<CardBody style={{ padding: '0px' }}>
 					<Table responsive striped borderless>
 						<thead>
@@ -107,9 +112,6 @@ class PartidaList extends Component {
 					</Table>
 				</CardBody>
 				<CardFooter className='app-card-footer d-flex flex-row-reverse'>
-					<Button color='success' size='sm' onClick={this.create}>
-						<i className='fas fa-plus-circle'></i> Adicionar
-					</Button>
 				</CardFooter>
 			</Card>
 		)

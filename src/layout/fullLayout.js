@@ -41,7 +41,7 @@ class FullLayout extends Component {
 			if (fase.status) {
 				newNavPalpites.push({
 					name: `${fase.nome}`,
-					url: `/palpite/${fase._id}`,
+					url: `/palpite/${fase.nome}`,
 					icon: 'fas fa-futbol',
 				})
 			}

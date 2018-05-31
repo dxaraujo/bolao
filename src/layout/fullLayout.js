@@ -14,6 +14,7 @@ import routes from '../router'
 import Header from './header'
 import Footer from './footer'
 import withAuth from '../components/withAuth'
+import If from '../components/if'
 
 import blackAvatar from '../assets/img/blankavatar.png'
 
@@ -58,6 +59,9 @@ class FullLayout extends Component {
 	render() {
 		const navigation = this.state.nav
 		const user = this.props.getAuthenticatedUser()
+		console.log(user.name)
+		console.log(user.username)
+		console.log(user.avatar)
 		return (
 			<div className='app'>
 				<ToastContainer />
@@ -67,24 +71,15 @@ class FullLayout extends Component {
 				<div className='app-body'>
 					<AppSidebar key={navigation} fixed display='lg'>
 						<AppSidebarHeader>
-							<div style={{ backgroundColor: '#494F54', padding: '10px' }}>
-								<div style={{ maxHeight: '50px', textAlign: 'left' }}>
-									<img alt='avatar' className='img-avatar' src={user.avatar ? user.avatar : blackAvatar} width='50px' height='50px' />
-								</div>
-								<div style={{ maxHeight: '15px', minHeight: '15px', textAlign: 'left', marginTop: '5px', marginBottom: '5px' }}>
-									<span>{user.name}</span>
-								</div>
-								<div style={{ maxHeight: '10px', minHeight: '10px', textAlign: 'left', marginBottom: '5px' }}>
-									<Badge color="success" style={{ marginRight: '5px' }}>
-										<a href='/dashboard' className='badgeLink'>
-											Trocar Senha
-										</a>
-									</Badge>
-									<Badge color="primary" style={{ color: 'white !important' }}>
-										<a href='/dashboard' className='badgeLink'>
-											Trocar Avatar
-										</a>
-									</Badge>
+							<div style={{ backgroundColor: '#494F54', padding: '10px 5px 10px 5px'}}>
+								<div style={{display: 'grid', gridTemplateColumns: '50px 5px 1fr', alignItems: 'center'}}>
+									<div>
+										<img alt='avatar' className='img-avatar' src={user.avatar ? user.avatar : blackAvatar} />
+									</div>
+									<div/>
+									<div>
+										<span className='d-block' style={{ textAlign: 'left'}}>  {user.name}</span>
+									</div>
 								</div>
 							</div>
 						</AppSidebarHeader>

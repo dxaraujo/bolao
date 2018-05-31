@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
+import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 
 import { Form, Button, Card, CardBody, CardGroup, Col, Container, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
 
@@ -12,8 +13,9 @@ class Login extends Component {
 	constructor(props) {
 		super(props)
 		this.state = { username: null, password: null }
-		this.handleSubmit = this.handleSubmit.bind(this)
+		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleChange = this.handleChange.bind(this);
+		this.callbackFacebookLogin = this.callbackFacebookLogin.bind(this);
 	}
 
 	handleSubmit(event) {
@@ -21,6 +23,10 @@ class Login extends Component {
 		this.props.login(this.state.username, this.state.password).then(user => {
 			this.props.history.replace('/');
 		})
+	}
+
+	callbackFacebookLogin() {
+		this.props.history.replace('/');
 	}
 
 	handleChange(event) {
@@ -55,11 +61,24 @@ class Login extends Component {
 												</InputGroupAddon>
 												<Input type="password" placeholder="Password" name="password" onChange={this.handleChange} />
 											</InputGroup>
-											<Row>
-												<Col xs="6">
-													<Button color="primary" className="px-4" type="submit" onClick={this.handleSubmit}>Login</Button>
+											<Row style={{marginBottom: '5px'}}>
+												<Col xs="12">
+													<Button color="primary" type="submit" className='btn-block' onClick={this.handleSubmit}>Login</Button>
 												</Col>
-												<Col xs="6" className="text-right">
+											</Row>
+											<Row style={{marginBottom: '5px'}}>
+												<Col xs="12" className='d-lg-none'>
+													<FacebookLogin
+														appId="185587412097498"
+														autoLoad={true}
+														fields="name,email,picture"
+														callback={content => this.props.loginWithFacebook(content, this.callbackFacebookLogin)}
+														render={renderProps => <Button color='primary' className='btn-block' onClick={renderProps.onClick}><i className="fab fa-facebook-f"/><span>  Facebook</span></Button>}
+													/>
+												</Col>
+											</Row>
+											<Row>
+												<Col xs="12">
 													<Button color="link" className="px-0">Esqueceu a senha?</Button>
 												</Col>
 											</Row>
@@ -69,9 +88,15 @@ class Login extends Component {
 								<Card className="text-white bg-primary py-5 d-md-down-none" style={{ width: 44 + '%' }}>
 									<CardBody className="text-center">
 										<div>
-											<h2>Criar um nova conta</h2>
-											<p>Que pena esse é um grupo privado, entre em contato com o administrador do grupo.</p>
-											<Button color="primary" className="mt-3" active>Criar agora!, só que não</Button>
+											<h2>Login com Facebook Dispo'nivel</h2>
+											<p>Agora você pode fazer o login usando Facebook</p>
+											<FacebookLogin
+												appId="185587412097498"
+												autoLoad={true}
+												fields="name,email,picture"
+												callback={this.props.loginWithFacebook}
+												render={renderProps => <Button color='primary' className='btn-block' onClick={renderProps.onClick}><i className="fab fa-facebook-f"/><span>  Facebook</span></Button>}
+											/>
 										</div>
 									</CardBody>
 								</Card>

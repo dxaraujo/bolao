@@ -105,8 +105,12 @@ footer {
 
 .gridUsers {
 	display: grid;
-	grid-template-columns: 45px 45px 54px auto 75px;
+	grid-template-columns: 25px 25px 54px auto 73px;
 	align-items: center;
+}
+
+.gridUsers td {
+	padding: 7px 2px 7px 2px
 }
 
 .goldTrophy {

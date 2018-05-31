@@ -15,21 +15,13 @@ class Palpite extends Component {
 		this.props.montarGrupos(user._id, this.props.fase)
 	}
 	handleKeyDown = (event) => {
-		if (event.key === 'Tab') {
-			event.preventDefault();
-			const form = event.target.form;
-			const index = Array.prototype.indexOf.call(form, event.target);
-			if (index < (form.elements.length - 1)) {
-				form.elements[index + 1].focus();
-			}
-		}
+		const form = event.target.form;
+		const index = Array.prototype.indexOf.call(form, event.target);
 		if (event.key === 'Backspace') {
 			if (event.target.value === '') {
-				event.preventDefault();
-				const form = event.target.form;
-				const index = Array.prototype.indexOf.call(form, event.target);
 				if (index > 1) {
 					form.elements[index - 1].focus();
+					event.preventDefault();
 				}
 			}
 		}
@@ -39,11 +31,9 @@ class Palpite extends Component {
 			event.key === '6' || event.key === '7' ||
 			event.key === '8' || event.key === '9') {
 			if (event.target.value !== '') {
-				event.preventDefault();
-				const form = event.target.form;
-				const index = Array.prototype.indexOf.call(form, event.target);
 				form.elements[index + 1].value = event.key
 				form.elements[index + 1].focus();
+				event.preventDefault();
 			}
 		}
 	}
@@ -72,7 +62,7 @@ class Palpite extends Component {
 									<CardHeader className='text-center bg-light-blue text-white h5'>
 										{grupo.nome}
 										<Button size='sm' color='success' className='float-right'>
-											<i className='fas fa-plus-circle'></i>  Salvar
+											<i className='fas fa-save'></i>  Salvar
 										</Button>
 									</CardHeader>
 									<CardBody className='card-body-grupos'>

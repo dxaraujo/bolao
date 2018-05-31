@@ -5,62 +5,71 @@ import { connect } from 'react-redux';
 import moment from 'moment'
 
 import { Card, CardHeader, CardBody, Input, Button } from 'reactstrap'
-import If from '../../components/if'
 
-import { montarGrupos } from './palpiteActions'
+import { montarGrupos, handleChange, updateAll } from './palpiteActions'
 
 class Palpite extends Component {
 	componentWillMount() {
 		const user = this.props.getAuthenticatedUser()
 		this.props.montarGrupos(user._id, this.props.fase)
 	}
-	handleKeyDown = (event) => {
+	handleKeyDown = (event, palpite) => {
+		const name = event.target.name;
 		const form = event.target.form;
 		const index = Array.prototype.indexOf.call(form, event.target);
 		if (event.key === 'Backspace') {
 			if (event.target.value === '') {
+				event.preventDefault()
 				if (index > 1) {
+					this.props.handleChange(name, '', palpite, this.props.grupos)
 					form.elements[index - 1].focus();
-					event.preventDefault();
 				}
-			}
-		}
-		if (event.key === '0' || event.key === '1' ||
-			event.key === '2' || event.key === '3' ||
-			event.key === '4' || event.key === '5' ||
-			event.key === '6' || event.key === '7' ||
-			event.key === '8' || event.key === '9') {
-			if (event.target.value !== '') {
-				form.elements[index + 1].value = event.key
-				form.elements[index + 1].focus();
-				event.preventDefault();
 			}
 		}
 	}
 	handleChange = (event, palpite) => {
+		event.preventDefault()
 		const value = event.target.value
-		if (value != '0' && value != '1' &&
-			value != '2' && value != '3' &&
-			value != '4' && value != '5' &&
-			value != '6' && value != '7' &&
-			value != '8' && value != '9') {
-			event.target.value = ''
-		} else {
-			console.log(palpite)
+		if (value === '0' || value === '1' ||
+			value === '2' || value === '3' ||
+			value === '4' || value === '5' ||
+			value === '6' || value === '7' ||
+			value === '8' || value === '9' ||
+			value === '' || value === null || value === undefined) {
+			this.props.handleChange(event.target.name, value, palpite)
+			if (value !== '') {
+				const form = event.target.form;
+				const index = Array.prototype.indexOf.call(form, event.target);
+				form.elements[index + 1].focus();
+			}
 		}
 	}
+	handleClick = event => {
+		event.preventDefault()
+		let palpites = []
+		this.props.grupos.forEach(grupo => {
+			grupo.rodadas.forEach(rodada => {
+				rodada.palpites.forEach(palpite => {
+					palpites.push(palpite)
+				})
+			})
+		});
+		console.log('chamou')
+		const user = this.props.getAuthenticatedUser()
+		this.props.updateAll(palpites, user._id, this.props.fase)
+	}
 	render() {
-		const palpites = this.props.grupos
+		const grupos = this.props.grupos
 		return (
 			<div className='row'>
 				<form style={{width: '100%', height: '100%', display: 'contents'}}>
-					{palpites.map((grupo, idx) => {
+					{grupos.map((grupo, idx) => {
 						return (
 							<div key={idx} className='col-sm-12 col-md-6 col-lg-4'>
 								<Card>
 									<CardHeader className='text-center bg-light-blue text-white h5'>
 										{grupo.nome}
-										<Button size='sm' color='success' className='float-right'>
+										<Button size='sm' color='success' className='float-right' onClick={this.handleClick}>
 											<i className='fas fa-save'></i>  Salvar
 										</Button>
 									</CardHeader>
@@ -79,11 +88,11 @@ class Palpite extends Component {
 																	<i className={`bandeiraTimeA flag-icon flag-icon-${palpite.partida.timeA.bandeira} h3`} />
 																</div>
 																<div className='palpiteTimeA'>
-																	<Input name='timeA' type='text' className='palpiteTimeA' maxLength='1' value={palpite.placarTimeA} onKeyDown={this.handleKeyDown} onChange={(e) => this.handleChange(e, palpite)} />
+																	<Input name='placarTimeA' type='text' className='palpiteTimeA' maxLength='1' value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
 																</div>
 																<div className='divisorPalpite'>x</div>
 																<div className='palpiteTimeB'>
-																	<Input name='timeB' type='text' className='palpiteTimeB' maxLength='1' value={palpite.placarTimeB} onKeyDown={this.handleKeyDown} onChange={(e) => this.handleChange(e, palpite)} />
+																	<Input name='placarTimeB' type='text' className='palpiteTimeB' maxLength='1' value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
 																</div>
 																<div className='bandeiraTimeB'>
 																	<i className={`bandeiraTimeB flag-icon flag-icon-${palpite.partida.timeB.bandeira} h3`} />
@@ -112,6 +121,6 @@ class Palpite extends Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({ grupos: state.palpiteStore.grupos, fase: ownProps.match.params.fase })
-const mapDispatchToProps = dispatch => bindActionCreators({ montarGrupos }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ montarGrupos, handleChange, updateAll }, dispatch)
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Palpite))

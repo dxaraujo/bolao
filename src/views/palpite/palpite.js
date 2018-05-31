@@ -50,11 +50,10 @@ class Palpite extends Component {
 		}
 	}
 	render() {
-		console.log(this.props.palpites)
 		const palpites = this.props.grupos
 		return (
 			<div className='row'>
-				<form>
+				<form style={{width: '100%', height: '100%', display: 'contents'}}>
 					{palpites.map((grupo, idx) => {
 						return (
 							<div key={idx} className='col-sm-12 col-md-6 col-lg-4'>

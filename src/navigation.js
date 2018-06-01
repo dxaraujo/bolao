@@ -1,12 +1,12 @@
 const navigationsLinks = [{
-		name: 'Dashboard',
-		url: '/dashboard',
-		icon: 'fas fa-tachometer-alt'
-	}, {
-		name: 'Classificação',
-		url: '/classificacao',
-		icon: 'fas fa-star'
-	}
+	name: 'Dashboard',
+	url: '/dashboard',
+	icon: 'fas fa-tachometer-alt'
+}, {
+	name: 'Classificação',
+	url: '/classificacao',
+	icon: 'fas fa-star'
+}
 ]
 
 const navigationsPalpites = [
@@ -31,7 +31,7 @@ const navigationsAdmin = [
 	}, {
 		name: 'Resultado',
 		url: '/resultado',
-		icon: 'fas fa-clipboard-check'
+		icon: 'fas fa-database'
 	}
 ]
 

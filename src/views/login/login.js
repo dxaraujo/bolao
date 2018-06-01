@@ -48,7 +48,7 @@ class Login extends Component {
 								<Card className="p-4">
 									<CardBody>
 										<Row style={{ marginBottom: '5px' }}>
-											<span>{this.state.error}</span>
+											<span>{this.state.error || ' '}</span>
 										</Row>
 										<Row style={{ marginBottom: '5px', textAlign: 'center' }}>
 											<Col xs="12">

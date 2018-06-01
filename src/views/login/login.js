@@ -9,7 +9,7 @@ import logo from '../../assets/img/brand/logo.png'
 class Login extends Component {
 	constructor(props) {
 		super(props)
-		this.state = { error: {} }
+		this.state = { error: '' }
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleChange = this.handleChange.bind(this);
 	}

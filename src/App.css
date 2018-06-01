@@ -109,9 +109,18 @@ footer {
 	align-items: center;
 }
 
-.gridUsers td,
-.gridUsers th {
-	padding: 5px
+@media (max-width: 575.98px) {
+	.gridUsers td,
+	.gridUsers th {
+		padding: 5px
+	}
+}
+
+@media (max-width: 767.98px) {
+	.gridUsers td,
+	.gridUsers th {
+		padding: 5px
+	}
 }
 
 .goldTrophy {

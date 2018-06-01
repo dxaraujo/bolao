@@ -70,7 +70,6 @@ class Login extends Component {
 												<Col xs="12" className='d-lg-none'>
 													<FacebookLogin
 														appId="185587412097498"
-														autoLoad={true}
 														fields="name,email,picture"
 														callback={content => this.props.loginWithFacebook(content, this.callbackFacebookLogin)}
 														render={renderProps => <Button color='primary' className='btn-block' onClick={renderProps.onClick}><i className="fab fa-facebook-f"/><span>  Facebook</span></Button>}

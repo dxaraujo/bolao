@@ -1,5 +1,5 @@
 import decode from 'jwt-decode';
-import backendURI from '../config'
+import { backendURI } from '../config'
 
 export default class AuthService {
 

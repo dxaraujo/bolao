@@ -1,9 +1,11 @@
 import React, { Component } from 'react'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
+import { rootUser } from '../../config'
 
 import { ButtonGroup, Button, CustomInput } from 'reactstrap'
-import { handleChange } from './userActions' 
+import { reset, handleChange } from './userActions' 
+import If from '../../components/if'
 
 import blackAvatar from '../../assets/img/blankavatar.png'
 
@@ -14,9 +16,11 @@ const ReadOnlyRow = ({ idx, user, edit }) => (
 		<td>{user.name}</td>
 		<td className='text-center'><i className={`fas fa-check text-${user.isAdmin ? 'success' : 'secondary'}`}></i></td>
 		<td className='text-center'>
-			<Button className='text-white' size='sm' color='warning' onClick={edit}>
-				<i className='fas fa-edit'></i>
-			</Button>
+			<If test={!(rootUser === user.username)}>
+				<Button className='text-white' size='sm' color='warning' onClick={edit}>
+					<i className='fas fa-edit'></i>
+				</Button>
+			</If>
 		</td>
 	</tr>
 )
@@ -43,7 +47,7 @@ const EditableRow = ({ idx, user, handleChange, save, cancel }) => (
 class UserForm extends Component {
 	constructor(props) {
 		super(props)
-		this.state = { isReadOnly: true }
+		this.state = props.selectedUser ? { isReadOnly: false } : { isReadOnly: true }
 		this.save = this.save.bind(this)
 		this.edit = this.edit.bind(this)
 		this.cancel = this.cancel.bind(this)
@@ -54,6 +58,7 @@ class UserForm extends Component {
 	}
 	cancel() {
 		this.setState({ isReadOnly: true })
+		this.props.reset()
 	}
 	save(user) {
 		this.setState({ isReadOnly: true })
@@ -61,17 +66,18 @@ class UserForm extends Component {
 	}
 	handleChange(event, user) {
 		user.isAdmin = event.target.checked
-		this.props.handleChange(user)
+		this.props.handleChange(user, this.props.users)
 	}
 	render() {
 		const { index, user } = this.props
+		console.log(this.state)
 		return this.state.isReadOnly ?
 			<ReadOnlyRow idx={index} user={user} edit={this.edit} /> :
 			<EditableRow idx={index} user={user} handleChange={this.handleChange} save={this.save} cancel={this.cancel} />
 	}
 }
 
-const mapStateToProps = state => ({})
-const mapDispatchToProps = dispatch => bindActionCreators({ handleChange }, dispatch)
+const mapStateToProps = state => ({ users: state.userStore.users, selectedUser: state.userStore.selectedUser })
+const mapDispatchToProps = dispatch => bindActionCreators({ reset, handleChange }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserForm)

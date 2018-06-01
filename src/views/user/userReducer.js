@@ -1,6 +1,6 @@
-import { USER_SEARCH, LOGIN, USER_UPDATE, SELECT_USER } from './userActions'
+import { USER_SEARCH, LOGIN, USER_UPDATE, USER_SELECT, USER_RESET } from './userActions'
 
-const initialState = { users: [], user: {}, selectedUser: {} }
+const initialState = { users: [], user: {}, selectedUser: null }
 
 export default function (state = initialState, action) {
 	switch (action.type) {
@@ -14,29 +14,23 @@ export default function (state = initialState, action) {
 				...state,
 				users: action.payload.data
 			};
-		case SELECT_USER:
-			const user = action.payload.data
-			const newUsers = updateUser(user, state.users)
+		case USER_SELECT:
 			return {
 				...state,
-				users: newUsers,
-				selectedUser: user
+				users: action.payload.users,
+				selectedUser: action.payload.user
 			};
 		case USER_UPDATE:
 			return {
 				...state,
 				selectedUser: action.payload.data
 			};
+		case USER_RESET:
+			return {
+				...state,
+				selectedUser: initialState.selectedUser
+			};
 		default:
 			return state;
 	}
-}
-
-const updateUser = (user, users) => {
-	for(let i; i < users.length; i++) {
-		if (users[i]._id = user._id) {
-			users[i].isAdmin = user.isAdmin
-		}
-	}
-	return users
 }

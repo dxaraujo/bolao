@@ -11,19 +11,25 @@ import { search, update } from '../user/userActions'
 class Users extends Component {
 	constructor(props) {
 		super(props)
+		this.state = { users: [] }
 		this.update = this.update.bind(this)
 	}
 	componentWillMount() {
 		this.props.search()
 	}
-	c
+	componentWillReceiveProps(nextProps) {
+		const antes = JSON.stringify(this.props.users)
+		const depois = JSON.stringify(nextProps.users)
+		if(!antes.valueOf () !== depois.valueOf()) {
+			this.setState({users: nextProps.users})
+		}
+	}
 	update(user) {
-		console.log('chamou')
 		this.props.update(user)
 		toast.success('Usuário atualizado com sucesso, as alterações entraram em vigor no próximo login');
 	}
 	render() {
-		const users = this.props.users
+		const users = this.state.users
 		return (
 			<Card>
 				<CardHeader>
@@ -41,11 +47,7 @@ class Users extends Component {
 							</tr>
 						</thead>
 						<tbody>
-							{users.map((user, idx) => {
-								return (
-									<UserForm key={user} index={idx} user={user} update={this.update} />
-								)
-							})}
+							{users.map((user, idx) => (<UserForm key={user.isAdmin} index={idx} user={user} update={this.update} />))}
 						</tbody>
 					</Table>
 				</CardBody>
@@ -54,7 +56,7 @@ class Users extends Component {
 	}
 }
 
-const mapStateToProps = state => ({ users: state.userStore.users })
+const mapStateToProps = state => ({ users: state.userStore.users, selectedUser: state.userStore.selectedUser })
 const mapDispatchToProps = dispatch => bindActionCreators({ search, update }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Users)

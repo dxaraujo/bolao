@@ -1,4 +1,4 @@
-import backendURI from '../../config'
+import { backendURI } from '../../config'
 import authFetch from '../../utils/fetchUtil'
 
 const URL = `${backendURI}/api/fase`

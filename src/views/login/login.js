@@ -44,6 +44,7 @@ class Login extends Component {
 													appId="393226907829156"
 													fields="id, name,email,picture"
 													autoLoad={false}
+													redirectUri={`${this.props.location.url}/login`}
 													textButton={' Entrar com Facebook'}
 													callback={this.loginWithFacebook}
 													cssClass="btn btn-primary btn-lg mt-3"

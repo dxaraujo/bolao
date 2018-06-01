@@ -28,7 +28,6 @@ class Login extends Component {
 	}
 
 	render() {
-		console.log(this.props)
 		return (
 			<div className="app flex-row align-items-center">
 				<Container>
@@ -44,7 +43,7 @@ class Login extends Component {
 													appId="393226907829156"
 													fields="id, name,email,picture"
 													autoLoad={false}
-													redirectUri={`${this.props.location.url}/login`}
+													redirectUri={`${this.props.url}/login`}
 													textButton={' Entrar com Facebook'}
 													callback={this.loginWithFacebook}
 													cssClass="btn btn-primary btn-lg mt-3"

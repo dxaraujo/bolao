@@ -54,7 +54,6 @@ class Palpite extends Component {
 				})
 			})
 		});
-		console.log('chamou')
 		const user = this.props.getAuthenticatedUser()
 		this.props.updateAll(palpites, user._id, this.props.fase)
 	}
@@ -62,7 +61,7 @@ class Palpite extends Component {
 		const grupos = this.props.grupos
 		return (
 			<div className='row'>
-				<form style={{width: '100%', height: '100%', display: 'contents'}}>
+				<form style={{ width: '100%', height: '100%', display: 'contents' }}>
 					{grupos.map((grupo, idx) => {
 						return (
 							<div key={idx} className='col-sm-12 col-md-6 col-lg-4'>

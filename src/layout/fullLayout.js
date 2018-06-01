@@ -58,9 +58,6 @@ class FullLayout extends Component {
 	render() {
 		const navigation = this.state.nav
 		const user = this.props.getAuthenticatedUser()
-		console.log(user.name)
-		console.log(user.username)
-		console.log(user.avatar)
 		return (
 			<div className='app'>
 				<ToastContainer />
@@ -70,14 +67,14 @@ class FullLayout extends Component {
 				<div className='app-body'>
 					<AppSidebar key={navigation} fixed display='lg'>
 						<AppSidebarHeader>
-							<div style={{ backgroundColor: '#494F54', padding: '10px 5px 10px 5px'}}>
-								<div style={{display: 'grid', gridTemplateColumns: '50px 5px 1fr', alignItems: 'center'}}>
+							<div style={{ backgroundColor: '#494F54', padding: '10px 5px 10px 5px' }}>
+								<div style={{ display: 'grid', gridTemplateColumns: '50px 5px 1fr', alignItems: 'center' }}>
 									<div>
 										<img alt='avatar' className='img-avatar' src={user.avatar ? user.avatar : blackAvatar} />
 									</div>
-									<div/>
+									<div />
 									<div>
-										<span className='d-block' style={{ textAlign: 'left'}}>  {user.name}</span>
+										<span className='d-block' style={{ textAlign: 'left' }}>  {user.name}</span>
 									</div>
 								</div>
 							</div>

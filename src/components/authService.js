@@ -19,30 +19,25 @@ export default class AuthService {
 			body: JSON.stringify({ username, password })
 		}).then(res => {
 			this.setToken(res.token)
-			const user =  decode(res.token);
+			const user = decode(res.token);
 			this.setAuthenticatedUser(user)
 			return Promise.resolve(res);
 		})
 	}
 
 	loginWithFacebook(content, callback) {
-		console.log(content)
-		const user = {facebookId: content.id, name: content.name, username: content.email, avatar: content.picture.data.url }
-		console.log(user)
+		const user = { facebookId: content.id, name: content.name, username: content.email, avatar: content.picture.data.url }
 		this.setFacebookToken(content.accessToken)
-		this.setAuthenticatedUser(user)
 		this.registerFacebookUser(user, callback)
-
 	}
 
 	registerFacebookUser(user, callback) {
 		return this.fetch('registerfacebookuser', {
 			method: 'POST',
-			body: JSON.stringify({ ...user, password: 'facebookMesa5@', confirmPassword: 'facebookMesa5@'})
+			body: JSON.stringify({ ...user, password: 'facebookMesa5@', confirmPassword: 'facebookMesa5@' })
 		}).then(res => {
 			this.setToken(res.token)
-			const user =  decode(res.token)
-			console.log(user)
+			const user = decode(res.token)
 			this.setAuthenticatedUser(user)
 			callback()
 		})

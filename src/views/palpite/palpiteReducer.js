@@ -10,8 +10,7 @@ export default function (state = initialState, action) {
 				grupos: action.payload.data
 			};
 		case UPDATE_PALPITES:
-			console.log(action.payload.data)
-			return {...state};
+			return { ...state };
 		case PALPITE_HANDLER:
 			return {
 				...state,
@@ -27,8 +26,6 @@ const update = (grupos, palpite, name, value) => {
 		grupo.rodadas.forEach(rodada => {
 			rodada.palpites.forEach(palp => {
 				if (palp._id === palpite._id) {
-					console.log(name)
-					console.log(value)
 					palp[name] = value
 				}
 			})

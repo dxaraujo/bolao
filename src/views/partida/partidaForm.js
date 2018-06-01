@@ -20,8 +20,6 @@ class PartidaForm extends Component {
 		event.preventDefault()
 		const partida = this.props.partida
 		partida.data = moment.parseZone(partida.data2, 'DD/MM/YYYY hh:mm:ss')
-		console.log(partida.data)
-		console.log(partida)
 		if (partida._id) {
 			this.props.update(partida)
 			toast.success('Partida atualizada com sucesso');
@@ -177,7 +175,7 @@ class PartidaForm extends Component {
 	}
 }
 
-const mapStateToProps = state => ({ partida: state.partidaStore.partida, times : state.timeStore.times })
+const mapStateToProps = state => ({ partida: state.partidaStore.partida, times: state.timeStore.times })
 const mapDispatchToProps = dispatch => bindActionCreators({ update, create, handleChange, reset }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(PartidaForm)

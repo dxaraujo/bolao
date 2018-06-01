@@ -19,9 +19,9 @@ class Classificacao extends Component {
 			<Card>
 				<CardBody style={{ padding: '0px' }}>
 					<div className='divplayers'>
-						<div style={{justifySelf: 'right', alignSelf: 'top'}}><img alt='avatar' src={users[1] ? users[1].avatar ? users[1].avatar : blackAvatar : blackAvatar } className='player2'/></div>
-						<div style={{justifySelf: 'center', alignSelf: 'top'}}><img alt='avatar' src={users[0] ? users[0].avatar ? users[0].avatar : blackAvatar : blackAvatar } className='player1'/></div>
-						<div style={{justifySelf: 'left', alignSelf: 'top'}}><img alt='avatar' src={users[2] ? users[2].avatar ? users[2].avatar : blackAvatar : blackAvatar } className='player3'/></div>
+						<div style={{ justifySelf: 'right', alignSelf: 'top' }}><img alt='avatar' src={users[1] ? users[1].avatar ? users[1].avatar : blackAvatar : blackAvatar} className='player2' /></div>
+						<div style={{ justifySelf: 'center', alignSelf: 'top' }}><img alt='avatar' src={users[0] ? users[0].avatar ? users[0].avatar : blackAvatar : blackAvatar} className='player1' /></div>
+						<div style={{ justifySelf: 'left', alignSelf: 'top' }}><img alt='avatar' src={users[2] ? users[2].avatar ? users[2].avatar : blackAvatar : blackAvatar} className='player3' /></div>
 					</div>
 					<Table responsive striped borderless>
 						<thead>
@@ -44,7 +44,7 @@ class Classificacao extends Component {
 											</If>
 										</td>
 										<td className='text-center'>
-											<img alt='avatar' src={user.avatar ? user.avatar : blackAvatar} className='img-avatar'/>
+											<img alt='avatar' src={user.avatar ? user.avatar : blackAvatar} className='img-avatar' />
 										</td>
 										<td>{user.name}</td>
 										<td className='text-center'>{user.pontuacao.total}</td>

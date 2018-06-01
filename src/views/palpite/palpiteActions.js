@@ -8,8 +8,6 @@ export const UPDATE_PALPITES = 'UPDATE_PALPITES';
 export const PALPITE_HANDLER = 'PALPITE_HANDLER';
 
 export const montarGrupos = (user, fase) => {
-	console.log(user)
-	console.log(fase)
 	const response = authFetch(`${URL}/${user}/${fase}/montarpalpites`)
 	return { type: MONTAR_PALPITES, payload: response }
 }

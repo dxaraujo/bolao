@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux';
+import FacebookLogin from 'react-facebook-login'
 
-import { Form, Button, Card, CardBody, CardGroup, Col, Container, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
+import { Card, CardBody, CardGroup, Col, Container, Row } from 'reactstrap';
 
-import { setUser } from '../user/userActions'
 import withAuth from '../../components/withAuth'
+import logo from '../../assets/img/brand/logo.png'
 
 class Login extends Component {
 	constructor(props) {
@@ -14,29 +13,9 @@ class Login extends Component {
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleChange = this.handleChange.bind(this);
 	}
-	componentDidMount() {
-		window.fbAsyncInit = function () {
-			window.FB.init({
-				appId: '185587412097498',
-				cookie: true,
-				xfbml: true,
-				version: 'v2.1'
-			})
-			window.FB.Event.subscribe('auth.statusChange', response => this.loginWithFacebook(response, this.callbackFacebookLogin));
-		}.bind(this);
-		(function (d, s, id) {
-			var js, fjs = d.getElementsByTagName(s)[0];
-			if (d.getElementById(id)) { return; }
-			js = d.createElement(s); js.id = id;
-			js.src = "https://connect.facebook.net/pt_BR/sdk.js";
-			fjs.parentNode.insertBefore(js, fjs);
-		}(document, 'script', 'facebook-jssdk'));
-	}
 
-	loginWithFacebook = (response, callback) => {
-		if (response.authResponse) {
-			this.props.loginWithFacebook(response.authResponse, callback)
-		}
+	loginWithFacebook = (response) => {
+		this.props.loginWithFacebook(response, this.callbackFacebookLogin)
 	}
 
 	callbackFacebookLogin = () => {
@@ -44,7 +23,6 @@ class Login extends Component {
 	}
 
 	handleSubmit(event) {
-		console.log('Chegou')
 		event.preventDefault();
 		this.props.login(this.state.username, this.state.password).then(user => {
 			this.props.history.replace('/');
@@ -64,62 +42,40 @@ class Login extends Component {
 							<CardGroup>
 								<Card className="p-4">
 									<CardBody>
-										<Form onSubmit={this.handleSubmit}>
-											<h1>Login</h1>
-											<p className="text-muted">Realize o login com a sua conta</p>
-											<InputGroup className="mb-3">
-												<InputGroupAddon addonType="prepend">
-													<InputGroupText>
-														<i className="fas fa-user"></i>
-													</InputGroupText>
-												</InputGroupAddon>
-												<Input type="text" placeholder="Username" name="username" onChange={this.handleChange} />
-											</InputGroup>
-											<InputGroup className="mb-4">
-												<InputGroupAddon addonType="prepend">
-													<InputGroupText>
-														<i className="fas fa-lock"></i>
-													</InputGroupText>
-												</InputGroupAddon>
-												<Input type="password" placeholder="Password" name="password" onChange={this.handleChange} />
-											</InputGroup>
-											<Row style={{ marginBottom: '5px' }}>
-												<Col xs="12">
-													<Button color="primary" type="submit" className='btn-block' onClick={this.handleSubmit}>Login</Button>
-												</Col>
-											</Row>
-											<Row style={{ marginBottom: '5px' }}>
-												<Col xs="12" className='d-lg-none'>
-													<div className="fb-login-button" data-max-rows="1" data-size="medium" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="false" data-scope="public_profile"></div>
-												</Col>
-											</Row>
-											<Row>
-												<Col xs="12">
-													<Button color="link" className="px-0">Esqueceu a senha?</Button>
-												</Col>
-											</Row>
-										</Form>
+										<Row style={{ marginBottom: '5px' }}>
+
+										</Row>
+										<Row style={{ marginBottom: '5px', textAlign: 'center' }}>
+											<Col xs="12">
+												<img style={{ objectFit: 'contain' }} src={logo} alt="Logo" width="100%" height="auto" />
+												<FacebookLogin
+													appId="185587412097498"
+													fields="id, name,email,picture"
+													autoLoad={false}
+													isMobile={true}
+													textButton={' Entrar com Facebook'}
+													callback={this.loginWithFacebook}
+													cssClass="btn btn-primary btn-lg mt-3"
+													icon="fab fa-facebook"
+												/>
+												<p className="text-muted mt-3">Realize o login com a sua conta do Facebook</p>
+											</Col>
+										</Row>
 									</CardBody>
 								</Card>
-								<Card className="text-white bg-primary py-5 d-md-down-none" style={{ width: 44 + '%' }}>
-									<CardBody className="text-center">
-										<div>
-											<h2>Login com Facebook Dispo'nivel</h2>
-											<p>Agora você pode fazer o login usando Facebook</p>
-											<div className="btn fb-login-button" data-max-rows="1" data-size="medium" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="false" data-scope="public_profile"></div>
-										</div>
+								<Card className="text-white bg-primary d-md-down-none">
+									<CardBody className="text-center align-middle" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+										<h2>Entrar com Facebook Disponível</h2>
+										<p>Agora você pode fazer o login usando Facebook</p>
 									</CardBody>
 								</Card>
 							</CardGroup>
 						</Col>
 					</Row>
 				</Container>
-			</div>
+			</div >
 		)
 	}
 }
 
-const mapStateToProps = state => ({ user: state.userStore.user })
-const mapDispatchToProps = dispatch => bindActionCreators({ setUser }, dispatch)
-
-export default withAuth(connect(mapStateToProps, mapDispatchToProps)(Login))
+export default withAuth(Login)

@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import moment from 'moment'
 
 import { Card, CardHeader, CardBody, Input, Button } from 'reactstrap'
+import { toast } from "react-toastify";
 
 import { montarGrupos, handleChange, updateAll } from './palpiteActions'
 
@@ -56,6 +57,7 @@ class Palpite extends Component {
 		});
 		const user = this.props.getAuthenticatedUser()
 		this.props.updateAll(palpites, user._id, this.props.fase)
+		toast.success('Seus palpites foram salvos, agora é soó torce!');
 	}
 	render() {
 		const grupos = this.props.grupos

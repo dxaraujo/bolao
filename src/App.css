@@ -105,18 +105,24 @@ footer {
 
 .gridUsers {
 	display: grid;
-	grid-template-columns: 25px 25px 44px auto 73px;
+	grid-template-columns: 44px 44px 74px auto 73px;
 	align-items: center;
 }
 
-@media (max-width: 575.98px) {
+@media only screen and (max-width: 575.98px) {
+	.gridUsers {
+		grid-template-columns: 20px 20px 50px auto 59px;
+	}
 	.gridUsers td,
 	.gridUsers th {
 		padding: 5px
 	}
 }
 
-@media (max-width: 767.98px) {
+@media only screen and (max-width: 767.98px) {
+	.gridUsers {
+		grid-template-columns: 20px 20px 50px auto 59px;
+	}
 	.gridUsers td,
 	.gridUsers th {
 		padding: 5px

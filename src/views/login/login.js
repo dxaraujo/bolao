@@ -54,7 +54,7 @@ class Login extends Component {
 											<Col xs="12">
 												<img style={{ objectFit: 'contain' }} src={logo} alt="Logo" width="100%" height="auto" />
 												<FacebookLogin
-													appId="185587412097498"
+													appId="393226907829156"
 													fields="id, name,email,picture"
 													autoLoad={false}
 													redirectUri={this.props.location.url}

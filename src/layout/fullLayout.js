@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
 import { Redirect, Route, Switch } from 'react-router-dom'
 
-import { Container, Badge } from 'reactstrap'
+import { Container } from 'reactstrap'
 import { AppHeader, AppFooter, AppSidebar, AppSidebarHeader, AppSidebarNav, AppSidebarMinimizer } from '@coreui/react'
 import { ToastContainer } from "react-toastify";
 
@@ -14,7 +14,6 @@ import routes from '../router'
 import Header from './header'
 import Footer from './footer'
 import withAuth from '../components/withAuth'
-import If from '../components/if'
 
 import blackAvatar from '../assets/img/blankavatar.png'
 

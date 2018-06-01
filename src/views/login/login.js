@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
-import FacebookLogin from 'react-facebook-login/dist/facebook-login-render-props';
 
 import { Form, Button, Card, CardBody, CardGroup, Col, Container, Input, InputGroup, InputGroupAddon, InputGroupText, Row } from 'reactstrap';
 
@@ -9,24 +8,47 @@ import { setUser } from '../user/userActions'
 import withAuth from '../../components/withAuth'
 
 class Login extends Component {
-
 	constructor(props) {
 		super(props)
 		this.state = { username: null, password: null }
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleChange = this.handleChange.bind(this);
-		this.callbackFacebookLogin = this.callbackFacebookLogin.bind(this);
+	}
+	componentDidMount() {
+		window.fbAsyncInit = function() {
+			window.FB.init({
+				appId      : '185587412097498',
+				cookie     : true,
+				xfbml      : true,
+				version    : 'v3.0'
+			})
+			window.FB.Event.subscribe('auth.statusChange', response => this.loginWithFacebook(response, this.callbackFacebookLogin));
+		}.bind(this);
+		(function(d, s, id){
+			var js, fjs = d.getElementsByTagName(s)[0];
+			if (d.getElementById(id)) {return;}
+			js = d.createElement(s); js.id = id;
+			js.src = "https://connect.facebook.net/en_US/sdk.js";
+			fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));
+	}
+
+	loginWithFacebook = (response, callback) => {
+		if (response.authResponse) {
+			this.props.loginWithFacebook(response.authResponse, callback)
+		}
+	}
+
+	callbackFacebookLogin = () => {
+		this.props.history.replace('/');
 	}
 
 	handleSubmit(event) {
+		console.log('Chegou')
 		event.preventDefault();
 		this.props.login(this.state.username, this.state.password).then(user => {
 			this.props.history.replace('/');
 		})
-	}
-
-	callbackFacebookLogin() {
-		this.props.history.replace('/');
 	}
 
 	handleChange(event) {
@@ -68,12 +90,7 @@ class Login extends Component {
 											</Row>
 											<Row style={{marginBottom: '5px'}}>
 												<Col xs="12" className='d-lg-none'>
-													<FacebookLogin
-														appId="185587412097498"
-														fields="name,email,picture"
-														callback={content => this.props.loginWithFacebook(content, this.callbackFacebookLogin)}
-														render={renderProps => <Button color='primary' className='btn-block' onClick={renderProps.onClick}><i className="fab fa-facebook-f"/><span>  Facebook</span></Button>}
-													/>
+												<div className="fb-login-button" data-max-rows="1" data-size="medium" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="false" data-scope="public_profile"></div>
 												</Col>
 											</Row>
 											<Row>
@@ -89,13 +106,7 @@ class Login extends Component {
 										<div>
 											<h2>Login com Facebook Dispo'nivel</h2>
 											<p>Agora você pode fazer o login usando Facebook</p>
-											<FacebookLogin
-												appId="185587412097498"
-												autoLoad={true}
-												fields="name,email,picture"
-												callback={this.props.loginWithFacebook}
-												render={renderProps => <Button color='primary' className='btn-block' onClick={renderProps.onClick}><i className="fab fa-facebook-f"/><span>  Facebook</span></Button>}
-											/>
+											<div className="fb-login-button" data-max-rows="1" data-size="medium" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="false" data-scope="public_profile"></div>
 										</div>
 									</CardBody>
 								</Card>

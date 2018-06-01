@@ -109,7 +109,8 @@ footer {
 	align-items: center;
 }
 
-.gridUsers td {
+.gridUsers td,
+.gridUsers th {
 	padding: 5px
 }
 

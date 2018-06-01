@@ -44,10 +44,10 @@ footer {
 
 .rodada {
 	display: grid;
-	grid-template-columns: 10fr 35px 30px 10px 30px 35px 10fr;
+	grid-template-columns: 1fr 46.66px 30px 10px 30px 46.66px 1fr;
 	grid-template-rows: 40px;
-	grid-column-gap: 2px;
-	grid-row-gap: 2px;
+	grid-column-gap: 7px;
+	grid-row-gap: 10px;
 	align-items: center;
 }
 
@@ -64,6 +64,7 @@ footer {
 	justify-self: center;
 	padding: 2px;
 	text-align: center;
+	height: 100%;
 }
 
 .divisorPalpite {
@@ -74,6 +75,7 @@ footer {
 	justify-self: center;
 	padding: 2px;
 	text-align: center;
+	height: 100%;
 }
 
 .bandeiraTimeB {
@@ -103,15 +105,41 @@ footer {
 	align-items: center;
 }
 
-.gridUsers {
+.gridClassificacao {
 	display: grid;
 	grid-template-columns: 44px 44px 74px auto 73px;
 	align-items: center;
 }
 
 @media only screen and (max-width: 575.98px) {
+	.gridClassificacao {
+		grid-template-columns: 30px 31px 50px auto 59px;
+	}
+	.gridClassificacao td,
+	.gridClassificacao th {
+		padding: 5px
+	}
+}
+
+@media only screen and (max-width: 767.98px) {
+	.gridClassificacao {
+		grid-template-columns: 30px 31px 50px auto 59px;
+	}
+	.gridClassificacao td,
+	.gridClassificacao th {
+		padding: 5px
+	}
+}
+
+.gridUsers {
+	display: grid;
+	grid-template-columns: 44px 74px auto 68px 100px;
+	align-items: center;
+}
+
+@media only screen and (max-width: 575.98px) {
 	.gridUsers {
-		grid-template-columns: 20px 20px 50px auto 59px;
+		grid-template-columns: 30px 50px auto 54px 86px;
 	}
 	.gridUsers td,
 	.gridUsers th {
@@ -121,7 +149,7 @@ footer {
 
 @media only screen and (max-width: 767.98px) {
 	.gridUsers {
-		grid-template-columns: 20px 20px 50px auto 59px;
+		grid-template-columns: 30px 50px auto 54px 86px;
 	}
 	.gridUsers td,
 	.gridUsers th {

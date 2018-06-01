@@ -13,7 +13,7 @@ const submit = (user, method, action) => {
 export const LOGIN = "LOGIN";
 export const USER_SEARCH = 'USER_SEARCH';
 export const USER_UPDATE = 'USER_UPDATE';
-export const USER_HANDLER = 'USER_HANDLER';
+export const SELECT_USER = 'SELECT_USER';
 
 export const setUser = user => {
 	return { type: LOGIN, payload: user }
@@ -25,9 +25,9 @@ export const search = () => {
 }
 
 export const update = user => {
-	return submit(user, 'PUT', USER_UPDATE)
+	return submit({_id: user._id, isAdmin: user.isAdmin}, 'PUT', USER_UPDATE)
 }
 
-export const handleChange = event => {
-	return { type: USER_HANDLER, payload: { name: event.target.name, value: event.target.value } }
+export const handleChange = user => {
+	return { type: SELECT_USER, payload: { data : user} }
 }

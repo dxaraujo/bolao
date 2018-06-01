@@ -62,57 +62,66 @@ class Palpite extends Component {
 		return (
 			<div className='row'>
 				<form style={{ width: '100%', height: '100%', display: 'contents' }}>
-					{grupos.map((grupo, idx) => {
-						return (
-							<div key={idx} className='col-sm-12 col-md-6 col-lg-4'>
-								<Card>
-									<CardHeader className='text-center bg-light-blue text-white h5'>
-										{grupo.nome}
-										<Button size='sm' color='success' className='float-right' onClick={this.handleClick}>
-											<i className='fas fa-save'></i>  Salvar
-										</Button>
-									</CardHeader>
-									<CardBody className='card-body-grupos'>
-										{grupo.rodadas.map((rodada, idx2) => {
-											return (
-												<div key={idx2}>
-													<div className='text-center bg-gray-200'><strong>{rodada.nome}</strong></div>
-													{rodada.palpites.map((palpite, idx3) => {
-														return (
-															<div key={idx3} className='bg-gray-100 rodada'>
-																<div className='nomeTimeA'>
-																	<span className='h6'>{palpite.partida.timeA.nome}</span>
+					<div className='col-12'>
+						<Card>
+							<CardHeader>
+								Preencha seus palpites e boa sorte!
+								<Button size='sm' color='success' className='float-right' onClick={this.handleClick}>
+									<i className='fas fa-save'></i>  Salvar
+								</Button>
+							</CardHeader>
+							<CardBody className='p-0'>
+								<div className='row'>
+									{grupos.map((grupo, idx) => {
+										return (
+											<div key={idx} className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-3'>
+												<Card>
+													<CardHeader className='text-center bg-light-blue text-white h5'>{grupo.nome}</CardHeader>
+													<CardBody className='card-body-grupos'>
+														{grupo.rodadas.map((rodada, idx2) => {
+															return (
+																<div key={idx2}>
+																	<div className='text-center bg-gray-200'><strong>{rodada.nome}</strong></div>
+																	{rodada.palpites.map((palpite, idx3) => {
+																		return (
+																			<div key={idx3} className='bg-gray-100 rodada p-2'>
+																				<div className='nomeTimeA'>
+																					<span className='h6'>{palpite.partida.timeA.nome}</span>
+																				</div>
+																				<div className='bandeiraTimeA'>
+																					<i className={`bandeiraTimeA flag-icon flag-icon-${palpite.partida.timeA.bandeira} h1`} />
+																				</div>
+																				<div className='palpiteTimeA'>
+																					<Input name='placarTimeA' type='text' className='palpiteTimeA' maxLength='1' value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
+																				</div>
+																				<div className='divisorPalpite'>x</div>
+																				<div className='palpiteTimeB'>
+																					<Input name='placarTimeB' type='text' className='palpiteTimeB' maxLength='1' value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
+																				</div>
+																				<div className='bandeiraTimeB'>
+																					<i className={`bandeiraTimeB flag-icon flag-icon-${palpite.partida.timeB.bandeira} h1`} />
+																				</div>
+																				<div className='nomeTimeB'>
+																					<span className='h6'>{palpite.partida.timeB.nome}</span>
+																				</div>
+																				<div className='horaPartida'>
+																					<span className='horaPartida text-secundary'>{moment(palpite.partida.data, 'YYYY/MM/DD hh:mm:ss').format('DD/MM/YYYY HH:mm')}</span>
+																				</div>
+																			</div>
+																		)
+																	})}
 																</div>
-																<div className='bandeiraTimeA'>
-																	<i className={`bandeiraTimeA flag-icon flag-icon-${palpite.partida.timeA.bandeira} h3`} />
-																</div>
-																<div className='palpiteTimeA'>
-																	<Input name='placarTimeA' type='text' className='palpiteTimeA' maxLength='1' value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
-																</div>
-																<div className='divisorPalpite'>x</div>
-																<div className='palpiteTimeB'>
-																	<Input name='placarTimeB' type='text' className='palpiteTimeB' maxLength='1' value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
-																</div>
-																<div className='bandeiraTimeB'>
-																	<i className={`bandeiraTimeB flag-icon flag-icon-${palpite.partida.timeB.bandeira} h3`} />
-																</div>
-																<div className='nomeTimeB'>
-																	<span className='h6'>{palpite.partida.timeB.nome}</span>
-																</div>
-																<div className='horaPartida'>
-																	<span className='horaPartida text-secundary'>{moment(palpite.partida.data, 'YYYY/MM/DD hh:mm:ss').format('DD/MM/YYYY HH:mm')}</span>
-																</div>
-															</div>
-														)
-													})}
-												</div>
-											)
-										})}
-									</CardBody>
-								</Card>
-							</div>
-						)
-					})}
+															)
+														})}
+													</CardBody>
+												</Card>
+											</div>
+										)
+									})}
+								</div>
+							</CardBody>
+						</Card>
+					</div>
 				</form>
 			</div>
 		)

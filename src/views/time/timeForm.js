@@ -19,10 +19,10 @@ class TimeForm extends Component {
 		const time = this.props.time
 		if (time._id) {
 			this.props.update(time)
-			toast.success('Time atualizada com sucesso');
+			toast.success('Time atualizado com sucesso');
 		} else {
 			this.props.create(time)
-			toast.success('Time inserida com sucesso');
+			toast.success('Time inserido com sucesso');
 		}
 	}
 	back() {

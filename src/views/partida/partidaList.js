@@ -97,7 +97,7 @@ class PartidaList extends Component {
 										<td className='text-center'><i className={`fas fa-check text-${partida.liberado ? 'success' : 'secondary'}`}></i></td>
 										<td className='text-center'>
 											<ButtonGroup>
-												<Button size='sm' color='success' onClick={() => this.update(partida)}>
+												<Button className='text-white' size='sm' color='warning' onClick={() => this.update(partida)}>
 													<i className='fas fa-edit'></i>
 												</Button>
 												<Button size='sm' color='danger' onClick={() => this.prepareDelete(partida)}>

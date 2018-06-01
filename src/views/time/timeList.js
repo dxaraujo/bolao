@@ -78,7 +78,7 @@ class TimeList extends Component {
 										<td className='text-center'><i className={`flag-icon flag-icon-${time.bandeira} h4`} style={{ margin: '0px' }}></i></td>
 										<td className='text-center'>
 											<ButtonGroup>
-												<Button size='sm' color='success' onClick={() => this.update(time)}>
+												<Button className='text-white' size='sm' color='warning' onClick={() => this.update(time)}>
 													<i className='fas fa-edit'></i>
 												</Button>
 												<Button size='sm' color='danger' onClick={() => this.prepareDelete(time)}>

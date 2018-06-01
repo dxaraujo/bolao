@@ -25,7 +25,7 @@ class Classificacao extends Component {
 					</div>
 					<Table responsive striped borderless>
 						<thead>
-							<tr className='gridUsers'>
+							<tr className='gridClassificacao'>
 								<th className='text-center'>#</th>
 								<th className='text-center'></th>
 								<th className='text-center'></th>
@@ -36,7 +36,7 @@ class Classificacao extends Component {
 						<tbody>
 							{users.map((user, idx) => {
 								return (
-									<tr key={idx} className='gridUsers'>
+									<tr key={idx} className='gridClassificacao'>
 										<td className='text-center'>{idx + 1}</td>
 										<td className='text-center'>
 											<If test={idx < 3}>

@@ -157,7 +157,7 @@ class PartidaForm extends Component {
 								<Label>Liberado</Label>
 							</Col>
 							<Col xs='12' md='10'>
-								<CustomInput id='liberado' name='liberado' type='checkbox' value={partida.liberado} onChange={this.props.handleChange} />
+								<CustomInput id='liberado' name='liberado' type='checkbox' checked={partida.liberado} onChange={this.props.handleChange} />
 							</Col>
 						</FormGroup>
 					</Form>

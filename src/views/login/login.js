@@ -7,12 +7,6 @@ import withAuth from '../../components/withAuth'
 import logo from '../../assets/img/brand/logo.png'
 
 class Login extends Component {
-	constructor(props) {
-		super(props)
-		this.state = { error: '' }
-		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleChange = this.handleChange.bind(this);
-	}
 
 	loginWithFacebook = (response) => {
 		this.props.loginWithFacebook(response, this.callbackFacebookLogin)
@@ -22,18 +16,14 @@ class Login extends Component {
 		this.props.history.replace('/');
 	}
 
-	onFacebookLoginFailure = err => {
-		this.setState({ error: JSON.stringify(err) })
-	}
-
-	handleSubmit(event) {
+	handleSubmit = event => {
 		event.preventDefault();
 		this.props.login(this.state.username, this.state.password).then(user => {
 			this.props.history.replace('/');
 		})
 	}
 
-	handleChange(event) {
+	handleChange = event => {
 		this.setState({ ...this.state, [event.target.name]: event.target.value })
 	}
 
@@ -47,9 +37,6 @@ class Login extends Component {
 							<CardGroup>
 								<Card className="p-4">
 									<CardBody>
-										<Row style={{ marginBottom: '5px' }}>
-											<span>{this.state.error || 'OK'}</span>
-										</Row>
 										<Row style={{ marginBottom: '5px', textAlign: 'center' }}>
 											<Col xs="12">
 												<img style={{ objectFit: 'contain' }} src={logo} alt="Logo" width="100%" height="auto" />
@@ -59,7 +46,6 @@ class Login extends Component {
 													autoLoad={false}
 													textButton={' Entrar com Facebook'}
 													callback={this.loginWithFacebook}
-													onFailure={this.onFacebookLoginFailure}
 													cssClass="btn btn-primary btn-lg mt-3"
 													icon="fab fa-facebook"
 												/>

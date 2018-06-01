@@ -15,20 +15,20 @@ class Login extends Component {
 		this.handleChange = this.handleChange.bind(this);
 	}
 	componentDidMount() {
-		window.fbAsyncInit = function() {
+		window.fbAsyncInit = function () {
 			window.FB.init({
-				appId      : '185587412097498',
-				cookie     : true,
-				xfbml      : true,
-				version    : 'v3.0'
+				appId: '185587412097498',
+				cookie: true,
+				xfbml: true,
+				version: 'v2.1'
 			})
 			window.FB.Event.subscribe('auth.statusChange', response => this.loginWithFacebook(response, this.callbackFacebookLogin));
 		}.bind(this);
-		(function(d, s, id){
+		(function (d, s, id) {
 			var js, fjs = d.getElementsByTagName(s)[0];
-			if (d.getElementById(id)) {return;}
+			if (d.getElementById(id)) { return; }
 			js = d.createElement(s); js.id = id;
-			js.src = "https://connect.facebook.net/en_US/sdk.js";
+			js.src = "https://connect.facebook.net/pt_BR/sdk.js";
 			fjs.parentNode.insertBefore(js, fjs);
 		}(document, 'script', 'facebook-jssdk'));
 	}
@@ -83,14 +83,14 @@ class Login extends Component {
 												</InputGroupAddon>
 												<Input type="password" placeholder="Password" name="password" onChange={this.handleChange} />
 											</InputGroup>
-											<Row style={{marginBottom: '5px'}}>
+											<Row style={{ marginBottom: '5px' }}>
 												<Col xs="12">
 													<Button color="primary" type="submit" className='btn-block' onClick={this.handleSubmit}>Login</Button>
 												</Col>
 											</Row>
-											<Row style={{marginBottom: '5px'}}>
+											<Row style={{ marginBottom: '5px' }}>
 												<Col xs="12" className='d-lg-none'>
-												<div className="fb-login-button" data-max-rows="1" data-size="medium" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="false" data-scope="public_profile"></div>
+													<div className="fb-login-button" data-max-rows="1" data-size="medium" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="false" data-scope="public_profile"></div>
 												</Col>
 											</Row>
 											<Row>
@@ -106,7 +106,7 @@ class Login extends Component {
 										<div>
 											<h2>Login com Facebook Dispo'nivel</h2>
 											<p>Agora você pode fazer o login usando Facebook</p>
-											<div className="fb-login-button" data-max-rows="1" data-size="medium" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="false" data-scope="public_profile"></div>
+											<div className="btn fb-login-button" data-max-rows="1" data-size="medium" data-button-type="continue_with" data-show-faces="false" data-auto-logout-link="true" data-use-continue-as="false" data-scope="public_profile"></div>
 										</div>
 									</CardBody>
 								</Card>

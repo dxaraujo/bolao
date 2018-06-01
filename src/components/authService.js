@@ -94,6 +94,7 @@ export default class AuthService {
 	}
 
 	setAuthenticatedUser(content) {
+		console.log
 		localStorage.setItem('user_content', JSON.stringify(content))
 	}
 

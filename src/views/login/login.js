@@ -53,6 +53,7 @@ class Login extends Component {
 													fields="id, name,email,picture"
 													autoLoad={false}
 													isMobile={true}
+													redirectUri={'https://bolaomesa5.herokuapp.com'}
 													textButton={' Entrar com Facebook'}
 													callback={this.loginWithFacebook}
 													cssClass="btn btn-primary btn-lg mt-3"

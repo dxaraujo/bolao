@@ -34,6 +34,7 @@ class Login extends Component {
 	}
 
 	render() {
+		console.log(this.props)
 		return (
 			<div className="app flex-row align-items-center">
 				<Container>
@@ -52,7 +53,6 @@ class Login extends Component {
 													appId="185587412097498"
 													fields="id, name,email,picture"
 													autoLoad={false}
-													isMobile={true}
 													redirectUri={'https://bolaomesa5.herokuapp.com'}
 													textButton={' Entrar com Facebook'}
 													callback={this.loginWithFacebook}

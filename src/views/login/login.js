@@ -9,7 +9,7 @@ import logo from '../../assets/img/brand/logo.png'
 class Login extends Component {
 	constructor(props) {
 		super(props)
-		this.state = { username: null, password: null }
+		this.state = { error: {} }
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleChange = this.handleChange.bind(this);
 	}
@@ -20,6 +20,10 @@ class Login extends Component {
 
 	callbackFacebookLogin = () => {
 		this.props.history.replace('/');
+	}
+
+	onFacebookLoginFailure = err => {
+		this.setState({ error: JSON.stringify(err) })
 	}
 
 	handleSubmit(event) {
@@ -44,7 +48,7 @@ class Login extends Component {
 								<Card className="p-4">
 									<CardBody>
 										<Row style={{ marginBottom: '5px' }}>
-
+											<span>{this.state.error}</span>
 										</Row>
 										<Row style={{ marginBottom: '5px', textAlign: 'center' }}>
 											<Col xs="12">
@@ -56,6 +60,7 @@ class Login extends Component {
 													redirectUri={this.props.location.url}
 													textButton={' Entrar com Facebook'}
 													callback={this.loginWithFacebook}
+													onFailure={this.onFacebookLoginFailure}
 													cssClass="btn btn-primary btn-lg mt-3"
 													icon="fab fa-facebook"
 												/>

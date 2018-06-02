@@ -16,11 +16,11 @@ const ReadOnlyRow = ({ idx, user, edit }) => (
 		<td>{user.name}</td>
 		<td className='text-center'><i className={`fas fa-check text-${user.isAdmin ? 'success' : 'secondary'}`}></i></td>
 		<td className='text-center'>
-
+			<If test={rootUser !== user.username} >
 				<Button className='text-white' size='sm' color='warning' onClick={edit}>
 					<i className='fas fa-edit'></i>
 				</Button>
-
+			</If>
 		</td>
 	</tr>
 )

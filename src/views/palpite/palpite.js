@@ -4,26 +4,33 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import moment from 'moment'
 
-import { Card, CardHeader, CardBody, Input, Button } from 'reactstrap'
+import { Card, CardHeader, CardBody, Button } from 'reactstrap'
 import { toast } from "react-toastify";
 
 import { montarGrupos, handleChange, updateAll } from './palpiteActions'
 
 class Palpite extends Component {
+	constructor(props) {
+		super(props)
+		this.state = { tabIndex: 0 }
+		this.inputTabIndex = []
+	}
 	componentWillMount() {
 		const user = this.props.getAuthenticatedUser()
 		this.props.montarGrupos(user._id, this.props.fase)
 	}
+	componentDidUpdate() {
+		this.focus()
+	}
 	handleKeyDown = (event, palpite) => {
 		const name = event.target.name;
-		const form = event.target.form;
-		const index = Array.prototype.indexOf.call(form, event.target);
+		const tabIndex = event.target.tabIndex
 		if (event.key === 'Backspace') {
 			if (event.target.value === '') {
-				if (index > 1) {
+				if (tabIndex > 0) {
 					palpite[name] = null
 					this.props.handleChange(palpite, this.props.grupos)
-					form.elements[index - 1].focus();
+					this.setState({ tabIndex:  tabIndex - 1 })
 					event.preventDefault()
 				}
 			}
@@ -32,15 +39,14 @@ class Palpite extends Component {
 	handleChange = (event, palpite) => {
 		event.preventDefault()
 		const name = event.target.name;
+		const tabIndex = event.target.tabIndex
 		let value = event.target.value
 		if (value === '0' || value === '1' || value === '2' || value === '3' || value === '4' || value === '5' || value === '6' || value === '7' || value === '8' || value === '9' || value === '' || value === null || value === undefined) {
 			value = (value === ''|| value === undefined) ? null : value
 			palpite[name] = value
 			this.props.handleChange(palpite, this.props.grupos)
 			if (value !== null) {
-				const form = event.target.form;
-				const index = Array.prototype.indexOf.call(form, event.target);
-				form.elements[index + 1].focus();
+				this.setState({ tabIndex: tabIndex + 1 })
 			}
 		}
 	}
@@ -58,7 +64,14 @@ class Palpite extends Component {
 		this.props.updateAll(palpites, user._id, this.props.fase)
 		toast.success('Seus palpites foram salvos, agora é soó torce!');
 	}
+	focus() {
+		if (this.inputTabIndex[this.state.tabIndex]) {
+			this.inputTabIndex[this.state.tabIndex].focus()
+		}
+	}
 	render() {
+		let inputIndex = 0
+		let tabIndex = 0
 		const grupos = this.props.grupos
 		return (
 			<div className='row'>
@@ -75,7 +88,7 @@ class Palpite extends Component {
 								<div className='row'>
 									{grupos.map((grupo, idx) => {
 										return (
-											<div key={idx} className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-3'>
+											<div key={idx} className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-4'>
 												<Card>
 													<CardHeader className='text-center bg-light-blue text-white h5'>{grupo.nome}</CardHeader>
 													<CardBody className='card-body-grupos'>
@@ -93,11 +106,11 @@ class Palpite extends Component {
 																					<i className={`bandeiraTimeA flag-icon flag-icon-${palpite.partida.timeA.bandeira} h1`} />
 																				</div>
 																				<div className='palpiteTimeA'>
-																					<Input name='placarTimeA' type='text' className='palpiteTimeA' maxLength='1' value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
+																					<input name='placarTimeA' type='text' className='palpiteTimeA form-control' maxLength='1' tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
 																				</div>
 																				<div className='divisorPalpite'>x</div>
 																				<div className='palpiteTimeB'>
-																					<Input name='placarTimeB' type='text' className='palpiteTimeB' maxLength='1' value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
+																					<input name='placarTimeB' type='text' className='palpiteTimeB form-control' maxLength='1' tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
 																				</div>
 																				<div className='bandeiraTimeB'>
 																					<i className={`bandeiraTimeB flag-icon flag-icon-${palpite.partida.timeB.bandeira} h1`} />

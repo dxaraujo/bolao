@@ -23,7 +23,7 @@ class Header extends Component {
 				</Nav>
 				<Nav className='ml-auto' navbar>
 					<NavItem className='px-3'>
-						<NavLink href='' onClick={() => this.props.logout(() => { this.props.history.replace('') })}>Sair</NavLink>
+						<NavLink href='' onClick={() => this.props.logout(() => { this.props.history.replace('/index.html') })}>Sair</NavLink>
 					</NavItem>
 				</Nav>
 			</React.Fragment>

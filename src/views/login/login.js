@@ -19,7 +19,7 @@ class Login extends Component {
 	handleSubmit = event => {
 		event.preventDefault();
 		this.props.login(this.state.username, this.state.password).then(user => {
-			this.props.history.replace('/');
+			this.props.history.replace('/login');
 		})
 	}
 

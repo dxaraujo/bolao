@@ -20,6 +20,24 @@ export const updateAll = (palpites, user, fase) => {
 	};
 }
 
-export const handleChange = (name, value, palpite) => {
-	return { type: PALPITE_HANDLER, payload: { name, value, palpite } }
+export const handleChange = (palpite, grupos) => {
+	const g = updateGrupos(palpite, grupos)
+	return { type: PALPITE_HANDLER, payload: { data : g} }
+}
+
+const updateGrupos = (palpite, grupos) => {
+	let newGroups = []
+	for(let i = 0; i < grupos.length; i++) {
+		newGroups[i] = {nome : grupos[i].nome, rodadas: []}
+		for(let j = 0; j < grupos[i].rodadas.length; j++) {
+			newGroups[i].rodadas[j] = {nome: grupos[i].rodadas[j].nome, palpites: []}
+			for(let k = 0; k < grupos[i].rodadas[j].palpites.length; k++) {
+				newGroups[i].rodadas[j].palpites[k] = {...grupos[i].rodadas[j].palpites[k]}
+				if (grupos[i].rodadas[j].palpites[k]._id === palpite._id) {
+					newGroups[i].rodadas[j].palpites[k] = {...palpite}
+				}
+			}
+		}
+	}
+	return newGroups
 }

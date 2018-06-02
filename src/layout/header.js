@@ -4,7 +4,7 @@ import { Nav, NavItem, NavLink } from 'reactstrap'
 import { AppNavbarBrand, AppSidebarToggler } from '@coreui/react'
 
 import logo from '../assets/img/brand/logo.png'
-import logoShort from '../assets/img/brand/logoShort.png'
+import logoShort from '../assets/img/brand/logoShort.svg'
 
 class Header extends Component {
 	render() {

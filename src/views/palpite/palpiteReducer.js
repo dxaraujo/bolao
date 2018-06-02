@@ -5,31 +5,14 @@ const initialState = { grupos: [] }
 export default function (state = initialState, action) {
 	switch (action.type) {
 		case MONTAR_PALPITES:
+		case PALPITE_HANDLER:
 			return {
 				...state,
 				grupos: action.payload.data
 			};
 		case UPDATE_PALPITES:
 			return { ...state };
-		case PALPITE_HANDLER:
-			return {
-				...state,
-				grupos: update(state.grupos, action.payload.palpite, action.payload.name, action.payload.value)
-			};
 		default:
 			return state;
 	}
-}
-
-const update = (grupos, palpite, name, value) => {
-	grupos.forEach(grupo => {
-		grupo.rodadas.forEach(rodada => {
-			rodada.palpites.forEach(palp => {
-				if (palp._id === palpite._id) {
-					palp[name] = value
-				}
-			})
-		})
-	})
-	return grupos
 }

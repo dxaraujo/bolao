@@ -20,25 +20,24 @@ class Palpite extends Component {
 		const index = Array.prototype.indexOf.call(form, event.target);
 		if (event.key === 'Backspace') {
 			if (event.target.value === '') {
-				event.preventDefault()
 				if (index > 1) {
-					this.props.handleChange(name, '', palpite, this.props.grupos)
+					palpite[name] = null
+					this.props.handleChange(palpite, this.props.grupos)
 					form.elements[index - 1].focus();
+					event.preventDefault()
 				}
 			}
 		}
 	}
 	handleChange = (event, palpite) => {
 		event.preventDefault()
-		const value = event.target.value
-		if (value === '0' || value === '1' ||
-			value === '2' || value === '3' ||
-			value === '4' || value === '5' ||
-			value === '6' || value === '7' ||
-			value === '8' || value === '9' ||
-			value === '' || value === null || value === undefined) {
-			this.props.handleChange(event.target.name, value, palpite)
-			if (value !== '') {
+		const name = event.target.name;
+		let value = event.target.value
+		if (value === '0' || value === '1' || value === '2' || value === '3' || value === '4' || value === '5' || value === '6' || value === '7' || value === '8' || value === '9' || value === '' || value === null || value === undefined) {
+			value = (value === ''|| value === undefined) ? null : value
+			palpite[name] = value
+			this.props.handleChange(palpite, this.props.grupos)
+			if (value !== null) {
 				const form = event.target.form;
 				const index = Array.prototype.indexOf.call(form, event.target);
 				form.elements[index + 1].focus();
@@ -86,7 +85,7 @@ class Palpite extends Component {
 																	<div className='text-center bg-gray-200'><strong>{rodada.nome}</strong></div>
 																	{rodada.palpites.map((palpite, idx3) => {
 																		return (
-																			<div key={idx3} className='bg-gray-100 rodada p-2'>
+																			<div key={idx3 + '-' + palpite.placarTimeA + '-' + palpite.placarTimeB} className='bg-gray-100 rodada p-2'>
 																				<div className='nomeTimeA'>
 																					<span className='h6'>{palpite.partida.timeA.nome}</span>
 																				</div>

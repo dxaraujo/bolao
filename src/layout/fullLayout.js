@@ -15,7 +15,7 @@ import Header from './header'
 import Footer from './footer'
 import withAuth from '../components/withAuth'
 
-import blackAvatar from '../assets/img/blankavatar.png'
+import blackAvatar from '../assets/img/blankavatar.svg'
 
 class FullLayout extends Component {
 	constructor(props) {

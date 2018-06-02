@@ -30,8 +30,9 @@ export const update = user => {
 }
 
 export const handleChange = (user, users) => {
-	users = updateUser(user, users)
-	return { type: USER_SELECT, payload: {user, users} }
+	const u = updateUser(user, users)
+	console.log(u)
+	return { type: USER_SELECT, payload: {user, users: u} }
 }
 
 export const reset = () => {
@@ -39,10 +40,12 @@ export const reset = () => {
 }
 
 const updateUser = (user, users) => {
-	for(let i; i < users.lenght; i++) {
+	let newUsers = []
+	for(let i = 0; i < users.length; i++) {
+		newUsers[i] = {...users[i]}
 		if (users[i]._id === user._id) {
-			users[i].isAdmin = user.isAdmin
+			newUsers[i].isAdmin = user.isAdmin
 		}
 	}
-	return users
+	return newUsers
 }

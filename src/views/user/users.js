@@ -9,27 +9,15 @@ import UserForm from './userForm'
 import { search, update } from '../user/userActions'
 
 class Users extends Component {
-	constructor(props) {
-		super(props)
-		this.state = { users: [] }
-		this.update = this.update.bind(this)
-	}
 	componentWillMount() {
 		this.props.search()
 	}
-	componentWillReceiveProps(nextProps) {
-		const antes = JSON.stringify(this.props.users)
-		const depois = JSON.stringify(nextProps.users)
-		if(!antes.valueOf () !== depois.valueOf()) {
-			this.setState({users: nextProps.users})
-		}
-	}
-	update(user) {
+	update = (user) => {
 		this.props.update(user)
 		toast.success('Usuário atualizado com sucesso, as alterações entraram em vigor no próximo login');
 	}
 	render() {
-		const users = this.state.users
+		const users = this.props.users
 		return (
 			<Card>
 				<CardHeader>

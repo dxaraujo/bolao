@@ -4,10 +4,10 @@ import { connect } from 'react-redux';
 import { rootUser } from '../../config'
 
 import { ButtonGroup, Button, CustomInput } from 'reactstrap'
-import { reset, handleChange } from './userActions' 
+import { reset, handleChange } from './userActions'
 import If from '../../components/if'
 
-import blackAvatar from '../../assets/img/blankavatar.png'
+import blackAvatar from '../../assets/img/blankavatar.svg'
 
 const ReadOnlyRow = ({ idx, user, edit }) => (
 	<tr key={idx} className='gridUsers'>
@@ -16,11 +16,11 @@ const ReadOnlyRow = ({ idx, user, edit }) => (
 		<td>{user.name}</td>
 		<td className='text-center'><i className={`fas fa-check text-${user.isAdmin ? 'success' : 'secondary'}`}></i></td>
 		<td className='text-center'>
-			<If test={!(rootUser === user.username)}>
+
 				<Button className='text-white' size='sm' color='warning' onClick={edit}>
 					<i className='fas fa-edit'></i>
 				</Button>
-			</If>
+
 		</td>
 	</tr>
 )
@@ -70,7 +70,6 @@ class UserForm extends Component {
 	}
 	render() {
 		const { index, user } = this.props
-		console.log(this.state)
 		return this.state.isReadOnly ?
 			<ReadOnlyRow idx={index} user={user} edit={this.edit} /> :
 			<EditableRow idx={index} user={user} handleChange={this.handleChange} save={this.save} cancel={this.cancel} />

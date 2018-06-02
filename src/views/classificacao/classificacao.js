@@ -7,7 +7,8 @@ import { Card, CardBody, Table } from 'reactstrap'
 import If from '../../components/if'
 import { search } from '../user/userActions'
 
-import blackAvatar from '../../assets/img/blankavatar.png'
+import blackAvatar from '../../assets/img/blankavatar.svg'
+import duck from '../../assets/img/duck.svg'
 
 class Classificacao extends Component {
 	componentWillMount() {
@@ -41,6 +42,9 @@ class Classificacao extends Component {
 										<td className='text-center'>
 											<If test={idx < 3}>
 												<i className={`fas fa-trophy fa-lg ${idx === 0 ? 'goldTrophy' : idx === 1 ? 'silverTrophy' : 'bronzeTrophy'}`}></i>
+											</If>
+											<If test={(idx > 3) && (idx === users.length - 1)}>
+												<img scr={duck} alt='duck' />
 											</If>
 										</td>
 										<td className='text-center'>

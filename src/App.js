@@ -19,7 +19,7 @@ import '@coreui/coreui/dist/css/coreui.min.css'
 
 // Application Styles
 import 'sweetalert2/dist/sweetalert2.min.css'
-import 'react-toastify/dist/ReactToastify.css';
+import 'react-toastify/dist/ReactToastify.css'
 import './App.css'
 
 class App extends Component {

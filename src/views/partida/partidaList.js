@@ -75,7 +75,7 @@ class PartidaList extends Component {
 								<th className='text-center'>#</th>
 								<th>Fase</th>
 								<th>Grupo</th>
-								<th>rodada</th>
+								<th>Rodada</th>
 								<th>Data</th>
 								<th>TimeA</th>
 								<th>TimeB</th>

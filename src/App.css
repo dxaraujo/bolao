@@ -1,3 +1,40 @@
+@font-face {
+	font-family: "proximanova-bold";
+	src: url('http://s.glbimg.com/gl/ba/fonts/proximanova-bold-limited-webfont.eot');
+	src: url('http://s.glbimg.com/gl/ba/fonts/proximanova-bold-limited-webfont.eot?#iefix') format("embedded-opentype"), url('http://s.glbimg.com/gl/ba/fonts/proximanova-bold-limited-webfont.woff') format("woff"), url('http://s.glbimg.com/gl/ba/fonts/proximanova-bold-limited-webfont.ttf') format("truetype"), url('http://s.glbimg.com/gl/ba/fonts/proximanova-bold-limited-webfont.svg#proximanova-bold') format("svg");
+	font-style: normal;
+	font-weight: normal
+}
+
+@font-face {
+	font-family: "proximanova-light";
+	src: url('http://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.eot');
+	src: url('http://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.eot?#iefix') format("embedded-opentype"), url('http://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.woff') format("woff"), url('http://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.ttf') format("truetype"), url('http://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.svg#proximanova-light') format("svg");
+	font-style: normal;
+	font-weight: normal
+}
+
+@font-face {
+	font-family: "opensans-regular";
+	src: url('http://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.eot');
+	src: url('http://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.eot?#iefix') format("embedded-opentype"), url('http://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.woff') format("woff"), url('http://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.ttf') format("truetype"), url('http://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.svg#opensans-regular') format("svg");
+	font-style: normal;
+	font-weight: normal
+}
+
+@font-face {
+	font-family: "opensans-light";
+	src: url('http://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.eot');
+	src: url('http://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.eot?#iefix') format("embedded-opentype"), url('http://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.woff') format("woff"), url('http://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.ttf') format("truetype"), url('http://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.svg#opensans-light') format("svg");
+	font-style: normal;
+	font-weight: normal
+}
+
+body {
+	font-family: 'opensans-light', sans-serif !important;
+	font-weight: 400
+}
+
 header {
 	padding-top: constant(safe-area-inset-top);
 	padding-top: env(safe-area-inset-top);
@@ -35,27 +72,49 @@ footer {
 	background-color: #FFFFFF;
 }
 
+.nomeGrupo {
+	font-family: 'proximanova-bold', sans-serif !important;
+	font-size: 24px;
+	letter-spacing: -0.04em;
+	padding: 2px;
+}
+
 .rodada {
 	display: grid;
 	grid-template-columns: 1fr 46.66px 30px 10px 30px 46.66px 1fr;
-	grid-template-rows: 40px;
-	grid-column-gap: 7px;
+	grid-template-rows: 35px;
+	grid-column-gap: 5px;
 	grid-row-gap: 10px;
 	align-items: center;
 }
 
+.nomeRodada {
+	font-family: 'proximanova-bold', sans-serif !important;
+	font-size: 14px;
+	letter-spacing: -0.04em;
+}
+
 .nomeTimeA {
+	font-family: 'opensans-light', sans-serif !important;
+	font-size: 15px;
+	text-transform: uppercase;
+	letter-spacing: -0.08em;
 	justify-self: end;
 }
 
 .bandeiraTimeA {
+	font-size: 25px;
 	justify-self: center;
 	margin-bottom: 0px
 }
 
 .palpiteTimeA {
+	font-family: 'opensans-bold', sans-serif !important;
+	font-size: 16px;
+	color: #6E6E6E;
+	border-radius: 0px;
 	justify-self: center;
-	padding: 2px;
+	padding: 3px;
 	text-align: center;
 	height: 100%;
 }
@@ -65,25 +124,37 @@ footer {
 }
 
 .palpiteTimeB {
+	font-family: 'opensans-bold', sans-serif !important;
+	font-size: 16px;
+	color: #6E6E6E;
+	border-radius: 0px;
 	justify-self: center;
-	padding: 2px;
+	padding: 3px;
 	text-align: center;
 	height: 100%;
 }
 
 .bandeiraTimeB {
+	font-size: 25px;
 	justify-self: center;
 	margin-bottom: 0px;
 }
 
 .nomeTimeB {
+	font-family: 'opensans-light', sans-serif !important;
+	font-size: 15px;
+	text-transform: uppercase;
+	letter-spacing: -0.08em;
 	justify-self: start;
 }
 
 .horaPartida {
+	font-family: 'proximanova-light', sans-serif !important;
+	font-size: 12px;
+	letter-spacing: -0.06em;
 	justify-self: center;
-	font-size: 0.7rem;
 	grid-column: 1/8;
+
 }
 
 .gridTime {

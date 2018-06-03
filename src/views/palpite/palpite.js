@@ -90,20 +90,20 @@ class Palpite extends Component {
 										return (
 											<div key={idx} className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-4' style={{padding: '0px'}}>
 												<Card>
-													<CardHeader className='text-center bg-light-blue text-white h5'>{grupo.nome}</CardHeader>
+													<CardHeader className='text-center bg-light-blue text-white nomeGrupo'>{grupo.nome}</CardHeader>
 													<CardBody className='card-body-grupos'>
 														{grupo.rodadas.map((rodada, idx2) => {
 															return (
 																<div key={idx2}>
-																	<div className='text-center bg-gray-200'><strong>{rodada.nome}</strong></div>
+																	<div className='text-center bg-gray-200 nomeRodada'><strong>{rodada.nome}</strong></div>
 																	{rodada.palpites.map((palpite, idx3) => {
 																		return (
 																			<div key={idx3 + '-' + palpite.placarTimeA + '-' + palpite.placarTimeB} className='bg-gray-100 rodada p-2'>
 																				<div className='nomeTimeA'>
-																					<span className='h6'>{palpite.partida.timeA.nome}</span>
+																					<span className='h6 nomeTimeA'>{palpite.partida.timeA.nome}</span>
 																				</div>
 																				<div className='bandeiraTimeA'>
-																					<i className={`bandeiraTimeA flag-icon flag-icon-${palpite.partida.timeA.bandeira} h1`} />
+																					<i className={`bandeiraTimeA flag-icon flag-icon-${palpite.partida.timeA.bandeira}`} />
 																				</div>
 																				<div className='palpiteTimeA'>
 																					<input name='placarTimeA' type='text' className='palpiteTimeA form-control' maxLength='1' tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
@@ -113,10 +113,10 @@ class Palpite extends Component {
 																					<input name='placarTimeB' type='text' className='palpiteTimeB form-control' maxLength='1' tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
 																				</div>
 																				<div className='bandeiraTimeB'>
-																					<i className={`bandeiraTimeB flag-icon flag-icon-${palpite.partida.timeB.bandeira} h1`} />
+																					<i className={`bandeiraTimeB flag-icon flag-icon-${palpite.partida.timeB.bandeira}`} />
 																				</div>
 																				<div className='nomeTimeB'>
-																					<span className='h6'>{palpite.partida.timeB.nome}</span>
+																					<span className='h6 nomeTimeB'>{palpite.partida.timeB.nome}</span>
 																				</div>
 																				<div className='horaPartida'>
 																					<span className='horaPartida text-secundary'>{moment(palpite.partida.data, 'YYYY/MM/DD hh:mm:ss').format('DD/MM/YYYY HH:mm')}</span>

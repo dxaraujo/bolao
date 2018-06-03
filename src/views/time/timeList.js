@@ -64,7 +64,7 @@ class TimeList extends Component {
 								<th className='text-center'>#</th>
 								<th>Nome</th>
 								<th className='text-center'>Sigla</th>
-								<th className='text-center'><i class="fas fa-flag text-secondary"></i></th>
+								<th className='text-center'><i className="fas fa-flag text-secondary"></i></th>
 								<th className='text-center'></th>
 							</tr>
 						</thead>

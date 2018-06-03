@@ -60,6 +60,26 @@ footer {
 	border-radius: 0px;
 }
 
+@media only screen and (max-width: 575.98px) {
+	.container-fluid {
+		margin-top: 0px  !important;
+		padding: 0px !important;
+	}
+	.card {
+		margin-bottom: 0px !important;
+	}
+}
+
+@media only screen and (max-width: 767.98px) {
+	.container-fluid {
+		margin-top: 0px  !important;
+		padding: 0px !important;
+	}
+	.card {
+		margin-bottom: 0px !important;
+	}
+}
+
 .card-header {
 	border-radius: 0px
 }

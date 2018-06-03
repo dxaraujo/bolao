@@ -9,7 +9,7 @@
 @font-face {
 	font-family: "proximanova-light";
 	src: url('https://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.eot');
-	src: url('https://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.eot?#iefix') format("embedded-opentype"), url('http://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.woff') format("woff"), url('http://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.ttf') format("truetype"), url('http://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.svg#proximanova-light') format("svg");
+	src: url('https://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.eot?#iefix') format("embedded-opentype"), url('https://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.woff') format("woff"), url('https://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.ttf') format("truetype"), url('https://s.glbimg.com/gl/ba/fonts/proximanova-light-limited-webfont.svg#proximanova-light') format("svg");
 	font-style: normal;
 	font-weight: normal
 }
@@ -17,7 +17,7 @@
 @font-face {
 	font-family: "opensans-regular";
 	src: url('https://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.eot');
-	src: url('https://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.eot?#iefix') format("embedded-opentype"), url('http://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.woff') format("woff"), url('http://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.ttf') format("truetype"), url('http://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.svg#opensans-regular') format("svg");
+	src: url('https://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.eot?#iefix') format("embedded-opentype"), url('https://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.woff') format("woff"), url('https://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.ttf') format("truetype"), url('https://s.glbimg.com/gl/ba/fonts/opensans-regular-webfont.svg#opensans-regular') format("svg");
 	font-style: normal;
 	font-weight: normal
 }
@@ -25,7 +25,7 @@
 @font-face {
 	font-family: "opensans-light";
 	src: url('https://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.eot');
-	src: url('https://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.eot?#iefix') format("embedded-opentype"), url('http://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.woff') format("woff"), url('http://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.ttf') format("truetype"), url('http://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.svg#opensans-light') format("svg");
+	src: url('https://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.eot?#iefix') format("embedded-opentype"), url('https://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.woff') format("woff"), url('https://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.ttf') format("truetype"), url('https://s.glbimg.com/gl/ba/fonts/opensans-light-webfont.svg#opensans-light') format("svg");
 	font-style: normal;
 	font-weight: normal
 }
@@ -154,7 +154,6 @@ footer {
 	letter-spacing: -0.06em;
 	justify-self: center;
 	grid-column: 1/8;
-
 }
 
 .gridTime {

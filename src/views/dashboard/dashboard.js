@@ -24,7 +24,7 @@ class Dashboard extends Component {
 				</Row>
 				<Row>
 					<If test={users[0] !== undefined}>
-						<Col xs='12' sm='12' md='4' lg='4' lx='4' >
+						<Col xs='4' sm='4' md='4' lg='4' lx='4' >
 							<Card>
 								<CardBody style={{ backgroundColor: '#E5C100', padding: '10px' }}>
 									<div className='text-muted text-right'>
@@ -47,7 +47,7 @@ class Dashboard extends Component {
 						</Col>
 					</If>
 					<If test={users[1] !== undefined}>
-						<Col xs='12' sm='12' md='4' lg='4' lx='4' >
+						<Col xs='4' sm='4' md='4' lg='4' lx='4' >
 							<Card>
 								<CardBody style={{ backgroundColor: '#ADADAD', padding: '10px' }}>
 									<div className='text-muted text-right'>
@@ -70,7 +70,7 @@ class Dashboard extends Component {
 						</Col>
 					</If>
 					<If test={users[2] !== undefined}>
-						<Col xs='12' sm='12' md='4' lg='4' lx='4' >
+						<Col xs='4' sm='4' md='4' lg='4' lx='4' >
 							<Card>
 								<CardBody style={{ backgroundColor: '#B8722D', padding: '10px' }}>
 									<div className='text-muted text-right'>

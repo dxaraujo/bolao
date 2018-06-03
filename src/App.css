@@ -31,8 +31,7 @@
 }
 
 body {
-	font-family: 'opensans-light', sans-serif !important;
-	font-weight: 400
+	font-family: 'opensans-regular', sans-serif !important;
 }
 
 header {
@@ -51,22 +50,31 @@ footer {
 }
 
 .container-fluid {
-	margin-top: 0px !important;
-	padding: 0px !important;
+	margin-top: 30px;
+	/*margin-top: 0px !important;*/
+	/*padding: 0px !important;*/
 }
 
 .card {
-	margin-bottom: 0px !important;
 	border: none !important;
-	border-radius: 0px !important
+	border-radius: 0px;
 }
 
 .card-header {
-	border-radius: 0px !important
+	border-radius: 0px
+}
+
+.card-footer {
+	border-radius: 0px
+}
+
+.card-grupos {
+	margin-bottom: 0px !important;
+	border: 0.5px solid #FFFFFF !important;
 }
 
 .card-body-grupos {
-	padding: 1px !important;
+	padding: 0px !important;
 }
 
 .table {
@@ -240,12 +248,12 @@ footer {
 .divplayers {
 	display: grid;
 	grid-template-columns: 1fr 105px 1fr;
-	height: 200px;
+	height: 190px;
 	background-attachment: #FFFFFF;
 	background-image: url('./assets/img/podium.png');
 	background-position: center bottom;
 	background-repeat: no-repeat;
-	margin-bottom: 20px;
+	margin-bottom: 10px;
 }
 
 .player1 {
@@ -253,7 +261,7 @@ footer {
 	justify-self: center;
 	width: 75px;
 	height: 75px;
-	margin-top: 20px;
+	margin-top: 10px;
 	border-radius: 50%
 }
 
@@ -261,7 +269,7 @@ footer {
 	justify-self: right;
 	width: 75px;
 	height: 75px;
-	margin-top: 40px;
+	margin-top: 30px;
 	border-radius: 50%
 }
 
@@ -269,17 +277,10 @@ footer {
 	justify-self: left;
 	width: 75px;
 	height: 75px;
-	margin-top: 60px;
+	margin-top: 50px;
 	border-radius: 50%
 }
 
 .sidebar .sidebar-header {
 	padding: 0px;
-}
-
-.badgeLink,
-.badgeLink:active,
-.badgeLink:hover {
-	color: white !important;
-	text-decoration: none !important;
 }

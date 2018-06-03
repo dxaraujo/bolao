@@ -6,7 +6,7 @@ import { Card, CardHeader, CardBody, Table } from 'reactstrap'
 import { toast } from "react-toastify";
 
 import UserForm from './userForm'
-import { search, update } from '../user/userActions'
+import { search, update } from './userActions'
 
 class Users extends Component {
 	componentWillMount() {

@@ -18,13 +18,13 @@ class Classificacao extends Component {
 		const users = this.props.users
 		return (
 			<div style={{backgroundColor: 'white'}}>
-				<div className='divplayers'>
-					<div style={{ justifySelf: 'right', alignSelf: 'top' }}><img alt='avatar' src={users[1] ? users[1].avatar ? users[1].avatar : blackAvatar : blackAvatar} className='player2' /></div>
-					<div style={{ justifySelf: 'center', alignSelf: 'top' }}><img alt='avatar' src={users[0] ? users[0].avatar ? users[0].avatar : blackAvatar : blackAvatar} className='player1' /></div>
-					<div style={{ justifySelf: 'left', alignSelf: 'top' }}><img alt='avatar' src={users[2] ? users[2].avatar ? users[2].avatar : blackAvatar : blackAvatar} className='player3' /></div>
-				</div>
 				<Card>
 					<CardHeader>Classificação</CardHeader>
+					<div className='divplayers'>
+						<div style={{ justifySelf: 'right', alignSelf: 'top' }}><img alt='avatar' src={users[1] ? users[1].avatar ? users[1].avatar : blackAvatar : blackAvatar} className='player2' /></div>
+						<div style={{ justifySelf: 'center', alignSelf: 'top' }}><img alt='avatar' src={users[0] ? users[0].avatar ? users[0].avatar : blackAvatar : blackAvatar} className='player1' /></div>
+						<div style={{ justifySelf: 'left', alignSelf: 'top' }}><img alt='avatar' src={users[2] ? users[2].avatar ? users[2].avatar : blackAvatar : blackAvatar} className='player3' /></div>
+					</div>
 					<CardBody style={{ padding: '0px' }}>
 						<Table responsive striped borderless>
 							<thead>

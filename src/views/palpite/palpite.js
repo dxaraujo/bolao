@@ -47,6 +47,8 @@ class Palpite extends Component {
 			this.props.handleChange(palpite, this.props.grupos)
 			if (value !== null) {
 				this.setState({ tabIndex: tabIndex + 1 })
+			} else {
+				this.setState({ tabIndex: tabIndex })
 			}
 		}
 	}

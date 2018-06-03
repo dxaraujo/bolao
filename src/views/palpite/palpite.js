@@ -74,11 +74,11 @@ class Palpite extends Component {
 		let tabIndex = 0
 		const grupos = this.props.grupos
 		return (
-			<div className='row'>
+			<div className='row' style={{margin: '0px'}}>
 				<form style={{ width: '100%', height: '100%', display: 'contents' }}>
 					<div className='col-12'>
 						<Card>
-							<CardHeader>
+							<CardHeader style={{marginLeft: '-15px', marginRight: '-15px'}}>
 								Preencha seus palpites e boa sorte!
 								<Button size='sm' color='success' className='float-right' onClick={this.handleClick}>
 									<i className='fas fa-save'></i>  Salvar
@@ -88,7 +88,7 @@ class Palpite extends Component {
 								<div className='row'>
 									{grupos.map((grupo, idx) => {
 										return (
-											<div key={idx} className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-4'>
+											<div key={idx} className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-4' style={{padding: '0px'}}>
 												<Card>
 													<CardHeader className='text-center bg-light-blue text-white h5'>{grupo.nome}</CardHeader>
 													<CardBody className='card-body-grupos'>

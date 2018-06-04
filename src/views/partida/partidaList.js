@@ -78,7 +78,6 @@ class PartidaList extends Component {
 								<th>Data</th>
 								<th>TimeA</th>
 								<th>TimeB</th>
-								<th className='text-center'><i className='fas fa-check text-secondary'></i></th>
 								<th className='text-center'></th>
 							</tr>
 						</thead>
@@ -93,7 +92,6 @@ class PartidaList extends Component {
 										<th>{partida.data}</th>
 										<td>{this.popularTime(partida.timeA)}</td>
 										<td>{this.popularTime(partida.timeB)}</td>
-										<td className='text-center'><i className={`fas fa-check text-${partida.liberado ? 'success' : 'secondary'}`}></i></td>
 										<td className='text-center'>
 											<ButtonGroup>
 												<Button className='text-white' size='sm' color='warning' onClick={() => this.update(partida)}>

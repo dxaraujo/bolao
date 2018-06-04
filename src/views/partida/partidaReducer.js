@@ -1,13 +1,16 @@
-import { PARTIDA_SEARCH, PARTIDA_CREATE, PARTIDA_UPDATE, PARTIDA_DELETE, PARTIDA_HANDLER, PARTIDA_SELECT, PARTIDA_RESET } from './partidaActions'
+import moment from 'moment'
 
-const initialState = { partidas: [], partida: {} }
+import { PARTIDA_SEARCH, PARTIDA_CREATE, PARTIDA_UPDATE, PARTIDA_DELETE, PARTIDA_HANDLER, PARTIDA_HANDLER_RESULTADO, PARTIDA_SELECT, PARTIDA_RESET } from './partidaActions'
+
+const initialState = { partidas: [], partida: {}, selectedPartida: null }
 
 export default function (state = initialState, action) {
 	switch (action.type) {
 		case PARTIDA_SEARCH:
+			const partidas = updateData(action.payload.data)
 			return {
 				...state,
-				partidas: action.payload.data
+				partidas
 			};
 		case PARTIDA_CREATE:
 		case PARTIDA_UPDATE:
@@ -25,12 +28,26 @@ export default function (state = initialState, action) {
 					[action.payload.name]: action.payload.value
 				}
 			};
+		case PARTIDA_HANDLER_RESULTADO:
+			return {
+				...state,
+				partidas: action.payload.partidas,
+				selectedPartida: action.payload.partida
+			}
 		case PARTIDA_RESET:
 			return {
 				...state,
-				partida: initialState.partida
+				partida: initialState.partida,
+				selectedPartida: initialState.selectedPartida
 			}
 		default:
 			return state;
 	}
+}
+
+const updateData = partidas => {
+	partidas.forEach(partida => {
+		partida.data = moment(partida.data, 'YYYY-MM-DDThh:mm:ss').format('DD/MM/YYYY HH:mm:ss')
+	});
+	return partidas
 }

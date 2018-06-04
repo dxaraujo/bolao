@@ -15,11 +15,17 @@ export const PARTIDA_UPDATE = 'PARTIDA_UPDATE';
 export const PARTIDA_CREATE = 'PARTIDA_CREATE';
 export const PARTIDA_DELETE = 'PARTIDA_DELETE';
 export const PARTIDA_HANDLER = 'PARTIDA_HANDLER';
+export const PARTIDA_HANDLER_RESULTADO = 'PARTIDA_HANDLER_RESULTADO';
 export const PARTIDA_SELECT = 'PARTIDA_SELECT';
 export const PARTIDA_RESET = 'PARTIDA_RESET';
 
 export const search = () => {
 	const response = authFetch(URL)
+	return { type: PARTIDA_SEARCH, payload: response }
+}
+
+export const searchResultado = () => {
+	const response = authFetch(`${URL}/resultado`)
 	return { type: PARTIDA_SEARCH, payload: response }
 }
 
@@ -29,6 +35,11 @@ export const create = partida => {
 
 export const update = partida => {
 	return submit(partida, 'PUT', PARTIDA_UPDATE)
+}
+
+export const updateResultado = partida => {
+	const response = authFetch(`${URL}/${partida._id}/updateResultado`, { method: 'PUT', body: { placarTimeA: partida.placarTimeA, placarTimeB: partida.placarTimeB } })
+	return { type: PARTIDA_UPDATE, payload: response }
 }
 
 export const remove = partida => {
@@ -46,4 +57,20 @@ export const select = partida => {
 
 export const reset = () => {
 	return { type: PARTIDA_RESET }
+}
+
+export const handleChangeResultado = (name, value, partida, partidas) => {
+	const p = updatePartida(name, value, partida, partidas)
+	return { type: PARTIDA_HANDLER_RESULTADO, payload: { partida, partidas: p } }
+}
+
+const updatePartida = (name, value, partida, partidas) => {
+	let newPartidas = []
+	for (let i = 0; i < partidas.length; i++) {
+		newPartidas[i] = { ...partidas[i] }
+		if (partidas[i]._id === partida._id) {
+			newPartidas[i][name] = value
+		}
+	}
+	return newPartidas
 }

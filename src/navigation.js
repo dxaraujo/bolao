@@ -32,6 +32,10 @@ const navigationsAdmin = [
 		name: 'Usuários',
 		url: '/users',
 		icon: 'fas fa-database'
+	}, {
+		name: 'Resultados',
+		url: '/resultados',
+		icon: 'fas fa-database'
 	}
 ]
 

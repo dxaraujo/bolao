@@ -37,6 +37,11 @@ const Users = Loadable({
 	loading: Loading,
 });
 
+const Resultado = Loadable({
+	loader: () => import('./views/resultado/resultado'),
+	loading: Loading,
+});
+
 const routes = [
 	{ path: '/', exact: true, component: FullLayout },
 	{ path: '/dashboard', component: Dashboard },
@@ -45,7 +50,8 @@ const routes = [
 	{ path: '/palpite', exact: true, component: Palpite },
 	{ path: '/palpite/:fase', component: Palpite },
 	{ path: '/classificacao', component: Classificacao },
-	{ path: '/users', component: Users }
+	{ path: '/users', component: Users },
+	{ path: '/resultados', component: Resultado },
 ];
 
 export default routes

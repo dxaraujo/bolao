@@ -26,23 +26,22 @@ export const search = () => {
 }
 
 export const update = user => {
-	return submit({_id: user._id, isAdmin: user.isAdmin}, 'PUT', USER_UPDATE)
+	return submit({ _id: user._id, isAdmin: user.isAdmin }, 'PUT', USER_UPDATE)
 }
 
 export const handleChange = (user, users) => {
 	const u = updateUser(user, users)
-	console.log(u)
-	return { type: USER_SELECT, payload: {user, users: u} }
+	return { type: USER_SELECT, payload: { user, users: u } }
 }
 
 export const reset = () => {
-	return [{type: USER_RESET, payload: null}, search()]
+	return [{ type: USER_RESET, payload: null }, search()]
 }
 
 const updateUser = (user, users) => {
 	let newUsers = []
-	for(let i = 0; i < users.length; i++) {
-		newUsers[i] = {...users[i]}
+	for (let i = 0; i < users.length; i++) {
+		newUsers[i] = { ...users[i] }
 		if (users[i]._id === user._id) {
 			newUsers[i].isAdmin = user.isAdmin
 		}

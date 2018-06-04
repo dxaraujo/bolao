@@ -30,6 +30,14 @@
 	font-weight: normal
 }
 
+@font-face {
+	font-family: "opensans-bold";
+	src: url('https://s.glbimg.com/gl/ba/fonts/opensans-bold-webfont.eot');
+	src: url('https://s.glbimg.com/gl/ba/fonts/opensans-bold-webfont.eot?#iefix') format("embedded-opentype"), url('https://s.glbimg.com/gl/ba/fonts/opensans-bold-webfont.woff') format("woff"), url('https://s.glbimg.com/gl/ba/fonts/opensans-bold-webfont.ttf') format("truetype"), url('https://s.glbimg.com/gl/ba/fonts/opensans-bold-webfont.svg#opensans-bold') format("svg");
+	font-style: normal;
+	font-weight: normal
+}
+
 body {
 	font-family: 'opensans-regular', sans-serif !important;
 }
@@ -62,7 +70,7 @@ footer {
 
 @media only screen and (max-width: 575.98px) {
 	.container-fluid {
-		margin-top: 0px  !important;
+		margin-top: 0px !important;
 		padding: 0px !important;
 	}
 	.card {
@@ -72,7 +80,7 @@ footer {
 
 @media only screen and (max-width: 767.98px) {
 	.container-fluid {
-		margin-top: 0px  !important;
+		margin-top: 0px !important;
 		padding: 0px !important;
 	}
 	.card {
@@ -113,6 +121,15 @@ footer {
 }
 
 .rodada {
+	display: grid;
+	grid-template-columns: 1fr 46.66px 30px 10px 30px 46.66px 1fr;
+	grid-template-rows: 35px;
+	grid-column-gap: 5px;
+	grid-row-gap: 10px;
+	align-items: center;
+}
+
+.rodadaResultado {
 	display: grid;
 	grid-template-columns: 1fr 46.66px 30px 10px 30px 46.66px 1fr;
 	grid-template-rows: 35px;
@@ -199,6 +216,32 @@ footer {
 	display: grid;
 	grid-template-columns: 45px 10fr 10fr 10fr 10fr 120px 120px 30px 85px;
 	align-items: center;
+}
+
+.gridResultados {
+	display: grid;
+	grid-template-columns: 44px auto 100px;
+	align-items: center;
+}
+
+@media only screen and (max-width: 575.98px) {
+	.gridResultados {
+		grid-template-columns: 30px auto 86px;
+	}
+	.gridResultados td,
+	.gridResultados th {
+		padding: 5px
+	}
+}
+
+@media only screen and (max-width: 767.98px) {
+	.gridResultados {
+		grid-template-columns: 30px auto 86px;
+	}
+	.gridResultados td,
+	.gridResultados th {
+		padding: 5px
+	}
 }
 
 .gridClassificacao {

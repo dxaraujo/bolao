@@ -7,7 +7,9 @@ import moment from 'moment'
 import { Card, CardHeader, CardBody, Button } from 'reactstrap'
 import { toast } from "react-toastify";
 
+import { search } from '../fase/faseActions'
 import { montarGrupos, handleChange, updateAll } from './palpiteActions'
+import If from '../../components/if'
 
 class Palpite extends Component {
 	constructor(props) {
@@ -17,7 +19,8 @@ class Palpite extends Component {
 	}
 	componentWillMount() {
 		const user = this.props.getAuthenticatedUser()
-		this.props.montarGrupos(user._id, this.props.fase)
+		this.props.search(this.props.faseName)
+		this.props.montarGrupos(user._id, this.props.faseName)
 	}
 	componentDidUpdate() {
 		this.focus()
@@ -63,7 +66,7 @@ class Palpite extends Component {
 			})
 		});
 		const user = this.props.getAuthenticatedUser()
-		this.props.updateAll(palpites, user._id, this.props.fase)
+		this.props.updateAll(palpites, user._id, this.props.faseName)
 		toast.success('Seus palpites foram salvos, agora é soó torce!');
 	}
 	focus() {
@@ -82,9 +85,11 @@ class Palpite extends Component {
 						<Card>
 							<CardHeader>
 								Preencha seus palpites e boa sorte!
-								<Button size='sm' color='success' className='float-right' onClick={this.handleClick}>
-									<i className='fas fa-save'></i>  Salvar
-								</Button>
+								<If test={this.props.fase.status !== 'B'}>
+									<Button size='sm' color='success' className='float-right' onClick={this.handleClick}>
+										<i className='fas fa-save'></i>  Salvar
+									</Button>
+								</If>
 							</CardHeader>
 							<CardBody className='p-0'>
 								<div className='row' style={{margin: '0px'}}>
@@ -99,6 +104,7 @@ class Palpite extends Component {
 																<div key={idx2}>
 																	<div className='text-center bg-gray-200 nomeRodada'><strong>{rodada.nome}</strong></div>
 																	{rodada.palpites.map((palpite, idx3) => {
+																		palpite.liberado = false;
 																		return (
 																			<div key={idx3 + '-' + palpite.placarTimeA + '-' + palpite.placarTimeB} className='bg-gray-100 rodada p-2'>
 																				<div className='nomeTimeA'>
@@ -108,11 +114,11 @@ class Palpite extends Component {
 																					<i className={`bandeiraTimeA flag-icon flag-icon-${palpite.partida.timeA.bandeira}`} />
 																				</div>
 																				<div className='palpiteTimeA'>
-																					<input name='placarTimeA' type='text' className='palpiteTimeA form-control' maxLength='1' tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
+																					<input name='placarTimeA' type='text' className='palpiteTimeA form-control' maxLength='1' disabled={this.props.fase.status === 'B'} tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
 																				</div>
 																				<div className='divisorPalpite'>x</div>
 																				<div className='palpiteTimeB'>
-																					<input name='placarTimeB' type='text' className='palpiteTimeB form-control' maxLength='1' tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
+																					<input name='placarTimeB' type='text' className='palpiteTimeB form-control' maxLength='1' disabled={this.props.fase.status === 'B'} tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
 																				</div>
 																				<div className='bandeiraTimeB'>
 																					<i className={`bandeiraTimeB flag-icon flag-icon-${palpite.partida.timeB.bandeira}`} />
@@ -144,7 +150,7 @@ class Palpite extends Component {
 	}
 }
 
-const mapStateToProps = (state, ownProps) => ({ grupos: state.palpiteStore.grupos, fase: ownProps.match.params.fase })
-const mapDispatchToProps = dispatch => bindActionCreators({ montarGrupos, handleChange, updateAll }, dispatch)
+const mapStateToProps = (state, ownProps) => ({ grupos: state.palpiteStore.grupos, fase: state.faseStore.fase, faseName: ownProps.match.params.fase })
+const mapDispatchToProps = dispatch => bindActionCreators({ montarGrupos, handleChange, updateAll, search }, dispatch)
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Palpite))

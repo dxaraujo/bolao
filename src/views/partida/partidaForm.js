@@ -11,15 +11,11 @@ import MaskedInput from 'react-maskedinput'
 import { update, create, handleChange, reset } from './partidaActions'
 
 class PartidaForm extends Component {
-	constructor(props) {
-		super(props)
-		this.handleSubmit = this.handleSubmit.bind(this)
-		this.back = this.back.bind(this)
-	}
-	handleSubmit(event) {
+
+	handleSubmit = event => {
 		event.preventDefault()
 		const partida = this.props.partida
-		partida.data = moment.parseZone(partida.data2, 'DD/MM/YYYY hh:mm:ss')
+		partida.data = moment.parseZone(partida.data, 'DD/MM/YYYY hh:mm:ss')
 		if (partida._id) {
 			this.props.update(partida)
 			toast.success('Partida atualizada com sucesso');
@@ -28,10 +24,12 @@ class PartidaForm extends Component {
 			toast.success('Partida inserida com sucesso');
 		}
 	}
-	back() {
+
+	back = () => {
 		this.props.reset()
 		this.props.history.goBack()
 	}
+
 	render() {
 		const partida = this.props.partida
 		return (
@@ -109,7 +107,7 @@ class PartidaForm extends Component {
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>
-									<MaskedInput mask='11/11/1111 11:11:11' id='data' name='data2' type='text' className='form-control' value={partida.data2} onChange={this.props.handleChange} />
+									<MaskedInput mask='11/11/1111 11:11:11' id='data' name='data' type='text' className='form-control' value={partida.data || ''} onChange={this.props.handleChange} />
 									<InputGroupAddon addonType='append'>
 										<InputGroupText>@</InputGroupText>
 									</InputGroupAddon>
@@ -150,14 +148,6 @@ class PartidaForm extends Component {
 										<InputGroupText>@</InputGroupText>
 									</InputGroupAddon>
 								</InputGroup>
-							</Col>
-						</FormGroup>
-						<FormGroup row>
-							<Col xs='12' md='2'>
-								<Label>Liberado</Label>
-							</Col>
-							<Col xs='12' md='10'>
-								<CustomInput id='liberado' name='liberado' type='checkbox' checked={partida.liberado} onChange={this.props.handleChange} />
 							</Col>
 						</FormGroup>
 					</Form>

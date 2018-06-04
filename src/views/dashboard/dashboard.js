@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
 
-import { Card, CardHeader, CardBody, Table, Row, Col } from 'reactstrap'
+import { Card, CardBody, Row, Col } from 'reactstrap'
 
 import { search } from '../user/userActions'
 import If from '../../components/if'
@@ -32,7 +32,7 @@ class Dashboard extends Component {
 									</div>
 									<div className='d-flex flex-row'>
 										<div className='h2 text-muted text-left pr-2'>
-											<img alt='avatar' src={users[0] ?users[0].avatar ? users[0].avatar : blackAvatar : blackAvatar} width='40px' height='40px' className='img-avatar' />
+											<img alt='avatar' src={users[0] ? users[0].avatar ? users[0].avatar : blackAvatar : blackAvatar} width='40px' height='40px' className='img-avatar' />
 										</div>
 										<div className='flex-fill'>
 											<small className="text-white text-uppercase font-weight-bold">70 PONTOS</small>
@@ -55,7 +55,7 @@ class Dashboard extends Component {
 									</div>
 									<div className='d-flex flex-row'>
 										<div className='h2 text-muted text-left pr-2'>
-											<img alt='avatar' src={users[1] ?users[1].avatar ? users[1].avatar : blackAvatar : blackAvatar} width='40px' height='40px' className='img-avatar' />
+											<img alt='avatar' src={users[1] ? users[1].avatar ? users[1].avatar : blackAvatar : blackAvatar} width='40px' height='40px' className='img-avatar' />
 										</div>
 										<div className='flex-fill'>
 											<small className="text-white text-uppercase font-weight-bold">50 PONTOS</small>
@@ -78,7 +78,7 @@ class Dashboard extends Component {
 									</div>
 									<div className='d-flex flex-row'>
 										<div className='h2 text-muted text-left pr-2'>
-											<img alt='avatar' src={users[2] ?users[2].avatar ? users[2].avatar : blackAvatar : blackAvatar} width='40px' height='40px' className='img-avatar' />
+											<img alt='avatar' src={users[2] ? users[2].avatar ? users[2].avatar : blackAvatar : blackAvatar} width='40px' height='40px' className='img-avatar' />
 										</div>
 										<div className='flex-fill'>
 											<small className="text-white text-uppercase font-weight-bold">30 PONTOS</small>

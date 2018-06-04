@@ -42,7 +42,7 @@ class TimeForm extends Component {
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>
-									<Input name='nome' type='text' value={time.nome} onChange={this.props.handleChange} placeholder='Nome do Time, Ex: Brasil' />
+									<Input name='nome' type='text' value={time.nome || ''} onChange={this.props.handleChange} placeholder='Nome do Time, Ex: Brasil' />
 									<InputGroupAddon addonType='append'>
 										<InputGroupText>@</InputGroupText>
 									</InputGroupAddon>
@@ -55,7 +55,7 @@ class TimeForm extends Component {
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>
-									<Input name='sigla' type='text' value={time.sigla} onChange={this.props.handleChange} placeholder='Sigla do Time. Ex: BRA' />
+									<Input name='sigla' type='text' value={time.sigla || ''} onChange={this.props.handleChange} placeholder='Sigla do Time. Ex: BRA' />
 									<InputGroupAddon addonType='append'>
 										<InputGroupText>@</InputGroupText>
 									</InputGroupAddon>
@@ -68,7 +68,7 @@ class TimeForm extends Component {
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>
-									<Input name='bandeira' type='text' value={time.bandeira} onChange={this.props.handleChange} placeholder='Bandeira do time, Ex: br' />
+									<Input name='bandeira' type='text' value={time.bandeira || ''} onChange={this.props.handleChange} placeholder='Bandeira do time, Ex: br' />
 									<InputGroupAddon addonType='append'>
 										<InputGroupText>@</InputGroupText>
 									</InputGroupAddon>

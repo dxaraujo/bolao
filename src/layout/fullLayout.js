@@ -38,7 +38,7 @@ class FullLayout extends Component {
 		navv.push(...navigationsPalpites)
 
 		fases.forEach(fase => {
-			if (fase.status) {
+			if (fase.status === 'A' || fase.status === 'B') {
 				newNavPalpites.push({
 					name: `${fase.nome}`,
 					url: `/palpite/${fase.nome}`,

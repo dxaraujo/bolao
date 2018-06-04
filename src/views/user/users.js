@@ -44,7 +44,7 @@ class Users extends Component {
 	}
 }
 
-const mapStateToProps = state => ({ users: state.userStore.users, selectedUser: state.userStore.selectedUser })
+const mapStateToProps = state => ({ users: state.userStore.users })
 const mapDispatchToProps = dispatch => bindActionCreators({ search, update }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Users)

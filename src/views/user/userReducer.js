@@ -10,9 +10,10 @@ export default function (state = initialState, action) {
 				user: action.payload
 			};
 		case USER_SEARCH:
+			const users = ordenerUsuarios(action.payload.data)
 			return {
 				...state,
-				users: action.payload.data
+				users
 			};
 		case USER_SELECT:
 			return {
@@ -33,4 +34,8 @@ export default function (state = initialState, action) {
 		default:
 			return state;
 	}
+}
+
+const ordenerUsuarios = users => {
+	return users.sort((u1, u2) => u1.classificacao > u2.classificacao)
 }

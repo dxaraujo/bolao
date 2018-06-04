@@ -53,7 +53,7 @@ class Classificacao extends Component {
 												<img alt='avatar' src={user.avatar ? user.avatar : blackAvatar} className='img-avatar' />
 											</td>
 											<td>{user.name}</td>
-											<td className='text-center'>{user.pontuacao.total}</td>
+											<td className='text-center'>{user.totalAcumulado}</td>
 										</tr>
 									)
 								})}

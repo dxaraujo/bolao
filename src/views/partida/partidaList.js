@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
-import moment from 'moment'
 
 import { Card, CardHeader, CardBody, Table, ButtonGroup, Button } from 'reactstrap'
 import Swal from 'sweetalert2'
@@ -91,7 +90,7 @@ class PartidaList extends Component {
 										<td>{partida.fase}</td>
 										<td>{partida.grupo}</td>
 										<td>{partida.rodada}</td>
-										<th>{moment(partida.data, 'YYYY/MM/DD hh:mm:ss').format('DD/MM/YYYY HH:mm')}</th>
+										<th>{partida.data}</th>
 										<td>{this.popularTime(partida.timeA)}</td>
 										<td>{this.popularTime(partida.timeB)}</td>
 										<td className='text-center'><i className={`fas fa-check text-${partida.liberado ? 'success' : 'secondary'}`}></i></td>

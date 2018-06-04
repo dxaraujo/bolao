@@ -106,6 +106,7 @@ class PartidaForm extends Component {
 	save = partida => {
 		this.setState({ isReadOnly: true })
 		this.props.update(partida)
+		this.props.reset()
 	}
 
 	handleChange = (event, partida) => {

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 
 import { ButtonGroup, Button } from 'reactstrap'
 
-import { handleChangeResultado as handleChange, reset } from '../partida/partidaActions'
+import { handleChangeResultado as handleChange, resetResultado as reset } from '../partida/partidaActions'
 
 const ReadOnlyRow = ({ idx, partida, timeA, timeB, edit }) => (
 	<tr key={idx} className='gridResultados'>
@@ -104,6 +104,7 @@ class PartidaForm extends Component {
 	}
 
 	save = partida => {
+		this.props.reset()
 		this.setState({ isReadOnly: true })
 		this.props.update(partida)
 	}

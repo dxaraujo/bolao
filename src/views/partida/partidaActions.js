@@ -39,6 +39,7 @@ export const update = partida => {
 }
 
 export const updateResultado = partida => {
+	console.log(partida)
 	const response = authFetch(`${URL}/${partida._id}/updateResultado`, { method: 'PUT', body: { placarTimeA: partida.placarTimeA, placarTimeB: partida.placarTimeB } })
 	return { type: PARTIDA_UPDATE, payload: response }
 }

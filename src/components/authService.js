@@ -45,8 +45,7 @@ export default class AuthService {
 
 	loggedIn() {
 		const token = this.getToken()
-		const facebookToken = this.getFacebookToken()
-		return facebookToken ? !!facebookToken : !!token && !this.isTokenExpired(token)
+		return !!token && !this.isTokenExpired(token)
 	}
 
 	isTokenExpired(token) {

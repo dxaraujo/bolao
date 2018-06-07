@@ -37,5 +37,5 @@ export default function (state = initialState, action) {
 }
 
 const ordenerUsuarios = users => {
-	return users.sort((u1, u2) => u1.classificacao > u2.classificacao)
+	return users.sort((u1, u2) => u1.totalAcumulado < u2.totalAcumulado)
 }

@@ -214,7 +214,7 @@ footer {
 
 .gridPartidas {
 	display: grid;
-	grid-template-columns: 45px 10fr 10fr 10fr 10fr 120px 120px 30px 85px;
+	grid-template-columns: 45px 10fr 10fr 10fr 10fr 120px 120px 85px;
 	align-items: center;
 }
 

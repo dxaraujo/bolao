@@ -6,13 +6,11 @@ import { toast } from "react-toastify";
 import { Card, CardHeader, CardBody, Table } from 'reactstrap'
 
 import ResultadoForm from './resultadoForm'
-import { search as searchTimes } from '../time/timeActions'
 import { searchResultado as search, updateResultado as update } from '../partida/partidaActions'
 
 class Resultado extends Component {
 
 	componentWillMount() {
-		this.props.searchTimes()
 		this.props.search()
 	}
 
@@ -45,7 +43,7 @@ class Resultado extends Component {
 	}
 }
 
-const mapStateToProps = state => ({ partidas: state.partidaStore.partidas, times: state.timeStore.times })
-const mapDispatchToProps = dispatch => bindActionCreators({ search, update, searchTimes }, dispatch)
+const mapStateToProps = state => ({ partidas: state.partidaStore.partidas })
+const mapDispatchToProps = dispatch => bindActionCreators({ search, update }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Resultado)

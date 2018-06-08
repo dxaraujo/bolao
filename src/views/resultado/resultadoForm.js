@@ -6,16 +6,16 @@ import { ButtonGroup, Button } from 'reactstrap'
 
 import { handleChangeResultado as handleChange, resetResultado as reset } from '../partida/partidaActions'
 
-const ReadOnlyRow = ({ idx, partida, timeA, timeB, edit }) => (
+const ReadOnlyRow = ({ idx, partida, edit }) => (
 	<tr key={idx} className='gridResultados'>
 		<td className='text-center'>{idx + 1}</td>
 		<td className='text-center'>
 			<div key={idx} className='rodada'>
 				<div className='nomeTimeA'>
-					<span className='h6 nomeTimeA'>{timeA.sigla}</span>
+					<span className='h6 nomeTimeA'>{partida.timeA.sigla}</span>
 				</div>
 				<div className='bandeiraTimeA'>
-					<i className={`bandeiraTimeA flag-icon flag-icon-${timeA.bandeira}`} />
+					<i className={`bandeiraTimeA flag-icon flag-icon-${partida.timeA.bandeira}`} />
 				</div>
 				<div className='palpiteTimeA'>
 					{partida.placarTimeA}
@@ -25,10 +25,10 @@ const ReadOnlyRow = ({ idx, partida, timeA, timeB, edit }) => (
 					{partida.placarTimeB}
 				</div>
 				<div className='bandeiraTimeB'>
-					<i className={`bandeiraTimeB flag-icon flag-icon-${timeB.bandeira}`} />
+					<i className={`bandeiraTimeB flag-icon flag-icon-${partida.timeB.bandeira}`} />
 				</div>
 				<div className='nomeTimeB'>
-					<span className='h6 nomeTimeB'>{timeB.sigla}</span>
+					<span className='h6 nomeTimeB'>{partida.timeB.sigla}</span>
 				</div>
 				<div className='horaPartida'>
 					<span className='horaPartida text-secundary'>{partida.data}</span>
@@ -45,16 +45,16 @@ const ReadOnlyRow = ({ idx, partida, timeA, timeB, edit }) => (
 	</tr>
 )
 
-const EditableRow = ({ idx, partida, timeA, timeB, handleChange, save, cancel }) => (
+const EditableRow = ({ idx, partida, handleChange, save, cancel }) => (
 	<tr key={idx} className='gridResultados'>
 		<td className='text-center'>{idx + 1}</td>
 		<td className='text-center'>
 			<div key={idx} className='rodada'>
 				<div className='nomeTimeA'>
-					<span className='h6 nomeTimeA'>{timeA.sigla}</span>
+					<span className='h6 nomeTimeA'>{partida.timeA.sigla}</span>
 				</div>
 				<div className='bandeiraTimeA'>
-					<i className={`bandeiraTimeA flag-icon flag-icon-${timeA.bandeira}`} />
+					<i className={`bandeiraTimeA flag-icon flag-icon-${partida.timeA.bandeira}`} />
 				</div>
 				<div className='palpiteTimeA'>
 					<input name='placarTimeA' type='text' className='palpiteTimeA form-control' maxLength='1' value={partida.placarTimeA || ''} onChange={event => handleChange(event, partida)} />
@@ -64,10 +64,10 @@ const EditableRow = ({ idx, partida, timeA, timeB, handleChange, save, cancel })
 					<input name='placarTimeB' type='text' className='palpiteTimeB form-control' maxLength='1' value={partida.placarTimeB || ''} onChange={event => handleChange(event, partida)} />
 				</div>
 				<div className='bandeiraTimeB'>
-					<i className={`bandeiraTimeB flag-icon flag-icon-${timeB.bandeira}`} />
+					<i className={`bandeiraTimeB flag-icon flag-icon-${partida.timeB.bandeira}`} />
 				</div>
 				<div className='nomeTimeB'>
-					<span className='h6 nomeTimeB'>{timeB.sigla}</span>
+					<span className='h6 nomeTimeB'>{partida.timeB.sigla}</span>
 				</div>
 				<div className='horaPartida'>
 					<span className='horaPartida text-secundary'>{partida.data}</span>
@@ -115,22 +115,15 @@ class PartidaForm extends Component {
 		this.props.handleChange(name, value, partida, this.props.partidas)
 	}
 
-	popularTime = id => {
-		const time = this.props.times.find(time => time._id === id)
-		return time ? time : {}
-	}
-
 	render() {
 		const { index, partida } = this.props
-		const timeA = this.popularTime(partida.timeA)
-		const timeB = this.popularTime(partida.timeB)
 		return this.state.isReadOnly ?
-			<ReadOnlyRow idx={index} partida={partida} timeA={timeA} timeB={timeB} edit={this.edit} /> :
-			<EditableRow idx={index} partida={partida} timeA={timeA} timeB={timeB} handleChange={this.handleChange} save={this.save} cancel={this.cancel} />
+			<ReadOnlyRow idx={index} partida={partida} edit={this.edit} /> :
+			<EditableRow idx={index} partida={partida} handleChange={this.handleChange} save={this.save} cancel={this.cancel} />
 	}
 }
 
-const mapStateToProps = state => ({ partidas: state.partidaStore.partidas, selectedPartida: state.partidaStore.selectedPartida, times: state.timeStore.times })
+const mapStateToProps = state => ({ partidas: state.partidaStore.partidas, selectedPartida: state.partidaStore.selectedPartida })
 const mapDispatchToProps = dispatch => bindActionCreators({ reset, handleChange }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(PartidaForm)

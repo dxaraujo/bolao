@@ -9,30 +9,26 @@ import { search as searchTimes } from '../time/timeActions'
 import { search, select, remove } from './partidaActions'
 
 class PartidaList extends Component {
-	constructor(props) {
-		super(props)
-		this.search = this.search.bind(this)
-		this.create = this.create.bind(this)
-		this.update = this.update.bind(this)
-		this.delete = this.delete.bind(this)
-		this.prepareDelete = this.prepareDelete.bind(this)
-		this.popularTime = this.popularTime.bind(this)
-	}
+
 	componentWillMount() {
 		this.props.searchTimes()
 		this.props.search()
 	}
-	search() {
+
+	search = () => {
 		this.props.search()
 	}
-	create() {
+
+	create = () => {
 		this.props.history.push('/partida/create')
 	}
-	update(partida) {
+
+	update = partida => {
 		this.props.select(partida)
 		this.props.history.push('/partida/update')
 	}
-	prepareDelete(partida) {
+
+	prepareDelete = partida => {
 		Swal({
 			title: 'Você tem certeza?',
 			text: 'Depois de deletado, você não poderá recupear os dados!',
@@ -47,16 +43,11 @@ class PartidaList extends Component {
 			}
 		});
 	}
-	delete(partida) {
+
+	delete = partida => {
 		this.props.remove(partida);
 	}
-	popularTime(id) {
-		let time = undefined
-		time = this.props.times.find(time => {
-			return time._id === id
-		})
-		return time ? time.nome : ''
-	}
+
 	render() {
 		const partidas = this.props.partidas
 		return (
@@ -90,8 +81,8 @@ class PartidaList extends Component {
 										<td>{partida.grupo}</td>
 										<td>{partida.rodada}</td>
 										<th>{partida.data}</th>
-										<td>{this.popularTime(partida.timeA)}</td>
-										<td>{this.popularTime(partida.timeB)}</td>
+										<td>{partida.timeA.nome}</td>
+										<td>{partida.timeB.nome}</td>
 										<td className='text-center'>
 											<ButtonGroup>
 												<Button className='text-white' size='sm' color='warning' onClick={() => this.update(partida)}>

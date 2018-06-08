@@ -2,103 +2,117 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
 
-import { Card, CardBody, Row, Col } from 'reactstrap'
+import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities'
+import { Container, Row, Card, CardHeader, CardBody } from 'reactstrap'
+import { Bar, Line } from 'react-chartjs-2';
 
-import { search } from '../user/userActions'
-import If from '../../components/if'
-
+import { search } from '../palpite/palpiteActions'
 import blackAvatar from '../../assets/img/blankavatar.svg'
 
+const brandPrimary = getStyle('--primary')
+const brandSuccess = getStyle('--success')
+const brandInfo = getStyle('--info')
+const brandWarning = getStyle('--warning')
+const brandDanger = getStyle('--danger')
+
+console.log(brandInfo)
+
+
+const cardChartData = {
+	labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+	datasets: [
+		{
+			label: 'Colocação',
+			backgroundColor: 'rgb(99,194,222,.1)',
+			borderColor: 'rgb(99,194,222)',
+			data: [7, 10, 8, 9, 6, 3, 5, 9, 6, 6, 5, 4, 4, 4, 2, 1],
+		},
+	],
+};
+
+const cardChartOpts = {
+	legend: {
+		display: false,
+	},
+	scales: {
+		xAxes: [{
+			gridLines: {
+				drawOnChartArea: false,
+			},
+		}],
+		yAxes: [{
+			ticks: {
+				beginAtZero: true,
+				stepSize: 2
+			},
+		}],
+	},
+	elements: {
+		line: {
+			borderWidth: 2,
+		},
+		point: {
+			radius: 4,
+			hitRadius: 10,
+			hoverRadius: 4,
+			hoverBorderWidth: 3,
+			backgroundColor: 'white'
+		},
+	},
+};
+
 class Dashboard extends Component {
+
 	componentWillMount() {
-		this.props.search()
+		const user = this.props.getAuthenticatedUser()
+		this.props.search(user)
 	}
+
 	render() {
-		const users = this.props.users
-		return users.length > 0 ? (
-			<div className='animated fadeIn'>
+		const user = this.props.getAuthenticatedUser()
+		return (
+			<Container fluid>
 				<Row>
-					<Col className='h1'>
-						<h1>Top 3</h1>
-					</Col>
+					<div className='col-12'>
+						<Card style={{ display: 'grid', gridTemplateColumns: '50px 20px 1fr', alignItems: 'center', padding: '20px', backgroundColor: 'white' }}>
+							<div>
+								<img alt='avatar' className='img-avatar' src={user.avatar ? user.avatar : blackAvatar} />
+							</div>
+							<div />
+							<div>
+								<h3 class="mb-1 card-title">Classificação: {user.classificacao}</h3>
+								<h5 class="text-muted">Total pontos: {user.totalAcumulado}</h5>
+							</div>
+						</Card>
+					</div>
+					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
+						<Card>
+							<CardBody>
+								<div class="col-sm-12 mb-3">
+									<h5 class="mb-0 card-title">Classificação</h5>
+									<div class="small text-muted">Histórico de classificação por partida</div>
+								</div>
+								<div className="chart-wrapper">
+									<Line data={cardChartData} options={cardChartOpts} height={150} />
+								</div>
+							</CardBody>
+						</Card>
+					</div>
+					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
+						<Card>
+							<CardHeader>Pontuacões</CardHeader>
+							<CardBody>
+							</CardBody>
+						</Card>
+					</div>
+
 				</Row>
-				<Row>
-					<If test={users[0] !== undefined}>
-						<Col xs='4' sm='4' md='4' lg='4' lx='4' >
-							<Card>
-								<CardBody style={{ backgroundColor: '#E5C100', padding: '10px' }}>
-									<div className='text-muted text-right'>
-										<i className={'fas fa-trophy fa-2x goldTrophy'}></i>
-									</div>
-									<div className='d-flex flex-row'>
-										<div className='h2 text-muted text-left pr-2'>
-											<img alt='avatar' src={users[0] ? users[0].avatar ? users[0].avatar : blackAvatar : blackAvatar} width='40px' height='40px' className='img-avatar' />
-										</div>
-										<div className='flex-fill'>
-											<small className="text-white text-uppercase font-weight-bold">70 PONTOS</small>
-											<div className="progress-xs mt-1 mb-0 progress-white  progress">
-												<div className="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style={{ width: '70%' }}>
-												</div>
-											</div>
-										</div>
-									</div>
-								</CardBody>
-							</Card>
-						</Col>
-					</If>
-					<If test={users[1] !== undefined}>
-						<Col xs='4' sm='4' md='4' lg='4' lx='4' >
-							<Card>
-								<CardBody style={{ backgroundColor: '#ADADAD', padding: '10px' }}>
-									<div className='text-muted text-right'>
-										<i className={'fas fa-trophy fa-2x silverTrophy'}></i>
-									</div>
-									<div className='d-flex flex-row'>
-										<div className='h2 text-muted text-left pr-2'>
-											<img alt='avatar' src={users[1] ? users[1].avatar ? users[1].avatar : blackAvatar : blackAvatar} width='40px' height='40px' className='img-avatar' />
-										</div>
-										<div className='flex-fill'>
-											<small className="text-white text-uppercase font-weight-bold">50 PONTOS</small>
-											<div className="progress-xs mt-1 mb-0 progress-white  progress">
-												<div className="progress-bar" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" style={{ width: '50%' }}>
-												</div>
-											</div>
-										</div>
-									</div>
-								</CardBody>
-							</Card>
-						</Col>
-					</If>
-					<If test={users[2] !== undefined}>
-						<Col xs='4' sm='4' md='4' lg='4' lx='4' >
-							<Card>
-								<CardBody style={{ backgroundColor: '#B8722D', padding: '10px' }}>
-									<div className='text-muted text-right'>
-										<i className={'fas fa-trophy fa-2x bronzeTrophy'}></i>
-									</div>
-									<div className='d-flex flex-row'>
-										<div className='h2 text-muted text-left pr-2'>
-											<img alt='avatar' src={users[2] ? users[2].avatar ? users[2].avatar : blackAvatar : blackAvatar} width='40px' height='40px' className='img-avatar' />
-										</div>
-										<div className='flex-fill'>
-											<small className="text-white text-uppercase font-weight-bold">30 PONTOS</small>
-											<div className="progress-xs mt-1 mb-0 progress-white  progress">
-												<div className="progress-bar" role="progressbar" aria-valuenow="30" aria-valuemin="0" aria-valuemax="100" style={{ width: '30%' }}>
-												</div>
-											</div>
-										</div>
-									</div>
-								</CardBody>
-							</Card>
-						</Col>
-					</If>
-				</Row>
-			</div>
-		) : null
+			</Container>
+		)
 	}
 }
 
-const mapStateToProps = state => ({ users: state.userStore.users })
+const mapStateToProps = state => ({ palpites: state.palpiteStore.palpites })
 const mapDispatchToProps = dispatch => bindActionCreators({ search }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard)

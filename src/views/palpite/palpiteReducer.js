@@ -1,9 +1,14 @@
-import { MONTAR_PALPITES, UPDATE_PALPITES, PALPITE_HANDLER } from './palpiteActions'
+import { SEARCH_PALPITES, MONTAR_PALPITES, UPDATE_PALPITES, PALPITE_HANDLER } from './palpiteActions'
 
-const initialState = { grupos: [] }
+const initialState = { grupos: [], palpites: [] }
 
 export default function (state = initialState, action) {
 	switch (action.type) {
+		case SEARCH_PALPITES:
+			return {
+				...state,
+				palpites: action.payload.data
+			}
 		case MONTAR_PALPITES:
 		case PALPITE_HANDLER:
 			return {

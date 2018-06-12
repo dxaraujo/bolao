@@ -17,7 +17,7 @@ class Classificacao extends Component {
 	render() {
 		const users = this.props.users
 		return (
-			<div style={{backgroundColor: 'white'}}>
+			<div style={{ backgroundColor: 'white' }}>
 				<Card>
 					<CardHeader>Classificação</CardHeader>
 					<div className='divplayers'>
@@ -46,7 +46,7 @@ class Classificacao extends Component {
 													<i className={`fas fa-trophy fa-lg ${idx === 0 ? 'goldTrophy' : idx === 1 ? 'silverTrophy' : 'bronzeTrophy'}`}></i>
 												</If>
 												<If test={(idx > 3) && (idx === users.length - 1)}>
-													<img scr={duck} alt='duck' />
+													<svg src={duck} alt='duck' width={20} height={20} />
 												</If>
 											</td>
 											<td className='text-center'>

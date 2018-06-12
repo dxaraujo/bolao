@@ -70,7 +70,7 @@ class FullLayout extends Component {
 							<div style={{ backgroundColor: '#494F54', padding: '10px 5px 10px 5px' }}>
 								<div style={{ display: 'grid', gridTemplateColumns: '50px 5px 1fr', alignItems: 'center' }}>
 									<div>
-										<img alt='avatar' className='img-avatar' src={user.avatar ? user.avatar : blackAvatar} />
+										<img alt='avatar' src={user.avatar ? `https://graph.facebook.com/${user.facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='img-avatar' width={50} height={50} />
 									</div>
 									<div />
 									<div>

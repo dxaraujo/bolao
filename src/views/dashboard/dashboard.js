@@ -2,29 +2,26 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
 
-import { getStyle, hexToRgba } from '@coreui/coreui/dist/js/coreui-utilities'
 import { Container, Row, Card, CardHeader, CardBody } from 'reactstrap'
 import { Bar, Line } from 'react-chartjs-2';
 
 import { search } from '../palpite/palpiteActions'
 import blackAvatar from '../../assets/img/blankavatar.svg'
 
-const brandPrimary = getStyle('--primary')
-const brandSuccess = getStyle('--success')
-const brandInfo = getStyle('--info')
-const brandWarning = getStyle('--warning')
-const brandDanger = getStyle('--danger')
-
-console.log(brandInfo)
-
-
 const cardChartData = {
 	labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
 	datasets: [
 		{
-			label: 'Colocação',
 			backgroundColor: 'rgb(99,194,222,.1)',
 			borderColor: 'rgb(99,194,222)',
+			borderWidth: 2,
+			pointBorderColor: 'rgba(75,192,192,1)',
+			pointBackgroundColor: '#FFFFFF',
+			pointBorderWidth: 2,
+			pointHoverBackgroundColor: '#C0C0C0',
+			pointHoverBorderColor: 'rgba(75,192,192,1)',
+			pointHoverBorderWidth: 2,
+			pointRadius: 4,
 			data: [7, 10, 8, 9, 6, 3, 5, 9, 6, 6, 5, 4, 4, 4, 2, 1],
 		},
 	],
@@ -46,19 +43,7 @@ const cardChartOpts = {
 				stepSize: 2
 			},
 		}],
-	},
-	elements: {
-		line: {
-			borderWidth: 2,
-		},
-		point: {
-			radius: 4,
-			hitRadius: 10,
-			hoverRadius: 4,
-			hoverBorderWidth: 3,
-			backgroundColor: 'white'
-		},
-	},
+	}
 };
 
 class Dashboard extends Component {
@@ -80,17 +65,17 @@ class Dashboard extends Component {
 							</div>
 							<div />
 							<div>
-								<h3 class="mb-1 card-title">Classificação: {user.classificacao}</h3>
-								<h5 class="text-muted">Total pontos: {user.totalAcumulado}</h5>
+								<h3 className="mb-1 card-title">Classificação: {user.classificacao}</h3>
+								<h5 className="text-muted">Total pontos: {user.totalAcumulado}</h5>
 							</div>
 						</Card>
 					</div>
 					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
 						<Card>
 							<CardBody>
-								<div class="col-sm-12 mb-3">
-									<h5 class="mb-0 card-title">Classificação</h5>
-									<div class="small text-muted">Histórico de classificação por partida</div>
+								<div className="col-sm-12 mb-3">
+									<h5 className="mb-0 card-title">Classificação</h5>
+									<div className="small text-muted">Histórico de classificação por partida</div>
 								</div>
 								<div className="chart-wrapper">
 									<Line data={cardChartData} options={cardChartOpts} height={150} />
@@ -100,8 +85,14 @@ class Dashboard extends Component {
 					</div>
 					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
 						<Card>
-							<CardHeader>Pontuacões</CardHeader>
 							<CardBody>
+								<div className="col-sm-12 mb-3">
+									<h5 className="mb-0 card-title">Pontuações</h5>
+									<div className="small text-muted">Acumulo de pontuação por partida</div>
+								</div>
+								<div className="chart-wrapper">
+									<Bar data={cardChartData} options={cardChartOpts} height={150} />
+								</div>
 							</CardBody>
 						</Card>
 					</div>

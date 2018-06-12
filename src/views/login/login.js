@@ -42,9 +42,9 @@ class Login extends Component {
 									<div className="align-content-center">
 										<FacebookLogin
 											appId="393226907829156"
-											fields="id, name,email,picture"
+											fields="id,name,email,picture"
 											autoLoad={false}
-											disableMobileRedirect={true}
+											redirectUri='//Bolao Mesa5'
 											textButton={' Entrar com Facebook'}
 											callback={this.loginWithFacebook}
 											cssClass="btn btn-primary btn-lg mt-3"

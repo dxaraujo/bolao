@@ -10,6 +10,7 @@ import thunk from 'redux-thunk'
 
 import App from './App'
 import { timeReducer, partidaReducer, palpiteReducer, userReducer, faseReducer } from './reducers';
+import registerServiceWorker from './registerServiceWorker';
 
 const reducers = combineReducers({
 	timeStore: timeReducer,
@@ -26,4 +27,5 @@ ReactDOM.render(
 	<Provider store={store}>
 		<App />
 	</Provider>
-	, document.getElementById('root'))
+, document.getElementById('root'))
+registerServiceWorker();

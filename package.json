@@ -3,6 +3,10 @@
 	"version": "1.0.0",
 	"main": "src/index.jsx",
 	"license": "MIT",
+	"engines": {
+		"node": ">=8.0.0",
+		"yarn": ">=1.8.0"
+	},
 	"dependencies": {
 		"@coreui/coreui": "^2.0.2",
 		"@coreui/react": "^2.0.1",

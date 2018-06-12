@@ -22,13 +22,13 @@ class Classificacao extends Component {
 					<CardHeader>Classificação</CardHeader>
 					<div className='divplayers'>
 						<div style={{ justifySelf: 'right', alignSelf: 'top' }}>
-							<img alt='avatar' src={users[1].avatar ? `https://graph.facebook.com/${users[1].facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='player2' width={50} height={50} />
+							<img alt='avatar' src={users[1] ? users[1].avatar ? `https://graph.facebook.com/${users[1].facebookId}/picture?width=${500}&height=${500}` : blackAvatar : blackAvatar} className='player2' width={50} height={50} />
 						</div>
 						<div style={{ justifySelf: 'center', alignSelf: 'top' }}>
-							<img alt='avatar' src={users[0].avatar ? `https://graph.facebook.com/${users[0].facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='player1' width={50} height={50} />
+							<img alt='avatar' src={users[0] ? users[0].avatar ? `https://graph.facebook.com/${users[0].facebookId}/picture?width=${500}&height=${500}` : blackAvatar : blackAvatar} className='player1' width={50} height={50} />
 						</div>
 						<div style={{ justifySelf: 'left', alignSelf: 'top' }}>
-							<img alt='avatar' src={users[2].avatar ? `https://graph.facebook.com/${users[2].facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='player3' width={50} height={50} />
+							<img alt='avatar' src={users[0] ? users[2].avatar ? `https://graph.facebook.com/${users[2].facebookId}/picture?width=${500}&height=${500}` : blackAvatar : blackAvatar} className='player3' width={50} height={50} />
 						</div>
 					</div>
 					<CardBody style={{ padding: '0px' }}>
@@ -52,7 +52,7 @@ class Classificacao extends Component {
 													<i className={`fas fa-trophy fa-lg ${idx === 0 ? 'goldTrophy' : idx === 1 ? 'silverTrophy' : 'bronzeTrophy'}`}></i>
 												</If>
 												<If test={(idx > 3) && (idx === users.length - 1)}>
-													<duck alt='duck' width={20} height={20} />
+													<img src={duck} alt='duck' width={20} height={20} />
 												</If>
 											</td>
 											<td className='text-center'>

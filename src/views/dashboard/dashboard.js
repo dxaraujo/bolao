@@ -205,7 +205,6 @@ class Dashboard extends Component {
 	render() {
 		const user = this.props.getAuthenticatedUser()
 		const palpites = this.props.palpites
-		const lastPalpite = palpites[palpites.length - 1]
 		//this.gerarDados(palpites)
 		return (
 			<Container fluid>
@@ -217,14 +216,14 @@ class Dashboard extends Component {
 							</div>
 							<div />
 							<div>
-								<h3 className="mb-1 card-title">Classificação: {lastPalpite ? lastPalpite.classificacao : ''}</h3>
-								<h5 className="text-muted">Total pontos: {lastPalpite ? lastPalpite.totalAcumulado : ''}</h5>
+								<h3 className="mb-1 card-title">Classificação: {user ? user.classificacao : '0'}</h3>
+								<h5 className="text-muted">Total pontos: {user ? user.totalAcumulado : '0'}</h5>
 							</div>
 						</Card>
 					</div>
 					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
 						<Card>
-							<CardBody style={{ padding: '10px'}}>
+							<CardBody>
 								<div className="col-sm-12 mb-3">
 									<h5 className="mb-0 card-title">Classificação</h5>
 									<div className="small text-muted">Histórico de classificação por partida</div>
@@ -237,7 +236,7 @@ class Dashboard extends Component {
 					</div>
 					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
 						<Card>
-							<CardBody style={{ padding: '10px'}}>
+							<CardBody>
 								<div className="col-sm-12 mb-3">
 									<h5 className="mb-0 card-title">Pontuações</h5>
 									<div className="small text-muted">Acumulo de pontuação por partida</div>
@@ -250,7 +249,7 @@ class Dashboard extends Component {
 					</div>
 					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
 						<Card>
-							<CardBody style={{ padding: '10px'}}>
+							<CardBody>
 								<div className="col-sm-12 mb-3">
 									<h5 className="mb-0 card-title">Pontuações por tipo</h5>
 									<div className="small text-muted">Total de pontuações por tipo</div>

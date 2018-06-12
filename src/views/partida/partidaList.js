@@ -63,6 +63,7 @@ class PartidaList extends Component {
 						<thead>
 							<tr className='gridPartidas'>
 								<th className='text-center'>#</th>
+								<th>Order</th>
 								<th>Fase</th>
 								<th>Grupo</th>
 								<th>Rodada</th>
@@ -77,6 +78,7 @@ class PartidaList extends Component {
 								return (
 									<tr key={idx} className='gridPartidas'>
 										<td className='text-center'>{idx + 1}</td>
+										<td>{partida.order}</td>
 										<td>{partida.fase}</td>
 										<td>{partida.grupo}</td>
 										<td>{partida.rodada}</td>

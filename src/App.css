@@ -136,7 +136,6 @@ footer {
 .nomeRodada {
 	font-family: 'proximanova-bold', sans-serif !important;
 	font-size: 14px;
-	letter-spacing: -0.04em;
 }
 
 .nomeTimeA {
@@ -209,7 +208,7 @@ footer {
 
 .gridPartidas {
 	display: grid;
-	grid-template-columns: 45px 10fr 10fr 10fr 10fr 120px 120px 85px;
+	grid-template-columns: 45px 65px 10fr 10fr 10fr 10fr 120px 120px 85px;
 	align-items: center;
 }
 

@@ -207,7 +207,6 @@ class Dashboard extends Component {
 		const palpites = this.props.palpites
 		//this.gerarDados(palpites)
 		return (
-			<Container fluid>
 				<Row>
 					<div className='col-12'>
 						<Card style={{ display: 'grid', gridTemplateColumns: '50px 20px 1fr', alignItems: 'center', padding: '20px', backgroundColor: 'white' }}>
@@ -261,7 +260,6 @@ class Dashboard extends Component {
 						</Card>
 					</div>
 				</Row>
-			</Container>
 		)
 	}
 }

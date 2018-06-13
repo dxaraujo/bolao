@@ -15,6 +15,8 @@ class PartidaForm extends Component {
 	handleSubmit = event => {
 		event.preventDefault()
 		const partida = this.props.partida
+		partida.timeA = this.props.times.find(time => time.nome === partida.timeA)
+		partida.timeB = this.props.times.find(time => time.nome === partida.timeB)
 		partida.data = moment.parseZone(partida.data, 'DD/MM/YYYY hh:mm:ss')
 		if (partida._id) {
 			this.props.update(partida)
@@ -120,10 +122,10 @@ class PartidaForm extends Component {
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>
-									<CustomInput id='timeA' name='timeA' type='select' value={partida.timeA} onChange={this.props.handleChange}>
+									<CustomInput id='timeA' name='timeA' type='select' value={partida.timeA ? partida.timeA.nome : ''} onChange={this.props.handleChange}>
 										<option value=''>Selecione um Time</option>
 										{this.props.times.map((time, idx) => (
-											<option key={idx} value={time._id}>{time.nome}</option>
+											<option key={idx} value={time.nome}>{time.nome}</option>
 										))}
 									</CustomInput>
 									<InputGroupAddon addonType='append'>
@@ -138,10 +140,10 @@ class PartidaForm extends Component {
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>
-									<CustomInput id='timeB' name='timeB' type='select' defaultValue={partida.timeB} onChange={this.props.handleChange}>
+									<CustomInput id='timeB' name='timeB' type='select' defaultValue={partida.timeB ? partida.timeB.nome : ''} onChange={this.props.handleChange}>
 										<option value=''>Selecione um Time</option>
 										{this.props.times.map((time, idx) => (
-											<option key={idx} value={time._id}>{time.nome}</option>
+											<option key={idx} value={time.nome}>{time.nome}</option>
 										))}
 									</CustomInput>
 									<InputGroupAddon addonType='append'>

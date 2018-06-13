@@ -240,7 +240,7 @@ footer {
 
 .gridClassificacao {
 	display: grid;
-	grid-template-columns: 44px 44px 74px auto 73px;
+	grid-template-columns: 44px 44px 74px auto 76px;
 	align-items: center;
 }
 
@@ -266,7 +266,7 @@ footer {
 
 .gridUsers {
 	display: grid;
-	grid-template-columns: 44px 74px auto 68px 100px;
+	grid-template-columns: 44px 74px auto 72px 100px;
 	align-items: center;
 }
 

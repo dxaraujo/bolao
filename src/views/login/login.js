@@ -42,7 +42,7 @@ class Login extends Component {
 									<div className="align-content-center">
 										<FacebookLogin
 											appId="393226907829156"
-											fields="id, name,email,picture"
+											fields="id,name,email,picture"
 											autoLoad={false}
 											disableMobileRedirect={true}
 											textButton={' Entrar com Facebook'}

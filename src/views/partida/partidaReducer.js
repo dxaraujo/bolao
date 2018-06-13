@@ -7,7 +7,7 @@ const initialState = { partidas: [], partida: {}, selectedPartida: null }
 export default function (state = initialState, action) {
 	switch (action.type) {
 		case PARTIDA_SEARCH:
-			const partidas = updateData(action.payload.data)
+			const partidas = updatePartidas(action.payload.data)
 			return {
 				...state,
 				partidas
@@ -16,9 +16,10 @@ export default function (state = initialState, action) {
 		case PARTIDA_UPDATE:
 		case PARTIDA_DELETE:
 		case PARTIDA_SELECT:
+			const partida = updatePartida(action.payload.data)
 			return {
 				...state,
-				partida: action.payload.data
+				partida
 			};
 		case PARTIDA_HANDLER:
 			return {
@@ -49,9 +50,14 @@ export default function (state = initialState, action) {
 	}
 }
 
-const updateData = partidas => {
+const updatePartidas = partidas => {
 	partidas.forEach(partida => {
 		partida.data = moment(partida.data, 'YYYY-MM-DDThh:mm:ss').format('DD/MM/YYYY HH:mm:ss')
 	});
 	return partidas
+}
+
+const updatePartida = partida => {
+	partida.data = moment(partida.data, 'YYYY-MM-DDThh:mm:ss').format('DD/MM/YYYY HH:mm:ss')
+	return partida
 }

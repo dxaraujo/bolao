@@ -32,16 +32,9 @@ const chartBarData = {
 	labels: [],
 	datasets: [
 		{
-			backgroundColor: 'rgb(75, 192, 192,.1)',
-			borderColor: 'rgb(75, 192, 192)',
+			backgroundColor: [],
+			borderColor: [],
 			borderWidth: 2,
-			pointBorderColor: 'rgb(75, 192, 192)',
-			pointBackgroundColor: '#FFFFFF',
-			pointBorderWidth: 2,
-			pointHoverBackgroundColor: '#DEDEDE',
-			pointHoverBorderColor: 'rgb(75, 192, 192)',
-			pointHoverBorderWidth: 2,
-			pointRadius: 4,
 			data: [],
 		},
 	],
@@ -131,6 +124,22 @@ class Dashboard extends Component {
 			for (let i = 0; i < palpites.length; i++) {
 				chartBarData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
 				chartBarData.datasets[0].data.push(palpites[i].totalPontosObitidos)
+				if (palpites[i].totalPontosObitidos == 5) {
+					chartBarData.backgroundColor.push('rgb(75, 192, 192,.1)')
+					chartBarData.borderColor.push('rgb(75, 192, 192)')
+				} else if (palpites[i].totalPontosObitidos == 3) {
+					chartBarData.backgroundColor.push('rgb(54, 162, 235,.1)')
+					chartBarData.borderColor.push('rgb(54, 162, 235)')
+				} else if (palpites[i].totalPontosObitidos == 2) {
+					chartBarData.backgroundColor.push('rgb(255, 205, 86,.1)')
+					chartBarData.borderColor.push('rgb(255, 205, 86)')
+				} else if (palpites[i].totalPontosObitidos == 1) {
+					chartBarData.backgroundColor.push('rgb(255, 159, 64,.1)')
+					chartBarData.borderColor.push('rgb(255, 159, 64)')
+				} else {
+					chartBarData.backgroundColor.push('rgb(255, 99, 132,.1)')
+					chartBarData.borderColor.push('rgb(255, 99, 132)')
+				}
 			}
 		}
 		return chartBarData

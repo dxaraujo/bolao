@@ -132,7 +132,7 @@ class Dashboard extends Component {
 			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartBarData.labels.push(`${palpite.partida.timeA.sigla} x ${palpite.partida.timeB.sigla}`)
-				chartBarData.datasets[0].data.push(palpites[i].totalAcumulado)
+				chartBarData.datasets[0].data.push(palpites[i].totalPontosObitidos)
 			}
 		}
 		return chartBarData
@@ -190,8 +190,8 @@ class Dashboard extends Component {
 						</div>
 						<div />
 						<div>
-							<h3 className="mb-1 card-title">Classificação: {user ? user.classificacao : '0'}</h3>
-							<h5 className="text-muted">Total pontos: {user ? user.totalAcumulado : '0'}</h5>
+							<h3 className="mb-1 card-title">Classificação: {palpites ? palpites[palpites.length - 1].classificacao : '0'}</h3>
+							<h5 className="text-muted">Total pontos: {palpites ? palpites[palpites.length - 1].totalAcumulado : '0'}</h5>
 						</div>
 					</Card>
 				</div>
@@ -213,7 +213,7 @@ class Dashboard extends Component {
 						<CardBody>
 							<div className="col-sm-12 mb-3">
 								<h5 className="mb-0 card-title">Pontuações</h5>
-								<div className="small text-muted">Acumulo de pontuação por partida</div>
+								<div className="small text-muted">Pontuações obtidas por partida</div>
 							</div>
 							<div className="chart-wrapper">
 								<Bar data={this.montarGraficoPontuacoes(palpites)} options={chartBarOpts} height={150} />

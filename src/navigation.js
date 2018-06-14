@@ -10,7 +10,7 @@ const navigationsLinks = [
 	}, {
 		name: 'Consultar Palpites',
 		url: '/palpites',
-		icon: 'fas fa-receipt'
+		icon: 'fas fa-clipboard-list'
 	}
 ]
 

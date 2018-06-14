@@ -32,8 +32,8 @@ const chartBarData = {
 	labels: [],
 	datasets: [
 		{
-			fillColor: [],
-			strokeColor: [],
+			backgroundColor: [],
+			borderColor: [],
 			borderWidth: 2,
 			data: [],
 		},
@@ -124,20 +124,20 @@ class Dashboard extends Component {
 				chartBarData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
 				chartBarData.datasets[0].data.push(palpites[i].totalPontosObitidos)
 				if (palpites[i].totalPontosObitidos == 5) {
-					chartBarData.datasets[0].fillColor.push('rgb(75, 192, 192,.1)')
-					chartBarData.datasets[0].strokeColor.push('rgb(75, 192, 192)')
+					chartBarData.datasets[0].backgroundColor.push('rgb(75, 192, 192,.1)')
+					chartBarData.datasets[0].borderColor.push('rgb(75, 192, 192)')
 				} else if (palpites[i].totalPontosObitidos == 3) {
-					chartBarData.datasets[0].fillColor.push('rgb(54, 162, 235,.1)')
-					chartBarData.datasets[0].strokeColor.push('rgb(54, 162, 235)')
+					chartBarData.datasets[0].backgroundColor.push('rgb(54, 162, 235,.1)')
+					chartBarData.datasets[0].borderColor.push('rgb(54, 162, 235)')
 				} else if (palpites[i].totalPontosObitidos == 2) {
-					chartBarData.datasets[0].fillColor.push('rgb(255, 205, 86,.1)')
-					chartBarData.datasets[0].strokeColor.push('rgb(255, 205, 86)')
+					chartBarData.datasets[0].backgroundColor.push('rgb(255, 205, 86,.1)')
+					chartBarData.datasets[0].borderColor.push('rgb(255, 205, 86)')
 				} else if (palpites[i].totalPontosObitidos == 1) {
-					chartBarData.datasets[0].fillColor.push('rgb(255, 159, 64,.1)')
-					chartBarData.datasets[0].strokeColor.push('rgb(255, 159, 64)')
+					chartBarData.datasets[0].backgroundColor.push('rgb(255, 159, 64,.1)')
+					chartBarData.datasets[0].borderColor.push('rgb(255, 159, 64)')
 				} else {
-					chartBarData.datasets[0].fillColor.push('rgb(255, 99, 132,.1)')
-					chartBarData.datasets[0].strokeColor.push('rgb(255, 99, 132)')
+					chartBarData.datasets[0].backgroundColor.push('rgb(255, 99, 132,.1)')
+					chartBarData.datasets[0].borderColor.push('rgb(255, 99, 132)')
 				}
 			}
 		}

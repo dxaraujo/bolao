@@ -109,40 +109,16 @@ class Dashboard extends Component {
 		const user = this.props.getAuthenticatedUser()
 		this.props.searchPalpites(user)
 	}
-	/*
-		gerarDados(palpites) {
-			if (palpites.length) {
-				let acumulado = 0
-				for(let i = 0; i < palpites.length; i++) {
-					palpites[i].classificacao = Math.floor(Math.random() * 10)
-					palpites[i].totalPontosObitidos = Math.floor(Math.random() * 5) + 1
-					switch(palpites[i].totalPontosObitidos) {
-						case 5:
-							palpites[i].placarCheio = true
-							break
-						case 3:
-							palpites[i].placarTimeVencedorComGol = true
-							break
-						case 2:
-							palpites[i].placarTimeVencedor = true
-							break
-						case 1:
-							palpites[i].placarGol = true
-							break
-						default:
-							break
-					}
-					acumulado += palpites[i].totalPontosObitidos
-					palpites[i].totalAcumulado = acumulado
-				}
-			}
-		}
-	*/
+
 	montarGraficoClassificacoes = palpites => {
 		chartLineData.labels = []
 		chartLineData.datasets[0].data = []
 		if (palpites.length) {
+			console.log('Total palpites', palpites.length)
+			palpites = palpites.filter(palpite => palpite.totalAcumulado > 0)
+			console.log('Total palpites com resultado', palpites.length)
 			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
+			console.log('Total palpites com resultado com 10 elementos', palpites.length)
 			for (let i = 0; i < palpites.length; i++) {
 				chartLineData.labels.push('')
 				chartLineData.datasets[0].data.push(palpites[i].classificacao)
@@ -155,6 +131,7 @@ class Dashboard extends Component {
 		chartBarData.labels = []
 		chartBarData.datasets[0].data = []
 		if (palpites.length) {
+			palpites = palpites.filter(palpite => palpite.totalAcumulado > 0)
 			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartBarData.labels.push('')
@@ -173,6 +150,7 @@ class Dashboard extends Component {
 		let placarGol = 0
 		let nada = 0
 		if (palpites.length) {
+			palpites = palpites.filter(palpite => palpite.totalAcumulado > 0)
 			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				const palpite = palpites[i]

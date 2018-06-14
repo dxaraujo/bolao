@@ -33,7 +33,7 @@ class Palpite extends Component {
 				if (tabIndex > 0) {
 					palpite[name] = null
 					this.props.handleChange(palpite, this.props.grupos)
-					this.setState({ tabIndex:  tabIndex - 1 })
+					this.setState({ tabIndex: tabIndex - 1 })
 					event.preventDefault()
 				}
 			}
@@ -45,7 +45,7 @@ class Palpite extends Component {
 		const tabIndex = event.target.tabIndex
 		let value = event.target.value
 		if (value === '0' || value === '1' || value === '2' || value === '3' || value === '4' || value === '5' || value === '6' || value === '7' || value === '8' || value === '9' || value === '' || value === null || value === undefined) {
-			value = (value === ''|| value === undefined) ? null : value
+			value = (value === '' || value === undefined) ? null : value
 			palpite[name] = value
 			this.props.handleChange(palpite, this.props.grupos)
 			if (value !== null) {
@@ -67,7 +67,7 @@ class Palpite extends Component {
 		});
 		const user = this.props.getAuthenticatedUser()
 		this.props.updateAll(palpites, user._id, this.props.faseName)
-		toast.success('Seus palpites foram salvos, agora é soó torce!');
+		toast.success('Seus palpites foram salvos, agora é só torcer!');
 	}
 	focus() {
 		if (this.inputTabIndex[this.state.tabIndex]) {
@@ -92,10 +92,10 @@ class Palpite extends Component {
 								</If>
 							</CardHeader>
 							<CardBody className='p-0'>
-								<div className='row' style={{margin: '0px'}}>
+								<div className='row' style={{ margin: '0px' }}>
 									{grupos.map((grupo, idx) => {
 										return (
-											<div key={idx} className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-4' style={{padding: '0px'}}>
+											<div key={idx} className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-4' style={{ padding: '0px' }}>
 												<Card className='card-grupos'>
 													<CardHeader className='text-center bg-light-blue text-white nomeGrupo'>{grupo.nome}</CardHeader>
 													<CardBody className='card-body-grupos'>

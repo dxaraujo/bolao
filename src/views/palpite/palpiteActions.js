@@ -18,6 +18,10 @@ export const montarGrupos = (user, fase) => {
 	return { type: MONTAR_PALPITES, payload: response }
 }
 
+export const zerarGrupos = () => {
+	return { type: MONTAR_PALPITES, payload: { data: [] } }
+}
+
 export const updateAll = (palpites, user, fase) => {
 	const response = authFetch(`${URL}/${user}/updatePalpites`, { method: 'PUT', body: JSON.stringify(palpites) })
 	return async dispatch => {

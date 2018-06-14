@@ -27,6 +27,11 @@ const Palpite = Loadable({
 	loading: Loading,
 });
 
+const Palpites = Loadable({
+	loader: () => import('./views/palpite/palpites'),
+	loading: Loading,
+});
+
 const Classificacao = Loadable({
 	loader: () => import('./views/classificacao/classificacao'),
 	loading: Loading,
@@ -47,7 +52,7 @@ const routes = [
 	{ path: '/dashboard', component: Dashboard },
 	{ path: '/time', component: Time },
 	{ path: '/partida', component: Partida },
-	{ path: '/palpite', exact: true, component: Palpite },
+	{ path: '/palpite', exact: true, component: Palpites },
 	{ path: '/palpite/:fase', component: Palpite },
 	{ path: '/classificacao', component: Classificacao },
 	{ path: '/users', component: Users },

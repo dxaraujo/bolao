@@ -13,6 +13,10 @@ const navigationsPalpites = [
 	{
 		title: true,
 		name: 'Palpites'
+	}, {
+		name: 'Consultar Palpites',
+		url: '/palpite',
+		icon: 'fas fa-futbol'
 	}
 ]
 

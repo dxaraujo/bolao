@@ -28,7 +28,7 @@ class Classificacao extends Component {
 							<img alt='avatar' src={users[0] ? users[0].avatar ? `https://graph.facebook.com/${users[0].facebookId}/picture?width=${500}&height=${500}` : blackAvatar : blackAvatar} className='player1' width={50} height={50} />
 						</div>
 						<div style={{ justifySelf: 'left', alignSelf: 'top' }}>
-							<img alt='avatar' src={users[0] ? users[2].avatar ? `https://graph.facebook.com/${users[2].facebookId}/picture?width=${500}&height=${500}` : blackAvatar : blackAvatar} className='player3' width={50} height={50} />
+							<img alt='avatar' src={users[2] ? users[2].avatar ? `https://graph.facebook.com/${users[2].facebookId}/picture?width=${500}&height=${500}` : blackAvatar : blackAvatar} className='player3' width={50} height={50} />
 						</div>
 					</div>
 					<CardBody style={{ padding: '0px' }}>

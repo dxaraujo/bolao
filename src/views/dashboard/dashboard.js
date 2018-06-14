@@ -142,7 +142,7 @@ class Dashboard extends Component {
 		chartLineData.labels = []
 		chartLineData.datasets[0].data = []
 		if (palpites.length) {
-			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 1))
+			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartLineData.labels.push('')
 				chartLineData.datasets[0].data.push(palpites[i].classificacao)
@@ -155,7 +155,7 @@ class Dashboard extends Component {
 		chartBarData.labels = []
 		chartBarData.datasets[0].data = []
 		if (palpites.length) {
-			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 1))
+			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartBarData.labels.push('')
 				chartBarData.datasets[0].data.push(palpites[i].totalAcumulado)
@@ -173,7 +173,7 @@ class Dashboard extends Component {
 		let placarGol = 0
 		let nada = 0
 		if (palpites.length) {
-			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 5, 1))
+			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				const palpite = palpites[i]
 				if (palpite.placarCheio) {

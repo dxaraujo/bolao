@@ -114,11 +114,8 @@ class Dashboard extends Component {
 		chartLineData.labels = []
 		chartLineData.datasets[0].data = []
 		if (palpites.length) {
-			console.log('Total palpites', palpites.length)
 			palpites = palpites.filter(palpite => palpite.totalAcumulado > 0)
-			console.log('Total palpites com resultado', palpites.length)
 			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
-			console.log('Total palpites com resultado com 10 elementos', palpites.length)
 			for (let i = 0; i < palpites.length; i++) {
 				chartLineData.labels.push('')
 				chartLineData.datasets[0].data.push(palpites[i].classificacao)

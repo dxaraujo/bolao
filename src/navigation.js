@@ -1,22 +1,23 @@
-const navigationsLinks = [{
-	name: 'Dashboard',
-	url: '/dashboard',
-	icon: 'fas fa-tachometer-alt'
-}, {
-	name: 'Classificação',
-	url: '/classificacao',
-	icon: 'fas fa-star'
-}
+const navigationsLinks = [
+	{
+		name: 'Dashboard',
+		url: '/dashboard',
+		icon: 'fas fa-tachometer-alt'
+	}, {
+		name: 'Classificação',
+		url: '/classificacao',
+		icon: 'fas fa-star'
+	}, {
+		name: 'Consultar Palpites',
+		url: '/palpites',
+		icon: 'fas fa-receipt'
+	}
 ]
 
 const navigationsPalpites = [
 	{
 		title: true,
 		name: 'Palpites'
-	}, {
-		name: 'Consultar Palpites',
-		url: '/palpite',
-		icon: 'fas fa-futbol'
 	}
 ]
 

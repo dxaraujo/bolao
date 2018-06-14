@@ -45,13 +45,13 @@ class Classificacao extends Component {
 							<tbody>
 								{users.map((user, idx) => {
 									return (
-										<tr key={idx} className='gridClassificacao'>
-											<td className='text-center'>{idx + 1}</td>
+										<tr key={user.classificacao} className='gridClassificacao'>
+											<td className='text-center'>{user.classificacao}</td>
 											<td className='text-center'>
-												<If test={idx < 3}>
-													<i className={`fas fa-trophy fa-lg ${idx === 0 ? 'goldTrophy' : idx === 1 ? 'silverTrophy' : 'bronzeTrophy'}`}></i>
+												<If test={user.classificacao < 4}>
+													<i className={`fas fa-trophy fa-lg ${user.classificacao === 1 ? 'goldTrophy' : user.classificacao === 2 ? 'silverTrophy' : 'bronzeTrophy'}`}></i>
 												</If>
-												<If test={(idx > 3) && (idx === users.length - 1)}>
+												<If test={(user.classificacao > 3) && (idx === users.length - 1)}>
 													<img src={duck} alt='duck' width={20} height={20} />
 												</If>
 											</td>

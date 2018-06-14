@@ -37,5 +37,6 @@ export default function (state = initialState, action) {
 }
 
 const ordenerUsuarios = users => {
+	users = users.filter(user => user.classificacao > 0 ? true : false)
 	return users.sort((u1, u2) => u1.classificacao > u2.classificacao)
 }

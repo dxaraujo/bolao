@@ -52,7 +52,7 @@ const routes = [
 	{ path: '/dashboard', component: Dashboard },
 	{ path: '/time', component: Time },
 	{ path: '/partida', component: Partida },
-	{ path: '/palpite', exact: true, component: Palpites },
+	{ path: '/palpites', exact: true, component: Palpites },
 	{ path: '/palpite/:fase', component: Palpite },
 	{ path: '/classificacao', component: Classificacao },
 	{ path: '/users', component: Users },

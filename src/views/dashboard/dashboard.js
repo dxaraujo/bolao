@@ -114,7 +114,6 @@ class Dashboard extends Component {
 		chartLineData.labels = []
 		chartLineData.datasets[0].data = []
 		if (palpites.length) {
-			palpites = palpites.filter(palpite => palpite.totalAcumulado > 0)
 			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartLineData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
@@ -128,7 +127,6 @@ class Dashboard extends Component {
 		chartBarData.labels = []
 		chartBarData.datasets[0].data = []
 		if (palpites.length) {
-			palpites = palpites.filter(palpite => palpite.totalAcumulado > 0)
 			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartBarData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
@@ -147,7 +145,6 @@ class Dashboard extends Component {
 		let placarGol = 0
 		let nada = 0
 		if (palpites.length) {
-			palpites = palpites.filter(palpite => palpite.totalAcumulado > 0)
 			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				const palpite = palpites[i]
@@ -179,8 +176,8 @@ class Dashboard extends Component {
 
 	render() {
 		const user = this.props.getAuthenticatedUser()
-		const palpites = this.props.palpites
-		//this.gerarDados(palpites)
+		let palpites = this.props.palpites
+		palpites = palpites.filter(palpite => palpite.totalAcumulado > 0)
 		return (
 			<Row>
 				<div className='col-12'>
@@ -190,8 +187,8 @@ class Dashboard extends Component {
 						</div>
 						<div />
 						<div>
-							<h3 className="mb-1 card-title">Classificação: {palpites ? palpites[palpites.length - 1].classificacao : '0'}</h3>
-							<h5 className="text-muted">Total pontos: {palpites ? palpites[palpites.length - 1].totalAcumulado : '0'}</h5>
+							<h3 className="mb-1 card-title">Classificação: {palpites.length > 0 ? palpites[palpites.length - 1].classificacao : '0'}</h3>
+							<h5 className="text-muted">Total pontos: {palpites.length > 0 ? palpites[palpites.length - 1].totalAcumulado : '0'}</h5>
 						</div>
 					</Card>
 				</div>

@@ -16,6 +16,7 @@ class Classificacao extends Component {
 	}
 	render() {
 		const users = this.props.users
+		const ultimaClassificacao = users.reduce((ult, user) => user.classificacao > ult ? user.classificacao : ult, 0)
 		return (
 			<div style={{ backgroundColor: 'white' }}>
 				<Card>
@@ -51,7 +52,7 @@ class Classificacao extends Component {
 												<If test={user.classificacao > 0 && user.classificacao < 4}>
 													<i className={`fas fa-trophy fa-lg ${user.classificacao === 1 ? 'goldTrophy' : user.classificacao === 2 ? 'silverTrophy' : 'bronzeTrophy'}`}></i>
 												</If>
-												<If test={(user.classificacao > 3) && (idx === users.length - 1)}>
+												<If test={user.classificacao > 3 && user.classificacao === ultimaClassificacao}>
 													<img src={duck} alt='duck' width={20} height={20} />
 												</If>
 											</td>

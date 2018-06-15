@@ -17,12 +17,11 @@ class Palpite extends Component {
 		this.props.search()
 	}
 	componentWillReceiveProps(nextProps) {
-		if (nextProps.users && this.props.users && nextProps.users.length !== this.props.users.length) {
+		if (nextProps.users && this.props.users && nextProps.users.length != this.props.users.length) {
 			this.setState({ userId: this.state.userId, users: nextProps.users })
 		}
 	}
 	handleChange = event => {
-		console.log('handleChange:userId', event.target.value)
 		const userId = event.target.value
 		if (userId) {
 			const users = this.props.users.filter(user => user._id === userId)
@@ -71,11 +70,11 @@ class Palpite extends Component {
 															<i className={`bandeiraTimeA flag-icon flag-icon-${palpite.partida.timeA.bandeira}`} />
 														</div>
 														<div className='palpiteTimeA'>
-															{palpite.partida.placarTimeA}
+															{palpite.placarTimeA}
 														</div>
 														<div className='divisorPalpite'>x</div>
 														<div className='palpiteTimeB'>
-															{palpite.partida.placarTimeB}
+															{palpite.placarTimeB}
 														</div>
 														<div className='bandeiraTimeB'>
 															<i className={`bandeiraTimeB flag-icon flag-icon-${palpite.partida.timeB.bandeira}`} />

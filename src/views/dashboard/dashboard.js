@@ -13,7 +13,7 @@ const chartLineData = {
 	datasets: [
 		{
 			fill: "start",
-			backgroundColor: 'rgb(54, 162, 235,.1)',
+			backgroundColor: 'rgba(54, 162, 235,.1)',
 			borderColor: 'rgb(54, 162, 235)',
 			borderWidth: 2,
 			pointBorderColor: 'rgb(54, 162, 235)',
@@ -118,25 +118,27 @@ class Dashboard extends Component {
 	montarGraficoPontuacoes = palpites => {
 		chartBarData.labels = []
 		chartBarData.datasets[0].data = []
+		chartBarData.datasets[0].backgroundColor = []
+		chartBarData.datasets[0].borderColor = []
 		if (palpites.length) {
 			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartBarData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
 				chartBarData.datasets[0].data.push(palpites[i].totalPontosObitidos)
 				if (palpites[i].totalPontosObitidos === 5) {
-					chartBarData.datasets[0].backgroundColor.push('rgb(75, 192, 192,.1)')
+					chartBarData.datasets[0].backgroundColor.push('rgba(75, 192, 192,.1)')
 					chartBarData.datasets[0].borderColor.push('rgb(75, 192, 192)')
 				} else if (palpites[i].totalPontosObitidos === 3) {
-					chartBarData.datasets[0].backgroundColor.push('rgb(54, 162, 235,.1)')
+					chartBarData.datasets[0].backgroundColor.push('rgba(54, 162, 235,.1)')
 					chartBarData.datasets[0].borderColor.push('rgb(54, 162, 235)')
 				} else if (palpites[i].totalPontosObitidos === 2) {
-					chartBarData.datasets[0].backgroundColor.push('rgb(255, 205, 86,.1)')
+					chartBarData.datasets[0].backgroundColor.push('rgba(255, 205, 86,.1)')
 					chartBarData.datasets[0].borderColor.push('rgb(255, 205, 86)')
 				} else if (palpites[i].totalPontosObitidos === 1) {
-					chartBarData.datasets[0].backgroundColor.push('rgb(255, 159, 64,.1)')
+					chartBarData.datasets[0].backgroundColor.push('rgba(255, 159, 64,.1)')
 					chartBarData.datasets[0].borderColor.push('rgb(255, 159, 64)')
 				} else {
-					chartBarData.datasets[0].backgroundColor.push('rgb(255, 99, 132,.1)')
+					chartBarData.datasets[0].backgroundColor.push('rgba(255, 99, 132,.1)')
 					chartBarData.datasets[0].borderColor.push('rgb(255, 99, 132)')
 				}
 			}

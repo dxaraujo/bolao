@@ -14,7 +14,6 @@ export const LOGIN = "LOGIN";
 export const USER_SEARCH = 'USER_SEARCH';
 export const USER_UPDATE = 'USER_UPDATE';
 export const USER_SELECT = 'USER_SELECT';
-export const USER_RESET = 'USER_RESET';
 
 export const setUser = user => {
 	return { type: LOGIN, payload: user }
@@ -31,11 +30,7 @@ export const update = user => {
 
 export const handleChange = (user, users) => {
 	const u = updateUser(user, users)
-	return { type: USER_SELECT, payload: { user, users: u } }
-}
-
-export const reset = () => {
-	return [{ type: USER_RESET, payload: null }, search()]
+	return { type: USER_SELECT, payload: { users: u } }
 }
 
 const updateUser = (user, users) => {

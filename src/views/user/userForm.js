@@ -4,13 +4,13 @@ import { connect } from 'react-redux';
 import { rootUser } from '../../config'
 
 import { ButtonGroup, Button, CustomInput } from 'reactstrap'
-import { reset, handleChange } from './userActions'
+import { handleChange } from './userActions'
 import If from '../../components/if'
 
 import blackAvatar from '../../assets/img/blankavatar.svg'
 
 const ReadOnlyRow = ({ idx, user, edit }) => (
-	<tr key={idx} className='gridUsers'>
+	<tr key={user._id} className='gridUsers'>
 		<td className='text-center'>{idx + 1}</td>
 		<td><img alt='avatar' src={user.avatar ? `https://graph.facebook.com/${user.facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='img-avatar' width={50} height={50} /></td>
 		<td>{user.name}</td>
@@ -26,7 +26,7 @@ const ReadOnlyRow = ({ idx, user, edit }) => (
 )
 
 const EditableRow = ({ idx, user, handleChange, save, cancel }) => (
-	<tr key={idx} className='gridUsers'>
+	<tr key={user._id} className='gridUsers'>
 		<td className='text-center'>{idx + 1}</td>
 		<td><img alt='avatar' src={user.avatar ? `https://graph.facebook.com/${user.facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='img-avatar' width={50} height={50} /></td>
 		<td>{user.name}</td>
@@ -36,7 +36,7 @@ const EditableRow = ({ idx, user, handleChange, save, cancel }) => (
 				<Button size='sm' color='success' onClick={() => save(user)}>
 					<i className='fas fa-check fa-fw'></i>
 				</Button>
-				<Button size='sm' color='danger' onClick={cancel}>
+				<Button size='sm' color='danger' onClick={() => cancel(user)}>
 					<i className='fas fa-times fa-fw'></i>
 				</Button>
 			</ButtonGroup>
@@ -47,7 +47,7 @@ const EditableRow = ({ idx, user, handleChange, save, cancel }) => (
 class UserForm extends Component {
 	constructor(props) {
 		super(props)
-		this.state = props.selectedUser ? { isReadOnly: false } : { isReadOnly: true }
+		this.state = { isReadOnly: true }
 		this.save = this.save.bind(this)
 		this.edit = this.edit.bind(this)
 		this.cancel = this.cancel.bind(this)
@@ -56,9 +56,8 @@ class UserForm extends Component {
 	edit() {
 		this.setState({ isReadOnly: false })
 	}
-	cancel() {
+	cancel(user) {
 		this.setState({ isReadOnly: true })
-		this.props.reset()
 	}
 	save(user) {
 		this.setState({ isReadOnly: true })
@@ -71,12 +70,12 @@ class UserForm extends Component {
 	render() {
 		const { index, user } = this.props
 		return this.state.isReadOnly ?
-			<ReadOnlyRow idx={index} user={user} edit={this.edit} /> :
-			<EditableRow idx={index} user={user} handleChange={this.handleChange} save={this.save} cancel={this.cancel} />
+			<ReadOnlyRow key={user._id} idx={index} user={user} edit={this.edit} /> :
+			<EditableRow key={user._id} idx={index} user={user} handleChange={this.handleChange} save={this.save} cancel={this.cancel} />
 	}
 }
 
 const mapStateToProps = state => ({ users: state.userStore.users, selectedUser: state.userStore.selectedUser })
-const mapDispatchToProps = dispatch => bindActionCreators({ reset, handleChange }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ handleChange }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserForm)

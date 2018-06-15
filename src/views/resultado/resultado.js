@@ -34,7 +34,7 @@ class Resultado extends Component {
 							</tr>
 						</thead>
 						<tbody>
-							{partidas.map((partida, idx) => (<ResultadoForm key={idx} index={idx} partida={partida} update={this.update} />))}
+							{partidas.map((partida, idx) => (<ResultadoForm key={partida._id} index={idx} partida={partida} update={this.update} />))}
 						</tbody>
 					</Table>
 				</CardBody>

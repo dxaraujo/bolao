@@ -18,7 +18,6 @@ export const PARTIDA_HANDLER = 'PARTIDA_HANDLER';
 export const PARTIDA_HANDLER_RESULTADO = 'PARTIDA_HANDLER_RESULTADO';
 export const PARTIDA_SELECT = 'PARTIDA_SELECT';
 export const PARTIDA_RESET = 'PARTIDA_RESET';
-export const PARTIDA_RESET_RESULTADO = 'PARTIDA_RESET_RESULTADO';
 
 export const search = () => {
 	const response = authFetch(URL)
@@ -58,10 +57,6 @@ export const select = partida => {
 
 export const reset = () => {
 	return { type: PARTIDA_RESET }
-}
-
-export const resetResultado = () => {
-	return { type: PARTIDA_RESET_RESULTADO }
 }
 
 export const handleChangeResultado = (name, value, partida, partidas) => {

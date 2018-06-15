@@ -35,7 +35,7 @@ class Users extends Component {
 							</tr>
 						</thead>
 						<tbody>
-							{users.map((user, idx) => (<UserForm key={user.isAdmin} index={idx} user={user} update={this.update} />))}
+							{users.map((user, idx) => (<UserForm key={user._id} index={idx} user={user} update={this.update} />))}
 						</tbody>
 					</Table>
 				</CardBody>

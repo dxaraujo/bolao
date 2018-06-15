@@ -1,8 +1,8 @@
 import moment from 'moment'
 
-import { PARTIDA_SEARCH, PARTIDA_CREATE, PARTIDA_UPDATE, PARTIDA_DELETE, PARTIDA_HANDLER, PARTIDA_HANDLER_RESULTADO, PARTIDA_SELECT, PARTIDA_RESET, PARTIDA_RESET_RESULTADO } from './partidaActions'
+import { PARTIDA_SEARCH, PARTIDA_CREATE, PARTIDA_UPDATE, PARTIDA_DELETE, PARTIDA_HANDLER, PARTIDA_HANDLER_RESULTADO, PARTIDA_SELECT, PARTIDA_RESET } from './partidaActions'
 
-const initialState = { partidas: [], partida: {}, selectedPartida: null }
+const initialState = { partidas: [], partida: {} }
 
 export default function (state = initialState, action) {
 	switch (action.type) {
@@ -32,18 +32,12 @@ export default function (state = initialState, action) {
 		case PARTIDA_HANDLER_RESULTADO:
 			return {
 				...state,
-				partidas: action.payload.partidas,
-				selectedPartida: action.payload.partida
+				partidas: action.payload.partidas
 			}
 		case PARTIDA_RESET:
 			return {
 				...state,
 				partida: initialState.partida
-			}
-		case PARTIDA_RESET_RESULTADO:
-			return {
-				...state,
-				selectedPartida: initialState.selectedPartida
 			}
 		default:
 			return state;

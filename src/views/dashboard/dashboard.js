@@ -3,7 +3,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
 
 import { Row, Card, CardBody } from 'reactstrap'
-import { Bar, Line, Pie } from 'react-chartjs-2';
+import { Chart, Bar, Line, Pie } from 'react-chartjs-2';
 
 import { search as searchPalpites } from '../palpite/palpiteActions'
 import blackAvatar from '../../assets/img/blankavatar.svg'
@@ -89,7 +89,7 @@ const chartBarOpts = {
 		}],
 		yAxes: [{
 			ticks: {
-				beginAtZero: true,
+				beginAtZero: true
 			},
 		}],
 	}
@@ -100,6 +100,24 @@ class Dashboard extends Component {
 	componentWillMount() {
 		const user = this.props.getAuthenticatedUser()
 		this.props.searchPalpites(user)
+		Chart.pluginService.register({
+			beforeRender: function (chartInstance) {
+				var datasets = chartInstance.config.data.datasets;
+				for (var i = 0; i < datasets.length; i++) {
+					var meta = datasets[i]._meta;
+					var metaData = meta[Object.keys(meta)[0]];
+					var bars = metaData.data;
+					for (var j = 0; j < bars.length; j++) {
+						var model = bars[j]._model;
+						if (metaData.type === "horizontalBar" && model.base === model.x) {
+							model.x = model.base + 2;
+						} else if (model.base === model.y) {
+							model.y = model.base - 2;
+						}
+					}
+				}
+			}
+		});
 	}
 
 	montarGraficoClassificacoes = palpites => {

@@ -236,7 +236,7 @@ class Dashboard extends Component {
 								<div className="small text-muted">Total de pontuações por tipo</div>
 							</div>
 							<div className="chart-wrapper">
-								<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={150} />
+								<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={200} />
 							</div>
 						</CardBody>
 					</Card>

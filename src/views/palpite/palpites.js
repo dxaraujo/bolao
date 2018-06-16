@@ -17,7 +17,7 @@ class Palpite extends Component {
 		this.props.search()
 	}
 	componentWillReceiveProps(nextProps) {
-		if (nextProps.users && this.props.users && nextProps.users.length != this.props.users.length) {
+		if (nextProps.users && this.props.users && nextProps.users.length !== this.props.users.length) {
 			this.setState({ userId: this.state.userId, users: nextProps.users })
 		}
 	}

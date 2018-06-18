@@ -1,59 +1,70 @@
-import React, { Component } from 'react';
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux';
+import React, {
+	Component
+} from 'react';
+import {
+	bindActionCreators
+} from 'redux'
+import {
+	connect
+} from 'react-redux';
 
-import { Row, Card, CardBody } from 'reactstrap'
-import { Chart, Bar, Line, Pie } from 'react-chartjs-2';
+import {
+	Row,
+	Card,
+	CardBody
+} from 'reactstrap'
+import {
+	Chart,
+	Bar,
+	Line,
+	Pie
+} from 'react-chartjs-2';
 
-import { search as searchPalpites } from '../palpite/palpiteActions'
+import {
+	search as searchPalpites
+} from '../palpite/palpiteActions'
 import blackAvatar from '../../assets/img/blankavatar.svg'
 
 const chartLineData = {
 	labels: [],
-	datasets: [
-		{
-			fill: "start",
-			backgroundColor: 'rgba(54, 162, 235,.1)',
-			borderColor: 'rgb(54, 162, 235)',
-			borderWidth: 2,
-			pointBorderColor: 'rgb(54, 162, 235)',
-			pointBackgroundColor: '#FFFFFF',
-			pointBorderWidth: 2,
-			pointHoverBackgroundColor: '#DEDEDE',
-			pointHoverBorderColor: 'rgb(54, 162, 235)',
-			pointHoverBorderWidth: 2,
-			pointRadius: 4,
-			data: [],
-		},
-	],
+	datasets: [{
+		fill: "start",
+		backgroundColor: 'rgba(54, 162, 235,.1)',
+		borderColor: 'rgb(54, 162, 235)',
+		borderWidth: 2,
+		pointBorderColor: 'rgb(54, 162, 235)',
+		pointBackgroundColor: '#FFFFFF',
+		pointBorderWidth: 2,
+		pointHoverBackgroundColor: '#DEDEDE',
+		pointHoverBorderColor: 'rgb(54, 162, 235)',
+		pointHoverBorderWidth: 2,
+		pointRadius: 4,
+		data: [],
+	}, ],
 };
 
 const chartBarData = {
 	labels: [],
-	datasets: [
-		{
-			backgroundColor: [],
-			borderColor: [],
-			borderWidth: 2,
-			data: [],
-		},
-	],
+	datasets: [{
+		backgroundColor: [],
+		borderColor: [],
+		borderWidth: 2,
+		data: [],
+	}, ],
 };
 
 const chartPieData = {
 	labels: [],
-	datasets: [
-		{
-			backgroundColor: [
-				'rgb(75, 192, 192)',
-				'rgb(54, 162, 235)',
-				'rgb(255, 205, 86)',
-				'rgb(255, 159, 64)',
-				'rgb(255, 99, 132)',
-			],
-			data: [],
-		},
-	],
+	datasets: [{
+		backgroundColor: [
+			'rgb(75, 192, 192)',
+			'rgb(54, 162, 235)',
+			'rgb(255, 205, 86)',
+			'rgb(255, 159, 64)',
+			'rgb(255, 99, 132)',
+		],
+		data: [],
+	}, ],
 };
 
 
@@ -125,7 +136,7 @@ class Dashboard extends Component {
 		chartLineData.datasets[0].data = []
 		if (allPalpites.length) {
 			let palpites = allPalpites.sort((p1, p2) => p1.partida.order > p2.partida.order)
-			palpites = palpites.slice(Math.max(palpites.length - 10, 0))
+			//palpites = palpites.slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartLineData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
 				chartLineData.datasets[0].data.push(palpites[i].classificacao)
@@ -141,7 +152,7 @@ class Dashboard extends Component {
 		chartBarData.datasets[0].borderColor = []
 		if (allPalpites.length) {
 			let palpites = allPalpites.sort((p1, p2) => p1.partida.order > p2.partida.order)
-			palpites = palpites.slice(Math.max(palpites.length - 10, 0))
+			//palpites = palpites.slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartBarData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
 				chartBarData.datasets[0].data.push(palpites[i].totalPontosObitidos)
@@ -207,65 +218,137 @@ class Dashboard extends Component {
 	render() {
 		const user = this.props.getAuthenticatedUser()
 		const palpites = this.props.palpites
-		return (
-			<Row>
-				<div className='col-12'>
-					<Card style={{ display: 'grid', gridTemplateColumns: '50px 20px 1fr', alignItems: 'center', padding: '20px', backgroundColor: 'white' }}>
-						<div>
-							<img alt='avatar' src={user.avatar ? `https://graph.facebook.com/${user.facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='img-avatar' width={50} height={50} />
-						</div>
-						<div />
-						<div>
-							<h3 className="mb-1 card-title">Classificação: {palpites.length > 0 ? palpites[palpites.length - 1].classificacao : '0'}</h3>
-							<h5 className="text-muted">Total pontos: {palpites.length > 0 ? palpites[palpites.length - 1].totalAcumulado : '0'}</h5>
-						</div>
-					</Card>
-				</div>
-				<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
-					<Card>
-						<CardBody>
-							<div className="col-sm-12 mb-3">
-								<h5 className="mb-0 card-title">Classificação</h5>
-								<div className="small text-muted">Histórico de classificação por partida</div>
-							</div>
-							<div className="chart-wrapper">
-								<Line data={this.montarGraficoClassificacoes(palpites)} options={chartLineOpts} height={150} />
-							</div>
-						</CardBody>
-					</Card>
-				</div>
-				<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
-					<Card>
-						<CardBody>
-							<div className="col-sm-12 mb-3">
-								<h5 className="mb-0 card-title">Pontuações</h5>
-								<div className="small text-muted">Pontuações obtidas por partida</div>
-							</div>
-							<div className="chart-wrapper">
-								<Bar data={this.montarGraficoPontuacoes(tpalpites)} options={chartBarOpts} height={150} />
-							</div>
-						</CardBody>
-					</Card>
-				</div>
-				<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
-					<Card>
-						<CardBody>
-							<div className="col-sm-12 mb-3">
-								<h5 className="mb-0 card-title">Pontuações por tipo</h5>
-								<div className="small text-muted">Total de pontuações por tipo</div>
-							</div>
-							<div className="chart-wrapper">
-								<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={200} />
-							</div>
-						</CardBody>
-					</Card>
-				</div>
-			</Row>
+		return ( <
+			Row >
+			<
+			div className = 'col-12' >
+			<
+			Card style = {
+				{
+					display: 'grid',
+					gridTemplateColumns: '50px 20px 1fr',
+					alignItems: 'center',
+					padding: '20px',
+					backgroundColor: 'white'
+				}
+			} >
+			<
+			div >
+			<
+			img alt = 'avatar'
+			src = {
+				user.avatar ? `https://graph.facebook.com/${user.facebookId}/picture?width=${500}&height=${500}` : blackAvatar
+			}
+			className = 'img-avatar'
+			width = {
+				50
+			}
+			height = {
+				50
+			}
+			/> <
+			/div> <
+			div / >
+			<
+			div >
+			<
+			h3 className = "mb-1 card-title" > Classificação: {
+				palpites.length > 0 ? palpites[palpites.length - 1].classificacao : '0'
+			} < /h3> <
+			h5 className = "text-muted" > Total pontos: {
+				palpites.length > 0 ? palpites[palpites.length - 1].totalAcumulado : '0'
+			} < /h5> <
+			/div> <
+			/Card> <
+			/div> <
+			div className = 'col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6' >
+			<
+			Card >
+			<
+			CardBody >
+			<
+			div className = "col-sm-12 mb-3" >
+			<
+			h5 className = "mb-0 card-title" > Classificação < /h5> <
+			div className = "small text-muted" > Histórico de classificação por partida < /div> <
+			/div> <
+			div className = "chart-wrapper" >
+			<
+			Line data = {
+				this.montarGraficoClassificacoes(palpites)
+			}
+			options = {
+				chartLineOpts
+			}
+			height = {
+				150
+			}
+			/> <
+			/div> <
+			/CardBody> <
+			/Card> <
+			/div> <
+			div className = 'col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6' >
+			<
+			Card >
+			<
+			CardBody >
+			<
+			div className = "col-sm-12 mb-3" >
+			<
+			h5 className = "mb-0 card-title" > Pontuações < /h5> <
+			div className = "small text-muted" > Pontuações obtidas por partida < /div> <
+			/div> <
+			div className = "chart-wrapper" >
+			<
+			Bar data = {
+				this.montarGraficoPontuacoes(tpalpites)
+			}
+			options = {
+				chartBarOpts
+			}
+			height = {
+				150
+			}
+			/> <
+			/div> <
+			/CardBody> <
+			/Card> <
+			/div> <
+			div className = 'col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6' >
+			<
+			Card >
+			<
+			CardBody >
+			<
+			div className = "col-sm-12 mb-3" >
+			<
+			h5 className = "mb-0 card-title" > Pontuações por tipo < /h5> <
+			div className = "small text-muted" > Total de pontuações por tipo < /div> <
+			/div> <
+			div className = "chart-wrapper" >
+			<
+			Pie data = {
+				this.montarGraficoPontuacoesPorTipo(palpites)
+			}
+			height = {
+				200
+			}
+			/> <
+			/div> <
+			/CardBody> <
+			/Card> <
+			/div> <
+			/Row>
 		)
 	}
 }
 
-const mapStateToProps = state => ({ palpites: state.palpiteStore.palpites })
-const mapDispatchToProps = dispatch => bindActionCreators({ searchPalpites }, dispatch)
+const mapStateToProps = state => ({
+	palpites: state.palpiteStore.palpites
+})
+const mapDispatchToProps = dispatch => bindActionCreators({
+	searchPalpites
+}, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard)

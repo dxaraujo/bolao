@@ -125,7 +125,7 @@ class Dashboard extends Component {
 		chartLineData.datasets[0].data = []
 		if (allPalpites.length) {
 			let palpites = allPalpites.sort((p1, p2) => p1.partida.order - p2.partida.order)
-			//palpites = palpites.slice(Math.max(palpites.length - 10, 0))
+			palpites = palpites.slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartLineData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
 				chartLineData.datasets[0].data.push(palpites[i].classificacao)
@@ -141,7 +141,7 @@ class Dashboard extends Component {
 		chartBarData.datasets[0].borderColor = []
 		if (allPalpites.length) {
 			let palpites = allPalpites.sort((p1, p2) => p1.partida.order - p2.partida.order)
-			//palpites = palpites.slice(Math.max(palpites.length - 10, 0))
+			palpites = palpites.slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartBarData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
 				chartBarData.datasets[0].data.push(palpites[i].totalPontosObitidos)

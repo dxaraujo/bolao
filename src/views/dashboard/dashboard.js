@@ -124,7 +124,7 @@ class Dashboard extends Component {
 		chartLineData.labels = []
 		chartLineData.datasets[0].data = []
 		if (allPalpites.length) {
-			let palpites = allPalpites.sort((p1, p2) => p1.partida.order > p2.partida.order)
+			let palpites = allPalpites.sort((p1, p2) => p1.partida.order - p2.partida.order)
 			//palpites = palpites.slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartLineData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
@@ -140,7 +140,7 @@ class Dashboard extends Component {
 		chartBarData.datasets[0].backgroundColor = []
 		chartBarData.datasets[0].borderColor = []
 		if (allPalpites.length) {
-			let palpites = allPalpites.sort((p1, p2) => p1.partida.order > p2.partida.order)
+			let palpites = allPalpites.sort((p1, p2) => p1.partida.order - p2.partida.order)
 			//palpites = palpites.slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartBarData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
@@ -175,7 +175,7 @@ class Dashboard extends Component {
 		let placarGol = 0
 		let nada = 0
 		if (allPalpites.length) {
-			let palpites = allPalpites.sort((p1, p2) => p1.partida.order > p2.partida.order)
+			let palpites = allPalpites.sort((p1, p2) => p1.partida.order - p2.partida.order)
 			for (let i = 0; i < palpites.length; i++) {
 				const palpite = palpites[i]
 				if (palpite.placarCheio) {

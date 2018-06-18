@@ -206,7 +206,8 @@ class Dashboard extends Component {
 
 	render() {
 		const user = this.props.getAuthenticatedUser()
-		const palpites = this.props.palpites
+		let palpites = this.props.palpites
+		palpite = palpites.filter(palpite => palpite.totalAcumulado > 0)
 		return (
 			<Row>
 				<div className='col-12'>

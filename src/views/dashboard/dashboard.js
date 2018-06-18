@@ -242,7 +242,7 @@ class Dashboard extends Component {
 								<div className="small text-muted">Pontuações obtidas por partida</div>
 							</div>
 							<div className="chart-wrapper">
-								<Bar data={this.montarGraficoPontuacoes(tpalpites)} options={chartBarOpts} height={150} />
+								<Bar data={this.montarGraficoPontuacoes(palpites)} options={chartBarOpts} height={150} />
 							</div>
 						</CardBody>
 					</Card>

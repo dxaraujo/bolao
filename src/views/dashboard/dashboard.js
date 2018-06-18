@@ -120,11 +120,12 @@ class Dashboard extends Component {
 		});
 	}
 
-	montarGraficoClassificacoes = palpites => {
+	montarGraficoClassificacoes = allPalpites => {
 		chartLineData.labels = []
 		chartLineData.datasets[0].data = []
-		if (palpites.length) {
-			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
+		if (allPalpites.length) {
+			let palpites = allPalpites.sort((p1, p2) => p1.partida.order > p2.partida.order)
+			palpites = palpites.slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartLineData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
 				chartLineData.datasets[0].data.push(palpites[i].classificacao)
@@ -133,13 +134,14 @@ class Dashboard extends Component {
 		return chartLineData
 	}
 
-	montarGraficoPontuacoes = palpites => {
+	montarGraficoPontuacoes = allPalpites => {
 		chartBarData.labels = []
 		chartBarData.datasets[0].data = []
 		chartBarData.datasets[0].backgroundColor = []
 		chartBarData.datasets[0].borderColor = []
-		if (palpites.length) {
-			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
+		if (allPalpites.length) {
+			let palpites = allPalpites.sort((p1, p2) => p1.partida.order > p2.partida.order)
+			palpites = palpites.slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartBarData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
 				chartBarData.datasets[0].data.push(palpites[i].totalPontosObitidos)
@@ -164,7 +166,7 @@ class Dashboard extends Component {
 		return chartBarData
 	}
 
-	montarGraficoPontuacoesPorTipo = palpites => {
+	montarGraficoPontuacoesPorTipo = allPalpites => {
 		chartPieData.labels = []
 		chartPieData.datasets[0].data = []
 		let placarCheio = 0
@@ -172,8 +174,8 @@ class Dashboard extends Component {
 		let placarTimeVencedor = 0
 		let placarGol = 0
 		let nada = 0
-		if (palpites.length) {
-			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
+		if (allPalpites.length) {
+			let palpites = allPalpites.sort((p1, p2) => p1.partida.order > p2.partida.order)
 			for (let i = 0; i < palpites.length; i++) {
 				const palpite = palpites[i]
 				if (palpite.placarCheio) {
@@ -204,8 +206,7 @@ class Dashboard extends Component {
 
 	render() {
 		const user = this.props.getAuthenticatedUser()
-		let palpites = this.props.palpites
-		palpites = palpites.filter(palpite => palpite.totalAcumulado > 0)
+		const palpites = this.props.palpites
 		return (
 			<Row>
 				<div className='col-12'>
@@ -241,7 +242,7 @@ class Dashboard extends Component {
 								<div className="small text-muted">Pontuações obtidas por partida</div>
 							</div>
 							<div className="chart-wrapper">
-								<Bar data={this.montarGraficoPontuacoes(palpites)} options={chartBarOpts} height={150} />
+								<Bar data={this.montarGraficoPontuacoes(tpalpites)} options={chartBarOpts} height={150} />
 							</div>
 						</CardBody>
 					</Card>

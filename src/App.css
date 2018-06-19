@@ -246,21 +246,21 @@ footer {
 
 @media only screen and (max-width: 575.98px) {
 	.gridClassificacao {
-		grid-template-columns: 26px 29px 40px auto 21px 30px 20px 20px 20px 20px;
+		grid-template-columns: 28px 29px 40px auto 21px 30px 24px 24px 24px 24px;
 	}
 	.gridClassificacao td,
 	.gridClassificacao th {
-		padding: 2px 5px 2px 5px
+		padding: 5px 2px 5px 2px
 	}
 }
 
 @media only screen and (max-width: 767.98px) {
 	.gridClassificacao {
-		grid-template-columns: 26px 29px 40px auto 21px 30px 20px 20px 20px 20px;
+		grid-template-columns: 29px 29px 40px auto 21px 30px 24px 24px 24px 24px;
 	}
 	.gridClassificacao td,
 	.gridClassificacao th {
-		padding: 2px 5px 2px 5px
+		padding: 5px 2px 5px 2px
 	}
 }
 

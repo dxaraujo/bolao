@@ -54,7 +54,7 @@ class Classificacao extends Component {
 						<Table responsive striped borderless>
 							<thead>
 								<tr className='gridClassificacao'>
-									<th className='text-right placarClassificacao'>#</th>
+									<th className='text-right'>#</th>
 									<th className='text-center'></th>
 									<th className='text-center'></th>
 									<th>Nome</th>
@@ -84,11 +84,11 @@ class Classificacao extends Component {
 											</td>
 											<td>{user.name}</td>
 											<td className={`text-center classificacao ${this.mudancaClassificacao(user)}`}>{this.resultadoMudancaClassificacao(user)} </td>
-											<td className='text-center'>{user.totalAcumulado}</td>
-											<td className='text-center placarClassificacao'>{user.placarCheio}</td>
-											<td className='text-center placarClassificacao'>{user.placarTimeVencedorComGol}</td>
-											<td className='text-center placarClassificacao'>{user.placarTimeVencedor}</td>
-											<td className='text-center placarClassificacao'>{user.placarGol}</td>
+											<td className='text-center placarClassificacao'>{user.totalAcumulado}</td>
+											<td className='text-center text-muted'>{user.placarCheio}</td>
+											<td className='text-center text-muted'>{user.placarTimeVencedorComGol}</td>
+											<td className='text-center text-muted'>{user.placarTimeVencedor}</td>
+											<td className='text-center text-muted'>{user.placarGol}</td>
 										</tr>
 									)
 								})}

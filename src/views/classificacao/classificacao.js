@@ -73,10 +73,10 @@ class Classificacao extends Component {
 											<td className='text-center'>{user.classificacao || '-'}</td>
 											<td className='text-center'>
 												<If test={user.classificacao > 0 && user.classificacao < 4}>
-													<i className={`fas fa-trophy fa-lg ${user.classificacao === 1 ? 'goldTrophy' : user.classificacao === 2 ? 'silverTrophy' : 'bronzeTrophy'}`}></i>
+													<i className={`fas fa-trophy ${user.classificacao === 1 ? 'goldTrophy' : user.classificacao === 2 ? 'silverTrophy' : 'bronzeTrophy'}`}></i>
 												</If>
 												<If test={user.classificacao > 3 && user.classificacao === ultimaClassificacao}>
-													<img src={duck} alt='duck' width={20} height={20} />
+													<img src={duck} alt='duck' width={16} height={16} />
 												</If>
 											</td>
 											<td className='text-center'>

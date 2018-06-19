@@ -240,13 +240,13 @@ footer {
 
 .gridClassificacao {
 	display: grid;
-	grid-template-columns: 44px 44px 74px auto 45px 54px 54px 54px 54px 54px;
+	grid-template-columns: 44px 40px 74px auto 45px 54px 54px 54px 54px 54px;
 	align-items: center;
 }
 
 @media only screen and (max-width: 575.98px) {
 	.gridClassificacao {
-		grid-template-columns: 26px 29px 40px auto 21px 30px 20px 20px 20px 20px;
+		grid-template-columns: 26px 20px 40px auto 21px 30px 20px 20px 20px 20px;
 	}
 	.gridClassificacao td,
 	.gridClassificacao th {
@@ -256,7 +256,7 @@ footer {
 
 @media only screen and (max-width: 767.98px) {
 	.gridClassificacao {
-		grid-template-columns: 26px 29px 40px auto 21px 30px 20px 20px 20px 20px;
+		grid-template-columns: 26px 20px 40px auto 21px 30px 20px 20px 20px 20px;
 	}
 	.gridClassificacao td,
 	.gridClassificacao th {

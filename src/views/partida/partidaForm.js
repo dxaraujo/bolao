@@ -41,7 +41,7 @@ class PartidaForm extends Component {
 					<Form className='form-horizontal' onSubmit={this.handleSubmit}>
 					<FormGroup row>
 							<Col xs='12' md='2'>
-								<Label>Data</Label>
+								<Label>Ordem</Label>
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>

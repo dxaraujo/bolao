@@ -240,13 +240,13 @@ footer {
 
 .gridClassificacao {
 	display: grid;
-	grid-template-columns: 44px 44px 74px auto 45px 76px 76px 76px 76px 76px;
+	grid-template-columns: 44px 44px 74px auto 45px 54px 54px 54px 54px 54px;
 	align-items: center;
 }
 
 @media only screen and (max-width: 575.98px) {
 	.gridClassificacao {
-		grid-template-columns: 26px 29px 40px auto 21px 35px 35px 35px 35px 35px;
+		grid-template-columns: 26px 29px 40px auto 21px 30px 20px 20px 20px 20px;
 	}
 	.gridClassificacao td,
 	.gridClassificacao th {
@@ -256,7 +256,7 @@ footer {
 
 @media only screen and (max-width: 767.98px) {
 	.gridClassificacao {
-		grid-template-columns: 26px 29px 40px auto 21px 35px 35px 35px 35px 35px;
+		grid-template-columns: 26px 29px 40px auto 21px 30px 20px 20px 20px 20px;
 	}
 	.gridClassificacao td,
 	.gridClassificacao th {
@@ -268,6 +268,25 @@ footer {
 	display: grid;
 	grid-template-columns: 1fr 12fr;
 	align-items: center;
+}
+
+.classificacaoHeader {
+	margin: 2px;
+	border-radius: 5px;
+	width: 20px;
+	height: 20px;
+}
+
+@media only screen and (max-width: 575.98px) {
+	.classificacaoHeader {
+		width: 10px;
+	}
+}
+
+@media only screen and (max-width: 767.98px) {
+	.classificacaoHeader {
+		width: 10px;
+	}
 }
 
 .classificacao {

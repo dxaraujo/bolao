@@ -59,11 +59,11 @@ class Classificacao extends Component {
 									<th className='text-center'></th>
 									<th>Nome</th>
 									<th className='text-center'></th>
-									<th className='text-center'>Pts</th>
-									<th className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(75, 192, 192)', width: '20px', height: '20px'}}></div></th>
-									<th className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(54, 162, 235)', width: '20px', height: '20px'}}></div></th>
-									<th className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(255, 205, 86)', width: '20px', height: '20px'}}></div></th>
-									<th className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(255, 159, 64)', width: '20px', height: '20px'}}></div></th>
+									<th className='text-center'>Pt</th>
+									<th className='d-flex justify-content-center'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(75, 192, 192)' }}></div></th>
+									<th className='d-flex justify-content-center'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(54, 162, 235)' }}></div></th>
+									<th className='d-flex justify-content-center'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 205, 86)' }}></div></th>
+									<th className='d-flex justify-content-center'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 159, 64)' }}></div></th>
 								</tr>
 							</thead>
 							<tbody>

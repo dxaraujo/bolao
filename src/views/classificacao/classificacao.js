@@ -54,7 +54,7 @@ class Classificacao extends Component {
 						<Table responsive striped borderless>
 							<thead>
 								<tr className='gridClassificacao'>
-									<th className='text-right'>#</th>
+									<th className='text-right placarClassificacao'>#</th>
 									<th className='text-center'></th>
 									<th className='text-center'></th>
 									<th>Nome</th>
@@ -70,7 +70,7 @@ class Classificacao extends Component {
 								{users.map((user, idx) => {
 									return (
 										<tr key={user.classificacao + '-' + idx} className='gridClassificacao'>
-											<td className='text-right'>{user.classificacao || '-'}</td>
+											<td className='text-right placarClassificacao'>{user.classificacao || '-'}</td>
 											<td className='text-center'>
 												<If test={user.classificacao > 0 && user.classificacao < 4}>
 													<i className={`fas fa-trophy fa-lg ${user.classificacao === 1 ? 'goldTrophy' : user.classificacao === 2 ? 'silverTrophy' : 'bronzeTrophy'}`}></i>
@@ -85,10 +85,10 @@ class Classificacao extends Component {
 											<td>{user.name}</td>
 											<td className={`text-center classificacao ${this.mudancaClassificacao(user)}`}>{this.resultadoMudancaClassificacao(user)} </td>
 											<td className='text-center'>{user.totalAcumulado}</td>
-											<td className='text-center'>{user.placarCheio}</td>
-											<td className='text-center'>{user.placarTimeVencedorComGol}</td>
-											<td className='text-center'>{user.placarTimeVencedor}</td>
-											<td className='text-center'>{user.placarGol}</td>
+											<td className='text-center placarClassificacao'>{user.placarCheio}</td>
+											<td className='text-center placarClassificacao'>{user.placarTimeVencedorComGol}</td>
+											<td className='text-center placarClassificacao'>{user.placarTimeVencedor}</td>
+											<td className='text-center placarClassificacao'>{user.placarGol}</td>
 										</tr>
 									)
 								})}

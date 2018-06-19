@@ -281,6 +281,10 @@ footer {
 	height: 20px;
 }
 
+.placarClassificacao {
+	font-family: opensans-bold;
+}
+
 @media only screen and (max-width: 575.98px) {
 	.classificacaoHeader {
 		width: 20px;

@@ -246,7 +246,7 @@ footer {
 
 @media only screen and (max-width: 575.98px) {
 	.gridClassificacao {
-		grid-template-columns: 20px 25px 44px auto 24px 30px 24px 24px 24px 24px;
+		grid-template-columns: 22px 25px 44px auto 24px 30px 24px 24px 24px 24px;
 	}
 	.gridClassificacao td,
 	.gridClassificacao th {
@@ -256,7 +256,7 @@ footer {
 
 @media only screen and (max-width: 767.98px) {
 	.gridClassificacao {
-		grid-template-columns: 20px 25px 44px auto 24px 30px 24px 24px 24px 24px;
+		grid-template-columns: 22px 25px 44px auto 24px 30px 24px 24px 24px 24px;
 	}
 	.gridClassificacao td,
 	.gridClassificacao th {

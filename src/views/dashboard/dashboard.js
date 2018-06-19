@@ -321,11 +321,13 @@ class Dashboard extends Component {
 					<Card>
 						<CardBody>
 							<div className='col-sm-12 mb-3'>
-								<h5 className='mb-0 card-title'>Pontuações por tipo</h5>
-								<div className='small text-muted'>Total de pontuações por tipo</div>
+								<h5 className='mb-0 card-title'>Classificação geral</h5>
+								<div className='small text-muted'>Histórico das classificações</div>
 							</div>
 							<div className='chart-wrapper'>
-								<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={230} />
+								<If test={this.props.users.length > 0}>
+									<Line data={this.montarGraficoClassificacaoGeral(user)} options={chartLineOpts(true)} height={250} />
+								</If>
 							</div>
 						</CardBody>
 					</Card>
@@ -334,13 +336,11 @@ class Dashboard extends Component {
 					<Card>
 						<CardBody>
 							<div className='col-sm-12 mb-3'>
-								<h5 className='mb-0 card-title'>Classificação geral</h5>
-								<div className='small text-muted'>Histórico das classificações</div>
+								<h5 className='mb-0 card-title'>Pontuações por tipo</h5>
+								<div className='small text-muted'>Total de pontuações por tipo</div>
 							</div>
 							<div className='chart-wrapper'>
-								<If test={this.props.users.length > 0}>
-									<Line data={this.montarGraficoClassificacaoGeral(user)} options={chartLineOpts(true)} height={230} />
-								</If>
+								<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={250} />
 							</div>
 						</CardBody>
 					</Card>

@@ -31,5 +31,23 @@ export default function (state = initialState, action) {
 }
 
 const ordenerUsuarios = users => {
-	return users.sort((u1, u2) => u1.classificacao.valueOf() - u2.classificacao.valueOf())
+	return users.sort((u1, u2) =>   {
+		const test0 = u2.totalAcumulado.valueOf() - u1.totalAcumulado.valueOf()
+		if (test0 === 0) {
+			const test1 = u2.placarCheio.valueOf() - u1.placarCheio.valueOf()
+			if (test1 === 0) {
+				const test2 = u2.placarTimeVencedorComGol.valueOf() - u1.placarTimeVencedorComGol.valueOf()
+				if (test2 === 0) {
+					const test3 = u2.placarTimeVencedor.valueOf() - u1.placarTimeVencedor.valueOf()
+					if (test3 === 0 ) {
+						return u2.placarGol.valueOf() - u1.placarGol.valueOf()
+					}
+					return test3
+				}
+				return test2
+			}
+			return test1
+		}
+		return test0
+	})
 }

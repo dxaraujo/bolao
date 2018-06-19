@@ -283,13 +283,13 @@ footer {
 
 @media only screen and (max-width: 575.98px) {
 	.classificacaoHeader {
-		width: 10px;
+		width: 20px;
 	}
 }
 
 @media only screen and (max-width: 767.98px) {
 	.classificacaoHeader {
-		width: 10px;
+		width: 20px;
 	}
 }
 

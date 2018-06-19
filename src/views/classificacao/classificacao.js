@@ -14,12 +14,30 @@ class Classificacao extends Component {
 	componentWillMount() {
 		this.props.search()
 	}
+	mudancaClassificacao(user) {
+		const r = user.classificacaoAnterior - user.classificacao
+		if(r === 0) {
+			return 'classificacaoIgual'
+		} if (r > 0) {
+			return 'classificacao_up'
+		} else {
+			return 'classificacao_down'
+		}
+	}
+	resultadoMudancaClassificacao(user) {
+		const r = user.classificacaoAnterior - user.classificacao
+		if(r === 0) {
+			return ''
+		} else {
+			return r
+		}
+	}
 	render() {
 		const users = this.props.users
 		const ultimaClassificacao = users.reduce((ult, user) => user.classificacao > ult ? user.classificacao : ult, 0)
 		return (
 			<div style={{ backgroundColor: 'white' }}>
-				<Card>
+				<Card style={{ marginBottom: '0px'}}>
 					<CardHeader>Classificação</CardHeader>
 					<div className='divplayers'>
 						<div style={{ justifySelf: 'right', alignSelf: 'top' }}>
@@ -40,7 +58,12 @@ class Classificacao extends Component {
 									<th className='text-center'></th>
 									<th className='text-center'></th>
 									<th>Nome</th>
-									<th className='text-center'>Pontos</th>
+									<th className='text-center'></th>
+									<th className='text-center'>Pt</th>
+									<th className='d-flex justify-content-center'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(75, 192, 192)' }}></div></th>
+									<th className='d-flex justify-content-center'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(54, 162, 235)' }}></div></th>
+									<th className='d-flex justify-content-center'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 205, 86)' }}></div></th>
+									<th className='d-flex justify-content-center'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 159, 64)' }}></div></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -60,10 +83,40 @@ class Classificacao extends Component {
 												<img alt='avatar' src={user.avatar ? `https://graph.facebook.com/${user.facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='img-avatar' width={50} height={50} />
 											</td>
 											<td>{user.name}</td>
+											<td className={`text-center classificacao ${this.mudancaClassificacao(user)}`}>{this.resultadoMudancaClassificacao(user)} </td>
 											<td className='text-center'>{user.totalAcumulado}</td>
+											<td className='text-center'>{user.placarCheio}</td>
+											<td className='text-center'>{user.placarTimeVencedorComGol}</td>
+											<td className='text-center'>{user.placarTimeVencedor}</td>
+											<td className='text-center'>{user.placarGol}</td>
 										</tr>
 									)
 								})}
+							</tbody>
+						</Table>
+					</CardBody>
+				</Card>
+				<Card>
+					<CardHeader>Legenda</CardHeader>
+					<CardBody style={{ padding: '0px' }}>
+						<Table responsive striped borderless>
+							<tbody>
+								<tr className='gridLegenda'>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(75, 192, 192)', width: '20px', height: '20px'}}></div></td>
+									<td>Placar cheio</td>
+								</tr>
+								<tr className='gridLegenda'>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(54, 162, 235)', width: '20px', height: '20px'}}></div></td>
+									<td>Resultado mais gol</td>
+								</tr>
+								<tr className='gridLegenda'>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(255, 205, 86)', width: '20px', height: '20px'}}></div></td>
+									<td>Somente resultado</td>
+								</tr>
+								<tr className='gridLegenda'>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(255, 159, 64)', width: '20px', height: '20px'}}></div></td>
+									<td>Somente gol</td>
+								</tr>
 							</tbody>
 						</Table>
 					</CardBody>

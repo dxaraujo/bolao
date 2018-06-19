@@ -70,7 +70,7 @@ class Classificacao extends Component {
 								{users.map((user, idx) => {
 									return (
 										<tr key={user.classificacao + '-' + idx} className='gridClassificacao'>
-											<td className='text-right placarClassificacao'>{user.classificacao || '-'}</td>
+											<td className='text-right'>{user.classificacao || '-'}</td>
 											<td className='text-center'>
 												<If test={user.classificacao > 0 && user.classificacao < 4}>
 													<i className={`fas fa-trophy fa-lg ${user.classificacao === 1 ? 'goldTrophy' : user.classificacao === 2 ? 'silverTrophy' : 'bronzeTrophy'}`}></i>

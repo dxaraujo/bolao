@@ -240,27 +240,27 @@ footer {
 
 .gridClassificacao {
 	display: grid;
-	grid-template-columns: 44px 40px 74px auto 45px 54px 54px 54px 54px 54px;
+	grid-template-columns: 40px 45px 74px auto 44px 50px 44px 44px 44px 44px;
 	align-items: center;
 }
 
 @media only screen and (max-width: 575.98px) {
 	.gridClassificacao {
-		grid-template-columns: 26px 20px 40px auto 21px 30px 20px 20px 20px 20px;
+		grid-template-columns: 22px 25px 44px auto 24px 30px 24px 24px 24px 24px;
 	}
 	.gridClassificacao td,
 	.gridClassificacao th {
-		padding: 2px 2px 2px 2px
+		padding: 5px 2px 5px 2px
 	}
 }
 
 @media only screen and (max-width: 767.98px) {
 	.gridClassificacao {
-		grid-template-columns: 26px 20px 40px auto 21px 30px 20px 20px 20px 20px;
+		grid-template-columns: 22px 25px 44px auto 24px 30px 24px 24px 24px 24px;
 	}
 	.gridClassificacao td,
 	.gridClassificacao th {
-		padding: 2px 2px 2px 2px
+		padding: 5px 2px 5px 2px
 	}
 }
 
@@ -270,22 +270,30 @@ footer {
 	align-items: center;
 }
 
+.classificacaoHeaderTD {
+	width: 100%;
+	height: 100%;
+}
+
 .classificacaoHeader {
-	margin: 2px;
-	border-radius: 5px;
+	border-radius: 10px;
 	width: 20px;
 	height: 20px;
 }
 
+.placarClassificacao {
+	font-family: opensans-bold;
+}
+
 @media only screen and (max-width: 575.98px) {
 	.classificacaoHeader {
-		width: 10px;
+		width: 20px;
 	}
 }
 
 @media only screen and (max-width: 767.98px) {
 	.classificacaoHeader {
-		width: 10px;
+		width: 20px;
 	}
 }
 

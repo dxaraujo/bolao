@@ -59,7 +59,7 @@ class Classificacao extends Component {
 									<th className='text-center'></th>
 									<th>Nome</th>
 									<th className='text-center'></th>
-									<th className='text-center'>Pt</th>
+									<th className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(115,129,143)' }}></div></th>
 									<th className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(75, 192, 192)' }}></div></th>
 									<th className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(54, 162, 235)' }}></div></th>
 									<th className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 205, 86)' }}></div></th>
@@ -102,20 +102,36 @@ class Classificacao extends Component {
 						<Table responsive striped borderless>
 							<tbody>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(75, 192, 192)', width: '20px', height: '20px' }}></div></td>
-									<td>Placar cheio</td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '15px', backgroundColor: 'rgb(115,129,143)', width: '20px', height: '20px' }}></div></td>
+									<td>Pontuação total</td>
 								</tr>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(54, 162, 235)', width: '20px', height: '20px' }}></div></td>
-									<td>Resultado mais gol</td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '15px', backgroundColor: 'rgb(75, 192, 192)', width: '20px', height: '20px' }}></div></td>
+									<td>
+										Placar Exato
+										<span className='small text-muted'>Ex: Palpite 2 x 1 e resultado 2 x 1, acertou o placar exato</span>
+									</td>
 								</tr>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(255, 205, 86)', width: '20px', height: '20px' }}></div></td>
-									<td>Somente resultado</td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '15px', backgroundColor: 'rgb(54, 162, 235)', width: '20px', height: '20px' }}></div></td>
+									<td>
+										Resultado mais gol
+										<span className='small text-muted'>Ex: Palpite 2 x 1 e resultado 2 x 0, acertou time ganhador / empate e o número de gols de um dos time</span>
+									</td>
+								</tr>
+								<tr className='gridLegenda'>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '15px', backgroundColor: 'rgb(255, 205, 86)', width: '20px', height: '20px' }}></div></td>
+									<td>
+										Somente resultado
+										<span className='small text-muted'>Ex: Palpite 2 x 1 e resultado 3 x 2, acertou somente time ganhador / empate</span>
+									</td>
 								</tr>
 								<tr className='gridLegenda'>
 									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(255, 159, 64)', width: '20px', height: '20px' }}></div></td>
-									<td>Somente gol</td>
+									<td>
+										Somente gol
+										<span className='small text-muted'>Ex: Palpite 2 x 1 e resultado 2 x 0, acertou somente o número de gols de um dos time</span>
+									</td>
 								</tr>
 							</tbody>
 						</Table>

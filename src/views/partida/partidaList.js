@@ -63,7 +63,7 @@ class PartidaList extends Component {
 						<thead>
 							<tr className='gridPartidas'>
 								<th className='text-center'>#</th>
-								<th>Order</th>
+								<th>Ordem</th>
 								<th>Fase</th>
 								<th>Grupo</th>
 								<th>Rodada</th>

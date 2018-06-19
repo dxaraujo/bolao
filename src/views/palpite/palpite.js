@@ -97,12 +97,16 @@ class Palpite extends Component {
 										return (
 											<div key={idx} className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-4' style={{ padding: '0px' }}>
 												<Card className='card-grupos'>
-													<CardHeader className='text-center bg-light-blue text-white nomeGrupo'>{grupo.nome}</CardHeader>
+													<If test={grupo.nome !== 'SEM GRUPO'}>
+														<CardHeader className='text-center bg-light-blue text-white nomeGrupo'>{grupo.nome}</CardHeader>
+													</If>
 													<CardBody className='card-body-grupos'>
 														{grupo.rodadas.map((rodada, idx2) => {
 															return (
 																<div key={idx2}>
-																	<div className='text-center bg-gray-200 nomeRodada'><strong>{rodada.nome}</strong></div>
+																	<If test={grupo.nome !== 'SEM RODADA'}>
+																		<div className='text-center bg-gray-200 nomeRodada'><strong>{rodada.nome}</strong></div>
+																	</If>
 																	{rodada.palpites.map((palpite, idx3) => {
 																		palpite.liberado = false;
 																		return (

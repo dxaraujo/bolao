@@ -14,6 +14,24 @@ class Classificacao extends Component {
 	componentWillMount() {
 		this.props.search()
 	}
+	mudancaClassificacao(user) {
+		const r = user.classificacaoAnterior - user.classificacao
+		if(r === 0) {
+			return 'classificacaoIgual'
+		} if (r > 0) {
+			return 'classificacao_up'
+		} else {
+			return 'classificacao_down'
+		}
+	}
+	resultadoMudancaClassificacao(user) {
+		const r = user.classificacaoAnterior - user.classificacao
+		if(r === 0) {
+			return ''
+		} else {
+			return r
+		}
+	}
 	render() {
 		const users = this.props.users
 		const ultimaClassificacao = users.reduce((ult, user) => user.classificacao > ult ? user.classificacao : ult, 0)
@@ -40,6 +58,7 @@ class Classificacao extends Component {
 									<th className='text-center'></th>
 									<th className='text-center'></th>
 									<th>Nome</th>
+									<th className='text-center'></th>
 									<th className='text-center'>Pts</th>
 									<th className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(75, 192, 192)', width: '20px', height: '20px'}}></div></th>
 									<th className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(54, 162, 235)', width: '20px', height: '20px'}}></div></th>
@@ -64,6 +83,7 @@ class Classificacao extends Component {
 												<img alt='avatar' src={user.avatar ? `https://graph.facebook.com/${user.facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='img-avatar' width={50} height={50} />
 											</td>
 											<td>{user.name}</td>
+											<td className={`text-center classificacao ${this.mudancaClassificacao(user)}`}>{this.resultadoMudancaClassificacao(user)} </td>
 											<td className='text-center'>{user.totalAcumulado}</td>
 											<td className='text-center'>{user.placarCheio}</td>
 											<td className='text-center'>{user.placarTimeVencedorComGol}</td>

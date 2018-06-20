@@ -85,7 +85,7 @@ class Palpite extends Component {
 						<Card>
 							<CardHeader>
 								Preencha seus palpites e boa sorte!
-								<If test={this.props.fase.status !== 'B'}>
+								<If test={this.props.fase.status === 'A'}>
 									<Button size='sm' color='success' className='float-right' onClick={this.handleClick}>
 										<i className='fas fa-save'></i>  Salvar
 									</Button>

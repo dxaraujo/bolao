@@ -118,11 +118,11 @@ class Palpite extends Component {
 																					<i className={`bandeiraTimeA flag-icon flag-icon-${palpite.partida.timeA.bandeira}`} />
 																				</div>
 																				<div className='palpiteTimeA'>
-																					<input name='placarTimeA' type='text' className='palpiteTimeA form-control' maxLength='1' disabled={this.props.fase.status === 'B'} tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
+																					<input name='placarTimeA' type='text' className='palpiteTimeA form-control' maxLength='1' disabled={this.props.fase.status === 'A'} tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
 																				</div>
 																				<div className='divisorPalpite'>x</div>
 																				<div className='palpiteTimeB'>
-																					<input name='placarTimeB' type='text' className='palpiteTimeB form-control' maxLength='1' disabled={this.props.fase.status === 'B'} tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
+																					<input name='placarTimeB' type='text' className='palpiteTimeB form-control' maxLength='1' disabled={this.props.fase.status === 'A'} tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
 																				</div>
 																				<div className='bandeiraTimeB'>
 																					<i className={`bandeiraTimeB flag-icon flag-icon-${palpite.partida.timeB.bandeira}`} />

@@ -19,8 +19,8 @@ class Palpite extends Component {
 	}
 	componentWillMount() {
 		const user = this.props.getAuthenticatedUser()
-		this.props.search(this.props.faseName)
-		this.props.montarGrupos(user._id, this.props.faseName)
+		this.props.search(this.props.faseId)
+		this.props.montarGrupos(user._id, this.props.faseId)
 	}
 	componentDidUpdate() {
 		this.focus()
@@ -118,11 +118,11 @@ class Palpite extends Component {
 																					<i className={`bandeiraTimeA flag-icon flag-icon-${palpite.partida.timeA.bandeira}`} />
 																				</div>
 																				<div className='palpiteTimeA'>
-																					<input name='placarTimeA' type='text' className='palpiteTimeA form-control' maxLength='1' disabled={this.props.fase.status === 'A'} tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
+																					<input name='placarTimeA' type='text' className='palpiteTimeA form-control' maxLength='1' disabled={this.props.fase.status !== 'A'} tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeA} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
 																				</div>
 																				<div className='divisorPalpite'>x</div>
 																				<div className='palpiteTimeB'>
-																					<input name='placarTimeB' type='text' className='palpiteTimeB form-control' maxLength='1' disabled={this.props.fase.status === 'A'} tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
+																					<input name='placarTimeB' type='text' className='palpiteTimeB form-control' maxLength='1' disabled={this.props.fase.status !== 'A'} tabIndex={tabIndex++} ref={input => { this.inputTabIndex[inputIndex++] = input }} value={palpite.placarTimeB} onKeyDown={e => this.handleKeyDown(e, palpite)} onChange={e => this.handleChange(e, palpite)} />
 																				</div>
 																				<div className='bandeiraTimeB'>
 																					<i className={`bandeiraTimeB flag-icon flag-icon-${palpite.partida.timeB.bandeira}`} />
@@ -154,7 +154,7 @@ class Palpite extends Component {
 	}
 }
 
-const mapStateToProps = (state, ownProps) => ({ grupos: state.palpiteStore.grupos, fase: state.faseStore.fase, faseName: ownProps.match.params.fase })
+const mapStateToProps = (state, ownProps) => ({ grupos: state.palpiteStore.grupos, fase: state.faseStore.fase, faseId: ownProps.match.params.fase })
 const mapDispatchToProps = dispatch => bindActionCreators({ montarGrupos, handleChange, updateAll, search }, dispatch)
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Palpite))

@@ -10,7 +10,7 @@ export default function (state = initialState, action) {
 				fases: action.payload.data
 			}
 		case FASE_SELECT:
-			const fase = state.fases.find(fase => fase.nome === action.payload.data) || {}
+			const fase = state.fases.find(fase => fase._id === action.payload.data) || {}
 			return {
 				...state,
 				fase

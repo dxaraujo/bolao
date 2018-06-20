@@ -6,7 +6,7 @@ import { Row, Card, CardBody } from 'reactstrap'
 import { Chart, Bar, Line, Pie } from 'react-chartjs-2';
 
 import { search as searchPalpites } from '../palpite/palpiteActions'
-import blackAvatar from '../../assets/img/blankavatar.svg'
+import { backendURI } from '../../config'
 
 const chartLineData = {
 	labels: [],
@@ -211,7 +211,7 @@ class Dashboard extends Component {
 				<div className='col-12'>
 					<Card style={{ display: 'grid', gridTemplateColumns: '50px 20px 1fr', alignItems: 'center', padding: '20px', backgroundColor: 'white' }}>
 						<div>
-							<img alt='avatar' src={user.avatar ? `https://graph.facebook.com/${user.facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='img-avatar' width={50} height={50} />
+							<img alt='avatar' src={`${backendURI}/avatar/${user._id}`} className='img-avatar' width={50} height={50} />
 						</div>
 						<div />
 						<div>

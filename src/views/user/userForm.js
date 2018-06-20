@@ -6,13 +6,12 @@ import { rootUser } from '../../config'
 import { ButtonGroup, Button, CustomInput } from 'reactstrap'
 import { handleChange } from './userActions'
 import If from '../../components/if'
-
-import blackAvatar from '../../assets/img/blankavatar.svg'
+import { backendURI } from '../../config'
 
 const ReadOnlyRow = ({ idx, user, edit }) => (
 	<tr key={user._id} className='gridUsers'>
 		<td className='text-center'>{idx + 1}</td>
-		<td><img alt='avatar' src={user.avatar ? `https://graph.facebook.com/${user.facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='img-avatar' width={50} height={50} /></td>
+		<td><img alt='avatar' src={`${backendURI}/avatar/${user._id}`} className='img-avatar' width={50} height={50} /></td>
 		<td>{user.name}</td>
 		<td className='text-center'><i className={`fas fa-check text-${user.isAdmin ? 'success' : 'secondary'}`}></i></td>
 		<td className='text-center'>
@@ -28,7 +27,7 @@ const ReadOnlyRow = ({ idx, user, edit }) => (
 const EditableRow = ({ idx, user, handleChange, save, cancel }) => (
 	<tr key={user._id} className='gridUsers'>
 		<td className='text-center'>{idx + 1}</td>
-		<td><img alt='avatar' src={user.avatar ? `https://graph.facebook.com/${user.facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='img-avatar' width={50} height={50} /></td>
+		<td><img alt='avatar' src={`${backendURI}/avatar/${user._id}`} className='img-avatar' width={50} height={50} /></td>
 		<td>{user.name}</td>
 		<td className='d-flex justify-content-center'><CustomInput id='isAdmin' name='isAdmin' type='checkbox' checked={user.isAdmin} onChange={(event) => handleChange(event, user)} /></td>
 		<td className='text-center'>

@@ -14,8 +14,7 @@ import routes from '../router'
 import Header from './header'
 import Footer from './footer'
 import withAuth from '../components/withAuth'
-
-import blackAvatar from '../assets/img/blankavatar.svg'
+import { backendURI } from '../config'
 
 class FullLayout extends Component {
 	constructor(props) {
@@ -70,7 +69,7 @@ class FullLayout extends Component {
 							<div style={{ backgroundColor: '#494F54', padding: '10px 5px 10px 5px' }}>
 								<div style={{ display: 'grid', gridTemplateColumns: '50px 5px 1fr', alignItems: 'center' }}>
 									<div>
-										<img alt='avatar' src={user.avatar ? `https://graph.facebook.com/${user.facebookId}/picture?width=${500}&height=${500}` : blackAvatar} className='img-avatar' width={50} height={50} />
+										<img alt='avatar' src={`${backendURI}/avatar/${user._id}`} className='img-avatar' width={50} height={50} />
 									</div>
 									<div />
 									<div>

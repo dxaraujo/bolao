@@ -5,14 +5,26 @@ import { connect } from 'react-redux';
 import { Row, Card, CardBody } from 'reactstrap'
 import { Chart, Bar, Line, Pie } from 'react-chartjs-2';
 
+import If from '../../components/if'
 import { search as searchPalpites } from '../palpite/palpiteActions'
+import { search as searchUsers } from '../user/userActions'
 import { backendURI } from '../../config'
+
+const colors = [
+	'rgb(54, 162, 235)',
+	'rgb(75, 192, 192)',
+	'rgb(201, 203, 207)',
+	'rgb(255, 159, 64)',
+	'rgb(153, 102, 255)',
+	'rgb(255, 99, 132)',
+	'rgb(255, 205, 86)'
+]
 
 const chartLineData = {
 	labels: [],
 	datasets: [
 		{
-			fill: "start",
+			fill: 'start',
 			backgroundColor: 'rgba(54, 162, 235,.1)',
 			borderColor: 'rgb(54, 162, 235)',
 			borderWidth: 2,
@@ -27,6 +39,11 @@ const chartLineData = {
 		},
 	],
 };
+
+const chartClassificacaoData = {
+	labels: [],
+	datasets: []
+}
 
 const chartBarData = {
 	labels: [],
@@ -57,9 +74,9 @@ const chartPieData = {
 };
 
 
-const chartLineOpts = {
+const chartLineOpts = (display, step) => ({
 	legend: {
-		display: false,
+		display: display,
 	},
 	scales: {
 		xAxes: [{
@@ -71,11 +88,11 @@ const chartLineOpts = {
 			ticks: {
 				min: 1,
 				reverse: true,
-				stepSize: 1
+				stepSize: step
 			},
 		}],
 	}
-};
+});
 
 const chartBarOpts = {
 	legend: {
@@ -98,8 +115,8 @@ const chartBarOpts = {
 class Dashboard extends Component {
 
 	componentWillMount() {
-		const user = this.props.getAuthenticatedUser()
-		this.props.searchPalpites(user)
+		this.props.searchUsers()
+		this.props.searchPalpites(this.props.getAuthenticatedUser())
 		Chart.pluginService.register({
 			beforeRender: function (chartInstance) {
 				var datasets = chartInstance.config.data.datasets;
@@ -109,7 +126,7 @@ class Dashboard extends Component {
 					var bars = metaData.data;
 					for (var j = 0; j < bars.length; j++) {
 						var model = bars[j]._model;
-						if (metaData.type === "horizontalBar" && model.base === model.x) {
+						if (metaData.type === 'horizontalBar' && model.base === model.x) {
 							model.x = model.base + 2;
 						} else if (model.base === model.y) {
 							model.y = model.base - 2;
@@ -120,11 +137,12 @@ class Dashboard extends Component {
 		});
 	}
 
-	montarGraficoClassificacoes = palpites => {
+	montarGraficoClassificacoes = allPalpites => {
 		chartLineData.labels = []
 		chartLineData.datasets[0].data = []
-		if (palpites.length) {
-			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
+		if (allPalpites.length) {
+			let palpites = allPalpites.sort((p1, p2) => p1.partida.order - p2.partida.order)
+			palpites = palpites.slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartLineData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
 				chartLineData.datasets[0].data.push(palpites[i].classificacao)
@@ -133,13 +151,14 @@ class Dashboard extends Component {
 		return chartLineData
 	}
 
-	montarGraficoPontuacoes = palpites => {
+	montarGraficoPontuacoes = allPalpites => {
 		chartBarData.labels = []
 		chartBarData.datasets[0].data = []
 		chartBarData.datasets[0].backgroundColor = []
 		chartBarData.datasets[0].borderColor = []
-		if (palpites.length) {
-			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
+		if (allPalpites.length) {
+			let palpites = allPalpites.sort((p1, p2) => p1.partida.order - p2.partida.order)
+			palpites = palpites.slice(Math.max(palpites.length - 10, 0))
 			for (let i = 0; i < palpites.length; i++) {
 				chartBarData.labels.push(`${palpites[i].partida.timeA.sigla} x ${palpites[i].partida.timeB.sigla}`)
 				chartBarData.datasets[0].data.push(palpites[i].totalPontosObitidos)
@@ -164,7 +183,7 @@ class Dashboard extends Component {
 		return chartBarData
 	}
 
-	montarGraficoPontuacoesPorTipo = palpites => {
+	montarGraficoPontuacoesPorTipo = allPalpites => {
 		chartPieData.labels = []
 		chartPieData.datasets[0].data = []
 		let placarCheio = 0
@@ -172,8 +191,8 @@ class Dashboard extends Component {
 		let placarTimeVencedor = 0
 		let placarGol = 0
 		let nada = 0
-		if (palpites.length) {
-			palpites = palpites.sort((p1, p2) => p1.partida.order > p2.partida.order).slice(Math.max(palpites.length - 10, 0))
+		if (allPalpites.length) {
+			let palpites = allPalpites.sort((p1, p2) => p1.partida.order - p2.partida.order)
 			for (let i = 0; i < palpites.length; i++) {
 				const palpite = palpites[i]
 				if (palpite.placarCheio) {
@@ -202,46 +221,85 @@ class Dashboard extends Component {
 		return chartPieData
 	}
 
+	montarGraficoClassificacaoGeral = (auser) => {
+		chartClassificacaoData.labels = []
+		chartClassificacaoData.datasets = []
+		if (this.props.users.length > 0) {
+			let userIndex = this.props.users.findIndex(u => u.username == auser.username)
+			if (userIndex >= 0) {
+				if (userIndex === 0) {
+					userIndex = 0
+				} else if (userIndex === 1) {
+					userIndex -= 1
+				} else if (userIndex === 2) {
+					userIndex -= 2
+				} else if (userIndex === this.props.users.length - 1) {
+					userIndex -= 4
+				} else if (userIndex === this.props.users.length - 2) {
+					userIndex -= 3
+				} else {
+					userIndex -= 2
+				}
+				for (let i = userIndex; i < userIndex + 5; i++) {
+					const user = this.props.users[i]
+					let data = []
+					chartClassificacaoData.datasets.push({
+						data,
+						label: user.name,
+						fill: false,
+						backgroundColor: colors[i % colors.length],
+						borderColor: colors[i % colors.length],
+						borderWidth: 2,
+						pointBorderColor: colors[i % colors.length],
+						pointBackgroundColor: colors[i % colors.length],
+						pointBorderWidth: 2,
+						pointHoverBackgroundColor: colors[i % colors.length],
+						pointHoverBorderColor: colors[i % colors.length],
+						pointHoverBorderWidth: 2,
+						pointRadius: 2,
+					})
+
+					let palpites = user.palpites.filter(palpite => palpite.totalAcumulado > 0)
+					palpites = palpites.slice(Math.max(palpites.length - 10, 0))
+
+					for (let j = 0; j < palpites.length; j++) {
+						if (i === userIndex) {
+							chartClassificacaoData.labels.push(`${palpites[j].partida.timeA.sigla} x ${palpites[j].partida.timeB.sigla}`)
+						}
+						data.push(palpites[j].classificacao)
+					}
+				}
+			}
+		}
+		return chartClassificacaoData
+	}
+
 	render() {
 		const user = this.props.getAuthenticatedUser()
-		let palpites = this.props.palpites
-		palpites = palpites.filter(palpite => palpite.totalAcumulado > 0)
+		const palpites = this.props.palpites.filter(palpite => palpite.totalAcumulado > 0)
 		return (
 			<Row>
 				<div className='col-12'>
 					<Card style={{ display: 'grid', gridTemplateColumns: '50px 20px 1fr', alignItems: 'center', padding: '20px', backgroundColor: 'white' }}>
 						<div>
-							<img alt='avatar' src={`${backendURI}/avatar/${user._id}`} className='img-avatar' width={50} height={50} />
+						<img alt='avatar' src={`${backendURI}/avatar/${user._id}`} className='img-avatar' width={50} height={50} />
 						</div>
 						<div />
 						<div>
-							<h3 className="mb-1 card-title">Classificação: {palpites.length > 0 ? palpites[palpites.length - 1].classificacao : '0'}</h3>
-							<h5 className="text-muted">Total pontos: {palpites.length > 0 ? palpites[palpites.length - 1].totalAcumulado : '0'}</h5>
+							<h3 className='mb-1 card-title'>Classificação: {palpites.length > 0 ? palpites[palpites.length - 1].classificacao : '0'}</h3>
+							<h5 className='text-muted'>Total pontos: {palpites.length > 0 ? palpites[palpites.length - 1].totalAcumulado : '0'}</h5>
 						</div>
 					</Card>
 				</div>
 				<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
 					<Card>
 						<CardBody>
-							<div className="col-sm-12 mb-3">
-								<h5 className="mb-0 card-title">Classificação</h5>
-								<div className="small text-muted">Histórico de classificação por partida</div>
+							<div className='col-sm-12 mb-3'>
+								<h5 className='mb-0 card-title'>Classificação</h5>
+								<div className='small text-muted'>Histórico de classificação por partida</div>
 							</div>
-							<div className="chart-wrapper">
-								<Line data={this.montarGraficoClassificacoes(palpites)} options={chartLineOpts} height={150} />
-							</div>
-						</CardBody>
-					</Card>
-				</div>
-				<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
-					<Card>
-						<CardBody>
-							<div className="col-sm-12 mb-3">
-								<h5 className="mb-0 card-title">Pontuações</h5>
-								<div className="small text-muted">Pontuações obtidas por partida</div>
-							</div>
-							<div className="chart-wrapper">
-								<Bar data={this.montarGraficoPontuacoes(palpites)} options={chartBarOpts} height={150} />
+							<div className='chart-wrapper'>
+								<Line data={this.montarGraficoClassificacoes(palpites)} options={chartLineOpts(false, 1)} height={150} />
 							</div>
 						</CardBody>
 					</Card>
@@ -249,12 +307,40 @@ class Dashboard extends Component {
 				<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
 					<Card>
 						<CardBody>
-							<div className="col-sm-12 mb-3">
-								<h5 className="mb-0 card-title">Pontuações por tipo</h5>
-								<div className="small text-muted">Total de pontuações por tipo</div>
+							<div className='col-sm-12 mb-3'>
+								<h5 className='mb-0 card-title'>Pontuações</h5>
+								<div className='small text-muted'>Pontuações obtidas por partida</div>
 							</div>
-							<div className="chart-wrapper">
-								<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={200} />
+							<div className='chart-wrapper'>
+								<Bar data={this.montarGraficoPontuacoes(palpites, 2)} options={chartBarOpts} height={150} />
+							</div>
+						</CardBody>
+					</Card>
+				</div>
+				<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
+					<Card>
+						<CardBody>
+							<div className='col-sm-12 mb-3'>
+								<h5 className='mb-0 card-title'>Classificação geral</h5>
+								<div className='small text-muted'>Histórico das classificações</div>
+							</div>
+							<div className='chart-wrapper'>
+								<If test={this.props.users.length > 0}>
+									<Line data={this.montarGraficoClassificacaoGeral(user)} options={chartLineOpts(true)} height={250} />
+								</If>
+							</div>
+						</CardBody>
+					</Card>
+				</div>
+				<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
+					<Card>
+						<CardBody>
+							<div className='col-sm-12 mb-3'>
+								<h5 className='mb-0 card-title'>Pontuações por tipo</h5>
+								<div className='small text-muted'>Total de pontuações por tipo</div>
+							</div>
+							<div className='chart-wrapper'>
+								<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={250} />
 							</div>
 						</CardBody>
 					</Card>
@@ -264,7 +350,7 @@ class Dashboard extends Component {
 	}
 }
 
-const mapStateToProps = state => ({ palpites: state.palpiteStore.palpites })
-const mapDispatchToProps = dispatch => bindActionCreators({ searchPalpites }, dispatch)
+const mapStateToProps = state => ({ palpites: state.palpiteStore.palpites, users: state.userStore.users })
+const mapDispatchToProps = dispatch => bindActionCreators({ searchPalpites, searchUsers }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard)

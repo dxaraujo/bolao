@@ -20,7 +20,7 @@ const reducers = combineReducers({
 	faseStore: faseReducer
 });
 
-const store = null
+let store = null
 if (process.env.ENV === 'production') {
 	store = applyMiddleware(multi, thunk, promise)(createStore)(reducers)
 } else {

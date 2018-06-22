@@ -6,18 +6,34 @@ import { Card, CardHeader, CardBody, Table } from 'reactstrap'
 
 import If from '../../components/if'
 import { search } from '../user/userActions'
+import { search as searchPartidas } from '../partida/partidaActions'
 
 import blackAvatar from '../../assets/img/blankavatar.svg'
 import duck from '../../assets/img/duck.svg'
 import { backendURI } from '../../config'
 
 class Classificacao extends Component {
+	constructor(props) {
+		super(props)
+		this.state = { users: [], partidaOrder: null }
+	}
 	componentWillMount() {
+		this.props.searchPartidas()
 		this.props.search()
+	}
+	componentWillReceiveProps(nextProps) {
+		if (this.props.partidas.length !== nextProps.partidas.length && this.props.users.length !== nextProps.users.length) {
+			if (nextProps.partidas.length > 0 && nextProps.users.length > 0) {
+				const partidaOrder = this.encontrarUltimaClassificacao(nextProps.partidas)
+				this.setState({ partidaOrder, users: nextProps.users }, () => {
+					this.montarClassificacoes(nextProps.users, partidaOrder)
+				})
+			}
+		}
 	}
 	mudancaClassificacao(user) {
 		const r = user.classificacaoAnterior - user.classificacao
-		if(r === 0) {
+		if (r === 0) {
 			return 'classificacaoIgual'
 		} if (r > 0) {
 			return 'classificacao_up'
@@ -27,19 +43,60 @@ class Classificacao extends Component {
 	}
 	resultadoMudancaClassificacao(user) {
 		const r = user.classificacaoAnterior - user.classificacao
-		if(r === 0) {
+		if (r === 0) {
 			return ''
 		} else {
 			return r
 		}
+	}
+	montarClassificacoes(users, partidaOrder) {
+		users.forEach(user => {
+			user.classificacao = user.palpites[partidaOrder].classificacao
+			user.classificacaoAnterior = user.palpites[partidaOrder].classificacaoAnterior
+			user.totalAcumulado = user.palpites[partidaOrder].totalAcumulado
+			user.placarCheio = 0
+			user.placarTimeVencedorComGol = 0
+			user.placarTimeVencedor = 0
+			user.placarGol = 0
+			for (let i = 0; i <= partidaOrder; i++) {
+				const palpite = user.palpites[i];
+				user.placarCheio += palpite.placarCheio ? 1 : 0
+				user.placarTimeVencedorComGol += palpite.placarTimeVencedorComGol ? 1 : 0
+				user.placarTimeVencedor += palpite.placarTimeVencedor ? 1 : 0
+				user.placarGol += palpite.placarGol ? 1 : 0
+			}
+		})
+	}
+	encontrarUltimaClassificacao(partidas) {
+		let ultimaClassificacao
+		partidas.forEach(partida => {
+			if (partida.placarTimeA >= 0 && partida.placarTimeB >= 0) {
+				ultimaClassificacao = partida.order
+			}
+		});
+		return ultimaClassificacao
+	}
+	handleChange = event => {
+		this.setState({ ...state, partidaOrder: event.target.value }, () => {
+			this.montarClassificacoes(this.state.users, this.state.partidaOrder)
+		})
 	}
 	render() {
 		const users = this.props.users
 		const ultimaClassificacao = users.reduce((ult, user) => user.classificacao > ult ? user.classificacao : ult, 0)
 		return (
 			<div style={{ backgroundColor: 'white' }}>
-				<Card style={{ marginBottom: '0px'}}>
-					<CardHeader>Classificação</CardHeader>
+				<Card style={{ marginBottom: '0px' }}>
+					<CardHeader>
+						<span>Classificação</span>
+						<div>
+							<CustomInput id='partida' name='partida' type='select' value={this.state.partidaOrder || ''} onChange={this.handleChange}>
+								{this.props.partidas.map(partida => (
+									<option key={partida._id} value={partida.order} selected={this.encontrarUltimaClassificacao() === partida.order}>{`${partida.timeA.nome} x ${partida.timeB.nome}`}</option>
+								))}
+							</CustomInput>
+						</div>
+					</CardHeader>
 					<div className='divplayers'>
 						<div style={{ justifySelf: 'right', alignSelf: 'top' }}>
 							<img alt='avatar' src={users[1] ? `${backendURI}/avatar/${users[1]._id}` : blackAvatar} className='player2' width={50} height={50} />
@@ -103,19 +160,19 @@ class Classificacao extends Component {
 						<Table responsive striped borderless>
 							<tbody>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(75, 192, 192)', width: '20px', height: '20px'}}></div></td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(75, 192, 192)', width: '20px', height: '20px' }}></div></td>
 									<td>Placar cheio</td>
 								</tr>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(54, 162, 235)', width: '20px', height: '20px'}}></div></td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(54, 162, 235)', width: '20px', height: '20px' }}></div></td>
 									<td>Resultado mais gol</td>
 								</tr>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(255, 205, 86)', width: '20px', height: '20px'}}></div></td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(255, 205, 86)', width: '20px', height: '20px' }}></div></td>
 									<td>Somente resultado</td>
 								</tr>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(255, 159, 64)', width: '20px', height: '20px'}}></div></td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '5px', backgroundColor: 'rgb(255, 159, 64)', width: '20px', height: '20px' }}></div></td>
 									<td>Somente gol</td>
 								</tr>
 							</tbody>
@@ -127,7 +184,7 @@ class Classificacao extends Component {
 	}
 }
 
-const mapStateToProps = state => ({ users: state.userStore.users })
-const mapDispatchToProps = dispatch => bindActionCreators({ search }, dispatch)
+const mapStateToProps = state => ({ users: state.userStore.users, partidas: state.partidaStore.partidas })
+const mapDispatchToProps = dispatch => bindActionCreators({ search, searchPartidas }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Classificacao)

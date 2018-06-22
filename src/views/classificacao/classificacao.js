@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux';
 
-import { Card, CardHeader, CardBody, Table } from 'reactstrap'
+import { Card, CardHeader, CardBody, Table, CustomInput } from 'reactstrap'
 
 import If from '../../components/if'
 import { search } from '../user/userActions'
@@ -15,19 +15,18 @@ import { backendURI } from '../../config'
 class Classificacao extends Component {
 	constructor(props) {
 		super(props)
-		this.state = { users: [], partidaOrder: null }
+		this.state = { users: [], partidaOrder: 0 }
 	}
 	componentWillMount() {
-		this.props.searchPartidas()
 		this.props.search()
+		this.props.searchPartidas()
 	}
 	componentWillReceiveProps(nextProps) {
-		if (this.props.partidas.length !== nextProps.partidas.length && this.props.users.length !== nextProps.users.length) {
+		if (this.props.partidas.length !== nextProps.partidas.length || this.props.users.length !== nextProps.users.length) {
 			if (nextProps.partidas.length > 0 && nextProps.users.length > 0) {
 				const partidaOrder = this.encontrarUltimaClassificacao(nextProps.partidas)
-				this.setState({ partidaOrder, users: nextProps.users }, () => {
-					this.montarClassificacoes(nextProps.users, partidaOrder)
-				})
+				const users = this.montarClassificacoes(nextProps.users, partidaOrder)
+				this.setState({ partidaOrder, users })
 			}
 		}
 	}
@@ -50,7 +49,9 @@ class Classificacao extends Component {
 		}
 	}
 	montarClassificacoes(users, partidaOrder) {
-		users.forEach(user => {
+		for (let i = 0; i < users.length; i++) {
+			users[i] = { ...users[i] }
+			const user = users[i]
 			user.classificacao = user.palpites[partidaOrder].classificacao
 			user.classificacaoAnterior = user.palpites[partidaOrder].classificacaoAnterior
 			user.totalAcumulado = user.palpites[partidaOrder].totalAcumulado
@@ -58,14 +59,15 @@ class Classificacao extends Component {
 			user.placarTimeVencedorComGol = 0
 			user.placarTimeVencedor = 0
 			user.placarGol = 0
-			for (let i = 0; i <= partidaOrder; i++) {
-				const palpite = user.palpites[i];
-				user.placarCheio += palpite.placarCheio ? 1 : 0
-				user.placarTimeVencedorComGol += palpite.placarTimeVencedorComGol ? 1 : 0
-				user.placarTimeVencedor += palpite.placarTimeVencedor ? 1 : 0
-				user.placarGol += palpite.placarGol ? 1 : 0
+			for (let j = 0; j <= partidaOrder; j++) {
+				user.placarCheio += user.palpites[j].placarCheio ? 1 : 0
+				user.placarTimeVencedorComGol += user.palpites[j].placarTimeVencedorComGol ? 1 : 0
+				user.placarTimeVencedor += user.palpites[j].placarTimeVencedor ? 1 : 0
+				user.placarGol += user.palpites[j].placarGol ? 1 : 0
 			}
-		})
+		}
+		const newUsers = users.sort((u1, u2) => u1.classificacao - u2.classificacao)
+		return newUsers
 	}
 	encontrarUltimaClassificacao(partidas) {
 		let ultimaClassificacao
@@ -77,22 +79,22 @@ class Classificacao extends Component {
 		return ultimaClassificacao
 	}
 	handleChange = event => {
-		this.setState({ ...state, partidaOrder: event.target.value }, () => {
-			this.montarClassificacoes(this.state.users, this.state.partidaOrder)
-		})
+		const partidaOrder = event.target.value
+		const users = this.montarClassificacoes(this.state.users, partidaOrder)
+		this.setState({ partidaOrder, users })
 	}
 	render() {
-		const users = this.props.users
+		const users = this.state.users
 		const ultimaClassificacao = users.reduce((ult, user) => user.classificacao > ult ? user.classificacao : ult, 0)
 		return (
 			<div style={{ backgroundColor: 'white' }}>
 				<Card style={{ marginBottom: '0px' }}>
-					<CardHeader>
+					<CardHeader className='d-flex align-items-center justify-content-between'>
 						<span>Classificação</span>
 						<div>
-							<CustomInput id='partida' name='partida' type='select' value={this.state.partidaOrder || ''} onChange={this.handleChange}>
-								{this.props.partidas.map(partida => (
-									<option key={partida._id} value={partida.order} selected={this.encontrarUltimaClassificacao() === partida.order}>{`${partida.timeA.nome} x ${partida.timeB.nome}`}</option>
+							<CustomInput id='partida' name='partida' type='select' value={this.state.partidaOrder || 0} onChange={this.handleChange}>
+								{this.props.partidas.filter(partida => partida.placarTimeA >= 0 && partida.placarTimeB >= 0).map(partida => (
+									<option key={partida._id} value={partida.order}>{`${partida.timeA.nome} x ${partida.timeB.nome}`}</option>
 								))}
 							</CustomInput>
 						</div>

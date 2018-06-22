@@ -31,37 +31,51 @@ class Classificacao extends Component {
 		}
 	}
 	mudancaClassificacao(user) {
-		const r = user.classificacaoAnterior - user.classificacao
-		if (r === 0) {
-			return 'classificacaoIgual'
-		} if (r > 0) {
-			return 'classificacao_up'
+		console.log(user.classificacaoAnterior)
+		if (user.classificacaoAnterior) {
+			const r = user.classificacaoAnterior - user.classificacao
+			if (r === 0) {
+				return 'classificacaoIgual'
+			} if (r > 0) {
+				return 'classificacao_up'
+			} else {
+				return 'classificacao_down'
+			}
 		} else {
-			return 'classificacao_down'
+			return 'classificacaoIgual'
 		}
 	}
 	resultadoMudancaClassificacao(user) {
-		const r = user.classificacaoAnterior - user.classificacao
-		if (r === 0) {
-			return ''
+		console.log(user.classificacaoAnterior)
+		if (user.classificacaoAnterior) {
+			const r = user.classificacaoAnterior - user.classificacao
+			if (r === 0) {
+				return ''
+			} else {
+				return r
+			}
 		} else {
-			return r
+			return ''
 		}
 	}
 	montarClassificacoes(users, partidaOrder) {
 		for (let i = 0; i < users.length; i++) {
 			users[i] = { ...users[i] }
 			const user = users[i]
+			console.log('User.name:', user.name)
 			user.classificacao = user.palpites[partidaOrder].classificacao
+			console.log('User.classificacao:', user.classificacao)
 			user.classificacaoAnterior = user.palpites[partidaOrder].classificacaoAnterior
+			console.log('User.classificacaoAnterior:', user.classificacaoAnterior)
 			user.totalAcumulado = user.palpites[partidaOrder].totalAcumulado
+			console.log('User.totalAcumulado:', user.totalAcumulado)
 			user.placarCheio = 0
 			user.placarTimeVencedorComGol = 0
 			user.placarTimeVencedor = 0
 			user.placarGol = 0
 			for (let j = 0; j <= partidaOrder; j++) {
 				user.placarCheio += user.palpites[j].placarCheio ? 1 : 0
-				user.placarTimeVencedorComGol += user.palpites[j].placarTimeVencedorComGol ? 1 : 0
+				user.placarTimeVencedorComGol += user.palpites[j].placarTimeVencedorComGol
 				user.placarTimeVencedor += user.palpites[j].placarTimeVencedor ? 1 : 0
 				user.placarGol += user.palpites[j].placarGol ? 1 : 0
 			}

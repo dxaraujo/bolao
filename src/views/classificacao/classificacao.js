@@ -31,7 +31,6 @@ class Classificacao extends Component {
 		}
 	}
 	mudancaClassificacao(user) {
-		console.log(user.classificacaoAnterior)
 		if (user.classificacaoAnterior) {
 			const r = user.classificacaoAnterior - user.classificacao
 			if (r === 0) {
@@ -46,7 +45,6 @@ class Classificacao extends Component {
 		}
 	}
 	resultadoMudancaClassificacao(user) {
-		console.log(user.classificacaoAnterior)
 		if (user.classificacaoAnterior) {
 			const r = user.classificacaoAnterior - user.classificacao
 			if (r === 0) {
@@ -62,13 +60,9 @@ class Classificacao extends Component {
 		for (let i = 0; i < users.length; i++) {
 			users[i] = { ...users[i] }
 			const user = users[i]
-			console.log('User.name:', user.name)
 			user.classificacao = user.palpites[partidaOrder].classificacao
-			console.log('User.classificacao:', user.classificacao)
 			user.classificacaoAnterior = user.palpites[partidaOrder].classificacaoAnterior
-			console.log('User.classificacaoAnterior:', user.classificacaoAnterior)
 			user.totalAcumulado = user.palpites[partidaOrder].totalAcumulado
-			console.log('User.totalAcumulado:', user.totalAcumulado)
 			user.placarCheio = 0
 			user.placarTimeVencedorComGol = 0
 			user.placarTimeVencedor = 0

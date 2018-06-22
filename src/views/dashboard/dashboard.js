@@ -229,18 +229,12 @@ class Dashboard extends Component {
 			if (userIndex >= 0) {
 				if (userIndex === 0) {
 					userIndex = 0
-				} else if (userIndex === 1) {
-					userIndex -= 1
-				} else if (userIndex === 2) {
-					userIndex -= 2
 				} else if (userIndex === this.props.users.length - 1) {
-					userIndex -= 4
-				} else if (userIndex === this.props.users.length - 2) {
-					userIndex -= 3
-				} else {
 					userIndex -= 2
+				} else {
+					userIndex -= 1
 				}
-				for (let i = userIndex; i < userIndex + 5; i++) {
+				for (let i = userIndex; i < userIndex + 3; i++) {
 					const user = this.props.users[i]
 					let data = []
 					chartClassificacaoData.datasets.push({
@@ -326,7 +320,7 @@ class Dashboard extends Component {
 							</div>
 							<div className='chart-wrapper'>
 								<If test={this.props.users.length > 0}>
-									<Line data={this.montarGraficoClassificacaoGeral(user)} options={chartLineOpts(true)} height={250} />
+									<Line data={this.montarGraficoClassificacaoGeral(user)} options={chartLineOpts(true)} height={180} />
 								</If>
 							</div>
 						</CardBody>
@@ -340,7 +334,7 @@ class Dashboard extends Component {
 								<div className='small text-muted'>Total de pontuações por tipo</div>
 							</div>
 							<div className='chart-wrapper'>
-								<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={250} />
+								<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={180} />
 							</div>
 						</CardBody>
 					</Card>

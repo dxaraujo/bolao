@@ -18,7 +18,7 @@ class Palpite extends Component {
 		this.props.search()
 	}
 	componentWillReceiveProps(nextProps) {
-		if (nextProps.partidas && this.props.partidas && nextProps.partidas.length !== this.props.partidas.length) {
+		if (nextProps.partidas && nextProps.partidas.length > 0) {
 			const partidaId = this.encontrarUltimaClassificacao(nextProps.partidas)
 			const partidas = nextProps.partidas.filter(partida => partida._id === partidaId)
 			for (let i = 0; i < partidas.length; i++) {

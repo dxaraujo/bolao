@@ -23,9 +23,18 @@ import 'react-toastify/dist/ReactToastify.min.css'
 import './App.css'
 
 class App extends Component {
+	scrollToTop() {
+		let prevLocation = {};
+		this.props.history.listenBefore(location => {
+			const pathChanged = prevLocation.pathname !== location.pathname;
+			const hashChanged = prevLocation.hash !== location.hash;
+			if (pathChanged || hashChanged) window.scrollTo(0, 0);
+			prevLocation = location;
+		});
+	}
 	render() {
 		return (
-			<Router>
+			<Router onUpdate={() => this.scrollToTop()}>
 				<Switch>
 					<Route path='/login' component={Login} />
 					<Route path='/' component={FullLayout} />

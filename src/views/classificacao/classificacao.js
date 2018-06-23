@@ -22,7 +22,7 @@ class Classificacao extends Component {
 		this.props.searchPartidas()
 	}
 	componentWillReceiveProps(nextProps) {
-		if (nextProps.partidas.length > 0 && nextProps.users.length > 0) {
+		if (nextProps.partidas && nextProps.users && nextProps.partidas.length > 0 && nextProps.users.length > 0) {
 			const partidaOrder = this.encontrarUltimaClassificacao(nextProps.partidas)
 			const users = this.montarClassificacoes(nextProps.users, partidaOrder)
 			this.setState({ partidaOrder, users })

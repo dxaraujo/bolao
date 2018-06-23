@@ -225,7 +225,7 @@ class Dashboard extends Component {
 		chartClassificacaoData.labels = []
 		chartClassificacaoData.datasets = []
 		if (this.props.users.length > 0) {
-			let userIndex = this.props.users.findIndex(u => u.username == auser.username)
+			let userIndex = this.props.users.findIndex(u => u.username === auser.username)
 			if (userIndex >= 0) {
 				if (userIndex === 0) {
 					userIndex = 0

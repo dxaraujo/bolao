@@ -10,7 +10,7 @@ export default function (state = initialState, action) {
 				user: action.payload
 			};
 		case USER_SEARCH:
-			const users = ordenerUsuarios(action.payload.data)
+			const users = ordenarUsuarios(action.payload.data)
 			return {
 				...state,
 				users
@@ -30,7 +30,7 @@ export default function (state = initialState, action) {
 	}
 }
 
-const ordenerUsuarios = users => {
+const ordenarUsuarios = users => {
 	return users.sort((u1, u2) =>   {
 		const test0 = u2.totalAcumulado.valueOf() - u1.totalAcumulado.valueOf()
 		if (test0 === 0) {

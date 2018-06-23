@@ -22,16 +22,13 @@ class Classificacao extends Component {
 		this.props.searchPartidas()
 	}
 	componentWillReceiveProps(nextProps) {
-		if (this.props.partidas.length !== nextProps.partidas.length || this.props.users.length !== nextProps.users.length) {
-			if (nextProps.partidas.length > 0 && nextProps.users.length > 0) {
-				const partidaOrder = this.encontrarUltimaClassificacao(nextProps.partidas)
-				const users = this.montarClassificacoes(nextProps.users, partidaOrder)
-				this.setState({ partidaOrder, users })
-			}
+		if (nextProps.partidas.length > 0 && nextProps.users.length > 0) {
+			const partidaOrder = this.encontrarUltimaClassificacao(nextProps.partidas)
+			const users = this.montarClassificacoes(nextProps.users, partidaOrder)
+			this.setState({ partidaOrder, users })
 		}
 	}
 	mudancaClassificacao(user) {
-		console.log('user.classificacaoAnterior: ', user.classificacaoAnterior)
 		if (user.classificacaoAnterior) {
 			const r = user.classificacaoAnterior - user.classificacao
 			if (r === 0) {
@@ -46,7 +43,6 @@ class Classificacao extends Component {
 		}
 	}
 	resultadoMudancaClassificacao(user) {
-		console.log('user.classificacaoAnterior: ', user.classificacaoAnterior)
 		if (user.classificacaoAnterior) {
 			const r = user.classificacaoAnterior - user.classificacao
 			if (r === 0) {
@@ -62,13 +58,9 @@ class Classificacao extends Component {
 		for (let i = 0; i < users.length; i++) {
 			users[i] = { ...users[i] }
 			const user = users[i]
-			console.log('user.name: ', user.name)
 			user.classificacao = user.palpites[partidaOrder].classificacao
-			console.log('user.classificacao: ', user.classificacao)
 			user.classificacaoAnterior = user.palpites[partidaOrder].classificacaoAnterior
-			console.log('user.classificacaoAnterior: ', user.classificacaoAnterior)
 			user.totalAcumulado = user.palpites[partidaOrder].totalAcumulado
-			console.log('user.totalAcumulado: ', user.totalAcumulado)
 			user.placarCheio = 0
 			user.placarTimeVencedorComGol = 0
 			user.placarTimeVencedor = 0
@@ -79,10 +71,6 @@ class Classificacao extends Component {
 				user.placarTimeVencedor += user.palpites[j].placarTimeVencedor ? 1 : 0
 				user.placarGol += user.palpites[j].placarGol ? 1 : 0
 			}
-			console.log('user.placarCheio: ', user.placarCheio)
-			console.log('user.placarTimeVencedorComGol: ', user.placarTimeVencedorComGol)
-			console.log('user.placarTimeVencedor: ', user.placarTimeVencedor)
-			console.log('user.placarGol: ', user.placarGol)
 		}
 		const newUsers = users.sort((u1, u2) => u1.classificacao - u2.classificacao)
 		return [...newUsers]

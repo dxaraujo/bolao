@@ -21,7 +21,7 @@ class Palpite extends Component {
 		if (nextProps.partidas && this.props.partidas && nextProps.partidas.length !== this.props.partidas.length) {
 			const partidaId = this.encontrarUltimaClassificacao(nextProps.partidas)
 			const partidas = nextProps.partidas.filter(partida => partida._id === partidaId)
-			this.setState({ partidaId, partidas: partidas })
+			this.setState({ partidaId, partidas: [...partidas] })
 		}
 	}
 	encontrarUltimaClassificacao(partidas) {
@@ -37,9 +37,9 @@ class Palpite extends Component {
 		const partidaId = event.target.value
 		if (partidaId !== 'TODAS') {
 			const partidas = this.props.partidas.filter(partida => partida._id === partidaId)
-			this.setState({ partidaId, partidas })
+			this.setState({ partidaId, partidas: [...partidas] })
 		} else {
-			this.setState({ partidaId, partidas: this.props.partidas })
+			this.setState({ partidaId, partidas: [...this.props.partidas] })
 		}
 	}
 	render() {

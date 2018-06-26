@@ -39,7 +39,7 @@ class PartidaForm extends Component {
 				<CardHeader>Cadastro de Partidas</CardHeader>
 				<CardBody>
 					<Form className='form-horizontal' onSubmit={this.handleSubmit}>
-					<FormGroup row>
+						<FormGroup row>
 							<Col xs='12' md='2'>
 								<Label>Ordem</Label>
 							</Col>
@@ -81,7 +81,7 @@ class PartidaForm extends Component {
 								<InputGroup className='input-prepend'>
 									<CustomInput id='grupo' name='grupo' type='select' value={partida.grupo} onChange={this.props.handleChange}>
 										<option value="">Selecione um Grupo</option>
-										<option value="GRUPO A">SEM GRUPO</option>
+										<option value="SEM GRUPO">SEM GRUPO</option>
 										<option value="GRUPO A">GRUPO A</option>
 										<option value="GRUPO B">GRUPO B</option>
 										<option value="GRUPO C">GRUPO C</option>
@@ -105,7 +105,7 @@ class PartidaForm extends Component {
 								<InputGroup className='input-prepend'>
 									<CustomInput id='rodada' name='rodada' type='select' value={partida.rodada} onChange={this.props.handleChange}>
 										<option value="">Selecione uma Rodada</option>
-										<option value=''>SEM RODADA</option>
+										<option value="SEM RODADA">SEM RODADA</option>
 										<option value="1ª RODADA">1ª RODADA</option>
 										<option value="2ª RODADA">2ª RODADA</option>
 										<option value="3ª RODADA">3ª RODADA</option>

@@ -2,88 +2,104 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom'
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import moment from 'moment'
 
 import { Card, CardHeader, CardBody, CustomInput, Table } from 'reactstrap'
 
 import { search } from '../user/userActions'
+import { search as searchPartidas } from '../partida/partidaActions'
 
 class Palpite extends Component {
 	constructor(props) {
 		super(props)
-		this.state = { userId: '', users: [] }
+		this.state = { partidaId: 'TODAS', partidas: [] }
 	}
 	componentWillMount() {
+		this.props.searchPartidas()
 		this.props.search()
 	}
 	componentWillReceiveProps(nextProps) {
-		if (nextProps.users && this.props.users && nextProps.users.length !== this.props.users.length) {
-			this.setState({ userId: this.state.userId, users: nextProps.users })
+		if (nextProps.partidas && nextProps.partidas.length > 0) {
+			const partidaId = this.encontrarUltimaClassificacao(nextProps.partidas)
+			const partidas = nextProps.partidas.filter(partida => partida._id === partidaId)
+			for (let i = 0; i < partidas.length; i++) {
+				partidas[i] = {...partidas[i]}
+			}
+			this.setState({ partidaId, partidas: [...partidas] })
 		}
 	}
+	encontrarUltimaClassificacao(partidas) {
+		let ultimaClassificacao
+		partidas.forEach(partida => {
+			if (partida.placarTimeA >= 0 && partida.placarTimeB >= 0) {
+				ultimaClassificacao = partida._id
+			}
+		});
+		return ultimaClassificacao
+	}
 	handleChange = event => {
-		const userId = event.target.value
-		if (userId) {
-			const users = this.props.users.filter(user => user._id === userId)
-			this.setState({ userId, users })
+		const partidaId = event.target.value
+		if (partidaId !== 'TODAS') {
+			const partidas = this.props.partidas.filter(partida => partida._id === partidaId)
+			for (let i = 0; i < partidas.length; i++) {
+				partidas[i] = {...partidas[i]}
+			}
+			this.setState({ partidaId, partidas: [...partidas] })
 		} else {
-			this.setState({ userId: undefined, users: this.props.users })
+			const partidas = [...this.props.partidas]
+			for (let i = 0; i < partidas.length; i++) {
+				partidas[i] = {...partidas[i]}
+			}
+			this.setState({ partidaId, partidas: [...partidas] })
 		}
 	}
 	render() {
-		const users = this.state.users
+		const users = this.props.users
+		const partidas = this.state.partidas
 		return (
 			<Card>
 				<CardHeader className='d-flex align-items-center justify-content-between'>
-					<span>Escolha o usuário e fase que você deseja ver os palpites</span>
+					<span>Visualizar palpites</span>
 					<div>
-						<CustomInput id='userId' name='userId' type='select' value={this.state.userId || ''} onChange={this.handleChange}>
-							<option value={''}>Todos os Usuários</option>
-							{this.props.users.map(user => (
-								<option key={user._id} value={user._id}>{user.name}</option>
+						<CustomInput id='partidaId' type='select' value={this.state.partidaId || 'TODAS'} onChange={this.handleChange}>
+							<option value={'TODAS'}>Todas as partidas</option>
+							{this.props.partidas.map(partida => (
+								<option key={partida._id} value={partida._id}>{`${partida.timeA.nome} x ${partida.timeB.nome}`}</option>
 							))}
 						</CustomInput>
 					</div>
 				</CardHeader>
 				<CardBody style={{ padding: '0px' }}>
-					{users.map(user => (
-						<Card key={user._id}>
-							<CardHeader>{user.name}</CardHeader>
+					{partidas.map(partida => (
+						<Card key={partida._id} style={{ marginBottom: '0px' }}>
+							<CardHeader>{`${partida.timeA.nome} ${partida.placarTimeA} x ${partida.placarTimeB} ${partida.timeB.nome}`}</CardHeader>
 							<CardBody style={{ padding: '0px' }}>
 								<Table responsive striped borderless>
 									<thead>
-										<tr className='gridResultados'>
+										<tr className='gridPalpites'>
 											<th className='text-center'>#</th>
-											<th className='text-center'>Partida</th>
+											<th>Nome</th>
+											<th className='text-center'>Palpite</th>
 										</tr>
 									</thead>
 									<tbody>
-										{user.palpites.map((palpite, idx) => (
-											<tr key={palpite._id} className='gridResultados'>
+										{users.map((user, idx) => (
+											<tr key={user.palpites[partida.order]._id} className='gridPalpites'>
 												<td className='text-center'>{idx + 1}</td>
-												<td className='text-center'>
-													<div key={idx} className='rodada'>
-														<div className='nomeTimeA'>
-															<span className='h6 nomeTimeA'>{palpite.partida.timeA.sigla}</span>
-														</div>
+												<td>{user.name}</td>
+												<td className='text-center' style={{ justifySelf: 'center' }}>
+													<div key={user.palpites[partida.order]._id + idx} className='rodadaPalpites'>
 														<div className='bandeiraTimeA'>
-															<i className={`bandeiraTimeA flag-icon flag-icon-${palpite.partida.timeA.bandeira}`} />
+															<i className={`bandeiraTimeA flag-icon flag-icon-${user.palpites[partida.order].partida.timeA.bandeira}`} />
 														</div>
 														<div className='palpiteTimeA'>
-															{palpite.placarTimeA}
+															{user.palpites[partida.order].placarTimeA}
 														</div>
 														<div className='divisorPalpite'>x</div>
 														<div className='palpiteTimeB'>
-															{palpite.placarTimeB}
+															{user.palpites[partida.order].placarTimeB}
 														</div>
 														<div className='bandeiraTimeB'>
-															<i className={`bandeiraTimeB flag-icon flag-icon-${palpite.partida.timeB.bandeira}`} />
-														</div>
-														<div className='nomeTimeB'>
-															<span className='h6 nomeTimeB'>{palpite.partida.timeB.sigla}</span>
-														</div>
-														<div className='horaPartida'>
-															<span className='horaPartida text-secundary'>{moment(palpite.partida.data, 'YYYY/MM/DD hh:mm:ss').format('DD/MM/YYYY HH:mm')}</span>
+															<i className={`bandeiraTimeB flag-icon flag-icon-${user.palpites[partida.order].partida.timeB.bandeira}`} />
 														</div>
 													</div>
 												</td>
@@ -100,7 +116,7 @@ class Palpite extends Component {
 	}
 }
 
-const mapStateToProps = state => ({ users: state.userStore.users })
-const mapDispatchToProps = dispatch => bindActionCreators({ search }, dispatch)
+const mapStateToProps = state => ({ users: state.userStore.users, partidas: state.partidaStore.partidas })
+const mapDispatchToProps = dispatch => bindActionCreators({ search, searchPartidas }, dispatch)
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Palpite))

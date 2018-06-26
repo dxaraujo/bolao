@@ -22,12 +22,10 @@ class Classificacao extends Component {
 		this.props.searchPartidas()
 	}
 	componentWillReceiveProps(nextProps) {
-		if (this.props.partidas.length !== nextProps.partidas.length || this.props.users.length !== nextProps.users.length) {
-			if (nextProps.partidas.length > 0 && nextProps.users.length > 0) {
-				const partidaOrder = this.encontrarUltimaClassificacao(nextProps.partidas)
-				const users = this.montarClassificacoes(nextProps.users, partidaOrder)
-				this.setState({ partidaOrder, users })
-			}
+		if (nextProps.partidas && nextProps.users && nextProps.partidas.length > 0 && nextProps.users.length > 0) {
+			const partidaOrder = this.encontrarUltimaClassificacao(nextProps.partidas)
+			const users = this.montarClassificacoes(nextProps.users, partidaOrder)
+			this.setState({ partidaOrder, users })
 		}
 	}
 	mudancaClassificacao(user) {
@@ -75,7 +73,7 @@ class Classificacao extends Component {
 			}
 		}
 		const newUsers = users.sort((u1, u2) => u1.classificacao - u2.classificacao)
-		return newUsers
+		return [...newUsers]
 	}
 	encontrarUltimaClassificacao(partidas) {
 		let ultimaClassificacao

@@ -14,15 +14,15 @@ class Palpite extends Component {
 		this.state = { partidaId: 'TODAS', partidas: [] }
 	}
 	componentWillMount() {
-		this.props.searchPartidas()
-		this.props.search()
+		//this.props.searchPartidas()
+		//this.props.search()
 	}
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.partidas && nextProps.partidas.length > 0) {
 			const partidaId = this.encontrarUltimaClassificacao(nextProps.partidas)
 			const partidas = nextProps.partidas.filter(partida => partida._id === partidaId)
 			for (let i = 0; i < partidas.length; i++) {
-				partidas[i] = {...partidas[i]}
+				partidas[i] = { ...partidas[i] }
 			}
 			this.setState({ partidaId, partidas: [...partidas] })
 		}
@@ -41,13 +41,13 @@ class Palpite extends Component {
 		if (partidaId !== 'TODAS') {
 			const partidas = this.props.partidas.filter(partida => partida._id === partidaId)
 			for (let i = 0; i < partidas.length; i++) {
-				partidas[i] = {...partidas[i]}
+				partidas[i] = { ...partidas[i] }
 			}
 			this.setState({ partidaId, partidas: [...partidas] })
 		} else {
 			const partidas = [...this.props.partidas]
 			for (let i = 0; i < partidas.length; i++) {
-				partidas[i] = {...partidas[i]}
+				partidas[i] = { ...partidas[i] }
 			}
 			this.setState({ partidaId, partidas: [...partidas] })
 		}

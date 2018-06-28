@@ -22,6 +22,13 @@ class Palpite extends Component {
 		this.props.search(this.props.faseId)
 		this.props.montarGrupos(user._id, this.props.faseId)
 	}
+	componentWillReceiveProps(nextProps) {
+		if (this.props.faseId !== nextProps.faseId) {
+			const user = this.props.getAuthenticatedUser()
+			this.props.search(nextProps.faseId)
+			this.props.montarGrupos(user._id, nextProps.faseId)
+		}
+	}
 	componentDidUpdate() {
 		this.focus()
 	}

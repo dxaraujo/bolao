@@ -104,7 +104,7 @@ class Palpite extends Component {
 														{grupo.rodadas.map((rodada, idx2) => {
 															return (
 																<div key={idx2}>
-																	<If test={grupo.nome !== 'SEM RODADA'}>
+																	<If test={rodada.nome !== 'SEM RODADA'}>
 																		<div className='text-center bg-gray-200 nomeRodada'><strong>{rodada.nome}</strong></div>
 																	</If>
 																	{rodada.palpites.map((palpite, idx3) => {

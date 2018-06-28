@@ -62,8 +62,7 @@ class PartidaList extends Component {
 					<Table responsive striped borderless>
 						<thead>
 							<tr className='gridPartidas'>
-								<th className='text-center'>#</th>
-								<th>Ordem</th>
+								<th className='text-center'>Ordem</th>
 								<th>Fase</th>
 								<th>Grupo</th>
 								<th>Rodada</th>
@@ -77,8 +76,7 @@ class PartidaList extends Component {
 							{partidas.map((partida, idx) => {
 								return (
 									<tr key={idx} className='gridPartidas'>
-										<td className='text-center'>{idx + 1}</td>
-										<td>{partida.order}</td>
+										<td className='text-center'>{partida.order}</td>
 										<td>{partida.fase}</td>
 										<td>{partida.grupo}</td>
 										<td>{partida.rodada}</td>

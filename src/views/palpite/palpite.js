@@ -66,7 +66,7 @@ class Palpite extends Component {
 			})
 		});
 		const user = this.props.getAuthenticatedUser()
-		this.props.updateAll(palpites, user._id, this.props.faseName)
+		this.props.updateAll(palpites, user._id, this.props.faseId)
 		toast.success('Seus palpites foram salvos, agora é só torcer!');
 	}
 	focus() {

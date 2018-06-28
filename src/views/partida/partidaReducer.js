@@ -16,10 +16,9 @@ export default function (state = initialState, action) {
 		case PARTIDA_UPDATE:
 		case PARTIDA_DELETE:
 		case PARTIDA_SELECT:
-			const partida = updatePartida(action.payload.data)
 			return {
 				...state,
-				partida
+				partida: action.payload.data
 			};
 		case PARTIDA_HANDLER:
 			return {
@@ -49,9 +48,4 @@ const updatePartidas = partidas => {
 		partida.data = moment(partida.data, 'YYYY-MM-DDThh:mm:ss').format('DD/MM/YYYY HH:mm:ss')
 	});
 	return partidas
-}
-
-const updatePartida = partida => {
-	partida.data = moment(partida.data, 'YYYY-MM-DDThh:mm:ss').format('DD/MM/YYYY HH:mm:ss')
-	return partida
 }

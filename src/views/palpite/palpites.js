@@ -19,13 +19,26 @@ class Palpite extends Component {
 	}
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.partidas && nextProps.partidas.length > 0) {
-			const partidaId = this.encontrarUltimaClassificacao(nextProps.partidas)
-			const partidas = nextProps.partidas.filter(partida => partida._id === partidaId)
+			let partidas = this.filtrarPartidas(nextProps.partidas)
+			const partidaId = this.encontrarUltimaClassificacao(partidas)
+			partidas = nextProps.partidas.filter(partida => partida._id === partidaId)
 			for (let i = 0; i < partidas.length; i++) {
 				partidas[i] = { ...partidas[i] }
 			}
 			this.setState({ partidaId, partidas: [...partidas] })
 		}
+	}
+	filtrarPartidas(partidas) {
+		return partidas.filter(partida => {
+			let estaDisponivelParaConsulta = false
+			for (let i = 0; i < this.props.fases.length; i++) {
+				const fase = this.props.fases[i];
+				if (partida.fase === fase.nome) {
+					estaDisponivelParaConsulta = fase.status === 'B'
+				}
+			}
+			return estaDisponivelParaConsulta
+		})
 	}
 	encontrarUltimaClassificacao(partidas) {
 		let ultimaClassificacao
@@ -39,13 +52,13 @@ class Palpite extends Component {
 	handleChange = event => {
 		const partidaId = event.target.value
 		if (partidaId !== 'TODAS') {
-			const partidas = this.props.partidas.filter(partida => partida._id === partidaId)
+			const partidas = this.filtrarPartidas(this.props.partidas).filter(partida => partida._id === partidaId)
 			for (let i = 0; i < partidas.length; i++) {
 				partidas[i] = { ...partidas[i] }
 			}
 			this.setState({ partidaId, partidas: [...partidas] })
 		} else {
-			const partidas = [...this.props.partidas]
+			const partidas = this.filtrarPartidas(this.props.partidas)
 			for (let i = 0; i < partidas.length; i++) {
 				partidas[i] = { ...partidas[i] }
 			}
@@ -62,7 +75,7 @@ class Palpite extends Component {
 					<div>
 						<CustomInput id='partidaId' type='select' value={this.state.partidaId || 'TODAS'} onChange={this.handleChange}>
 							<option value={'TODAS'}>Todas as partidas</option>
-							{this.props.partidas.map(partida => (
+							{this.filtrarPartidas(this.props.partidas).map(partida => (
 								<option key={partida._id} value={partida._id}>{`${partida.timeA.nome} x ${partida.timeB.nome}`}</option>
 							))}
 						</CustomInput>
@@ -116,7 +129,7 @@ class Palpite extends Component {
 	}
 }
 
-const mapStateToProps = state => ({ users: state.userStore.users, partidas: state.partidaStore.partidas })
+const mapStateToProps = state => ({ users: state.userStore.users, partidas: state.partidaStore.partidas, fases: state.faseStore.fases })
 const mapDispatchToProps = dispatch => bindActionCreators({ search, searchPartidas }, dispatch)
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Palpite))

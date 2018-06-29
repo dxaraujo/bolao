@@ -22,6 +22,13 @@ class Palpite extends Component {
 		this.props.search(this.props.faseId)
 		this.props.montarGrupos(user._id, this.props.faseId)
 	}
+	componentWillReceiveProps(nextProps) {
+		if (this.props.faseId !== nextProps.faseId) {
+			const user = this.props.getAuthenticatedUser()
+			this.props.search(nextProps.faseId)
+			this.props.montarGrupos(user._id, nextProps.faseId)
+		}
+	}
 	componentDidUpdate() {
 		this.focus()
 	}
@@ -66,7 +73,7 @@ class Palpite extends Component {
 			})
 		});
 		const user = this.props.getAuthenticatedUser()
-		this.props.updateAll(palpites, user._id, this.props.faseName)
+		this.props.updateAll(palpites, user._id, this.props.faseId)
 		toast.success('Seus palpites foram salvos, agora é só torcer!');
 	}
 	focus() {
@@ -104,7 +111,7 @@ class Palpite extends Component {
 														{grupo.rodadas.map((rodada, idx2) => {
 															return (
 																<div key={idx2}>
-																	<If test={grupo.nome !== 'SEM RODADA'}>
+																	<If test={rodada.nome !== 'SEM RODADA'}>
 																		<div className='text-center bg-gray-200 nomeRodada'><strong>{rodada.nome}</strong></div>
 																	</If>
 																	{rodada.palpites.map((palpite, idx3) => {

@@ -3,8 +3,8 @@ import React, { Component } from 'react'
 import { Nav, NavItem, NavLink } from 'reactstrap'
 import { AppNavbarBrand, AppSidebarToggler } from '@coreui/react'
 
-import logo from '../assets/img/brand/logo_fifa.svg'
-import logoShort from '../assets/img/brand/logo_fifa_image.svg'
+import logo from '../assets/img/brand/logo_fifa.webp'
+import logoShort from '../assets/img/brand/logo_fifa_image.webp'
 
 class Header extends Component {
 	render() {

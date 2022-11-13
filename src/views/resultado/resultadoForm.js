@@ -12,10 +12,10 @@ const ReadOnlyRow = ({ idx, partida, edit }) => (
 		<td className='text-center'>
 			<div className='rodada'>
 				<div className='nomeTimeA'>
-					<span className='h6 nomeTimeA'>{partida.timeA.sigla}</span>
+					<span className='h6 nomeTimeA'>{partida.timeA ? partida.timeA.sigla : ''}</span>
 				</div>
 				<div className='bandeiraTimeA'>
-					<i className={`bandeiraTimeA flag-icon flag-icon-${partida.timeA.bandeira}`} />
+					<i className={`bandeiraTimeA flag-icon flag-icon-${partida.timeA ? partida.timeA.bandeira : 'xx'}`} />
 				</div>
 				<div className='palpiteTimeA'>
 					{partida.placarTimeA}
@@ -25,10 +25,10 @@ const ReadOnlyRow = ({ idx, partida, edit }) => (
 					{partida.placarTimeB}
 				</div>
 				<div className='bandeiraTimeB'>
-					<i className={`bandeiraTimeB flag-icon flag-icon-${partida.timeB.bandeira}`} />
+					<i className={`bandeiraTimeB flag-icon flag-icon-${partida.timeB ? partida.timeB.bandeira : 'xx'}`} />
 				</div>
 				<div className='nomeTimeB'>
-					<span className='h6 nomeTimeB'>{partida.timeB.sigla}</span>
+					<span className='h6 nomeTimeB'>{partida.timeB ? partida.timeB.sigla : ''}</span>
 				</div>
 				<div className='horaPartida'>
 					<span className='horaPartida text-secundary'>{partida.data}</span>
@@ -51,10 +51,10 @@ const EditableRow = ({ idx, partida, handleChange, save, cancel }) => (
 		<td className='text-center'>
 			<div className='rodada'>
 				<div className='nomeTimeA'>
-					<span className='h6 nomeTimeA'>{partida.timeA.sigla}</span>
+					<span className='h6 nomeTimeA'>{partida.timeA ? partida.timeA.sigla : ''}</span>
 				</div>
 				<div className='bandeiraTimeA'>
-					<i className={`bandeiraTimeA flag-icon flag-icon-${partida.timeA.bandeira}`} />
+					<i className={`bandeiraTimeA flag-icon flag-icon-${partida.timeA ? partida.timeA.bandeira : 'xx'}`} />
 				</div>
 				<div className='palpiteTimeA'>
 					<input name='placarTimeA' type='text' className='palpiteTimeA form-control' maxLength='1' value={partida.placarTimeA} onChange={event => handleChange(event, partida)} />
@@ -64,10 +64,10 @@ const EditableRow = ({ idx, partida, handleChange, save, cancel }) => (
 					<input name='placarTimeB' type='text' className='palpiteTimeB form-control' maxLength='1' value={partida.placarTimeB} onChange={event => handleChange(event, partida)} />
 				</div>
 				<div className='bandeiraTimeB'>
-					<i className={`bandeiraTimeB flag-icon flag-icon-${partida.timeB.bandeira}`} />
+					<i className={`bandeiraTimeB flag-icon flag-icon-${partida.timeB ? partida.timeB.bandeira : 'xx'}`} />
 				</div>
 				<div className='nomeTimeB'>
-					<span className='h6 nomeTimeB'>{partida.timeB.sigla}</span>
+					<span className='h6 nomeTimeB'>{partida.timeB ? partida.timeB.sigla : ''}</span>
 				</div>
 				<div className='horaPartida'>
 					<span className='horaPartida text-secundary'>{partida.data}</span>

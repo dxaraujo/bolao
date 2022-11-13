@@ -9,6 +9,7 @@ import { Col, Card, CardHeader, CardBody, CardFooter, Form, FormGroup, CustomInp
 import MaskedInput from 'react-maskedinput'
 
 import { update, create, handleChange, reset } from './partidaActions'
+import { rootUser } from '../../config'
 
 class PartidaForm extends Component {
 
@@ -33,6 +34,7 @@ class PartidaForm extends Component {
 	}
 
 	render() {
+		const user = this.props.getAuthenticatedUser()
 		const partida = this.props.partida
 		return (
 			<Card>
@@ -45,7 +47,7 @@ class PartidaForm extends Component {
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>
-									<CustomInput id='order' name='order' type='text' className='form-control' value={partida.order || ''} onChange={this.props.handleChange} />
+									<CustomInput id='order' name='order' type='text' className='form-control' value={partida.order || ''} onChange={this.props.handleChange} disabled={rootUser !== user.email} />
 									<InputGroupAddon addonType='append'>
 										<InputGroupText>@</InputGroupText>
 									</InputGroupAddon>
@@ -58,7 +60,7 @@ class PartidaForm extends Component {
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>
-									<CustomInput id='fase' name='fase' type='select' value={partida.fase} onChange={this.props.handleChange}>
+									<CustomInput id='fase' name='fase' type='select' value={partida.fase} onChange={this.props.handleChange} disabled={rootUser !== user.email}>
 										<option value="">Selecione uma Fase</option>
 										<option value="FASE DE GRUPOS">FASE DE GRUPOS</option>
 										<option value="OITAVAS DE FINAL">OITAVAS DE FINAL</option>
@@ -79,7 +81,7 @@ class PartidaForm extends Component {
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>
-									<CustomInput id='grupo' name='grupo' type='select' value={partida.grupo} onChange={this.props.handleChange}>
+									<CustomInput id='grupo' name='grupo' type='select' value={partida.grupo} onChange={this.props.handleChange} disabled={rootUser !== user.email}>
 										<option value="">Selecione um Grupo</option>
 										<option value="SEM GRUPO">SEM GRUPO</option>
 										<option value="GRUPO A">GRUPO A</option>
@@ -103,7 +105,7 @@ class PartidaForm extends Component {
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>
-									<CustomInput id='rodada' name='rodada' type='select' value={partida.rodada} onChange={this.props.handleChange}>
+									<CustomInput id='rodada' name='rodada' type='select' value={partida.rodada} onChange={this.props.handleChange} disabled={rootUser !== user.email}>
 										<option value="">Selecione uma Rodada</option>
 										<option value="SEM RODADA">SEM RODADA</option>
 										<option value="1ª RODADA">1ª RODADA</option>
@@ -122,7 +124,7 @@ class PartidaForm extends Component {
 							</Col>
 							<Col xs='12' md='10'>
 								<InputGroup className='input-prepend'>
-									<MaskedInput mask='11/11/1111 11:11:11' id='data' name='data' type='text' className='form-control' value={partida.data || ''} onChange={this.props.handleChange} />
+									<MaskedInput mask='11/11/1111 11:11:11' id='data' name='data' type='text' className='form-control' value={partida.data || ''} onChange={this.props.handleChange} disabled={rootUser !== user.email}/>
 									<InputGroupAddon addonType='append'>
 										<InputGroupText>@</InputGroupText>
 									</InputGroupAddon>

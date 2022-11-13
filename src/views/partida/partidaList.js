@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { Card, CardHeader, CardBody, Table, ButtonGroup, Button } from 'reactstrap'
 import Swal from 'sweetalert2'
 
+import If from '../../components/if';
+import { rootUser } from '../../config'
 import { search as searchTimes } from '../time/timeActions'
 import { search, select, remove } from './partidaActions'
 
@@ -49,14 +51,21 @@ class PartidaList extends Component {
 	}
 
 	render() {
+		const user = this.props.getAuthenticatedUser()
 		const partidas = this.props.partidas
+		const desabilitado = (nomeFase) => {
+			const fase = this.props.fases.find(f => f.nome === nomeFase)
+			return fase.status === 'D'
+		}
 		return (
 			<Card>
 				<CardHeader>
 					Lista de Partidas
-					<Button color='success' size='sm' className='float-right mb-0' onClick={this.create}>
-						<i className='fas fa-plus-circle'></i> Adicionar
-					</Button>
+					<If test={rootUser === user.email}>
+						<Button color='success' size='sm' className='float-right mb-0' onClick={this.create}>
+							<i className='fas fa-plus-circle'></i> Adicionar
+						</Button>
+					</If>
 				</CardHeader>
 				<CardBody style={{ padding: '0px' }}>
 					<Table responsive striped borderless>
@@ -81,17 +90,21 @@ class PartidaList extends Component {
 										<td>{partida.grupo}</td>
 										<td>{partida.rodada}</td>
 										<th>{partida.data}</th>
-										<td>{partida.timeA.nome}</td>
-										<td>{partida.timeB.nome}</td>
+										<td>{partida.timeA ? partida.timeA.nome : ''}</td>
+										<td>{partida.timeB ? partida.timeB.nome : ''}</td>
 										<td className='text-center'>
-											<ButtonGroup>
-												<Button className='text-white' size='sm' color='warning' onClick={() => this.update(partida)}>
-													<i className='fas fa-edit'></i>
-												</Button>
-												<Button size='sm' color='danger' onClick={() => this.prepareDelete(partida)}>
-													<i className='fas fa-trash-alt'></i>
-												</Button>
-											</ButtonGroup>
+											<If test={desabilitado(partida.fase)}>
+												<ButtonGroup>
+													<Button className='text-white' size='sm' color='warning' onClick={() => this.update(partida)}>
+														<i className='fas fa-edit'></i>
+													</Button>
+													<If test={rootUser === user.email}>
+														<Button size='sm' color='danger' onClick={() => this.prepareDelete(partida)}>
+															<i className='fas fa-trash-alt'></i>
+														</Button>
+													</If>
+												</ButtonGroup>
+											</If>
 										</td>
 									</tr>
 								)
@@ -104,7 +117,7 @@ class PartidaList extends Component {
 	}
 }
 
-const mapStateToProps = state => ({ partidas: state.partidaStore.partidas, times: state.timeStore.times })
+const mapStateToProps = state => ({ partidas: state.partidaStore.partidas, times: state.timeStore.times, fases: state.faseStore.fases })
 const mapDispatchToProps = dispatch => bindActionCreators({ search, select, remove, searchTimes }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(PartidaList)

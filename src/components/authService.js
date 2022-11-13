@@ -6,40 +6,24 @@ export default class AuthService {
 	constructor() {
 		this.url = backendURI
 		this.fetch = this.fetch.bind(this)
-		this.login = this.login.bind(this)
-		this.loginWithFacebook = this.loginWithFacebook.bind(this)
 		this.logout = this.logout.bind(this)
 		this.loggedIn = this.loggedIn.bind(this)
 		this.getAuthenticatedUser = this.getAuthenticatedUser.bind(this)
 	}
 
-	login(username, password) {
-		return this.fetch('login', {
-			method: 'POST',
-			body: JSON.stringify({ username, password })
-		}).then(res => {
-			this.setToken(res.token)
-			const user = decode(res.token);
-			this.setAuthenticatedUser(user)
-			return Promise.resolve(res);
-		})
+	loginWithGoogle(token, callback) {
+		this.setGoogleToken(token)
+		this.registerGoogleUser(token, callback)
 	}
 
-	loginWithFacebook(content, callback) {
-		const user = { facebookId: content.id, name: content.name, username: content.email, avatar: content.picture.data.url }
-		this.setFacebookToken(content.accessToken)
-		this.registerFacebookUser(user, callback)
-	}
-
-	registerFacebookUser(user, callback) {
-		return this.fetch('registerfacebookuser', {
+	registerGoogleUser(token, callback) {
+		return this.fetch(`registerGoogleUser?token=${token}`, {
 			method: 'POST',
-			body: JSON.stringify({ ...user, password: 'facebookMesa5@', confirmPassword: 'facebookMesa5@' })
 		}).then(res => {
 			this.setToken(res.token)
 			const user = decode(res.token)
 			this.setAuthenticatedUser(user)
-			callback()
+			callback ? callback() : null
 		})
 	}
 
@@ -65,17 +49,17 @@ export default class AuthService {
 		return localStorage.getItem('jwt_token')
 	}
 
-	setFacebookToken(content) {
-		localStorage.setItem('facebook_token', content)
+	setGoogleToken(content) {
+		localStorage.setItem('google_token', content)
 	}
 
-	getFacebookToken() {
-		return localStorage.getItem('facebook_token')
+	getGoogleToken() {
+		return localStorage.getItem('google_token')
 	}
 
 	logout(callback) {
 		localStorage.removeItem('jwt_token');
-		localStorage.removeItem('facebook_token');
+		localStorage.removeItem('google_token');
 		localStorage.removeItem('user_content');
 		callback()
 	}

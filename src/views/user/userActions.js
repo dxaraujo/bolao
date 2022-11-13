@@ -25,7 +25,7 @@ export const search = () => {
 }
 
 export const update = user => {
-	return submit({ _id: user._id, isAdmin: user.isAdmin }, 'PUT', USER_UPDATE)
+	return submit({ _id: user._id, isAdmin: user.isAdmin, ativo: user.ativo }, 'PUT', USER_UPDATE)
 }
 
 export const handleChange = (user, users) => {

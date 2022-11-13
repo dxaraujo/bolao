@@ -17,9 +17,12 @@ const withAuth = (Comp) => {
 		}
 		checkIfAuthenticated() {
 			const pathname = this.props.history.location.pathname
-			if (pathname !== '/login' && pathname !== '/signup' && pathname !== '/validateToken') {
-				if (!this.authService.loggedIn()) {
+			const token = new URLSearchParams(this.props.location.search).get('token');
+			if (pathname !== '/login') {
+				if (!this.authService.loggedIn() && !token) {
 					this.authService.logout(() => this.props.history.replace('/login'))
+				} else if (!this.authService.loggedIn()) {
+					this.authService.loginWithGoogle(token, () => this.props.history.replace('/'))
 				} else {
 					authenticated = true
 				}

@@ -10,7 +10,6 @@ import { search as searchPartidas } from '../partida/partidaActions'
 
 import blackAvatar from '../../assets/img/blankavatar.svg'
 import duck from '../../assets/img/duck.svg'
-import { backendURI } from '../../config'
 
 class Classificacao extends Component {
 	constructor(props) {
@@ -55,9 +54,10 @@ class Classificacao extends Component {
 		}
 	}
 	montarClassificacoes(users, partidaOrder) {
-		for (let i = 0; i < users.length; i++) {
-			users[i] = { ...users[i] }
-			const user = users[i]
+		let tempUsers = users.filter(user => (user.palpites && user.palpites.length > 0))
+		for (let i = 0; i < tempUsers.length; i++) {
+			tempUsers[i] = { ...tempUsers[i] }
+			const user = tempUsers[i]
 			user.classificacao = user.palpites[partidaOrder].classificacao
 			user.classificacaoAnterior = user.palpites[partidaOrder].classificacaoAnterior
 			user.totalAcumulado = user.palpites[partidaOrder].totalAcumulado
@@ -72,7 +72,7 @@ class Classificacao extends Component {
 				user.placarGol += user.palpites[j].placarGol ? 1 : 0
 			}
 		}
-		const newUsers = users.sort((u1, u2) => u1.classificacao - u2.classificacao)
+		const newUsers = tempUsers.sort((u1, u2) => u1.classificacao - u2.classificacao)
 		return [...newUsers]
 	}
 	encontrarUltimaClassificacao(partidas) {
@@ -107,13 +107,13 @@ class Classificacao extends Component {
 					</CardHeader>
 					<div className='divplayers'>
 						<div style={{ justifySelf: 'right', alignSelf: 'top' }}>
-							<img alt='avatar' src={users[1] ? `${backendURI}/avatar/${users[1]._id}` : blackAvatar} className='player2' width={50} height={50} />
+							<img alt='avatar' src={users[1] ? users[1].picture : blackAvatar} className='player2' width={50} height={50} />
 						</div>
 						<div style={{ justifySelf: 'center', alignSelf: 'top' }}>
-							<img alt='avatar' src={users[0] ? `${backendURI}/avatar/${users[0]._id}` : blackAvatar} className='player1' width={50} height={50} />
+							<img alt='avatar' src={users[0] ? users[0].picture : blackAvatar} className='player1' width={50} height={50} />
 						</div>
 						<div style={{ justifySelf: 'left', alignSelf: 'top' }}>
-							<img alt='avatar' src={users[2] ? `${backendURI}/avatar/${users[2]._id}` : blackAvatar} className='player3' width={50} height={50} />
+							<img alt='avatar' src={users[2] ? users[2].picture : blackAvatar} className='player3' width={50} height={50} />
 						</div>
 					</div>
 					<CardBody style={{ padding: '0px' }}>
@@ -146,7 +146,7 @@ class Classificacao extends Component {
 												</If>
 											</td>
 											<td className='text-center'>
-												<img alt='avatar' src={`${backendURI}/avatar/${user._id}`} className='img-avatar' width={50} height={50} />
+												<img alt='avatar' src={user.picture} className='img-avatar' width={50} height={50} />
 											</td>
 											<td>{user.name}</td>
 											<td className={`text-center classificacao ${this.mudancaClassificacao(user)}`}>{this.resultadoMudancaClassificacao(user)} </td>

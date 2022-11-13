@@ -14,7 +14,6 @@ import routes from '../router'
 import Header from './header'
 import Footer from './footer'
 import withAuth from '../components/withAuth'
-import { backendURI } from '../config'
 
 class FullLayout extends Component {
 	constructor(props) {
@@ -23,7 +22,6 @@ class FullLayout extends Component {
 	}
 	componentWillMount() {
 		this.props.search()
-
 	}
 	componentWillReceiveProps(nextProps) {
 		this.proccessNavigation(nextProps.fases)
@@ -34,19 +32,20 @@ class FullLayout extends Component {
 		let newNavPalpites = []
 
 		navv.push(...navigationsLinks)
-		navv.push(...navigationsPalpites)
 
-		fases.forEach(fase => {
-			if (fase.status === 'A' || fase.status === 'B') {
-				newNavPalpites.push({
-					name: `${fase.nome}`,
-					url: `/palpite/${fase._id}`,
-					icon: 'fas fa-futbol',
-				})
-			}
-		})
-
-		navv.push(...newNavPalpites)
+		if (this.props.getAuthenticatedUser().ativo) {
+			navv.push(...navigationsPalpites)
+			fases.forEach(fase => {
+				if (fase.status === 'A' || fase.status === 'B') {
+					newNavPalpites.push({
+						name: `${fase.nome}`,
+						url: `/palpite/${fase._id}`,
+						icon: 'fas fa-futbol',
+					})
+				}
+			})
+			navv.push(...newNavPalpites)
+		}
 
 		if (this.props.getAuthenticatedUser().isAdmin) {
 			navv.push(...navigationsAdmin)
@@ -69,7 +68,7 @@ class FullLayout extends Component {
 							<div style={{ backgroundColor: '#494F54', padding: '10px 5px 10px 5px' }}>
 								<div style={{ display: 'grid', gridTemplateColumns: '50px 5px 1fr', alignItems: 'center' }}>
 									<div>
-										<img alt='avatar' src={`${backendURI}/avatar/${user._id}`} className='img-avatar' width={50} height={50} />
+										<img alt='avatar' src={user.picture} className='img-avatar' width={50} height={50} />
 									</div>
 									<div />
 									<div>

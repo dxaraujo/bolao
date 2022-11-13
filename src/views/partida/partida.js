@@ -8,9 +8,15 @@ class Partida extends Component {
 	render() {
 		return (
 			<Switch>
-				<Route path='/partida/create' name='New' component={PartidaForm} />
-				<Route path='/partida/update' name='Edit' component={PartidaForm} />
-				<Route path='/partida/list' name='List' component={PartidaList} />
+				<Route path='/partida/create' name='New' render={props => (
+					<PartidaForm {...this.props} />
+				)} />
+				<Route path='/partida/update' name='Edit' render={props => (
+					<PartidaForm {...this.props} />
+				)} />
+				<Route path='/partida/list' name='List' render={props => (
+					<PartidaList {...this.props} />
+				)} />
 				<Redirect from="/partida" to="/partida/list" />
 			</Switch>
 		)

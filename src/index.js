@@ -20,9 +20,9 @@ const reducers = combineReducers({
 	faseStore: faseReducer
 });
 
-//const devTools = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-//const store = applyMiddleware(multi, thunk, promise)(createStore)(reducers, devTools)
-const store = applyMiddleware(multi, thunk, promise)(createStore)(reducers)
+const devTools = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+const store = applyMiddleware(multi, thunk, promise)(createStore)(reducers, devTools)
+// const store = applyMiddleware(multi, thunk, promise)(createStore)(reducers)
 
 ReactDOM.render(
 	<Provider store={store}>

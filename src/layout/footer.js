@@ -4,8 +4,8 @@ class Footer extends Component {
 	render() {
 		return (
 			<React.Fragment>
-				<span>Bolão Copa 2018</span>
-				<span className='ml-auto'>Powered by <a>dxaraujo</a> &copy; 2018</span>
+				<span>Bolão Copa 2022</span>
+				<span className='ml-auto'>Powered by <a>dxaraujo</a> &copy; 2022</span>
 			</React.Fragment>
 		)
 	}

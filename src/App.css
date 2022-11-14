@@ -403,6 +403,33 @@ footer {
 	}
 }
 
+.gridFases {
+	display: grid;
+	grid-template-columns: 44px auto 100px 100px;
+	align-items: center;
+}
+
+@media only screen and (max-width: 575.98px) {
+	.gridFases {
+		grid-template-columns: 30px auto 100px 86px;
+	}
+	.gridFases td,
+	.gridFases th {
+		padding: 5px
+	}
+}
+
+@media only screen and (max-width: 767.98px) {
+	.gridFases {
+		grid-template-columns: 30px auto 100px 86px;
+	}
+	.gridFases td,
+	.gridFases th {
+		padding: 5px
+	}
+}
+
+
 .goldTrophy {
 	color: #FFD700;
 }

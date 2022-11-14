@@ -22,16 +22,16 @@ const ReadOnlyRow = ({ idx, user, edit }) => (
 	</tr>
 )
 
-const EditableRow = ({ idx, user, handleChangeAtivo, handleChangeAdmin, save, cancel }) => (
+const EditableRow = ({ idx, user, authUser, handleChangeAtivo, handleChangeAdmin, save, cancel }) => (
 	<tr key={user._id} className='gridUsers'>
 		<td className='text-center'>{idx + 1}</td>
 		<td><img alt='avatar' src={user.picture} className='img-avatar' width={50} height={50} /></td>
 		<td>{user.name}</td>
 		<td className='d-flex justify-content-center'><CustomInput id='ativo' name='ativo' type='checkbox' checked={user.ativo} onChange={(event) => handleChangeAtivo(event, user)} /></td>
-		<If test={rootUser === user.email}>
+		<If test={rootUser === authUser.email}>
 			<td className='d-flex justify-content-center'><CustomInput id='isAdmin' name='isAdmin' type='checkbox' checked={user.isAdmin} onChange={(event) => handleChangeAdmin(event, user)} /></td>
 		</If>
-		<If test={rootUser !== user.email}>
+		<If test={rootUser !== authUser.email}>
 			<td className='text-center'><i className={`fas fa-check text-${user.isAdmin ? 'success' : 'secondary'}`}></i></td>
 		</If>
 		<td className='text-center'>
@@ -76,10 +76,10 @@ class UserForm extends Component {
 		this.props.handleChange(user, this.props.users)
 	}
 	render() {
-		const { index, user } = this.props
+		const { index, user, authUser } = this.props
 		return this.state.isReadOnly ?
 			<ReadOnlyRow key={user._id} idx={index} user={user} edit={this.edit} /> :
-			<EditableRow key={user._id} idx={index} user={user} handleChangeAtivo={this.handleChangeAtivo} handleChangeAdmin={this.handleChangeAdmin} save={this.save} cancel={this.cancel} />
+			<EditableRow key={user._id} idx={index} user={user} authUser={authUser} handleChangeAtivo={this.handleChangeAtivo} handleChangeAdmin={this.handleChangeAdmin} save={this.save} cancel={this.cancel} />
 	}
 }
 

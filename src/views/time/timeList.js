@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { Card, CardHeader, CardBody, Table, ButtonGroup, Button } from 'reactstrap'
 import Swal from 'sweetalert2'
 
+import If from '../../components/if';
+import { rootUser } from '../../config'
 import { search, select, remove } from './timeActions'
 
 class TimeList extends Component {
@@ -48,14 +50,17 @@ class TimeList extends Component {
 		this.props.remove(time);
 	}
 	render() {
+		const user = this.props.getAuthenticatedUser()
 		const times = this.props.times
 		return (
 			<Card>
 				<CardHeader>
 					Lista de Times
-					<Button color='success' size='sm' className='float-right mb-0' onClick={this.create}>
-						<i className='fas fa-plus-circle'></i> Adicionar
-					</Button>
+					<If test={rootUser === user.email}>
+						<Button color='success' size='sm' className='float-right mb-0' onClick={this.create}>
+							<i className='fas fa-plus-circle'></i> Adicionar
+						</Button>
+					</If>
 				</CardHeader>
 				<CardBody style={{ padding: '0px' }}>
 					<Table responsive striped borderless>
@@ -81,9 +86,11 @@ class TimeList extends Component {
 												<Button className='text-white' size='sm' color='warning' onClick={() => this.update(time)}>
 													<i className='fas fa-edit'></i>
 												</Button>
-												<Button size='sm' color='danger' onClick={() => this.prepareDelete(time)}>
-													<i className='fas fa-trash-alt'></i>
-												</Button>
+												<If test={rootUser === user.email}>
+													<Button size='sm' color='danger' onClick={() => this.prepareDelete(time)}>
+														<i className='fas fa-trash-alt'></i>
+													</Button>
+												</If>
 											</ButtonGroup>
 										</td>
 									</tr>

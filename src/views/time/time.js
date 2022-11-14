@@ -8,9 +8,15 @@ class Time extends Component {
 	render() {
 		return (
 			<Switch>
-				<Route path='/time/create' name='New' component={TimeForm} />
-				<Route path='/time/update' name='Edit' component={TimeForm} />
-				<Route path='/time/list' name='List' component={TimeList} />
+				<Route path='/time/create' name='New' render={props => (
+					<TimeForm {...this.props} />
+				)} />
+				<Route path='/time/update' name='Edit' render={props => (
+					<TimeForm {...this.props} />
+				)} />
+				<Route path='/time/list' name='List' render={props => (
+					<TimeList {...this.props} />
+				)} />
 				<Redirect from="/time" to="/time/list" />
 			</Switch>
 		)

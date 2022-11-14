@@ -23,7 +23,9 @@ export default class AuthService {
 			this.setToken(res.token)
 			const user = decode(res.token)
 			this.setAuthenticatedUser(user)
-			callback ? callback() : null
+			if (callback) {
+				callback()
+			}
 		})
 	}
 

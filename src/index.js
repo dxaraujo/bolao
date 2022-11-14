@@ -10,6 +10,7 @@ import thunk from 'redux-thunk'
 
 import App from './App'
 import { timeReducer, partidaReducer, palpiteReducer, userReducer, faseReducer } from './reducers';
+import { environment  } from './config'
 import registerServiceWorker from './registerServiceWorker';
 
 const reducers = combineReducers({
@@ -20,9 +21,13 @@ const reducers = combineReducers({
 	faseStore: faseReducer
 });
 
-const devTools = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-const store = applyMiddleware(multi, thunk, promise)(createStore)(reducers, devTools)
-// const store = applyMiddleware(multi, thunk, promise)(createStore)(reducers)
+let store
+if (environment === 'PRODUCTION') {
+	store = applyMiddleware(multi, thunk, promise)(createStore)(reducers)
+} else {
+	const devTools = window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+	store = applyMiddleware(multi, thunk, promise)(createStore)(reducers, devTools)
+}
 
 ReactDOM.render(
 	<Provider store={store}>

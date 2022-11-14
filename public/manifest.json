@@ -1,6 +1,6 @@
 {
-	"short_name": "Bolão Mesa5",
-	"name": "Bolão Mesa5",
+	"short_name": "Bolão Catar 2022",
+	"name": "Bolão Catar 2022",
 	"start_url": "./index.html",
 	"display": "standalone",
 	"icons": [
@@ -12,5 +12,5 @@
 	],
 	"theme_color": "#000000",
 	"background_color": "#ffffff",
-	"scope": "https://bolaomesa5.herokuapp.com"
+	"scope": "https://bolao2022.onrender.com"
 }

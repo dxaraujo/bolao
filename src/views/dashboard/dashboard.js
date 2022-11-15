@@ -6,8 +6,11 @@ import { Row, Card, CardBody } from 'reactstrap'
 import { Chart, Bar, Line, Pie } from 'react-chartjs-2';
 
 import If from '../../components/if'
+import { searchAtivos as searchUsers } from '../user/userActions'
+import { search as searchPartidas } from '../partida/partidaActions'
 import { search as searchPalpites } from '../palpite/palpiteActions'
-import { search as searchUsers } from '../user/userActions'
+
+import blackAvatar from '../../assets/img/blankavatar.svg'
 
 const colors = [
 	'rgb(54, 162, 235)',
@@ -115,6 +118,7 @@ class Dashboard extends Component {
 
 	componentWillMount() {
 		this.props.searchUsers()
+		this.props.searchPartidas()
 		this.props.searchPalpites(this.props.getAuthenticatedUser())
 		Chart.pluginService.register({
 			beforeRender: function (chartInstance) {
@@ -134,6 +138,16 @@ class Dashboard extends Component {
 				}
 			}
 		});
+	}
+
+	encontrarUltimaPartida() {
+		let ultimaPartida
+		this.props.partidas.forEach(partida => {
+			if (partida.placarTimeA >= 0 && partida.placarTimeB >= 0) {
+				ultimaPartida = partida.order
+			}
+		});
+		return ultimaPartida
 	}
 
 	montarGraficoClassificacoes = allPalpites => {
@@ -220,11 +234,11 @@ class Dashboard extends Component {
 		return chartPieData
 	}
 
-	montarGraficoClassificacaoGeral = (auser) => {
+	montarGraficoClassificacaoGeral = (auser, ultimaPartida) => {
 		chartClassificacaoData.labels = []
 		chartClassificacaoData.datasets = []
 		if (this.props.users.length > 0) {
-			let userIndex = this.props.users.findIndex(u => u.username === auser.username)
+			let userIndex = this.props.users.findIndex(u => u.email === auser.email)
 			if (userIndex >= 0) {
 				if (userIndex === 0) {
 					userIndex = 0
@@ -234,7 +248,6 @@ class Dashboard extends Component {
 					userIndex -= 1
 				}
 				for (let i = userIndex; i < userIndex + 3; i++) {
-					console.log('Index: ' + i)
 					const user = this.props.users[i]
 					let data = []
 					if (user) {
@@ -253,11 +266,9 @@ class Dashboard extends Component {
 							pointHoverBorderWidth: 2,
 							pointRadius: 2,
 						})
-
 						if (user.palpites) {
-							let palpites = user.palpites.filter(palpite => palpite.totalAcumulado > 0)
+							let palpites = user.palpites.filter(palpite => palpite.partida.order <= ultimaPartida)
 							palpites = palpites.slice(Math.max(palpites.length - 10, 0))
-		
 							for (let j = 0; j < palpites.length; j++) {
 								if (i === userIndex) {
 									chartClassificacaoData.labels.push(`${palpites[j].partida.timeA.sigla} x ${palpites[j].partida.timeB.sigla}`)
@@ -273,23 +284,24 @@ class Dashboard extends Component {
 	}
 
 	render() {
-		const user = this.props.getAuthenticatedUser()
-		const palpites = this.props.palpites.filter(palpite => palpite.totalAcumulado > 0)
+		const user = this.props.users.find(u => u.email === this.props.getAuthenticatedUser().email)
+		const ultimaPartida = this.encontrarUltimaPartida()
+		const palpites = this.props.palpites.filter(palpite => palpite.partida.order <= ultimaPartida)
 		return (
 			<Row>
 				<div className='col-12'>
 					<Card style={{ display: 'grid', gridTemplateColumns: '50px 20px 1fr', alignItems: 'center', padding: '20px', backgroundColor: 'white' }}>
 						<div>
-							<img alt='avatar' src={user.picture} className='img-avatar' width={50} height={50} />
+							<img alt='avatar' src={user ? user.picture : blackAvatar} className='img-avatar' width={50} height={50} />
 						</div>
 						<div />
-						<If test={user.ativo}>
+						<If test={user ? user.ativo : false}>
 							<div>
 								<h3 className='mb-1 card-title'>Classificação: {palpites.length > 0 ? palpites[palpites.length - 1].classificacao : '0'}</h3>
 								<h5 className='text-muted'>Total pontos: {palpites.length > 0 ? palpites[palpites.length - 1].totalAcumulado : '0'}</h5>
 							</div>
 						</If>
-						<If test={!user.ativo}>
+						<If test={user ? !user.ativo : false}>
 							<div>
 								<h3 className='mb-1 card-title'>Usuário inativo</h3>
 								<h5 className='text-muted'>Entre em contato com os administradores para participar do bolão</h5>
@@ -297,7 +309,7 @@ class Dashboard extends Component {
 						</If>
 					</Card>
 				</div>
-				<If test={user.ativo}>
+				<If test={user ? user.ativo : false}>
 					<div className='col-12'>
 						<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
 							<Card>
@@ -325,21 +337,21 @@ class Dashboard extends Component {
 								</CardBody>
 							</Card>
 						</div>
-						<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
-							<Card>
-								<CardBody>
-									<div className='col-sm-12 mb-3'>
-										<h5 className='mb-0 card-title'>Classificação geral</h5>
-										<div className='small text-muted'>Histórico das classificações</div>
-									</div>
-									<div className='chart-wrapper'>
-										<If test={this.props.users.length > 0}>
-											<Line data={this.montarGraficoClassificacaoGeral(user)} options={chartLineOpts(true)} height={180} />
-										</If>
-									</div>
-								</CardBody>
-							</Card>
-						</div>
+						<If test={this.props.users.length > 0}>
+							<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
+								<Card>
+									<CardBody>
+										<div className='col-sm-12 mb-3'>
+											<h5 className='mb-0 card-title'>Classificação geral</h5>
+											<div className='small text-muted'>Histórico das classificações</div>
+										</div>
+										<div className='chart-wrapper'>
+											<Line data={this.montarGraficoClassificacaoGeral(user, ultimaPartida)} options={chartLineOpts(true)} height={180} />
+										</div>
+									</CardBody>
+								</Card>
+							</div>
+						</If>
 						<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
 							<Card>
 								<CardBody>
@@ -360,7 +372,7 @@ class Dashboard extends Component {
 	}
 }
 
-const mapStateToProps = state => ({ palpites: state.palpiteStore.palpites, users: state.userStore.users })
-const mapDispatchToProps = dispatch => bindActionCreators({ searchPalpites, searchUsers }, dispatch)
+const mapStateToProps = state => ({ users: state.userStore.users, partidas: state.partidaStore.partidas, palpites: state.palpiteStore.palpites })
+const mapDispatchToProps = dispatch => bindActionCreators({ searchUsers, searchPartidas, searchPalpites }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(Dashboard)

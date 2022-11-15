@@ -8,7 +8,7 @@ import { AppHeader, AppFooter, AppSidebar, AppSidebarHeader, AppSidebarNav, AppS
 import { ToastContainer } from "react-toastify";
 
 import { search } from '../views/fase/faseActions'
-import { navigationsLinks, navigationsPalpites, navigationsAdmin } from '../navigation';
+import { navigationsLinks, navigationsConsultarPalpites, navigationsPalpites, navigationsAdmin } from '../navigation';
 import routes from '../router'
 
 import Header from './header'
@@ -34,18 +34,20 @@ class FullLayout extends Component {
 		navv.push(...navigationsLinks)
 
 		if (this.props.getAuthenticatedUser().ativo) {
-			navv.push(...navigationsPalpites)
-			fases.forEach(fase => {
-				if (fase.status === 'A' || fase.status === 'B') {
-					newNavPalpites.push({
-						name: `${fase.nome}`,
-						url: `/palpite/${fase._id}`,
-						icon: 'fas fa-futbol',
-					})
-				}
-			})
-			navv.push(...newNavPalpites)
+			navv.push(...navigationsConsultarPalpites)
 		}
+
+		navv.push(...navigationsPalpites)
+		fases.forEach(fase => {
+			if (fase.status === 'A' || fase.status === 'B') {
+				newNavPalpites.push({
+					name: `${fase.nome}`,
+					url: `/palpite/${fase._id}`,
+					icon: 'fas fa-futbol',
+				})
+			}
+		})
+		navv.push(...newNavPalpites)
 
 		if (this.props.getAuthenticatedUser().isAdmin) {
 			navv.push(...navigationsAdmin)

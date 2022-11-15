@@ -7,12 +7,14 @@ const navigationsLinks = [
 		name: 'Classificação',
 		url: '/classificacao',
 		icon: 'fas fa-star'
-	}, {
-		name: 'Consultar Palpites',
-		url: '/palpites',
-		icon: 'fas fa-clipboard-list'
 	}
 ]
+
+const navigationsConsultarPalpites = [{
+	name: 'Consultar Palpites',
+	url: '/palpites',
+	icon: 'fas fa-clipboard-list'
+}]
 
 const navigationsPalpites = [
 	{
@@ -48,4 +50,4 @@ const navigationsAdmin = [
 	}
 ]
 
-export { navigationsLinks, navigationsPalpites, navigationsAdmin }
+export { navigationsLinks, navigationsConsultarPalpites, navigationsPalpites, navigationsAdmin }

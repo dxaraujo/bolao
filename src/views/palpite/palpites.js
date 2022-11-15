@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 
 import { Card, CardHeader, CardBody, CustomInput, Table } from 'reactstrap'
 
-import { search } from '../user/userActions'
+import { searchAtivos as search } from '../user/userActions'
 import { search as searchPartidas } from '../partida/partidaActions'
 
 class Palpite extends Component {
@@ -14,8 +14,8 @@ class Palpite extends Component {
 		this.state = { partidaId: 'TODAS', partidas: [] }
 	}
 	componentWillMount() {
-		//this.props.searchPartidas()
-		//this.props.search()
+		this.props.searchPartidas()
+		this.props.search()
 	}
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.partidas && nextProps.partidas.length > 0) {
@@ -66,7 +66,7 @@ class Palpite extends Component {
 		}
 	}
 	render() {
-		const users = this.props.users
+		const users = this.props.users.filter(user => user.ativo)
 		const partidas = this.state.partidas
 		return (
 			<Card>
@@ -96,23 +96,23 @@ class Palpite extends Component {
 									</thead>
 									<tbody>
 										{users.map((user, idx) => (
-											<tr key={user.palpites[partida.order]._id} className='gridPalpites'>
+											<tr key={idx} className='gridPalpites'>
 												<td className='text-center'>{idx + 1}</td>
 												<td>{user.name}</td>
 												<td className='text-center' style={{ justifySelf: 'center' }}>
-													<div key={user.palpites[partida.order]._id + idx} className='rodadaPalpites'>
+													<div key={idx} className='rodadaPalpites'>
 														<div className='bandeiraTimeA'>
-															<i className={`bandeiraTimeA flag-icon flag-icon-${user.palpites[partida.order].partida.timeA.bandeira}`} />
+															<i className={`bandeiraTimeA flag-icon flag-icon-${partida.timeA.bandeira}`} />
 														</div>
 														<div className='palpiteTimeA'>
-															{user.palpites[partida.order].placarTimeA}
+															{user.palpites && user.palpites[partida.order] ? user.palpites[partida.order].placarTimeA : ''}
 														</div>
 														<div className='divisorPalpite'>x</div>
 														<div className='palpiteTimeB'>
-															{user.palpites[partida.order].placarTimeB}
+															{user.palpites && user.palpites[partida.order] ? user.palpites[partida.order].placarTimeB : ''}
 														</div>
 														<div className='bandeiraTimeB'>
-															<i className={`bandeiraTimeB flag-icon flag-icon-${user.palpites[partida.order].partida.timeB.bandeira}`} />
+															<i className={`bandeiraTimeB flag-icon flag-icon-${partida.timeB.bandeira}`} />
 														</div>
 													</div>
 												</td>

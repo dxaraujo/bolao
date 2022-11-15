@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { Card, CardHeader, CardBody, Table, CustomInput } from 'reactstrap'
 
 import If from '../../components/if'
-import { search } from '../user/userActions'
+import { searchAtivos as search } from '../user/userActions'
 import { search as searchPartidas } from '../partida/partidaActions'
 
 import blackAvatar from '../../assets/img/blankavatar.svg'
@@ -17,8 +17,8 @@ class Classificacao extends Component {
 		this.state = { users: [], partidaOrder: 0 }
 	}
 	componentWillMount() {
-		this.props.search()
 		this.props.searchPartidas()
+		this.props.search()
 	}
 	componentWillReceiveProps(nextProps) {
 		if (nextProps.partidas && nextProps.users && nextProps.partidas.length > 0 && nextProps.users.length > 0) {
@@ -54,22 +54,24 @@ class Classificacao extends Component {
 		}
 	}
 	montarClassificacoes(users, partidaOrder) {
-		let tempUsers = users.filter(user => (user.palpites && user.palpites.length > 0))
+		let tempUsers = users.filter(user => (user.ativo && user.palpites && user.palpites.length > 0))
 		for (let i = 0; i < tempUsers.length; i++) {
 			tempUsers[i] = { ...tempUsers[i] }
 			const user = tempUsers[i]
-			user.classificacao = user.palpites[partidaOrder].classificacao
-			user.classificacaoAnterior = user.palpites[partidaOrder].classificacaoAnterior
-			user.totalAcumulado = user.palpites[partidaOrder].totalAcumulado
+			const palpite = user.palpites.find(p => parseInt(p.partida.order, 10) === parseInt(partidaOrder, 10))
+			user.classificacao = palpite.classificacao
+			user.classificacaoAnterior = palpite.classificacaoAnterior
+			user.totalAcumulado = palpite.totalAcumulado
 			user.placarCheio = 0
 			user.placarTimeVencedorComGol = 0
 			user.placarTimeVencedor = 0
 			user.placarGol = 0
-			for (let j = 0; j <= partidaOrder; j++) {
-				user.placarCheio += user.palpites[j].placarCheio ? 1 : 0
-				user.placarTimeVencedorComGol += user.palpites[j].placarTimeVencedorComGol
-				user.placarTimeVencedor += user.palpites[j].placarTimeVencedor ? 1 : 0
-				user.placarGol += user.palpites[j].placarGol ? 1 : 0
+			for (let j = 1; j <= partidaOrder; j++) {
+				const palpite = user.palpites.find(palpite => parseInt(palpite.partida.order, 10) === j)
+				user.placarCheio += palpite.placarCheio ? 1 : 0
+				user.placarTimeVencedorComGol += palpite.placarTimeVencedorComGol
+				user.placarTimeVencedor += palpite.placarTimeVencedor ? 1 : 0
+				user.placarGol += palpite.placarGol ? 1 : 0
 			}
 		}
 		const newUsers = tempUsers.sort((u1, u2) => u1.classificacao - u2.classificacao)

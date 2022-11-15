@@ -1,4 +1,4 @@
-import { USER_SEARCH, LOGIN, USER_UPDATE, USER_SELECT } from './userActions'
+import { USER_SEARCH, USER_SEARCH_ATIVOS, LOGIN, USER_UPDATE, USER_SELECT } from './userActions'
 
 const initialState = { users: [], user: {}}
 
@@ -9,6 +9,7 @@ export default function (state = initialState, action) {
 				...state,
 				user: action.payload
 			};
+		case USER_SEARCH_ATIVOS:
 		case USER_SEARCH:
 			const users = ordenarUsuarios(action.payload.data)
 			return {

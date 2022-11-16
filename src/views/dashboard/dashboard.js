@@ -310,61 +310,59 @@ class Dashboard extends Component {
 					</Card>
 				</div>
 				<If test={user ? user.ativo : false}>
-					<div className='col-12'>
+					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
+						<Card>
+							<CardBody>
+								<div className='col-sm-12 mb-3'>
+									<h5 className='mb-0 card-title'>Classificação</h5>
+									<div className='small text-muted'>Histórico de classificação por partida</div>
+								</div>
+								<div className='chart-wrapper'>
+									<Line data={this.montarGraficoClassificacoes(palpites)} options={chartLineOpts(false, 1)} height={150} />
+								</div>
+							</CardBody>
+						</Card>
+					</div>
+					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
+						<Card>
+							<CardBody>
+								<div className='col-sm-12 mb-3'>
+									<h5 className='mb-0 card-title'>Pontuações</h5>
+									<div className='small text-muted'>Pontuações obtidas por partida</div>
+								</div>
+								<div className='chart-wrapper'>
+									<Bar data={this.montarGraficoPontuacoes(palpites, 2)} options={chartBarOpts} height={150} />
+								</div>
+							</CardBody>
+						</Card>
+					</div>
+					<If test={this.props.users.length > 0}>
 						<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
 							<Card>
 								<CardBody>
 									<div className='col-sm-12 mb-3'>
-										<h5 className='mb-0 card-title'>Classificação</h5>
-										<div className='small text-muted'>Histórico de classificação por partida</div>
+										<h5 className='mb-0 card-title'>Classificação geral</h5>
+										<div className='small text-muted'>Histórico das classificações</div>
 									</div>
 									<div className='chart-wrapper'>
-										<Line data={this.montarGraficoClassificacoes(palpites)} options={chartLineOpts(false, 1)} height={150} />
+										<Line data={this.montarGraficoClassificacaoGeral(user, ultimaPartida)} options={chartLineOpts(true)} height={180} />
 									</div>
 								</CardBody>
 							</Card>
 						</div>
-						<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
-							<Card>
-								<CardBody>
-									<div className='col-sm-12 mb-3'>
-										<h5 className='mb-0 card-title'>Pontuações</h5>
-										<div className='small text-muted'>Pontuações obtidas por partida</div>
-									</div>
-									<div className='chart-wrapper'>
-										<Bar data={this.montarGraficoPontuacoes(palpites, 2)} options={chartBarOpts} height={150} />
-									</div>
-								</CardBody>
-							</Card>
-						</div>
-						<If test={this.props.users.length > 0}>
-							<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
-								<Card>
-									<CardBody>
-										<div className='col-sm-12 mb-3'>
-											<h5 className='mb-0 card-title'>Classificação geral</h5>
-											<div className='small text-muted'>Histórico das classificações</div>
-										</div>
-										<div className='chart-wrapper'>
-											<Line data={this.montarGraficoClassificacaoGeral(user, ultimaPartida)} options={chartLineOpts(true)} height={180} />
-										</div>
-									</CardBody>
-								</Card>
-							</div>
-						</If>
-						<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
-							<Card>
-								<CardBody>
-									<div className='col-sm-12 mb-3'>
-										<h5 className='mb-0 card-title'>Pontuações por tipo</h5>
-										<div className='small text-muted'>Total de pontuações por tipo</div>
-									</div>
-									<div className='chart-wrapper'>
-										<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={180} />
-									</div>
-								</CardBody>
-							</Card>
-						</div>
+					</If>
+					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
+						<Card>
+							<CardBody>
+								<div className='col-sm-12 mb-3'>
+									<h5 className='mb-0 card-title'>Pontuações por tipo</h5>
+									<div className='small text-muted'>Total de pontuações por tipo</div>
+								</div>
+								<div className='chart-wrapper'>
+									<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={180} />
+								</div>
+							</CardBody>
+						</Card>
 					</div>
 				</If>
 			</Row>

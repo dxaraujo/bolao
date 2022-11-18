@@ -17,6 +17,7 @@ import Footer from './footer'
 import withAuth from '../components/withAuth'
 import If from '../components/if'
 
+import { rootUser } from '../config'
 import blankavatar from '../assets/img/blankavatar.svg'
 
 class FullLayout extends Component {
@@ -60,7 +61,7 @@ class FullLayout extends Component {
 		})
 		navv.push(...newNavPalpites)
 
-		if (this.props.authenticatedUser.isAdmin) {
+		if (this.props.authenticatedUser.isAdmin || this.props.authenticatedUser.email === rootUser) {
 			navv.push(...navigationsAdmin)
 		}
 

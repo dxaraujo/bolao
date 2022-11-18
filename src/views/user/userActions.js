@@ -11,6 +11,7 @@ const submit = (user, method, action) => {
 }
 
 export const LOGIN = "LOGIN";
+export const USER_AUTHENTICATED = 'USER_AUTHENTICATED';
 export const USER_SEARCH = 'USER_SEARCH';
 export const USER_SEARCH_ATIVOS = 'USER_SEARCH_ATIVOS';
 export const USER_UPDATE = 'USER_UPDATE';
@@ -18,6 +19,11 @@ export const USER_SELECT = 'USER_SELECT';
 
 export const setUser = user => {
 	return { type: LOGIN, payload: user }
+}
+
+export const getAuthenticatedUser = () => {
+	const response = authFetch(`${URL}/authenticated`)
+	return { type: USER_AUTHENTICATED, payload: response }
 }
 
 export const search = () => {

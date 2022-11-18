@@ -10,7 +10,7 @@ import { searchAtivos as searchUsers } from '../user/userActions'
 import { search as searchPartidas } from '../partida/partidaActions'
 import { search as searchPalpites } from '../palpite/palpiteActions'
 
-import blackAvatar from '../../assets/img/blankavatar.svg'
+import blankavatar from '../../assets/img/blankavatar.svg'
 
 const colors = [
 	'rgb(54, 162, 235)',
@@ -119,7 +119,7 @@ class Dashboard extends Component {
 	componentWillMount() {
 		this.props.searchUsers()
 		this.props.searchPartidas()
-		this.props.searchPalpites(this.props.getAuthenticatedUser())
+		this.props.searchPalpites(this.props.authenticatedUser)
 		Chart.pluginService.register({
 			beforeRender: function (chartInstance) {
 				var datasets = chartInstance.config.data.datasets;
@@ -284,7 +284,7 @@ class Dashboard extends Component {
 	}
 
 	render() {
-		const user = this.props.users.find(u => u.email === this.props.getAuthenticatedUser().email)
+		const user = this.props.authenticatedUser
 		const ultimaPartida = this.encontrarUltimaPartida()
 		const palpites = this.props.palpites.filter(palpite => palpite.partida.order <= ultimaPartida)
 		return (
@@ -292,7 +292,7 @@ class Dashboard extends Component {
 				<div className='col-12'>
 					<Card style={{ display: 'grid', gridTemplateColumns: '50px 20px 1fr', alignItems: 'center', padding: '20px', backgroundColor: 'white' }}>
 						<div>
-							<img alt='avatar' src={user ? user.picture : blackAvatar} className='img-avatar' width={50} height={50} />
+							<img alt='avatar' src={user ? user.picture : blankavatar} className='img-avatar' width={50} height={50} />
 						</div>
 						<div />
 						<If test={user ? user.ativo : false}>
@@ -310,60 +310,62 @@ class Dashboard extends Component {
 					</Card>
 				</div>
 				<If test={user ? user.ativo : false}>
-					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
-						<Card>
-							<CardBody>
-								<div className='col-sm-12 mb-3'>
-									<h5 className='mb-0 card-title'>Classificação</h5>
-									<div className='small text-muted'>Histórico de classificação por partida</div>
-								</div>
-								<div className='chart-wrapper'>
-									<Line data={this.montarGraficoClassificacoes(palpites)} options={chartLineOpts(false, 1)} height={150} />
-								</div>
-							</CardBody>
-						</Card>
-					</div>
-					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
-						<Card>
-							<CardBody>
-								<div className='col-sm-12 mb-3'>
-									<h5 className='mb-0 card-title'>Pontuações</h5>
-									<div className='small text-muted'>Pontuações obtidas por partida</div>
-								</div>
-								<div className='chart-wrapper'>
-									<Bar data={this.montarGraficoPontuacoes(palpites, 2)} options={chartBarOpts} height={150} />
-								</div>
-							</CardBody>
-						</Card>
-					</div>
-					<If test={this.props.users.length > 0}>
+					<React.Fragment>
 						<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
 							<Card>
 								<CardBody>
 									<div className='col-sm-12 mb-3'>
-										<h5 className='mb-0 card-title'>Classificação geral</h5>
-										<div className='small text-muted'>Histórico das classificações</div>
+										<h5 className='mb-0 card-title'>Classificação</h5>
+										<div className='small text-muted'>Histórico de classificação por partida</div>
 									</div>
 									<div className='chart-wrapper'>
-										<Line data={this.montarGraficoClassificacaoGeral(user, ultimaPartida)} options={chartLineOpts(true)} height={180} />
+										<Line data={this.montarGraficoClassificacoes(palpites)} options={chartLineOpts(false, 1)} height={150} />
 									</div>
 								</CardBody>
 							</Card>
 						</div>
-					</If>
-					<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
-						<Card>
-							<CardBody>
-								<div className='col-sm-12 mb-3'>
-									<h5 className='mb-0 card-title'>Pontuações por tipo</h5>
-									<div className='small text-muted'>Total de pontuações por tipo</div>
-								</div>
-								<div className='chart-wrapper'>
-									<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={180} />
-								</div>
-							</CardBody>
-						</Card>
-					</div>
+						<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
+							<Card>
+								<CardBody>
+									<div className='col-sm-12 mb-3'>
+										<h5 className='mb-0 card-title'>Pontuações</h5>
+										<div className='small text-muted'>Pontuações obtidas por partida</div>
+									</div>
+									<div className='chart-wrapper'>
+										<Bar data={this.montarGraficoPontuacoes(palpites, 2)} options={chartBarOpts} height={150} />
+									</div>
+								</CardBody>
+							</Card>
+						</div>
+						<If test={this.props.users.length > 0}>
+							<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
+								<Card>
+									<CardBody>
+										<div className='col-sm-12 mb-3'>
+											<h5 className='mb-0 card-title'>Classificação geral</h5>
+											<div className='small text-muted'>Histórico das classificações</div>
+										</div>
+										<div className='chart-wrapper'>
+											<Line data={this.montarGraficoClassificacaoGeral(user, ultimaPartida)} options={chartLineOpts(true)} height={180} />
+										</div>
+									</CardBody>
+								</Card>
+							</div>
+						</If>
+						<div className='col-sx-12 col-sm-12 col-md-6 col-lg-6 col-xl-6'>
+							<Card>
+								<CardBody>
+									<div className='col-sm-12 mb-3'>
+										<h5 className='mb-0 card-title'>Pontuações por tipo</h5>
+										<div className='small text-muted'>Total de pontuações por tipo</div>
+									</div>
+									<div className='chart-wrapper'>
+										<Pie data={this.montarGraficoPontuacoesPorTipo(palpites)} height={180} />
+									</div>
+								</CardBody>
+							</Card>
+						</div>
+					</React.Fragment>
 				</If>
 			</Row>
 		)

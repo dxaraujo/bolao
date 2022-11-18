@@ -50,7 +50,7 @@ class TimeList extends Component {
 		this.props.remove(time);
 	}
 	render() {
-		const user = this.props.getAuthenticatedUser()
+		const user = this.props.authenticatedUser
 		const times = this.props.times
 		return (
 			<Card>

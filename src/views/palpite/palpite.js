@@ -18,13 +18,13 @@ class Palpite extends Component {
 		this.inputTabIndex = []
 	}
 	componentWillMount() {
-		const user = this.props.getAuthenticatedUser()
+		const user = this.props.authenticatedUser
 		this.props.search(this.props.faseId)
 		this.props.montarGrupos(user._id, this.props.faseId)
 	}
 	componentWillReceiveProps(nextProps) {
 		if (this.props.faseId !== nextProps.faseId) {
-			const user = this.props.getAuthenticatedUser()
+			const user = this.props.authenticatedUser
 			this.props.search(nextProps.faseId)
 			this.props.montarGrupos(user._id, nextProps.faseId)
 		}
@@ -72,7 +72,7 @@ class Palpite extends Component {
 				})
 			})
 		});
-		const user = this.props.getAuthenticatedUser()
+		const user = this.props.authenticatedUser
 		this.props.updateAll(palpites, user._id, this.props.faseId)
 		toast.success('Seus palpites foram salvos, agora é só torcer!');
 	}

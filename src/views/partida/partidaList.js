@@ -51,7 +51,7 @@ class PartidaList extends Component {
 	}
 
 	render() {
-		const user = this.props.getAuthenticatedUser()
+		const user = this.props.authenticatedUser
 		const partidas = this.props.partidas
 		const desabilitado = (nomeFase) => {
 			const fase = this.props.fases.find(f => f.nome === nomeFase)

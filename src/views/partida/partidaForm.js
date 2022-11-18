@@ -34,7 +34,7 @@ class PartidaForm extends Component {
 	}
 
 	render() {
-		const user = this.props.getAuthenticatedUser()
+		const user = this.props.authenticatedUser
 		const partida = this.props.partida
 		return (
 			<Card>

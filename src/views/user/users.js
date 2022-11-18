@@ -17,7 +17,7 @@ class Users extends Component {
 		toast.success('Usuário atualizado com sucesso, as alterações entraram em vigor no próximo login');
 	}
 	render() {
-		const authUser = this.props.getAuthenticatedUser()
+		const authUser = this.props.authenticatedUser
 		const users = this.props.users
 		return (
 			<Card>

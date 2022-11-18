@@ -1,6 +1,6 @@
-import { USER_SEARCH, USER_SEARCH_ATIVOS, LOGIN, USER_UPDATE, USER_SELECT } from './userActions'
+import { USER_AUTHENTICATED, USER_SEARCH, USER_SEARCH_ATIVOS, LOGIN, USER_UPDATE, USER_SELECT } from './userActions'
 
-const initialState = { users: [], user: {}}
+const initialState = { users: [], user: {}, authenticatedUser: undefined }
 
 export default function (state = initialState, action) {
 	switch (action.type) {
@@ -8,6 +8,11 @@ export default function (state = initialState, action) {
 			return {
 				...state,
 				user: action.payload
+			};
+		case USER_AUTHENTICATED:
+			return {
+				...state,
+				authenticatedUser: action.payload.data
 			};
 		case USER_SEARCH_ATIVOS:
 		case USER_SEARCH:

@@ -8,7 +8,6 @@ export default class AuthService {
 		this.fetch = this.fetch.bind(this)
 		this.logout = this.logout.bind(this)
 		this.loggedIn = this.loggedIn.bind(this)
-		this.getAuthenticatedUser = this.getAuthenticatedUser.bind(this)
 	}
 
 	loginWithGoogle(token, callback) {
@@ -21,8 +20,6 @@ export default class AuthService {
 			method: 'POST',
 		}).then(res => {
 			this.setToken(res.token)
-			const user = decode(res.token)
-			this.setAuthenticatedUser(user)
 			if (callback) {
 				callback()
 			}
@@ -62,20 +59,7 @@ export default class AuthService {
 	logout(callback) {
 		localStorage.removeItem('jwt_token');
 		localStorage.removeItem('google_token');
-		localStorage.removeItem('user_content');
 		callback()
-	}
-
-	getAuthenticatedUser() {
-		if (localStorage.getItem('user_content')) {
-			return JSON.parse(localStorage.getItem('user_content'))
-		}
-		return undefined
-	}
-
-	setAuthenticatedUser(content) {
-		const token = JSON.stringify(content)
-		localStorage.setItem('user_content', token)
 	}
 
 	fetch(url, options) {

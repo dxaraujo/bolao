@@ -17,7 +17,7 @@ class Users extends Component {
 		toast.success('Fase atualizada com sucesso!');
 	}
 	render() {
-		const user = this.props.getAuthenticatedUser()
+		const user = this.props.authenticatedUser
 		const fases = this.props.fases
 		return (
 			<Card>

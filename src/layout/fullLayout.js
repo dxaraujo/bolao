@@ -9,7 +9,7 @@ import { ToastContainer } from "react-toastify";
 
 import { getAuthenticatedUser } from '../views/user/userActions'
 import { search } from '../views/fase/faseActions'
-import { navigationsLinks, navigationsConsultarPalpites, navigationsPalpites, navigationsAdmin } from '../navigation';
+import { dashboardLinks, classificacaoLinks, navigationsConsultarPalpites, navigationsPalpites, navigationsAdmin } from '../navigation';
 import routes from '../router'
 
 import Header from './header'
@@ -42,8 +42,9 @@ class FullLayout extends Component {
 		let navv = []
 		let newNavPalpites = []
 
-		navv.push(...navigationsLinks)
+		navv.push(...dashboardLinks)
 		if (this.props.authenticatedUser.ativo) {
+			navv.push(...classificacaoLinks)
 			navv.push(...navigationsConsultarPalpites)
 		}
 

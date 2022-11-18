@@ -1,9 +1,13 @@
-const navigationsLinks = [
+const dashboardLinks = [
 	{
 		name: 'Dashboard',
 		url: '/dashboard',
 		icon: 'fas fa-tachometer-alt'
-	}, {
+	}
+]
+
+const classificacaoLinks = [
+	{
 		name: 'Classificação',
 		url: '/classificacao',
 		icon: 'fas fa-star'
@@ -50,4 +54,4 @@ const navigationsAdmin = [
 	}
 ]
 
-export { navigationsLinks, navigationsConsultarPalpites, navigationsPalpites, navigationsAdmin }
+export { dashboardLinks, classificacaoLinks, navigationsConsultarPalpites, navigationsPalpites, navigationsAdmin }

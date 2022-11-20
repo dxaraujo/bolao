@@ -58,7 +58,8 @@ class Classificacao extends Component {
 		for (let i = 0; i < tempUsers.length; i++) {
 			tempUsers[i] = { ...tempUsers[i] }
 			const user = tempUsers[i]
-			const palpite = user.palpites.find(p => parseInt(p.partida.order, 10) === parseInt(partidaOrder, 10))
+			const palpite = user.palpites.find(p => p.partida.order.equal(partidaOrder))
+			console.log(palpite)
 			user.classificacao = palpite.classificacao
 			user.classificacaoAnterior = palpite.classificacaoAnterior
 			user.totalAcumulado = palpite.totalAcumulado
@@ -66,8 +67,8 @@ class Classificacao extends Component {
 			user.placarTimeVencedorComGol = 0
 			user.placarTimeVencedor = 0
 			user.placarGol = 0
-			for (let j = 1; j <= partidaOrder; j++) {
-				const palpite = user.palpites.find(palpite => parseInt(palpite.partida.order, 10) === j)
+			for (let j = 0; j <= partidaOrder; j++) {
+				const palpite = user.palpites.find(p => p.partida.order.equal(j))
 				user.placarCheio += palpite.placarCheio ? 1 : 0
 				user.placarTimeVencedorComGol += palpite.placarTimeVencedorComGol
 				user.placarTimeVencedor += palpite.placarTimeVencedor ? 1 : 0
@@ -75,6 +76,7 @@ class Classificacao extends Component {
 			}
 		}
 		const newUsers = tempUsers.sort((u1, u2) => u1.classificacao - u2.classificacao)
+		console.log(newUsers)
 		return [...newUsers]
 	}
 	encontrarUltimaClassificacao(partidas) {

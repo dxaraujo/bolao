@@ -353,13 +353,13 @@ footer {
 
 .gridUsers {
 	display: grid;
-	grid-template-columns: 44px 74px auto 72px 72px 100px;
+	grid-template-columns: 44px 74px 150px auto 72px 72px 100px;
 	align-items: center;
 }
 
 @media only screen and (max-width: 575.98px) {
 	.gridUsers {
-		grid-template-columns: 30px 50px auto 60px 60px 86px;
+		grid-template-columns: 30px 50px 150px auto 60px 60px 86px;
 	}
 	.gridUsers td,
 	.gridUsers th {
@@ -369,7 +369,7 @@ footer {
 
 @media only screen and (max-width: 767.98px) {
 	.gridUsers {
-		grid-template-columns: 30px 50px auto 60px 60px 86px;
+		grid-template-columns: 30px 50px 150px auto 60px 60px 86px;
 	}
 	.gridUsers td,
 	.gridUsers th {

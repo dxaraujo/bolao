@@ -15,6 +15,7 @@ export const USER_AUTHENTICATED = 'USER_AUTHENTICATED';
 export const USER_SEARCH = 'USER_SEARCH';
 export const USER_SEARCH_ATIVOS = 'USER_SEARCH_ATIVOS';
 export const USER_UPDATE = 'USER_UPDATE';
+export const USER_REMOVE = 'USER_REMOVE';
 export const USER_SELECT = 'USER_SELECT';
 
 export const setUser = user => {
@@ -38,6 +39,10 @@ export const searchAtivos = () => {
 
 export const update = user => {
 	return submit({ _id: user._id, isAdmin: user.isAdmin, ativo: user.ativo }, 'PUT', USER_UPDATE)
+}
+
+export const remove = user => {
+	return submit({ _id: user._id }, 'DELETE', USER_REMOVE)
 }
 
 export const handleChange = (user, users) => {

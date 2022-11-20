@@ -31,6 +31,7 @@ class Users extends Component {
 								<th className='text-center'>#</th>
 								<th></th>
 								<th>Nome</th>
+								<th>e-mail</th>
 								<th className='text-center'>Ativo</th>
 								<th className='text-center'>Admin</th>
 								<th className='text-center'></th>

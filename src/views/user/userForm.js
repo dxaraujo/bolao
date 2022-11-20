@@ -4,20 +4,30 @@ import { connect } from 'react-redux';
 import { rootUser } from '../../config'
 
 import { ButtonGroup, Button, CustomInput } from 'reactstrap'
-import { handleChange } from './userActions'
+import { handleChange, remove } from './userActions'
+import Swal from 'sweetalert2'
+
 import If from '../../components/if'
 
-const ReadOnlyRow = ({ idx, user, edit }) => (
+const ReadOnlyRow = ({ idx, user, authUser, edit, prepareDelete }) => (
 	<tr key={user._id} className='gridUsers'>
 		<td className='text-center'>{idx + 1}</td>
 		<td><img alt='avatar' src={user.picture} className='img-avatar' width={50} height={50} /></td>
 		<td>{user.name}</td>
+		<td>{user.email}</td>
 		<td className='text-center'><i className={`fas fa-check text-${user.ativo ? 'success' : 'secondary'}`}></i></td>
 		<td className='text-center'><i className={`fas fa-check text-${user.isAdmin ? 'success' : 'secondary'}`}></i></td>
 		<td className='text-center'>
-			<Button className='text-white' size='sm' color='warning' onClick={edit}>
-				<i className='fas fa-edit'></i>
-			</Button>
+			<ButtonGroup>
+				<Button className='text-white' size='sm' color='warning' onClick={edit}>
+					<i className='fas fa-edit'></i>
+				</Button>
+				<If test={rootUser === authUser.email}>
+					<Button size='sm' color='danger' onClick={() => prepareDelete(user)}>
+						<i className='fas fa-trash-alt'></i>
+					</Button>
+				</If>
+			</ButtonGroup>
 		</td>
 	</tr>
 )
@@ -27,6 +37,7 @@ const EditableRow = ({ idx, user, authUser, handleChangeAtivo, handleChangeAdmin
 		<td className='text-center'>{idx + 1}</td>
 		<td><img alt='avatar' src={user.picture} className='img-avatar' width={50} height={50} /></td>
 		<td>{user.name}</td>
+		<td>{user.email}</td>
 		<td className='d-flex justify-content-center'><CustomInput id='ativo' name='ativo' type='checkbox' checked={user.ativo} onChange={(event) => handleChangeAtivo(event, user)} /></td>
 		<If test={rootUser === authUser.email}>
 			<td className='d-flex justify-content-center'><CustomInput id='isAdmin' name='isAdmin' type='checkbox' checked={user.isAdmin} onChange={(event) => handleChangeAdmin(event, user)} /></td>
@@ -54,6 +65,7 @@ class UserForm extends Component {
 		this.save = this.save.bind(this)
 		this.edit = this.edit.bind(this)
 		this.cancel = this.cancel.bind(this)
+		this.prepareDelete = this.prepareDelete.bind(this)
 		this.handleChangeAtivo = this.handleChangeAtivo.bind(this)
 		this.handleChangeAdmin = this.handleChangeAdmin.bind(this)
 	}
@@ -75,15 +87,33 @@ class UserForm extends Component {
 		user.isAdmin = event.target.checked
 		this.props.handleChange(user, this.props.users)
 	}
+	prepareDelete(user) {
+		Swal({
+			title: 'Você tem certeza?',
+			text: 'Depois de deletado, você não poderá recupear os dados!',
+			type: 'warning',
+			showConfirmButton: true,
+			showCancelButton: true
+		}).then((willDelete) => {
+			if (willDelete.value) {
+				this.delete(user)
+			} else {
+				Swal('A operação foi cancelada!', '', 'error');
+			}
+		});
+	}
+	delete(user) {
+		this.props.remove(user);
+	}
 	render() {
 		const { index, user, authUser } = this.props
 		return this.state.isReadOnly ?
-			<ReadOnlyRow key={user._id} idx={index} user={user} edit={this.edit} /> :
+			<ReadOnlyRow key={user._id} idx={index} user={user} authUser={authUser} edit={this.edit} prepareDelete={this.prepareDelete} /> :
 			<EditableRow key={user._id} idx={index} user={user} authUser={authUser} handleChangeAtivo={this.handleChangeAtivo} handleChangeAdmin={this.handleChangeAdmin} save={this.save} cancel={this.cancel} />
 	}
 }
 
 const mapStateToProps = state => ({ users: state.userStore.users, selectedUser: state.userStore.selectedUser })
-const mapDispatchToProps = dispatch => bindActionCreators({ handleChange }, dispatch)
+const mapDispatchToProps = dispatch => bindActionCreators({ handleChange, remove }, dispatch)
 
 export default connect(mapStateToProps, mapDispatchToProps)(UserForm)

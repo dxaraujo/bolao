@@ -37,6 +37,11 @@ const Classificacao = Loadable({
 	loading: Loading,
 });
 
+const Disputa = Loadable({
+	loader: () => import('./views/disputa/disputa'),
+	loading: Loading,
+});
+
 const Users = Loadable({
 	loader: () => import('./views/user/users'),
 	loading: Loading,
@@ -60,6 +65,7 @@ const routes = [
 	{ path: '/palpites', exact: true, component: Palpites },
 	{ path: '/palpite/:fase', component: Palpite },
 	{ path: '/classificacao', component: Classificacao },
+	{ path: '/disputa', component: Disputa },
 	{ path: '/users', component: Users },
 	{ path: '/resultados', component: Resultado },
 	{ path: '/fases', component: Fase },

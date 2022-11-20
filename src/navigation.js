@@ -11,6 +11,10 @@ const classificacaoLinks = [
 		name: 'Classificação',
 		url: '/classificacao',
 		icon: 'fas fa-star'
+	}, {
+		name: 'Diputa',
+		url: '/disputa',
+		icon: 'fas fa-fire'
 	}
 ]
 

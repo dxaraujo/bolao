@@ -15,6 +15,7 @@ export const USER_AUTHENTICATED = 'USER_AUTHENTICATED';
 export const USER_SEARCH = 'USER_SEARCH';
 export const USER_SEARCH_ATIVOS = 'USER_SEARCH_ATIVOS';
 export const USER_UPDATE = 'USER_UPDATE';
+export const USER_UPDATE_LIST = 'USER_UPDATE_LIST';
 export const USER_REMOVE = 'USER_REMOVE';
 export const USER_SELECT = 'USER_SELECT';
 
@@ -46,8 +47,12 @@ export const remove = user => {
 }
 
 export const handleChange = (user, users) => {
-	const u = updateUser(user, users)
-	return { type: USER_SELECT, payload: { users: u } }
+	const us = updateUser(user, users)
+	return { type: USER_UPDATE_LIST, payload: { data: us } }
+}
+
+export const select = (user) => {
+	return { type: USER_SELECT, payload: { data: user } }
 }
 
 const updateUser = (user, users) => {
@@ -56,6 +61,7 @@ const updateUser = (user, users) => {
 		newUsers[i] = { ...users[i] }
 		if (users[i]._id === user._id) {
 			newUsers[i].isAdmin = user.isAdmin
+			newUsers[i].ativo = user.ativo
 		}
 	}
 	return newUsers

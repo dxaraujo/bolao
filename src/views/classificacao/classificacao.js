@@ -8,7 +8,7 @@ import If from '../../components/if'
 import { searchAtivos as search } from '../user/userActions'
 import { search as searchPartidas } from '../partida/partidaActions'
 
-import blackAvatar from '../../assets/img/blankavatar.svg'
+import blankavatar from '../../assets/img/blankavatar.svg'
 import duck from '../../assets/img/duck.svg'
 
 class Classificacao extends Component {
@@ -109,13 +109,13 @@ class Classificacao extends Component {
 					</CardHeader>
 					<div className='divplayers'>
 						<div style={{ justifySelf: 'right', alignSelf: 'top' }}>
-							<img alt='avatar' src={users[1] ? users[1].picture : blackAvatar} className='player2' width={50} height={50} />
+							<img alt='avatar' src={users[1] ? users[1].picture : blankavatar} className='player2' width={50} height={50} />
 						</div>
 						<div style={{ justifySelf: 'center', alignSelf: 'top' }}>
-							<img alt='avatar' src={users[0] ? users[0].picture : blackAvatar} className='player1' width={50} height={50} />
+							<img alt='avatar' src={users[0] ? users[0].picture : blankavatar} className='player1' width={50} height={50} />
 						</div>
 						<div style={{ justifySelf: 'left', alignSelf: 'top' }}>
-							<img alt='avatar' src={users[2] ? users[2].picture : blackAvatar} className='player3' width={50} height={50} />
+							<img alt='avatar' src={users[2] ? users[2].picture : blankavatar} className='player3' width={50} height={50} />
 						</div>
 					</div>
 					<CardBody style={{ padding: '0px' }}>

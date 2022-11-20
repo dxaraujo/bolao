@@ -84,7 +84,7 @@ class Palpite extends Component {
 				<CardBody style={{ padding: '0px' }}>
 					{partidas.map(partida => (
 						<Card key={partida._id} style={{ marginBottom: '0px' }}>
-							<CardHeader>{`${partida.timeA.nome} ${partida.placarTimeA} x ${partida.placarTimeB} ${partida.timeB.nome}`}</CardHeader>
+							<CardHeader>{`${partida.timeA.nome} ${partida.placarTimeA | ''} x ${partida.placarTimeB | ''} ${partida.timeB.nome}`}</CardHeader>
 							<CardBody style={{ padding: '0px' }}>
 								<Table responsive striped borderless>
 									<thead>
@@ -105,11 +105,11 @@ class Palpite extends Component {
 															<i className={`bandeiraTimeA flag-icon flag-icon-${partida.timeA.bandeira}`} />
 														</div>
 														<div className='palpiteTimeA'>
-															{user.palpites && user.palpites[partida.order] ? user.palpites[partida.order].placarTimeA : ''}
+															{user.palpites && user.palpites[partida.order + 1] ? user.palpites[partida.order + 1].placarTimeA : ''}
 														</div>
 														<div className='divisorPalpite'>x</div>
 														<div className='palpiteTimeB'>
-															{user.palpites && user.palpites[partida.order] ? user.palpites[partida.order].placarTimeB : ''}
+															{user.palpites && user.palpites[partida.order + 1] ? user.palpites[partida.order + 1].placarTimeB : ''}
 														</div>
 														<div className='bandeiraTimeB'>
 															<i className={`bandeiraTimeB flag-icon flag-icon-${partida.timeB.bandeira}`} />

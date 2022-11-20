@@ -105,11 +105,11 @@ class Palpite extends Component {
 															<i className={`bandeiraTimeA flag-icon flag-icon-${partida.timeA.bandeira}`} />
 														</div>
 														<div className='palpiteTimeA'>
-															{user.palpites && user.palpites.find(p => p.order === partida.order) ? user.user.palpites.find(p => p.order === partida.order).placarTimeA : ''}
+															{user.palpites && user.palpites[partida.order + 1] ? user.palpites[partida.order + 1].placarTimeA : ''}
 														</div>
 														<div className='divisorPalpite'>x</div>
 														<div className='palpiteTimeB'>
-															{user.palpites && user.palpites.find(p => p.order === partida.order) ? user.user.palpites.find(p => p.order === partida.order).placarTimeB : ''}
+															{user.palpites && user.palpites[partida.order + 1] ? user.palpites[partida.order + 1].placarTimeB : ''}
 														</div>
 														<div className='bandeiraTimeB'>
 															<i className={`bandeiraTimeB flag-icon flag-icon-${partida.timeB.bandeira}`} />

@@ -69,11 +69,8 @@ class Disputa extends Component {
 		chartClassificacaoData.labels = []
 		chartClassificacaoData.datasets = []
 		const ultimaPartida = this.encontrarUltimaPartida()
-		console.log(ultimaPartida)
 		const chartUsers = [this.props.authenticatedUser, this.props.user]
 		for (let i = 0; i < chartUsers.length; i++) {
-			console.log('chegou aqui 1')
-			console.log(chartUsers)
 			const user = chartUsers[i]
 			let data = []
 			if (user) {
@@ -93,7 +90,6 @@ class Disputa extends Component {
 					pointRadius: 2,
 				})
 				if (user.palpites) {
-					console.log('chegou aqui 2')
 					let palpites = user.palpites.filter(palpite => palpite.partida.order <= ultimaPartida)
 					palpites = palpites.slice(Math.max(palpites.length - 10, 0))
 					for (let j = 0; j < palpites.length; j++) {

@@ -59,7 +59,6 @@ class Classificacao extends Component {
 			tempUsers[i] = { ...tempUsers[i] }
 			const user = tempUsers[i]
 			const palpite = user.palpites.find(p => p.partida.order.equal(partidaOrder))
-			console.log(palpite)
 			user.classificacao = palpite.classificacao
 			user.classificacaoAnterior = palpite.classificacaoAnterior
 			user.totalAcumulado = palpite.totalAcumulado
@@ -76,7 +75,6 @@ class Classificacao extends Component {
 			}
 		}
 		const newUsers = tempUsers.sort((u1, u2) => u1.classificacao - u2.classificacao)
-		console.log(newUsers)
 		return [...newUsers]
 	}
 	encontrarUltimaClassificacao(partidas) {
@@ -172,11 +170,11 @@ class Classificacao extends Component {
 						<Table responsive striped borderless>
 							<tbody>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(115,129,143)', width: '20px', height: '20px' }}></div></td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(75, 192, 192)', width: '20px', height: '20px' }}></div></td>
 									<td>Pontuação total</td>
 								</tr>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(75, 192, 192)', width: '20px', height: '20px' }}></div></td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(115,129,143)', width: '20px', height: '20px' }}></div></td>
 									<td>
 										Placar Exato<br />
 										<span className='small text-muted'>Ex: Palpite 2 x 1 e resultado 2 x 1, acertou o placar exato</span>

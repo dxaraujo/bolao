@@ -191,7 +191,7 @@ class Disputa extends Component {
                                             	<h5 className='mb-0 card-title'>Pontuação</h5>
                                             	<div className='small'>Estatísticas gerais</div>
                                         	</div>
-											<div style={{ borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 5px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19)'}}>
+											<div style={{ height: '310px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 5px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19)'}}>
 												<Table responsive striped borderless>
 													<thead>
 														<tr>
@@ -203,25 +203,25 @@ class Disputa extends Component {
 													</thead>
 													<tbody>
 														<tr>
-															<td className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(75, 192, 192)' }}></div></td>
+															<td className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(54, 162, 235)' }}></div></td>
 															<td className='text-right'>Placar cheio</td>
 															<td className='text-center placarClassificacao'>{authenticatedUser.placarCheio}</td>
 															<td className='text-center placarClassificacao'>{user ? user.placarCheio : ''}</td>
 														</tr>
 														<tr>
-															<td className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(54, 162, 235)' }}></div></td>
+															<td className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(75, 192, 192)' }}></div></td>
 															<td className='text-right'>Placar time vencedor c/ gol</td>
 															<td className='text-center placarClassificacao'>{authenticatedUser.placarTimeVencedorComGol}</td>
 															<td className='text-center placarClassificacao'>{user ? user.placarTimeVencedorComGol : ''}</td>
 														</tr>
 														<tr>
-															<td className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 205, 86)' }}></div></td>
+															<td className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 159, 64)' }}></div></td>
 															<td className='text-right'>Placar time vencedor</td>
 															<td className='text-center placarClassificacao'>{authenticatedUser.placarTimeVencedor}</td>
 															<td className='text-center placarClassificacao'>{user ? user.placarTimeVencedor : ''}</td>
 														</tr>
 														<tr>
-															<td className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 159, 64)' }}></div></td>
+															<td className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 205, 86)' }}></div></td>
 															<td className='text-right'>Placar Gol</td>
 															<td className='text-center placarClassificacao'>{authenticatedUser.placarGol}</td>
 															<td className='text-center placarClassificacao'>{user ? user.placarGol : ''}</td>
@@ -245,7 +245,7 @@ class Disputa extends Component {
                                                 <h5 className='mb-0 card-title'>Classificação</h5>
                                                 <div className='small'>Histórico de classificações</div>
                                             </div>
-                                            <div style={{ padding: '5px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 5px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19)'}}>
+                                            <div style={{ height: '310px', padding: '5px', borderRadius: '8px', overflow: 'hidden', boxShadow: '0 2px 5px 0 rgba(0, 0, 0, 0.2), 0 3px 10px 0 rgba(0, 0, 0, 0.19)'}}>
                                                 <Line data={this.montarGraficoClassificacaoGeral()} options={chartLineOpts(true)} height={200} />
                                             </div>
                                         </CardBody>

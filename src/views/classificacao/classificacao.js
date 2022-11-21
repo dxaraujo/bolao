@@ -58,7 +58,7 @@ class Classificacao extends Component {
 		for (let i = 0; i < tempUsers.length; i++) {
 			tempUsers[i] = { ...tempUsers[i] }
 			const user = tempUsers[i]
-			const palpite = user.palpites.find(p => p.partida.order.equal(partidaOrder))
+			const palpite = user.palpites.find(p => (p.partida.order === partidaOrder))
 			user.classificacao = palpite.classificacao
 			user.classificacaoAnterior = palpite.classificacaoAnterior
 			user.totalAcumulado = palpite.totalAcumulado
@@ -67,11 +67,13 @@ class Classificacao extends Component {
 			user.placarTimeVencedor = 0
 			user.placarGol = 0
 			for (let j = 0; j <= partidaOrder; j++) {
-				const palpite = user.palpites.find(p => p.partida.order.equal(j))
-				user.placarCheio += palpite.placarCheio ? 1 : 0
-				user.placarTimeVencedorComGol += palpite.placarTimeVencedorComGol
-				user.placarTimeVencedor += palpite.placarTimeVencedor ? 1 : 0
-				user.placarGol += palpite.placarGol ? 1 : 0
+				const palpite = user.palpites.find(p => (p.partida.order === j))
+				if (palpite) {
+					user.placarCheio += palpite.placarCheio ? 1 : 0
+					user.placarTimeVencedorComGol += palpite.placarTimeVencedorComGol
+					user.placarTimeVencedor += palpite.placarTimeVencedor ? 1 : 0
+					user.placarGol += palpite.placarGol ? 1 : 0
+				}
 			}
 		}
 		const newUsers = tempUsers.sort((u1, u2) => u1.classificacao - u2.classificacao)
@@ -128,10 +130,10 @@ class Classificacao extends Component {
 									<th>Nome</th>
 									<th className='text-center'></th>
 									<th className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(115,129,143)' }}></div></th>
-									<th className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(75, 192, 192)' }}></div></th>
 									<th className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(54, 162, 235)' }}></div></th>
-									<th className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 205, 86)' }}></div></th>
+									<th className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(75, 192, 192)' }}></div></th>
 									<th className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 159, 64)' }}></div></th>
+									<th className='d-flex justify-content-center classificacaoHeaderTD'><div className='classificacaoHeader' style={{ backgroundColor: 'rgb(255, 205, 86)' }}></div></th>
 								</tr>
 							</thead>
 							<tbody>
@@ -170,32 +172,32 @@ class Classificacao extends Component {
 						<Table responsive striped borderless>
 							<tbody>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(75, 192, 192)', width: '20px', height: '20px' }}></div></td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(115,129,143)', width: '20px', height: '20px' }}></div></td>
 									<td>Pontuação total</td>
 								</tr>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(115,129,143)', width: '20px', height: '20px' }}></div></td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(54, 162, 235)', width: '20px', height: '20px' }}></div></td>
 									<td>
 										Placar Exato<br />
 										<span className='small text-muted'>Ex: Palpite 2 x 1 e resultado 2 x 1, acertou o placar exato</span>
 									</td>
 								</tr>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(54, 162, 235)', width: '20px', height: '20px' }}></div></td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(75, 192, 192)', width: '20px', height: '20px' }}></div></td>
 									<td>
 										Resultado mais gol<br />
 										<span className='small text-muted'>Ex: Palpite 2 x 1 e resultado 2 x 0, acertou time ganhador / empate e o número de gols de um dos time</span>
 									</td>
 								</tr>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(255, 205, 86)', width: '20px', height: '20px' }}></div></td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(255, 159, 64)', width: '20px', height: '20px' }}></div></td>
 									<td>
 										Somente resultado<br />
 										<span className='small text-muted'>Ex: Palpite 2 x 1 e resultado 3 x 2, acertou somente time ganhador / empate</span>
 									</td>
 								</tr>
 								<tr className='gridLegenda'>
-									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(255, 159, 64)', width: '20px', height: '20px' }}></div></td>
+									<td className='d-flex justify-content-center'><div style={{ margin: '2px', borderRadius: '10px', backgroundColor: 'rgb(255, 205, 86)', width: '20px', height: '20px' }}></div></td>
 									<td>
 										Somente gol<br />
 										<span className='small text-muted'>Ex: Palpite 2 x 1 e resultado 2 x 0, acertou somente o número de gols de um dos time</span>

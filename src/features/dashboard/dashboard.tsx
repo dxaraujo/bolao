@@ -322,7 +322,7 @@ const dashboard = () => {
             <div className='col-12'>
                 <Card style={{ display: 'grid', gridTemplateColumns: '50px 20px 1fr', alignItems: 'center', padding: '20px', backgroundColor: 'white' }}>
                     <div>
-                        <img alt='avatar' src={user ? user.picture : blankavatar} className='img-avatar' width={50} height={50} />
+                        <img alt='avatar' src={user ? (user.picture ? user.picture : blankavatar) : blankavatar} className='img-avatar' width={50} height={50} />
                     </div>
                     <div />
                     <If test={user !== undefined && user.ativo === true}>
@@ -331,10 +331,16 @@ const dashboard = () => {
                             <h5 className='text-muted'>Total pontos: { user !== undefined && user.palpites !== undefined && user.totalAcumulado !== undefined ? user.totalAcumulado : '0' }</h5>
                         </div>
                     </If>
-                    <If test={user !== undefined && user.ativo !== true}>
+                    <If test={user !== undefined && user.ativo === false}>
                         <div>
                             <h3 className='mb-1 card-title'>Usuário inativo</h3>
                             <h5 className='text-muted'>Entre em contato com os administradores para participar do bolão</h5>
+                        </div>
+                    </If>
+                    <If test={user !== undefined && user.ativo === undefined}>
+                        <div>
+                            <h3 className='mb-1 card-title'></h3>
+                            <h5 className='text-muted'></h5>
                         </div>
                     </If>
                 </Card>

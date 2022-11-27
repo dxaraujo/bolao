@@ -27,7 +27,7 @@ const resultado = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {partidas && partidas.map((partida, idx) => (
+                        {partidas && [...partidas].sort((partidaA, partidaB) => partidaB.order! - partidaA.order!).map((partida, idx) => (
                             <ResultadoForm key={partida._id} index={idx} partida={partida} />
                         ))}
                     </tbody>

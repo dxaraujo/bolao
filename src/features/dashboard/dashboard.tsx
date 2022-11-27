@@ -322,7 +322,7 @@ const dashboard = () => {
             <div className='col-12'>
                 <Card style={{ display: 'grid', gridTemplateColumns: '50px 20px 1fr', alignItems: 'center', padding: '20px', backgroundColor: 'white' }}>
                     <div>
-                        <img alt='avatar' src={user ? (user.picture ? user.picture : blankavatar) : blankavatar} className='img-avatar' width={50} height={50} />
+                        <img alt='avatar' src={user ? (user.picture ? `${user.picture}?sz=200` : blankavatar) : blankavatar} className='img-avatar' width={50} height={50} referrerPolicy='no-referrer' />
                     </div>
                     <div />
                     <If test={user !== undefined && user.ativo === true}>

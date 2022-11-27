@@ -172,7 +172,7 @@ const disputa = () => {
                                                 <Table responsive borderless>
                                                     <tbody>
                                                         <tr>
-                                                            <td style={{verticalAlign: 'middle', textAlign: 'center', width: '100px'}}><img alt='avatar' src={authenticatedUser?.picture} className='img-avatar' width={75} height={75} /></td>
+                                                            <td style={{verticalAlign: 'middle', textAlign: 'center', width: '100px'}}><img alt='avatar' src={`${authenticatedUser?.picture}?sz=200`} className='img-avatar' width={75} height={75} referrerPolicy='no-referrer' /></td>
                                                             <td className='d-flex justify-content-center'>
                                                                 <table style={{width: '100%', padding: '10px'}}>
                                                                     <tbody>
@@ -213,7 +213,7 @@ const disputa = () => {
                                                                     </tbody>
                                                                 </table>
                                                             </td>
-                                                            <td style={{verticalAlign: 'middle', textAlign: 'center', width: '100px'}}><img alt='avatar' src={user ? user.picture : blankavatar} className='img-avatar' width={75} height={75} /></td>
+                                                            <td style={{verticalAlign: 'middle', textAlign: 'center', width: '100px'}}><img alt='avatar' src={user ? `${user.picture}?sz=200` : blankavatar} className='img-avatar' width={75} height={75} referrerPolicy='no-referrer' /></td>
                                                         </tr>
                                                     </tbody>
                                                 </Table>
@@ -236,8 +236,8 @@ const disputa = () => {
                                                         <tr>
                                                             <th className='text-center'></th>
                                                             <th className='text-right' style={{ verticalAlign: 'middle' }}>Pontuação por tipo</th>
-                                                            <th className='text-center'><img alt='avatar' src={authenticatedUser?.picture} className='img-avatar' width={35} height={35} /></th>
-                                                            <th className='text-center'><img alt='avatar' src={user ? user.picture : blankavatar} className='img-avatar' width={35} height={35} /></th>
+                                                            <th className='text-center'><img alt='avatar' src={`${authenticatedUser?.picture}?sz=200`} className='img-avatar' width={35} height={35} referrerPolicy='no-referrer' /></th>
+                                                            <th className='text-center'><img alt='avatar' src={user ? `${user.picture}?sz=200` : blankavatar} className='img-avatar' width={35} height={35} referrerPolicy='no-referrer' /></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>

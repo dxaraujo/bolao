@@ -65,7 +65,7 @@ const users = () => {
                             return (
                                 <tr key={index} className='gridUsers'>
                                     <td className='text-center'>{index + 1}</td>
-                                    <td><img alt='avatar' src={user.picture} className='img-avatar' width={50} height={50} /></td>
+                                    <td><img alt='avatar' src={`${user.picture}?sz=200`} className='img-avatar' width={50} height={50} referrerPolicy='no-referrer' /></td>
                                     <td>{user.name}<br/>{user.email}</td>
                                     <td className='text-center'><i className={`fas fa-check text-${user.ativo ? 'success' : 'secondary'}`}></i></td>
                                     <td className='text-center'>

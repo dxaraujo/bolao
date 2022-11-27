@@ -9,7 +9,7 @@ export const dashboardLinks: NavigationType[] = [
 	{
 		name: 'Dashboard',
 		url: '/dashboard',
-		icon: 'fas fa-tachometer-alt'
+		icon: 'fas fa-star'
 	}
 ]
 
@@ -17,7 +17,7 @@ export const classificacaoLinks: NavigationType[] = [
 	{
 		name: 'Classificação',
 		url: '/classificacao',
-		icon: 'fas fa-star'
+		icon: 'fas fa-medal'
 	}, {
 		name: 'Diputa',
 		url: '/disputa',

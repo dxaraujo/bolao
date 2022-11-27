@@ -28,7 +28,7 @@ const resultado = () => {
                     </thead>
                     <tbody>
                         {partidas && [...partidas].sort((partidaA, partidaB) => partidaB.order! - partidaA.order!).map(partida => (
-                            <tr key={partida._id} className='gridResultados'>
+                            <tr key={partida._id} className='gridResultadosView'>
                                 <td className='text-center'>{resultadoIndex--}</td>
                                 <td className='text-center'>
                                     <div className='rodada'>

@@ -22,6 +22,10 @@ export const classificacaoLinks: NavigationType[] = [
 		name: 'Diputa',
 		url: '/disputa',
 		icon: 'fas fa-fire'
+	}, {
+		name: 'Resultados',
+		url: '/resultados',
+		icon: 'fas fa-futbol'
 	}
 ]
 

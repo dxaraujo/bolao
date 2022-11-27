@@ -33,7 +33,7 @@ const ReadOnlyRow = (props: { idx: number, partida: PartidaType, edit: () => voi
                         <span className='h6 nomeTimeB'>{partida.timeB ? partida.timeB.sigla : ''}</span>
                     </div>
                     <div className='horaPartida'>
-                        <span className='horaPartida text-secundary'>{partida.data ? moment(partida.data).format('DD/MM/YYYY HH:mm:ss') : ''}</span>
+                        <span className='horaPartida text-secundary'>{partida.data ? moment(partida.data).add(3, 'hours').format('DD/MM/YYYY HH:mm:ss') : ''}</span>
                     </div>
                 </div>
             </td>

@@ -14,6 +14,7 @@ const resultado = () => {
 		dispatch(getResultadosAsync())
 	}, [])
 
+    let resultadoIndex = partidas && partidas.length
     return (
         <Card>
             <CardHeader>Resultados das Partidas</CardHeader>
@@ -27,8 +28,8 @@ const resultado = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {partidas && [...partidas].sort((partidaA, partidaB) => partidaB.order! - partidaA.order!).map((partida, idx) => (
-                            <ResultadoForm key={partida._id} index={idx} partida={partida} />
+                        {partidas && [...partidas].sort((partidaA, partidaB) => partidaB.order! - partidaA.order!).map(partida => (
+                            <ResultadoForm key={partida._id} index={--resultadoIndex} partida={partida} />
                         ))}
                     </tbody>
                 </Table>

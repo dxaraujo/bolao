@@ -78,7 +78,7 @@ const fullLayout = () => {
 						<div style={{ backgroundColor: '#494F54', padding: '10px 5px 10px 5px' }}>
 							<div style={{ display: 'grid', gridTemplateColumns: '50px 5px 1fr', alignItems: 'center' }}>
 								<div>
-									<img alt='avatar' src={user ? `${user.picture}?sz=200` : blankavatar} className='img-avatar' width={50} height={50} referrerPolicy='no-referrer' />
+									<img alt='avatar' src={user ? user.picture?.replace('s96-c', 's200-c') : blankavatar} className='img-avatar' width={50} height={50} referrerPolicy='no-referrer' />
 								</div>
 								<div />
 								<div>

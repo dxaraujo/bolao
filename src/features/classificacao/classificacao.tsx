@@ -120,13 +120,13 @@ const classificacao = () => {
                 </CardHeader>
                 <div className='divplayers'>
                     <div style={{ justifySelf: 'right', alignSelf: 'top' }}>
-                        <img alt='avatar' src={customUsers[1] ? `${customUsers[1].picture}?sz=200` : blankavatar} className='player2' width={50} height={50} referrerPolicy='no-referrer' />
+                        <img alt='avatar' src={customUsers[1] ? customUsers[1].picture?.replace('s96-c', 's200-c') : blankavatar} className='player2' width={50} height={50} referrerPolicy='no-referrer' />
                     </div>
                     <div style={{ justifySelf: 'center', alignSelf: 'top' }}>
-                        <img alt='avatar' src={customUsers[0] ? `${customUsers[0].picture}?sz=200` : blankavatar} className='player1' width={50} height={50} referrerPolicy='no-referrer' />
+                        <img alt='avatar' src={customUsers[0] ? customUsers[0].picture?.replace('s96-c', 's200-c') : blankavatar} className='player1' width={50} height={50} referrerPolicy='no-referrer' />
                     </div>
                     <div style={{ justifySelf: 'left', alignSelf: 'top' }}>
-                        <img alt='avatar' src={customUsers[2] ? `${customUsers[2].picture}?sz=200` : blankavatar} className='player3' width={50} height={50} referrerPolicy='no-referrer' />
+                        <img alt='avatar' src={customUsers[2] ? customUsers[2].picture?.replace('s96-c', 's200-c') : blankavatar} className='player3' width={50} height={50} referrerPolicy='no-referrer' />
                     </div>
                 </div>
                 <CardBody style={{ padding: '0px' }}>
@@ -159,7 +159,7 @@ const classificacao = () => {
                                             </If>
                                         </td>
                                         <td className='text-center'>
-                                            <img alt='avatar' src={`${user.picture}?sz=200`} className='img-avatar' width={50} height={50} referrerPolicy='no-referrer' />
+                                            <img alt='avatar' src={user.picture?.replace('s96-c', 's200-c')} className='img-avatar' width={50} height={50} referrerPolicy='no-referrer' />
                                         </td>
                                         <td>{user.name}</td>
                                         <td className={`text-center classificacao ${mudancaClassificacao(user)}`}>{resultadoMudancaClassificacao(user)} </td>

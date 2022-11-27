@@ -21,7 +21,7 @@ const resultado = () => {
             <CardBody style={{ padding: '0px' }}>
                 <Table responsive striped borderless>
                     <thead>
-                        <tr className='gridResultados'>
+                        <tr className='gridResultadosView'>
                             <th className='text-center'>#</th>
                             <th className='text-center'>Partida</th>
                         </tr>

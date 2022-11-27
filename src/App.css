@@ -294,6 +294,32 @@ footer {
 	}
 }
 
+.gridResultadosView {
+	display: grid;
+	grid-template-columns: 45px auto;
+	align-items: center;
+}
+
+@media only screen and (max-width: 575.98px) {
+	.gridResultadosView {
+		grid-template-columns: 45px auto;
+	}
+	.gridResultadosView td,
+	.gridResultadosView th {
+		padding: 5px
+	}
+}
+
+@media only screen and (max-width: 767.98px) {
+	.gridResultadosView {
+		grid-template-columns: 45px auto;
+	}
+	.gridResultadosView td,
+	.gridResultadosView th {
+		padding: 5px
+	}
+}
+
 .gridClassificacao {
 	display: grid;
 	grid-template-columns: 40px 45px 74px auto 44px 50px 44px 44px 44px 44px;

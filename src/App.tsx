@@ -33,9 +33,9 @@ const app = () => {
 			</Switch>
 		</BrowserRouter>
 	) : (
-		<p>
-			<a href="#" style={{ color: 'black', fontSize: '20px'}} onClick={e => { e.preventDefault(); emptyCacheStorage(); }}>Atualize a versão</a>
-        </p>
+		<div style={{ display: 'flex', width: '100vw', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
+			<a href="#" className='btn btn-primary' style={{ fontSize: '20px' }} onClick={e => { e.preventDefault(); emptyCacheStorage(); }}>Atualize a versão</a>
+        </div>
 	)
 }
 

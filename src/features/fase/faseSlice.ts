@@ -62,17 +62,9 @@ export const faseSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(getFasesAsync.pending, (state) => {
-        state.loadding = true;
-      })
-      .addCase(getFasesAsync.fulfilled, (state, action) => {
-        state.loadding = false;
-        state.fases = action.payload;
-      })
-      .addCase(getFasesAsync.rejected, (state) => {
-        state.loadding = false;
-      });
+    builder.addCase(getFasesAsync.fulfilled, (state, action) => {
+      state.fases = action.payload;
+    })
   },
 });
 

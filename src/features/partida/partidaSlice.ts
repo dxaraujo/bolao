@@ -36,13 +36,11 @@ export type PartidaType = {
 export interface PartidaState {
   partidas: PartidaType[];
   partida: PartidaType;
-  loadding: boolean;
 }
 
 const initialState: PartidaState = {
   partidas: [],
   partida: {},
-  loadding: false
 };
 
 export const getPartidasAsync = createAsyncThunk("partida/get", async (callback?: () => void) => {
@@ -130,58 +128,27 @@ export const partidaSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getPartidasAsync.pending, (state) => {
-        state.loadding = true;
         state.partidas = initialState.partidas
       })
       .addCase(getPartidasAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.partidas = action.payload;
       })
-      .addCase(getPartidasAsync.rejected, (state) => {
-        state.loadding = false;
-      })
       .addCase(getResultadosAsync.pending, (state) => {
-        state.loadding = true;
         state.partidas = initialState.partidas
       })
       .addCase(getResultadosAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.partidas = action.payload;
       })
-      .addCase(getResultadosAsync.rejected, (state) => {
-        state.loadding = false;
-      })
-      .addCase(createPartidaAsync.pending, (state) => {
-        state.loadding = true;
-      })
       .addCase(createPartidaAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.partida = action.payload;
       })
-      .addCase(createPartidaAsync.rejected, (state) => {
-        state.loadding = false;
-      })
-      .addCase(updatePartidaAsync.pending, (state) => {
-        state.loadding = true;
-      })
+
       .addCase(updatePartidaAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.partida = action.payload;
-      })
-      .addCase(updatePartidaAsync.rejected, (state) => {
-        state.loadding = false;
-      })
-      .addCase(updateResultadoAsync.pending, (state) => {
-        state.loadding = true;
       })
       .addCase(updateResultadoAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.partida = action.payload;
-      })
-      .addCase(updateResultadoAsync.rejected, (state) => {
-        state.loadding = false;
-      })
-      
+      }) 
   },
 });
 
@@ -189,6 +156,5 @@ export const { select, create, handle, handleResultado, reset } = partidaSlice.a
 
 export const selectPartidas = (state: RootState) => state.partida.partidas;
 export const selectPartida = (state: RootState) => state.partida.partida;
-export const selectPartidasLoadding = (state: RootState) => state.partida.loadding;
 
 export default partidaSlice.reducer;

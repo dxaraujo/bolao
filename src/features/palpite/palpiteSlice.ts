@@ -47,7 +47,6 @@ export interface PalpiteState {
   palpite: PalpiteType | undefined;
   grupos: GrupoType[] | undefined;
   tabIndex: number;
-  loadding: boolean;
 }
 
 const initialState: PalpiteState = {
@@ -55,7 +54,6 @@ const initialState: PalpiteState = {
   palpite: undefined,
   grupos: undefined,
   tabIndex: 0,
-  loadding: false
 };
 
 const submit = async (palpite: PalpiteType, method: string) => {
@@ -101,26 +99,12 @@ export const palpiteSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getPalpitesAsync.pending, (state) => {
-        state.loadding = true;
-      })
       .addCase(getPalpitesAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.grupos = action.payload;
-      })
-      .addCase(getPalpitesAsync.rejected, (state) => {
-        state.loadding = false;
-      })
-      .addCase(updatePalpitesAsync.pending, (state) => {
-        state.loadding = true;
       })
       .addCase(updatePalpitesAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.grupos = action.payload;
       })
-      .addCase(updatePalpitesAsync.rejected, (state) => {
-        state.loadding = false;
-      });
   },
 });
 
@@ -151,6 +135,5 @@ export const selectPalpites = (state: RootState) => state.palpite.palpites;
 export const selectPalpite = (state: RootState) => state.palpite.palpite;
 export const selectGrupos = (state: RootState) => state.palpite.grupos;
 export const selectTabIndex = (state: RootState) => state.palpite.tabIndex;
-export const selectPalpitesLoadding = (state: RootState) => state.palpite.loadding;
 
 export default palpiteSlice.reducer;

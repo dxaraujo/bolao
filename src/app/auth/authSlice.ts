@@ -28,21 +28,11 @@ export const authSlice = createSlice({
   reducers: {
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(getAuthUserAsync.pending, (state) => {
-        state.loadding = true;
-      })
-      .addCase(getAuthUserAsync.fulfilled, (state, action: PayloadAction<UserType>) => {
-        state.loadding = false;
-        state.authUser = action.payload;
-      })
-      .addCase(getAuthUserAsync.rejected, (state) => {
-        state.loadding = false;
-      });
+    builder.addCase(getAuthUserAsync.fulfilled, (state, action: PayloadAction<UserType>) => {
+      state.authUser = action.payload;
+    })
   },
 });
-
-export const { } = authSlice.actions;
 
 export const selectAuthUser = (state: RootState) => state.auth.authUser;
 export const selectAuthUserLoadding = (state: RootState) => state.auth.loadding;

@@ -21,13 +21,11 @@ export type TimeType = {
 export interface TimeState {
   times: TimeType[];
   time: TimeType;
-  loadding: boolean;
 }
 
 const initialState: TimeState = {
   times: [],
   time: {},
-  loadding: false
 };
 
 export const getTimesAsync = createAsyncThunk("time/get", async (callback?: () => void) => {
@@ -82,46 +80,21 @@ export const timeSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getTimesAsync.pending, (state) => {
-        state.loadding = true;
         state.times = initialState.times
       })
       .addCase(getTimesAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.times = action.payload;
       })
-      .addCase(getTimesAsync.rejected, (state) => {
-        state.loadding = false;
-      })
-      .addCase(createTimeAsync.pending, (state) => {
-        state.loadding = true;
-      })
       .addCase(createTimeAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.time = action.payload;
       })
-      .addCase(createTimeAsync.rejected, (state) => {
-        state.loadding = false;
-      })
-      .addCase(updateTimeAsync.pending, (state) => {
-        state.loadding = true;
-      })
+
       .addCase(updateTimeAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.time = action.payload;
-      })
-      .addCase(updateTimeAsync.rejected, (state) => {
-        state.loadding = false;
-      })
-      .addCase(deleteTimeAsync.pending, (state) => {
-        state.loadding = true;
       })
       .addCase(deleteTimeAsync.fulfilled, (state, action: PayloadAction<TimeType>) => {
-        state.loadding = false;
         state.time = initialState.time
       })
-      .addCase(deleteTimeAsync.rejected, (state) => {
-        state.loadding = false;
-      });
   },
 });
 
@@ -129,6 +102,5 @@ export const { select, handle, reset, create } = timeSlice.actions;
 
 export const selectTimes = (state: RootState) => state.time.times;
 export const selectTime = (state: RootState) => state.time.time;
-export const selectTimesLoadding = (state: RootState) => state.time.loadding;
 
 export default timeSlice.reducer;

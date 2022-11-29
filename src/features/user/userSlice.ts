@@ -32,13 +32,11 @@ export type UserType = {
 export interface UserState {
   users: UserType[];
   user: UserType;
-  loadding: boolean;
 }
 
 const initialState: UserState = {
   users: [],
   user: {},
-  loadding: false
 };
 
 export const getUsersAsync = createAsyncThunk("user/get", async (callback?: () => void) => {
@@ -79,36 +77,17 @@ export const userSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getUsersAsync.pending, (state) => {
-        state.loadding = true;
         state.users = initialState.users
       })
       .addCase(getUsersAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.users = action.payload;
       })
-      .addCase(getUsersAsync.rejected, (state) => {
-        state.loadding = false;
-      })
-      .addCase(updateUserAsync.pending, (state) => {
-        state.loadding = true;
-      })
       .addCase(updateUserAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.user = action.payload;
       })
-      .addCase(updateUserAsync.rejected, (state) => {
-        state.loadding = false;
-      })
-      .addCase(deleteUserAsync.pending, (state) => {
-        state.loadding = true;
-      })
       .addCase(deleteUserAsync.fulfilled, (state, action) => {
-        state.loadding = false;
         state.user = initialState.user
       })
-      .addCase(deleteUserAsync.rejected, (state) => {
-        state.loadding = false;
-      });
   },
 });
 
@@ -116,6 +95,5 @@ export const { select, handle, reset } = userSlice.actions;
 
 export const selectUsers = (state: RootState) => state.user.users;
 export const selectUser = (state: RootState) => state.user.user;
-export const selectUsersLoadding = (state: RootState) => state.user.loadding;
 
 export default userSlice.reducer;

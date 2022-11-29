@@ -34,7 +34,7 @@ const app = () => {
 		</BrowserRouter>
 	) : (
 		<p>
-			<a href="#" onClick={e => { e.preventDefault(); emptyCacheStorage(); }}>Update version</a>
+			<a href="#" style={{ color: 'black', fontSize: '20px'}} onClick={e => { e.preventDefault(); emptyCacheStorage(); }}>Atualize a versão</a>
         </p>
 	)
 }

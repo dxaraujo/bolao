@@ -1,5 +1,6 @@
 import { configureStore, ThunkAction, Action, Middleware, applyMiddleware } from '@reduxjs/toolkit';
 import authReducer from './auth/authSlice';
+import configReducer from './config/configSlice';
 import faseReducer from '../features/fase/faseSlice'
 import timeReducer from '../features/time/timeSlice'
 import userReducer from '../features/user/userSlice'
@@ -9,12 +10,13 @@ import loadingReducer, { loading } from '../features/loading/loadingSlice'
 
 const rootReducer = {
   auth: authReducer,
+  config : configReducer,
   fase: faseReducer,
   time: timeReducer,
   user: userReducer,
   partida: partidaReducer,
   palpite: palpiteReducer,
-  loading: loadingReducer,
+  loading: loadingReducer
 }
 
 const loadingMiddleware: Middleware = storeApi => next => action => {

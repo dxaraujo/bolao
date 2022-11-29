@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { Card, CardBody, Row } from 'reactstrap'
+import { Alert, Card, CardBody, Row } from 'reactstrap'
 import { ChartData, ChartOptions, Chart, registerables } from 'chart.js';
 import { Line, Bar, Pie } from 'react-chartjs-2'
 
 import If from '../../app/components/if';
 import { selectAuthUser } from '../../app/auth/authSlice';
+import { getConfigsAsync, selectAtualizandoPontuacoes } from '../../app/config/configSlice';
 import { getPartidasAsync, selectPartidas } from '../partida/partidaSlice';
 import { getUsersAsync, select, selectUsers, UserType } from '../user/userSlice';
 
@@ -126,12 +127,14 @@ const dashboard = () => {
     const authUser = useAppSelector(selectAuthUser)
     const partidas = useAppSelector(selectPartidas)
 	const users = useAppSelector(selectUsers)
+    const atualizandoPontuacoes = useAppSelector(selectAtualizandoPontuacoes)
 
     const [user, setUser] = useState<UserType>({})
 
     useEffect(() => {
         dispatch(getPartidasAsync())
 		dispatch(getUsersAsync())
+        dispatch(getConfigsAsync())
 	}, [])
 
     useEffect(() => {
@@ -320,6 +323,7 @@ const dashboard = () => {
     return (
         <Row>
             <div className='col-12'>
+                {atualizandoPontuacoes && (<Alert color='warning' className='alert-sem-margin-bottom'>Atenção, atualização de resultados em andamento!</Alert>)}
                 <Card style={{ display: 'grid', gridTemplateColumns: '50px 20px 1fr', alignItems: 'center', padding: '20px', backgroundColor: 'white' }}>
                     <div>
                         <img alt='avatar' src={user ? (user.picture ? user.picture.replace('s96-c', 's200-c') : blankavatar) : blankavatar} className='img-avatar' width={50} height={50} referrerPolicy='no-referrer' />

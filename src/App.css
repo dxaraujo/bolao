@@ -624,3 +624,9 @@ footer {
 	0% { transform: rotate(0deg) }
 	100% { transform: rotate(360deg) }
 }
+
+@media only screen and (max-width: 767.98px) {
+	.alert-sem-margin-bottom {
+		margin-bottom: 0px !important;
+	}
+}

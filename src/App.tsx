@@ -1,5 +1,4 @@
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
-import { useClearCache } from 'react-clear-cache';
 
 import FullLayout from './app/layout/fullLayout'
 import Login from './features/login/login'
@@ -23,8 +22,7 @@ import 'react-toastify/dist/ReactToastify.min.css'
 import './App.css'
 
 const app = () => {
-	const { isLatestVersion, emptyCacheStorage } = useClearCache();
-	return isLatestVersion ? (
+	return (
 		<BrowserRouter>
 			<Switch>
 				<Route path='/login' component={Login} />
@@ -32,10 +30,6 @@ const app = () => {
 				<Redirect from="*" to="/" />
 			</Switch>
 		</BrowserRouter>
-	) : (
-		<div style={{ display: 'flex', width: '100vw', height: '100vh', alignItems: 'center', justifyContent: 'center' }}>
-			<a href="#" className='btn btn-primary' style={{ fontSize: '20px' }} onClick={e => { e.preventDefault(); emptyCacheStorage(); }}>Atualize a versão</a>
-        </div>
 	)
 }
 

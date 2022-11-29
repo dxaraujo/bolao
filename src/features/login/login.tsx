@@ -1,4 +1,5 @@
 import { useHistory } from "react-router-dom";
+import { useClearCache } from 'react-clear-cache';
 import { GoogleLogin } from '@react-oauth/google';
 import { Card, CardBody, Col, Container, Row } from 'reactstrap'
 import { loginWithGoogle } from '../../app/auth/authService'
@@ -7,12 +8,15 @@ import { toast } from "react-toastify";
 const Login = () => {
 
 	const history = useHistory()
+	const { emptyCacheStorage } = useClearCache();
 
-	const handleSuccess = (credentialResponse: any) => {		
+	const handleSuccess = async (credentialResponse: any) => {	
+		await emptyCacheStorage()	
 		loginWithGoogle(credentialResponse.credential, () => history.replace('/'))
 	}
 
-	const handleError = () => {
+	const handleError = async () => {
+		await emptyCacheStorage()
 		toast.error('Erro ao realizar o login com o Google');
 	}
 

@@ -95,7 +95,8 @@ const EditableRow = (props: { idx: number, partida: PartidaType, handleChange: (
 
 type PartidaFormType = {
     index: number,
-    partida: PartidaType
+    partida: PartidaType,
+    atualizandoPontuacoes: boolean
 }
 
 const partidaForm = (props: PartidaFormType) => {
@@ -120,8 +121,8 @@ const partidaForm = (props: PartidaFormType) => {
         const value = event.target.value
         dispatch(handleResultado({ partida, handle: {name, value }}))
 	}
-    const { index, partida } = props
-    return isReadOnly ?
+    const { index, partida, atualizandoPontuacoes } = props
+    return isReadOnly || atualizandoPontuacoes ?
         <ReadOnlyRow key={partida._id} idx={index} partida={partida} edit={edit} /> :
         <EditableRow key={partida._id} idx={index} partida={partida} handleChange={handleChange} update={update} cancel={cancel} />
 }

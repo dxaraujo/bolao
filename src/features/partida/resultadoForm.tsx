@@ -5,9 +5,10 @@ import { toast } from "react-toastify";
 
 import { PartidaType, handleResultado, getResultadosAsync, updateResultadoAsync } from './partidaSlice';
 import moment from 'moment';
+import If from '../../app/components/if';
 
-const ReadOnlyRow = (props: { idx: number, partida: PartidaType, edit: () => void }) => {
-    const { idx, partida, edit } = props
+const ReadOnlyRow = (props: { idx: number, partida: PartidaType, edit: () => void, atualizandoPontuacoes: boolean }) => {
+    const { idx, partida, edit, atualizandoPontuacoes } = props
     return (
         <tr key={partida._id} className='gridResultados'>
             <td className='text-center'>{idx + 1}</td>
@@ -38,11 +39,13 @@ const ReadOnlyRow = (props: { idx: number, partida: PartidaType, edit: () => voi
                 </div>
             </td>
             <td className='text-center'>
-                <ButtonGroup>
-                    <Button className='text-white' size='sm' color='warning' onClick={edit}>
-                        <i className='fas fa-edit'></i>
-                    </Button>
-                </ButtonGroup>
+                <If test={atualizandoPontuacoes}>
+                    <ButtonGroup>
+                        <Button className='text-white' size='sm' color='warning' onClick={edit}>
+                            <i className='fas fa-edit'></i>
+                        </Button>
+                    </ButtonGroup>
+                </If>
             </td>
         </tr>
     )
@@ -123,7 +126,7 @@ const partidaForm = (props: PartidaFormType) => {
 	}
     const { index, partida, atualizandoPontuacoes } = props
     return isReadOnly || atualizandoPontuacoes ?
-        <ReadOnlyRow key={partida._id} idx={index} partida={partida} edit={edit} /> :
+        <ReadOnlyRow key={partida._id} idx={index} partida={partida} edit={edit} atualizandoPontuacoes={atualizandoPontuacoes} /> :
         <EditableRow key={partida._id} idx={index} partida={partida} handleChange={handleChange} update={update} cancel={cancel} />
 }
 

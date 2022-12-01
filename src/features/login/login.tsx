@@ -2,6 +2,7 @@ import { useHistory } from "react-router-dom";
 import { GoogleLogin } from '@react-oauth/google';
 import { Card, CardBody, Col, Container, Row } from 'reactstrap'
 import { loginWithGoogle, logout } from '../../app/auth/authService'
+import { version } from "../../app/config/config";
 import { toast } from "react-toastify";
 
 const Login = () => {
@@ -34,6 +35,7 @@ const Login = () => {
 									<GoogleLogin onSuccess={handleSuccess} onError={handleError} useOneTap />
 								</div>
 								<p className='text-muted mt-3'>Realize o login com a sua conta do Google</p>
+								<p className='text-center text-muted' style={{ fontStyle: 'italic', fontSize: '11px'}}>Versão: {version}</p>
 							</CardBody>
 						</Card>
 					</Col>

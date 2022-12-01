@@ -33,7 +33,7 @@ const Login = () => {
 							<CardBody className='d-flex flex-column align-items-center justify-itens-center p-0'>
 								<h1 style={{ fontFamily: 'proximanova-bold' }}>Bolão Copa do Mundo</h1>
 								<div className='align-content-center'>
-									<GoogleLogin onSuccess={handleSuccess} onError={handleError} useOneTap auto_select />
+									<GoogleLogin onSuccess={handleSuccess} onError={handleError} />
 								</div>
 								<p className='text-muted mt-3'>Realize o login com a sua conta do Google</p>
 							</CardBody>

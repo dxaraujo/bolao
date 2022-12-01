@@ -47,10 +47,10 @@ const getGoogleToken = () => {
 	return localStorage.getItem('google_token')
 }
 
-export const logout = (callback: () => void) => {
+export const logout = (callback?: () => void) => {
 	localStorage.removeItem('jwt_token');
 	localStorage.removeItem('google_token');
-	callback()
+	callback && callback()
 }
 
 const authFetch = (url: string, options: {}): Promise<any> => {

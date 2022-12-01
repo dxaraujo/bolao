@@ -39,7 +39,7 @@ const ReadOnlyRow = (props: { idx: number, partida: PartidaType, edit: () => voi
                 </div>
             </td>
             <td className='text-center'>
-                <If test={atualizandoPontuacoes}>
+                <If test={!atualizandoPontuacoes}>
                     <ButtonGroup>
                         <Button className='text-white' size='sm' color='warning' onClick={edit}>
                             <i className='fas fa-edit'></i>

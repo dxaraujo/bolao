@@ -1,8 +1,10 @@
+import { version } from '../config/config'
+
 const footer = () => {
 	return (
 		<>
-			<span>Bolão Catar 2022</span>
-			<span className='ml-auto'>Powered by <a>dxaraujo</a> &copy; 2022</span>
+			<span>Versão: {version}</span>
+			<span className='ml-auto'>Criado por <a>dxaraujo</a> &copy; 2022</span>
 		</>
 	)
 }

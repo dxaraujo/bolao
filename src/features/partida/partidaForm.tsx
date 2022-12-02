@@ -157,7 +157,7 @@ const userForm = () => {
                         <Col xs='12' md='10'>
                             <InputGroup className='input-prepend'>
                                 <InputGroupText>@</InputGroupText>
-                                <Input id='timeB' name='timeB' type='select' defaultValue={partida && (partida.timeB ? partida.timeB.nome : '')} onChange={handleChange}>
+                                <Input id='timeB' name='timeB' type='select' value={partida && (partida.timeB ? partida.timeB.nome : '')} onChange={handleChange}>
                                     <option value=''>Selecione um Time</option>
                                     {times && times.map((time, idx) => (
                                         <option key={idx} value={time.nome}>{time.nome}</option>

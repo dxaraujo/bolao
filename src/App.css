@@ -78,6 +78,9 @@ footer {
 	.card {
 		margin-bottom: 0px !important;
 	}
+	.sidebar {
+		padding-bottom: 50px;
+	}
 }
 
 @media only screen and (max-width: 767.98px) {
@@ -87,6 +90,9 @@ footer {
 	}
 	.card {
 		margin-bottom: 0px !important;
+	}
+	.sidebar {
+		padding-bottom: 50px;
 	}
 }
 

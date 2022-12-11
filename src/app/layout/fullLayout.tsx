@@ -32,7 +32,7 @@ const proccessNavigation = (fases?: FaseType[], authUser?: UserType): { items: N
 	let newNavPalpites: NavigationType[] = []
 	navv.items.push(...navigationsPalpites)
 	if (fases) {
-		fases.forEach(fase => {
+		[...fases].sort((a, b) => a.ordem - b.ordem).forEach(fase => {
 			if (fase.status === 'A' || fase.status === 'B') {
 				newNavPalpites.push({
 					name: `${fase.nome}`,

@@ -16,7 +16,8 @@ export type HandleChangeType = {
 
 export type FaseType = {
   _id?: string,
-  nome?: string;
+  ordem: number,
+  nome?: string,
   status?: 'B' | 'A' | 'D';
 };
 
@@ -28,7 +29,7 @@ export interface FaseState {
 
 const initialState: FaseState = {
   fases: [],
-  fase: {},
+  fase: { ordem: 0 },
   loadding: false
 };
 

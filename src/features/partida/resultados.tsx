@@ -1,5 +1,5 @@
-import moment from 'moment';
 import { useEffect } from 'react';
+import { addHours, format } from 'date-fns';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { Card, CardHeader, CardBody, Table } from 'reactstrap'
 
@@ -52,7 +52,7 @@ const resultado = () => {
                                             <span className='h6 nomeTimeB'>{partida.timeB ? partida.timeB.sigla : ''}</span>
                                         </div>
                                         <div className='horaPartida'>
-                                            <span className='horaPartida text-secundary'>{partida.data ? moment(partida.data).add(3, 'hours').format('DD/MM/YYYY HH:mm:ss') : ''}</span>
+                                            <span className='horaPartida text-secundary'>{partida.data ? format(addHours(new Date(partida.data), 3), 'dd/MM/yyyy HH:mm:ss') : ''}</span>
                                         </div>
                                     </div>
                                 </td>

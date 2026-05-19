@@ -1,16 +1,14 @@
-import { Switch, Route, Redirect } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 import UserList from './userList'
 import UserForm from './userForm'
 
-const user = () => {
-    return (
-        <Switch>
-            <Route path='/user/update' component={UserForm}/>
-            <Route path='/user/list' component={UserList}/>
-            <Redirect from="/user" to="/user/list" />
-        </Switch>
-    )
-}
+const User = () => (
+	<Routes>
+		<Route path='update' element={<UserForm />} />
+		<Route path='list' element={<UserList />} />
+		<Route path='*' element={<Navigate to='list' replace />} />
+	</Routes>
+)
 
-export default user
+export default User

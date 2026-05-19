@@ -4,7 +4,7 @@ import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { Card, CardHeader, CardBody, Button } from 'reactstrap'
 import { toast } from "react-toastify";
 
-import moment from 'moment';
+import { format } from 'date-fns';
 import If from '../../app/components/if';
 import { getPalpitesAsync, selectGrupos, PalpiteType, handleGrupos, updatePalpitesAsync, selectTabIndex } from './palpiteSlice';
 import { selectFase, selectFaseById } from '../fase/faseSlice';
@@ -140,7 +140,7 @@ const palpite = () => {
                                                                                 <span className='h6 nomeTimeB'>{palpite.partida!.timeB!.nome}</span>
                                                                             </div>
                                                                             <div className='horaPartida'>
-                                                                                <span className='horaPartida text-secundary'>{moment(palpite.partida!.data, 'YYYY/MM/DD HH:mm:ss').format('DD/MM/YYYY HH:mm')}</span>
+                                                                                <span className='horaPartida text-secundary'>{format(new Date(palpite.partida!.data!), 'dd/MM/yyyy HH:mm')}</span>
                                                                             </div>
                                                                         </div>
                                                                     )

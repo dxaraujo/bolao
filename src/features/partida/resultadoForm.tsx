@@ -4,7 +4,7 @@ import { ButtonGroup, Button } from 'reactstrap'
 import { toast } from "react-toastify";
 
 import { PartidaType, handleResultado, getResultadosAsync, updateResultadoAsync } from './partidaSlice';
-import moment from 'moment';
+import { addHours, format } from 'date-fns';
 import If from '../../app/components/if';
 
 const ReadOnlyRow = (props: { idx: number, partida: PartidaType, edit: () => void, atualizandoPontuacoes: boolean }) => {
@@ -34,7 +34,7 @@ const ReadOnlyRow = (props: { idx: number, partida: PartidaType, edit: () => voi
                         <span className='h6 nomeTimeB'>{partida.timeB ? partida.timeB.sigla : ''}</span>
                     </div>
                     <div className='horaPartida'>
-                        <span className='horaPartida text-secundary'>{partida.data ? moment(partida.data).add(3, 'hours').format('DD/MM/YYYY HH:mm:ss') : ''}</span>
+                        <span className='horaPartida text-secundary'>{partida.data ? format(addHours(new Date(partida.data), 3), 'dd/MM/yyyy HH:mm:ss') : ''}</span>
                     </div>
                 </div>
             </td>
@@ -78,7 +78,7 @@ const EditableRow = (props: { idx: number, partida: PartidaType, handleChange: (
                         <span className='h6 nomeTimeB'>{partida.timeB ? partida.timeB.sigla : ''}</span>
                     </div>
                     <div className='horaPartida'>
-                        <span className='horaPartida text-secundary'>{partida.data ? moment(partida.data).add(3, 'hours').format('DD/MM/YYYY HH:mm:ss') : ''}</span>
+                        <span className='horaPartida text-secundary'>{partida.data ? format(addHours(new Date(partida.data), 3), 'dd/MM/yyyy HH:mm:ss') : ''}</span>
                     </div>
                 </div>
             </td>

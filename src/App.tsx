@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import FullLayout from './app/layout/fullLayout'
 import Login from './features/login/login'
@@ -7,7 +7,7 @@ import Login from './features/login/login'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 
 // BootStrap
-import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 // Flag Icons
 import 'flag-icon-css/css/flag-icons.min.css'
@@ -21,16 +21,14 @@ import 'sweetalert2/dist/sweetalert2.min.css'
 import 'react-toastify/dist/ReactToastify.min.css'
 import './App.css'
 
-const app = () => {
-	return (
-		<BrowserRouter>
-			<Switch>
-				<Route path='/login' component={Login} />
-				<Route path='/' component={FullLayout} />
-				<Redirect from="*" to="/" />
-			</Switch>
-		</BrowserRouter>
-	)
-}
+const App = () => (
+	<BrowserRouter>
+		<Routes>
+			<Route path='/login' element={<Login />} />
+			<Route path='/*' element={<FullLayout />} />
+			<Route path='*' element={<Navigate to='/' replace />} />
+		</Routes>
+	</BrowserRouter>
+)
 
-export default app
+export default App

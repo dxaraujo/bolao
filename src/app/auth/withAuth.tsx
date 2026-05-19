@@ -1,22 +1,26 @@
-import React from "react";
-import { useHistory, useLocation } from "react-router-dom";
+import { ComponentType, useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { loggedIn, logout } from './authService'
 
-export const withAuth = (Component: React.ComponentType) => (props: any) => {
-	let authenticated = false
-	const history = useHistory()
+export const withAuth = (Component: ComponentType) => () => {
+	const navigate = useNavigate()
 	const location = useLocation()
-	const pathname = location.pathname
-	if (pathname !== '/login') {
-		if (!loggedIn()) {
-			logout(() => history.replace('/login'))	
-		} else {
-			authenticated = true
+	const [authenticated, setAuthenticated] = useState(false)
+
+	useEffect(() => {
+		const onLogin = location.pathname === '/login'
+		if (onLogin) {
+			setAuthenticated(true)
+			return
 		}
-	} else {
-		authenticated = true
-	}
-	return authenticated ? <Component/> : <div>Aguarde...</div>
+		if (loggedIn()) {
+			setAuthenticated(true)
+		} else {
+			logout(() => navigate('/login', { replace: true }))
+		}
+	}, [location.pathname, navigate])
+
+	return authenticated ? <Component /> : <div>Aguarde...</div>
 }
 
 export default withAuth

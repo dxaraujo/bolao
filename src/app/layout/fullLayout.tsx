@@ -1,17 +1,31 @@
 import { useEffect } from 'react'
-import { useAppSelector, useAppDispatch } from '../hooks'
-import { Switch, Route, Redirect } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { Container } from 'reactstrap'
-import { AppHeader, AppFooter, AppSidebar, AppSidebarHeader, AppSidebarNav, AppSidebarMinimizer } from '@coreui/react'
-import { ToastContainer } from "react-toastify"
+import {
+	AppHeader,
+	AppFooter,
+	AppSidebar,
+	AppSidebarHeader,
+	AppSidebarNav,
+	AppSidebarMinimizer,
+} from '@coreui/react'
+import { ToastContainer } from 'react-toastify'
 
+import { useAppSelector, useAppDispatch } from '../hooks'
 import { UserType } from '../../features/user/userSlice'
 import { getAuthUserAsync, selectAuthUser } from '../auth/authSlice'
 import { FaseType, getFasesAsync, selectFases } from '../../features/fase/faseSlice'
 import { selectLoading } from '../../features/loading/loadingSlice'
 import Loading from '../../features/loading/loading'
 
-import { dashboardLinks, classificacaoLinks, navigationsConsultarPalpites, navigationsPalpites, navigationsAdmin, NavigationType } from '../config/navigation'
+import {
+	dashboardLinks,
+	classificacaoLinks,
+	navigationsConsultarPalpites,
+	navigationsPalpites,
+	navigationsAdmin,
+	NavigationType,
+} from '../config/navigation'
 import routes from '../config/router'
 import { rootUser } from '../config/config'
 
@@ -22,25 +36,30 @@ import If from '../components/if'
 import blankavatar from '../../assets/img/blankavatar.svg'
 import withAuth from '../auth/withAuth'
 
-const proccessNavigation = (fases?: FaseType[], authUser?: UserType): { items: NavigationType[] } => {
-	let navv: { items: NavigationType[] } = { items: [] }
+const proccessNavigation = (
+	fases?: FaseType[],
+	authUser?: UserType,
+): { items: NavigationType[] } => {
+	const navv: { items: NavigationType[] } = { items: [] }
 	navv.items.push(...dashboardLinks)
 	if (authUser && authUser.ativo) {
 		navv.items.push(...classificacaoLinks)
 		navv.items.push(...navigationsConsultarPalpites)
 	}
-	let newNavPalpites: NavigationType[] = []
+	const newNavPalpites: NavigationType[] = []
 	navv.items.push(...navigationsPalpites)
 	if (fases) {
-		[...fases].sort((a, b) => a.ordem - b.ordem).forEach(fase => {
-			if (fase.status === 'A' || fase.status === 'B') {
-				newNavPalpites.push({
-					name: `${fase.nome}`,
-					url: `/palpite/${fase._id}`,
-					icon: 'fas fa-futbol',
-				})
-			}
-		})
+		;[...fases]
+			.sort((a, b) => a.ordem - b.ordem)
+			.forEach((fase) => {
+				if (fase.status === 'A' || fase.status === 'B') {
+					newNavPalpites.push({
+						name: `${fase.nome}`,
+						url: `/palpite/${fase._id}`,
+						icon: 'fas fa-futbol',
+					})
+				}
+			})
 	}
 	navv.items.push(...newNavPalpites)
 	if (authUser && (authUser.isAdmin || authUser.email === rootUser)) {
@@ -49,8 +68,7 @@ const proccessNavigation = (fases?: FaseType[], authUser?: UserType): { items: N
 	return navv
 }
 
-const fullLayout = () => {
-
+const FullLayout = () => {
 	const dispatch = useAppDispatch()
 	const user = useAppSelector(selectAuthUser)
 	const fases = useAppSelector(selectFases)
@@ -58,57 +76,74 @@ const fullLayout = () => {
 
 	useEffect(() => {
 		dispatch(getAuthUserAsync())
-	}, [])
+	}, [dispatch])
 
 	useEffect(() => {
 		dispatch(getFasesAsync())
-	}, [])
+	}, [dispatch])
 
 	return (
 		<>
-		<Loading show={loading}/>
-		<div className='app'>
-			<ToastContainer />
-			<AppHeader fixed>
-				<Header />
-			</AppHeader>
-			<div className='app-body'>
-				<AppSidebar key={'appSideBar'} fixed display='lg'>
-					<AppSidebarHeader>
-						<div style={{ backgroundColor: '#494F54', padding: '10px 5px 10px 5px' }}>
-							<div style={{ display: 'grid', gridTemplateColumns: '50px 5px 1fr', alignItems: 'center' }}>
-								<div>
-									<img alt='avatar' src={user ? user.picture?.replace('s96-c', 's200-c') : blankavatar} className='img-avatar' width={50} height={50} referrerPolicy='no-referrer' />
-								</div>
-								<div />
-								<div>
-									<span className='d-block' style={{ textAlign: 'left' }}>  {user ? user.name : ''}</span>
+			<Loading show={loading} />
+			<div className='app'>
+				<ToastContainer />
+				<AppHeader fixed>
+					<Header />
+				</AppHeader>
+				<div className='app-body'>
+					<AppSidebar key={'appSideBar'} fixed display='lg'>
+						<AppSidebarHeader>
+							<div style={{ backgroundColor: '#494F54', padding: '10px 5px 10px 5px' }}>
+								<div
+									style={{
+										display: 'grid',
+										gridTemplateColumns: '50px 5px 1fr',
+										alignItems: 'center',
+									}}
+								>
+									<div>
+										<img
+											alt='avatar'
+											src={user ? user.picture?.replace('s96-c', 's200-c') : blankavatar}
+											className='img-avatar'
+											width={50}
+											height={50}
+											referrerPolicy='no-referrer'
+										/>
+									</div>
+									<div />
+									<div>
+										<span className='d-block' style={{ textAlign: 'left' }}>
+											{' '}
+											{user ? user.name : ''}
+										</span>
+									</div>
 								</div>
 							</div>
-						</div>
-					</AppSidebarHeader>
-					<AppSidebarNav navConfig={proccessNavigation(fases, user)} />
-					<AppSidebarMinimizer />
-				</AppSidebar>
-				<main className='main'>
-					<If test={user !== undefined}>
-						<Container fluid>
-							<Switch>
-								{routes.map((route, idx) => {
-									return route.component ? (<Route key={idx} path={route.path} exact={route.exact} component={route.component} />) : (null);
-								})}
-								<Redirect from="/" to="/dashboard" />
-							</Switch>
-						</Container>
-					</If>
-				</main>
+						</AppSidebarHeader>
+						<AppSidebarNav navConfig={proccessNavigation(fases, user)} />
+						<AppSidebarMinimizer />
+					</AppSidebar>
+					<main className='main'>
+						<If test={user !== undefined}>
+							<Container fluid>
+								<Routes>
+									{routes.map((route, idx) => {
+										const Component = route.component
+										return <Route key={idx} path={route.path} element={<Component />} />
+									})}
+									<Route path='/' element={<Navigate to='/dashboard' replace />} />
+								</Routes>
+							</Container>
+						</If>
+					</main>
+				</div>
+				<AppFooter fixed>
+					<Footer />
+				</AppFooter>
 			</div>
-			<AppFooter fixed>
-				<Footer />
-			</AppFooter>
-		</div>
 		</>
 	)
 }
 
-export default withAuth(fullLayout)
+export default withAuth(FullLayout)

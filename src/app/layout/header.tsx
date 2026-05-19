@@ -1,4 +1,4 @@
-import { useHistory } from "react-router-dom";
+import { useNavigate } from 'react-router-dom'
 import { Nav, NavItem, NavLink } from 'reactstrap'
 import { AppNavbarBrand, AppSidebarToggler } from '@coreui/react'
 
@@ -7,8 +7,8 @@ import { logout } from '../auth/authService'
 import logo from '../../assets/img/brand/logo_fifa.webp'
 import logoShort from '../../assets/img/brand/logo_fifa_image.webp'
 
-const header = () => {
-	const history = useHistory()
+const Header = () => {
+	const navigate = useNavigate()
 	return (
 		<>
 			<AppSidebarToggler className='d-lg-none' display='md' mobile />
@@ -24,11 +24,16 @@ const header = () => {
 			</Nav>
 			<Nav className='ml-auto' navbar>
 				<NavItem className='px-3'>
-					<NavLink href='' onClick={() => logout(() => { history.replace('/login') })}>Sair</NavLink>
+					<NavLink
+						href=''
+						onClick={() => logout(() => navigate('/login', { replace: true }))}
+					>
+						Sair
+					</NavLink>
 				</NavItem>
 			</Nav>
 		</>
 	)
 }
 
-export default header
+export default Header

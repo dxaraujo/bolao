@@ -9,6 +9,7 @@ import { AppModule } from './app.module'
 import { AllExceptionsFilter } from './common/all-exceptions.filter'
 
 async function bootstrap() {
+
 	const app = await NestFactory.create(AppModule, { bufferLogs: true })
 
 	app.useLogger(app.get(Logger))
@@ -48,6 +49,8 @@ async function bootstrap() {
 
 	const port = config.getOrThrow<number>('PORT')
 	await app.listen(port)
+
+	app.get(Logger).log(`API listening on http://localhost:${port}`)
 }
 
 bootstrap()

@@ -8,7 +8,7 @@ import { Team } from './schemas/team.schema'
 
 @Injectable()
 export class TeamService {
-	constructor(@InjectModel(Team.name) private readonly model: Model<Team>) {}
+	constructor(@InjectModel(Team.name) private readonly model: Model<Team>) { }
 
 	findAll(query: Record<string, unknown>) {
 		return this.model.find(query).exec()

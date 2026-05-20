@@ -16,6 +16,12 @@ API NestJS + TypeScript + MongoDB para o bolão.
 - Node.js >= 20.11
 - MongoDB rodando localmente ou via URI remota
 
+Na raiz do monorepo, suba o Mongo com Docker:
+
+```bash
+docker compose up -d mongo
+```
+
 ## Setup
 
 ```bash

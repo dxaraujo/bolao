@@ -12,29 +12,5 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    container_name: bolao-backend
-    restart: unless-stopped
-    depends_on:
-      mongo:
-        condition: service_healthy
-    ports:
-      - "3001:3001"
-    environment:
-      NODE_ENV: production
-      PORT: 3001
-      MONGODB_URI: mongodb://mongo:27017/bolao
-      AUTH_SECRET: ${AUTH_SECRET:?env var AUTH_SECRET é obrigatória}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?env var GOOGLE_CLIENT_ID é obrigatória}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-30d}
-      FOOTBALL_DATA_API_URL: ${FOOTBALL_DATA_API_URL:?env var FOOTBALL_DATA_API_URL é obrigatória}
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
-      THROTTLE_TTL_SECONDS: ${THROTTLE_TTL_SECONDS:-60}
-      THROTTLE_LIMIT: ${THROTTLE_LIMIT:-120}
-
 volumes:
   mongo-data:

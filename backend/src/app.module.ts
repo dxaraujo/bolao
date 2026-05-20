@@ -40,6 +40,8 @@ import { UserModule } from './user/user.module'
 			inject: [ConfigService],
 			useFactory: (config: ConfigService) => ({
 				uri: config.getOrThrow<string>('MONGODB_URI'),
+				serverSelectionTimeoutMS: 5000,
+				connectTimeoutMS: 5000,
 			}),
 		}),
 		AuthModule,

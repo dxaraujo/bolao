@@ -2,12 +2,14 @@
 	"name": "bolao",
 	"version": "1.0.0",
 	"private": true,
-	"description": "Bolão da Copa do Mundo — frontend (React/Vite) + backend (NestJS).",
+	"description": "Bolão da Copa do Mundo — frontend (React/Vite) + backend (NestJS) + shared (@bolao/shared).",
 	"scripts": {
 		"dev": "pnpm -r --parallel --aggregate-output --reporter=append-only dev",
 		"dev:frontend": "pnpm --filter ./frontend dev",
 		"dev:backend": "pnpm --filter ./backend start:dev",
-		"build": "pnpm -r build",
+		"dev:shared": "pnpm --filter @bolao/shared dev",
+		"build": "pnpm -r --stream --workspace-concurrency=1 build",
+		"build:shared": "pnpm --filter @bolao/shared build",
 		"build:frontend": "pnpm --filter ./frontend build",
 		"build:backend": "pnpm --filter ./backend build",
 		"install:all": "pnpm install"

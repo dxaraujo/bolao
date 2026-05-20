@@ -1,9 +1,11 @@
 import { Controller, Post, Query } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 
 import { Public } from '../common/public.decorator'
 import { AuthService } from './auth.service'
 import { GoogleLoginDto } from './dto/google-login.dto'
 
+@ApiTags('auth')
 @Controller()
 export class AuthController {
 	constructor(private readonly authService: AuthService) {}

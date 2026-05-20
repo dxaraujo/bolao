@@ -7,13 +7,9 @@ import {
 	Logger,
 } from '@nestjs/common'
 import type { Request, Response } from 'express'
+import type { ApiErrorBody } from '@bolao/shared'
 
-interface ErrorBody {
-	errors: string | string[]
-	statusCode: number
-	path: string
-	timestamp: string
-}
+type RequestWithId = Request & { id?: string }
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -22,7 +18,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 	catch(exception: unknown, host: ArgumentsHost) {
 		const ctx = host.switchToHttp()
 		const response = ctx.getResponse<Response>()
-		const request = ctx.getRequest<Request>()
+		const request = ctx.getRequest<RequestWithId>()
 
 		const status =
 			exception instanceof HttpException
@@ -33,16 +29,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
 		if (status >= 500) {
 			this.logger.error(
-				`${request.method} ${request.url} → ${status}`,
+				`${request.method} ${request.url} → ${status} (reqId=${request.id ?? '-'})`,
 				exception instanceof Error ? exception.stack : String(exception),
 			)
 		}
 
-		const body: ErrorBody = {
+		const body: ApiErrorBody = {
 			errors,
 			statusCode: status,
 			path: request.url,
 			timestamp: new Date().toISOString(),
+			requestId: request.id,
 		}
 		response.status(status).json(body)
 	}

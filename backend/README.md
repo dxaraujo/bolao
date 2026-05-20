@@ -48,7 +48,7 @@ A API sobe na porta definida em `PORT` (default 3001).
 | `AUTH_SECRET`        | **sim**     | —                                |
 | `GOOGLE_CLIENT_ID`   | **sim**     | —                                |
 | `JWT_EXPIRES_IN`     | não         | `30d`                            |
-| `RESULTADOS_API_URL` | **sim**     | —                                |
+| `FOOTBALL_DATA_API_URL` | **sim**     | —                                |
 
 Validação acontece no startup via [`src/common/env.validation.ts`](src/common/env.validation.ts). Se faltar variável obrigatória, a app falha rápido.
 
@@ -69,10 +69,10 @@ Validação acontece no startup via [`src/common/env.validation.ts`](src/common/
 | GET    | `/api/partida`, `/api/partida/resultado`, `/api/partida/:id` | JWT |
 | POST/PUT/DELETE | `/api/partida[/:id]`                 | JWT      |
 | PUT    | `/api/partida/:id/updateResultado`            | JWT      |
-| GET    | `/api/palpite`, `/api/palpite/:id`            | JWT      |
-| POST/PUT/DELETE | `/api/palpite[/:id]`                 | JWT      |
-| PUT    | `/api/palpite/:user/updatePalpites`           | JWT      |
-| GET    | `/api/palpite/:user/:fase/montarpalpites`     | JWT      |
+| GET    | `/api/bet`, `/api/bet/:id`            | JWT      |
+| POST/PUT/DELETE | `/api/bet[/:id]`                 | JWT      |
+| PUT    | `/api/bet/:user/updateBets`           | JWT      |
+| GET    | `/api/bet/:user/:fase/montarbets`     | JWT      |
 
 JWT é exigido no header `Authorization: Bearer <token>`. O token é emitido por `/registerGoogleUser` após verificação do `idToken` do Google.
 
@@ -88,7 +88,7 @@ src/
 ├── fase/                CRUD de fases
 ├── config/              Config global (flag atualizandoPontuacoes)
 ├── partida/             CRUD de partidas + ResultadoService (pontuação)
-├── palpite/             CRUD de palpites + montagem por fase
+├── bet/             CRUD de bets + montagem por fase
 ├── schedule/            Cron job que sincroniza resultados externos
 ├── health/              Healthcheck público
 └── common/              env validation, logger, exception filter, decorators
@@ -96,4 +96,4 @@ src/
 
 ## Cron de resultados
 
-A task em [`src/schedule/resultados.task.ts`](src/schedule/resultados.task.ts) roda **a cada 5 min entre 7h e 20h**, consulta `RESULTADOS_API_URL`, identifica jogos com placar definido e dispara `ResultadoService.atualizarResultados()` apenas para partidas cujo placar mudou.
+A task em [`src/schedule/resultados.task.ts`](src/schedule/resultados.task.ts) roda **a cada 5 min entre 7h e 20h**, consulta `FOOTBALL_DATA_API_URL`, identifica jogos com placar definido e dispara `ResultadoService.atualizarResultados()` apenas para partidas cujo placar mudou.

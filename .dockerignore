@@ -1,0 +1,13 @@
+**/node_modules
+**/dist
+**/build
+**/.env
+**/.env.local
+**/.env.*.local
+**/coverage
+**/.git
+**/.DS_Store
+**/*-debug.log*
+**/*-error.log*
+**/*.tsbuildinfo
+.claude/

@@ -2,8 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 
-import { Fase, FaseStatus } from '../fase/schemas/fase.schema'
-import { Palpite } from '../palpite/schemas/palpite.schema'
+import { Phase, PhaseStatus } from '../phase/schemas/phase.schema'
+import { Bet } from '../bet/schemas/bet.schema'
 import { User } from './schemas/user.schema'
 
 export interface CreateUserInput {
@@ -21,8 +21,8 @@ export interface UpdateUserInput {
 export class UserService {
 	constructor(
 		@InjectModel(User.name) private readonly userModel: Model<User>,
-		@InjectModel(Fase.name) private readonly faseModel: Model<Fase>,
-		@InjectModel(Palpite.name) private readonly palpiteModel: Model<Palpite>,
+		@InjectModel(Phase.name) private readonly phaseModel: Model<Phase>,
+		@InjectModel(Bet.name) private readonly betModel: Model<Bet>,
 	) {}
 
 	findById(id: string) {
@@ -37,20 +37,20 @@ export class UserService {
 		return this.userModel.create(input)
 	}
 
-	async findAllWithPalpites(query: Record<string, unknown>) {
+	async findAllWithBets(query: Record<string, unknown>) {
 		const users = await this.userModel.find(query).exec()
-		const fasesBloqueadas = await this.faseModel.find({ status: FaseStatus.BLOQUEADO }).exec()
-		const nomesPermitidos = new Set(fasesBloqueadas.map((f) => f.nome))
+		const phasesBloqueadas = await this.phaseModel.find({ status: PhaseStatus.BLOCKED }).exec()
+		const nomesPermitidos = new Set(phasesBloqueadas.map((f) => f.name))
 
 		for (const user of users) {
 			if (!user.ativo) continue
-			const palpites = await this.palpiteModel
+			const bets = await this.betModel
 				.find({ user: user._id })
 				.sort({ 'partida.order': 'asc' })
 				.exec()
 			user.set(
-				'palpites',
-				palpites.filter((p) => nomesPermitidos.has(p.partida.fase)),
+				'bets',
+				bets.filter((p) => nomesPermitidos.has(p.match.stage)),
 			)
 		}
 		return users
@@ -67,7 +67,7 @@ export class UserService {
 	async remove(id: string) {
 		const user = await this.userModel.findById(id).exec()
 		if (!user) return null
-		await this.palpiteModel.deleteMany({ user: user._id as Types.ObjectId }).exec()
+		await this.betModel.deleteMany({ user: user._id as Types.ObjectId }).exec()
 		return this.userModel.findByIdAndDelete(user._id as Types.ObjectId).exec()
 	}
 }

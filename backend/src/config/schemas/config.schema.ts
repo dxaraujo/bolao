@@ -3,10 +3,11 @@ import { HydratedDocument } from 'mongoose'
 
 export type ConfigDocument = HydratedDocument<Config>
 
-@Schema({ collection: 'configs' })
+@Schema({ collection: 'config' })
 export class Config {
+
 	@Prop({ required: true })
-	atualizandoPontuacoes!: boolean
+	updatingScores!: boolean
 }
 
 export const ConfigSchema = SchemaFactory.createForClass(Config)

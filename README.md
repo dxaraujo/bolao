@@ -6,7 +6,7 @@ Monorepo da aplicação de bolão para amigos e família apostarem nos jogos da 
 .
 ├── backend/    NestJS + TypeScript + Mongoose 8 + MongoDB
 ├── frontend/   React 19 + Vite + TypeScript + Tailwind v4 + shadcn/ui
-└── shared/     (futuramente) tipos e contratos compartilhados
+└── shared/    @bolao/shared — enums e contratos de API consumidos por backend e frontend
 ```
 
 ## Pré-requisitos
@@ -61,11 +61,47 @@ cd frontend && pnpm dev
 cd backend && pnpm start:dev
 ```
 
+## Docker
+
+Subir backend + MongoDB juntos sem instalar nada local (precisa de Docker e variáveis de ambiente no shell):
+
+```bash
+export AUTH_SECRET=algumacoisa-forte
+export GOOGLE_CLIENT_ID=seu-client-id.apps.googleusercontent.com
+export FOOTBALL_DATA_API_URL='https://...'
+
+docker compose up -d --build
+docker compose logs -f backend
+```
+
+A API sobe em `http://localhost:3001` e o Mongo em `mongodb://localhost:27017`. Dados persistem no volume nomeado `mongo-data` entre restarts.
+
+Para derrubar tudo:
+```bash
+docker compose down              # mantém os dados
+docker compose down -v           # apaga o volume do Mongo também
+```
+
+> O frontend ainda não está no compose porque está em transição de UI. Será adicionado quando a reescrita Tailwind+shadcn estiver estabilizada.
+
 ## Documentação por pacote
 
 - [frontend/README.md](frontend/README.md) — stack do app, variáveis `VITE_*`, estrutura de pastas
-- [backend/README.md](backend/README.md) — endpoints da API, variáveis de ambiente, cron de resultados
+- [backend/README.md](backend/README.md) — endpoints da API, variáveis de ambiente, cron de resultados, OpenAPI em `/api/docs`
 
-## shared/ (opcional, ainda não usado)
+## shared/ — código compartilhado
 
-Quando começarmos a precisar de tipos compartilhados entre frontend e backend (ex.: DTOs, contratos de API), criar `shared/` como um terceiro workspace e referenciar via `import` em ambos os lados.
+Pacote `@bolao/shared` registrado como workspace pnpm. Atualmente expõe:
+
+- `FaseStatus` (enum: DISABLED, OPEN, BLOCKED)
+- `PONTOS_VALIDOS` + tipo `PontosObtidos` (regra de pontuação do bolão)
+- `ApiSuccess<T>`, `ApiErrorBody`, `ApiResponse<T>` + type guard `isApiError`
+
+Para consumir em outro workspace, basta declarar como dependência:
+```json
+"dependencies": {
+  "@bolao/shared": "workspace:*"
+}
+```
+
+Depois `import { FaseStatus } from '@bolao/shared'`.

@@ -6,13 +6,14 @@ import { Config } from './schemas/config.schema'
 
 @Injectable()
 export class AppConfigService {
-	constructor(@InjectModel(Config.name) private readonly model: Model<Config>) {}
 
-	findAll() {
-		return this.model.find({}).exec()
+	constructor(@InjectModel(Config.name) private readonly model: Model<Config>) { }
+
+	findOne() {
+		return this.model.find({}).findOne().exec()
 	}
 
-	setAtualizandoPontuacoes(atualizando: boolean) {
-		return this.model.updateMany({}, { atualizandoPontuacoes: atualizando }).exec()
+	setUpdatingScores(updatingScores: boolean) {
+		return this.model.updateOne({}, { updatingScores }).exec()
 	}
 }

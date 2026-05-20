@@ -1,10 +1,16 @@
-import { plainToInstance } from 'class-transformer'
-import { IsEnum, IsInt, IsOptional, IsString, IsUrl, validateSync } from 'class-validator'
+import { plainToInstance, Transform } from 'class-transformer'
+import { IsEnum, IsInt, IsOptional, IsString, IsUrl, Min, validateSync } from 'class-validator'
 
 export enum NodeEnv {
 	Development = 'development',
 	Production = 'production',
 	Test = 'test',
+}
+
+const toStringArray = ({ value }: { value: unknown }): string[] => {
+	if (Array.isArray(value)) return value.map(String)
+	if (typeof value === 'string') return value.split(',').map((s) => s.trim()).filter(Boolean)
+	return []
 }
 
 export class EnvironmentVariables {
@@ -28,7 +34,19 @@ export class EnvironmentVariables {
 	JWT_EXPIRES_IN: string = '30d'
 
 	@IsUrl({ require_tld: false })
-	RESULTADOS_API_URL!: string
+	FOOTBALL_DATA_API_URL!: string
+
+	@Transform(toStringArray)
+	@IsString({ each: true })
+	CORS_ORIGINS: string[] = ['http://localhost:3000']
+
+	@IsInt()
+	@Min(1)
+	THROTTLE_TTL_SECONDS: number = 60
+
+	@IsInt()
+	@Min(1)
+	THROTTLE_LIMIT: number = 120
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {

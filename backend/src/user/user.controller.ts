@@ -8,12 +8,15 @@ import {
 	Put,
 	Query,
 } from '@nestjs/common'
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
 
 import { CurrentUser } from '../common/current-user.decorator'
 import type { JwtPayload } from '../auth/jwt.strategy'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserService } from './user.service'
 
+@ApiTags('user')
+@ApiBearerAuth('access-token')
 @Controller('api/user')
 export class UserController {
 	constructor(private readonly userService: UserService) {}
@@ -26,7 +29,7 @@ export class UserController {
 
 	@Get()
 	async list(@Query() query: Record<string, unknown>) {
-		const data = await this.userService.findAllWithPalpites(query)
+		const data = await this.userService.findAllWithBets(query)
 		return { data }
 	}
 

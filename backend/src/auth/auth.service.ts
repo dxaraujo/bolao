@@ -17,6 +17,7 @@ interface GoogleProfile {
 
 @Injectable()
 export class AuthService {
+
 	private readonly client: OAuth2Client
 	private readonly googleClientId: string
 

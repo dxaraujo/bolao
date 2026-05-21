@@ -34,8 +34,8 @@ export class MatchService {
 		private readonly teamService: TeamService,
 		private readonly config: ConfigService
 	) {
-		this.apiUrl = config.getOrThrow<string>('FOOTBALL_DATA_API_URL')
-		this.apiKey = config.getOrThrow<string>('FOOTBALL_DATA_API_KEY')
+		this.apiUrl = this.config.getOrThrow<string>('FOOTBALL_DATA_API_URL')
+		this.apiKey = this.config.getOrThrow<string>('FOOTBALL_DATA_API_KEY')
 	}
 
 	async findVisible() {

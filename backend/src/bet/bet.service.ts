@@ -14,9 +14,9 @@ export class BetService {
 
 	constructor(
 		@InjectModel(Bet.name) private readonly model: Model<Bet>,
-		private readonly stageService: StageService,
-		private readonly matchService: MatchService,
 		private readonly userService: UserService,
+		private readonly stageService: StageService,
+		private readonly matchService: MatchService
 	) { }
 
 	async findAll(userId: string) {
@@ -37,28 +37,6 @@ export class BetService {
 			const { _id, ...rest } = bet.toObject()
 			return bet.user.toString() === userId ? { _id, ...rest } : rest
 		}).sort((a, b) => a.match.utcDate.valueOf() - b.match.utcDate.valueOf() || a.match.footballDataId - b.match.footballDataId)
-	}
-
-	async seedBetsForMatch(matchStage: string) {
-
-		const [matchIds, users] = await Promise.all([
-			this.matchService.findIdsByStages([matchStage]),
-			this.userService.findActiveUsers(),
-		])
-
-		if (matchIds.length === 0 || users.length === 0) return
-
-		await this.model.bulkWrite(
-			matchIds.flatMap(matchId =>
-				users.map((user) => ({
-					updateOne: {
-						filter: { user: user._id, match: matchId },
-						update: { $setOnInsert: { user: user._id, match: matchId } },
-						upsert: true,
-					},
-				})),
-			),
-		)
 	}
 
 	async updateBets(userId: string, itens: BetUpdateItemDto[]) {

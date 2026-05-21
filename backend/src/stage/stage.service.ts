@@ -2,14 +2,21 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
-import { BetService } from 'src/bet/bet.service'
+import { Bet } from '../bet/schemas/bet.schema'
+import { Match } from '../match/schemas/match.schema'
+import { User } from '../user/schemas/user.schema'
 import { UpdateStageDto } from './dto/update-stage.dto'
 import { Stage, StageStatus } from './schemas/stage.schema'
 
 @Injectable()
 export class StageService {
 
-	constructor(@InjectModel(Stage.name) private readonly model: Model<Stage>, private readonly betService: BetService) { }
+	constructor(
+		@InjectModel(Stage.name) private readonly model: Model<Stage>,
+		@InjectModel(Match.name) private readonly matchModel: Model<Match>,
+		@InjectModel(Bet.name) private readonly betModel: Model<Bet>,
+		@InjectModel(User.name) private readonly userModel: Model<User>,
+	) { }
 
 	findAll() {
 		return this.model.find().exec()
@@ -43,9 +50,31 @@ export class StageService {
 		const updated = await this.model.findOneAndUpdate({ matchStage }, dto, { new: true }).exec()
 
 		if (dto.status === StageStatus.OPEN) {
-			await this.betService.seedBetsForMatch(matchStage)
+			await this.seedBetsForStage(matchStage)
 		}
 
 		return updated
+	}
+
+	private async seedBetsForStage(matchStage: string) {
+
+		const [matches, users] = await Promise.all([
+			this.matchModel.find({ stage: matchStage }, { _id: 1 }).exec(),
+			this.userModel.find({ isActive: true }, { _id: 1 }).exec(),
+		])
+
+		if (matches.length === 0 || users.length === 0) return
+
+		await this.betModel.bulkWrite(
+			matches.flatMap((match) =>
+				users.map((user) => ({
+					updateOne: {
+						filter: { user: user._id, match: match._id },
+						update: { $setOnInsert: { user: user._id, match: match._id } },
+						upsert: true,
+					},
+				})),
+			),
+		)
 	}
 }

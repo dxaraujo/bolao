@@ -28,8 +28,6 @@ export async function createTestApp(env: Record<string, string> = {}): Promise<T
 	process.env.FOOTBALL_DATA_API_KEY = env.FOOTBALL_DATA_API_KEY ?? 'test-football-data-api-key'
 	process.env.MONGODB_URI = mongo.getUri()
 	process.env.CORS_ORIGINS = env.CORS_ORIGINS ?? 'http://localhost:3000'
-	process.env.THROTTLE_TTL_SECONDS = '60'
-	process.env.THROTTLE_LIMIT = '10000'
 
 	const moduleRef: TestingModule = await Test.createTestingModule({
 		imports: [AppModule],

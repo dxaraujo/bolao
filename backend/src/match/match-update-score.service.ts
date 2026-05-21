@@ -39,7 +39,7 @@ export class MatchUpdateScoreService {
 			})
 
 			if (!response.ok) {
-				this.logger.warn('Football Data API returned error: {}. Response: {}', response.statusText, await response.json())
+				this.logger.warn('Football Data API returned error: %s. Response: %j', response.statusText, await response.json())
 				return
 			}
 

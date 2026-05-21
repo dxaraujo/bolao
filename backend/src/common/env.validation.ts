@@ -1,5 +1,5 @@
 import { plainToInstance, Transform } from 'class-transformer'
-import { IsEnum, IsInt, IsOptional, IsString, IsUrl, Min, validateSync } from 'class-validator'
+import { IsEnum, IsInt, IsOptional, IsString, IsUrl, validateSync } from 'class-validator'
 
 export enum NodeEnv {
 	Development = 'development',
@@ -43,14 +43,6 @@ export class EnvironmentVariables {
 	@Transform(toStringArray)
 	@IsString({ each: true })
 	CORS_ORIGINS: string[] = ['http://localhost:3000']
-
-	@IsInt()
-	@Min(1)
-	THROTTLE_TTL_SECONDS: number = 60
-
-	@IsInt()
-	@Min(1)
-	THROTTLE_LIMIT: number = 120
 }
 
 export function validateEnv(config: Record<string, unknown>): EnvironmentVariables {

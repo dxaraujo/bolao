@@ -8,7 +8,6 @@ API NestJS + TypeScript + MongoDB para o bolão.
 - **Mongoose 8** via `@nestjs/mongoose`
 - **Auth:** Google OAuth + JWT (`@nestjs/jwt` + `passport-jwt`)
 - **Validação:** `class-validator` + `class-transformer` via `ValidationPipe` global
-- **Logger:** `nestjs-pino` (pretty no dev, JSON estruturado em prod)
 - **Cron:** `@nestjs/schedule` para sincronização de resultados
 
 ## Pré-requisitos
@@ -97,7 +96,7 @@ src/
 ├── bet/             CRUD de bets + montagem por fase
 ├── schedule/            Cron job que sincroniza resultados externos
 ├── health/              Healthcheck público
-└── common/              env validation, logger, exception filter, decorators
+└── common/              env validation, exception filter, decorators
 ```
 
 ## Cron de resultados

@@ -40,9 +40,7 @@ export class ResultService {
 	) { }
 
 	async atualizarResults(matchId: string, { homeTeamScore, awayTeamScore }: ResultInput) {
-		this.logger.log(
-			`Atualizando resultado match ${matchId}: ${homeTeamScore} x ${awayTeamScore}`,
-		)
+		this.logger.log('Updating result for match %d: %d x %d', matchId, homeTeamScore, awayTeamScore)
 
 		await this.appConfig.setUpdatingScores(true)
 		try {
@@ -131,9 +129,7 @@ export class ResultService {
 				}),
 			)
 
-			this.logger.log(
-				`Match atualizada ${newMatch?._id}: ${newMatch?.homeTeamScore} x ${newMatch?.awayTeamScore}`,
-			)
+			this.logger.log('Updated match %d: %d x %d', newMatch?._id, newMatch?.homeTeamScore, newMatch?.awayTeamScore)
 			return newMatch
 		} finally {
 			await this.appConfig.setUpdatingScores(false)

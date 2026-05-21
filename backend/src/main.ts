@@ -1,20 +1,16 @@
 import { NestFactory } from '@nestjs/core'
 import { ConfigService } from '@nestjs/config'
-import { ValidationPipe } from '@nestjs/common'
+import { Logger, ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { Logger } from 'nestjs-pino'
 import helmet from 'helmet'
 
 import { AppModule } from './app.module'
 import { AllExceptionsFilter } from './common/all-exceptions.filter'
 
 async function bootstrap() {
-
-	const app = await NestFactory.create(AppModule, { bufferLogs: true })
-
-	app.useLogger(app.get(Logger))
-
+	const app = await NestFactory.create(AppModule)
 	const config = app.get(ConfigService)
+	const logger = new Logger('Bootstrap')
 
 	app.use(helmet())
 	app.enableCors({
@@ -50,7 +46,7 @@ async function bootstrap() {
 	const port = config.getOrThrow<number>('PORT')
 	await app.listen(port)
 
-	app.get(Logger).log(`API listening on http://localhost:${port}`)
+	logger.log('API listening on http://localhost:%d', port)
 }
 
 bootstrap()

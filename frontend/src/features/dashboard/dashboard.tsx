@@ -7,6 +7,12 @@ import { Line, Bar, Pie } from 'react-chartjs-2'
 import If from '../../app/components/if';
 import { selectAuthUser } from '../../app/auth/authSlice';
 import { getConfigsAsync, selectAtualizandoPontuacoes } from '../../app/config/configSlice';
+import {
+	betsUpToMatch,
+	lastFinishedMatchId,
+	matchLabel,
+	sortBetsByMatchDate,
+} from '../../lib/domain';
 import { getPartidasAsync, selectPartidas } from '../partida/partidaSlice';
 import { getUsersAsync, select, selectUsers, UserType } from '../user/userSlice';
 
@@ -143,15 +149,7 @@ const dashboard = () => {
         }
 	}, [users])
 
-    const encontrarUltimaPartida = (): number => {
-		let ultimaPartida = 0
-		partidas.forEach(partida => {
-			if (partida.placarTimeA !== undefined && partida.placarTimeA >= 0 && partida.placarTimeB !== undefined && partida.placarTimeB >= 0) {
-				ultimaPartida = partida.order!
-			}
-		});
-		return ultimaPartida
-	}
+    const encontrarUltimaPartida = (): number => lastFinishedMatchId(partidas)
 
     const ordenarUsuarios = (users: UserType[]) => {
         return [...users].sort((u1, u2) =>   {
@@ -175,24 +173,22 @@ const dashboard = () => {
         })
     }
 
-    const montarGraficoClassificacoes = (allPalpites: PalpiteType[]) => {
-		if (allPalpites !== undefined && allPalpites.length) {
+    const montarGraficoClassificacoes = (allBets: PalpiteType[]) => {
+		if (allBets !== undefined && allBets.length) {
             chartLineData.labels = []
             chartLineData.datasets[0].data = []
             const ultimaPartida = encontrarUltimaPartida()
-            let palpites = allPalpites.filter(palpite => palpite.partida!.order! <= ultimaPartida)
-			palpites = palpites.sort((p1, p2) => p1.partida!.order! - p2.partida!.order!)
-			palpites = palpites.slice(Math.max(palpites.length - 10, 0))
-			for (let i = 0; i < palpites.length; i++) {
-				chartLineData.labels.push(`${palpites[i].partida!.timeA!.sigla} x ${palpites[i].partida!.timeB!.sigla}`)
-				chartLineData.datasets[0].data.push(palpites[i].classificacao!)
+            const bets = betsUpToMatch(allBets, ultimaPartida).slice(-10)
+			for (let i = 0; i < bets.length; i++) {
+				chartLineData.labels.push(matchLabel(bets[i].match))
+				chartLineData.datasets[0].data.push(bets[i].classificacao!)
 			}
 		}
 		return chartLineData
 	}
 
-    const montarGraficoPontuacoes = (palpites: PalpiteType[]) => {
-        if (palpites !== undefined && palpites.length) {
+    const montarGraficoPontuacoes = (bets: PalpiteType[]) => {
+        if (bets !== undefined && bets.length) {
 
             const ultimaPartida = encontrarUltimaPartida()
             const labels = new Array<string>()
@@ -200,21 +196,20 @@ const dashboard = () => {
             const backgroundColor = new Array<string>()
             const borderColor = new Array<string>()
 
-            let palpitesOrdenados = palpites.filter(palpite => palpite.partida!.order! <= ultimaPartida)
-            palpitesOrdenados = palpitesOrdenados.slice(Math.max(palpitesOrdenados.length - 10, 0))
-			for (let i = 0; i < palpitesOrdenados.length; i++) {
-				labels.push(`${palpitesOrdenados[i].partida!.timeA!.sigla} x ${palpitesOrdenados[i].partida!.timeB!.sigla}`)
-				data.push(palpitesOrdenados[i].totalPontosObitidos!)
-				if (palpitesOrdenados[i].totalPontosObitidos === 5) {
+            const betsOrdenados = betsUpToMatch(bets, ultimaPartida).slice(-10)
+			for (let i = 0; i < betsOrdenados.length; i++) {
+				labels.push(matchLabel(betsOrdenados[i].match))
+				data.push(betsOrdenados[i].totalPontosObitidos!)
+				if (betsOrdenados[i].totalPontosObitidos === 5) {
                     backgroundColor.push('rgba(54, 162, 235, .1)')
                     borderColor.push('rgba(54, 162, 235, 1)')
-				} else if (palpitesOrdenados[i].totalPontosObitidos === 3) {
+				} else if (betsOrdenados[i].totalPontosObitidos === 3) {
                     backgroundColor.push('rgba(75, 192, 192, .1)')
                     borderColor.push('rgba(75, 192, 192, 1)')
-				} else if (palpitesOrdenados[i].totalPontosObitidos === 2) {
+				} else if (betsOrdenados[i].totalPontosObitidos === 2) {
                     backgroundColor.push('rgba(255, 159, 64, .1)')
                     borderColor.push('rgba(255, 159, 64, 1)')
-				} else if (palpitesOrdenados[i].totalPontosObitidos === 1) {
+				} else if (betsOrdenados[i].totalPontosObitidos === 1) {
                     backgroundColor.push('rgba(255, 205, 86, .1)')
                     borderColor.push('rgba(255, 205, 86, 1)')
 				} else {
@@ -231,7 +226,7 @@ const dashboard = () => {
 		return chartBarData
 	}
 
-    const montarGraficoPontuacoesPorTipo = (palpites: PalpiteType[]) => {
+    const montarGraficoPontuacoesPorTipo = (bets: PalpiteType[]) => {
 		chartPieData.labels = []
 		chartPieData.datasets[0].data = []
 		let placarCheio = 0
@@ -239,10 +234,10 @@ const dashboard = () => {
 		let placarTimeVencedor = 0
 		let placarGol = 0
 		let nada = 0
-		if (palpites && palpites.length) {
-			let palpitesOrdenados = [...palpites].sort((p1, p2) => p1.partida!.order! - p2.partida!.order!)
-			for (let i = 0; i < palpitesOrdenados.length; i++) {
-				const palpite = palpitesOrdenados[i]
+		if (bets && bets.length) {
+			const betsOrdenados = sortBetsByMatchDate(bets)
+			for (let i = 0; i < betsOrdenados.length; i++) {
+				const palpite = betsOrdenados[i]
 				if (palpite.placarCheio) {
 					placarCheio++
 				} else if (palpite.placarTimeVencedorComGol) {
@@ -303,14 +298,13 @@ const dashboard = () => {
                         pointHoverBorderWidth: 2,
                         pointRadius: 2,
                     })
-                    if (orderUser.palpites !== undefined && orderUser.palpites.length > 0) {
-                        let palpites = orderUser.palpites.filter(palpite => palpite.partida!.order! <= ultimaPartida)
-                        palpites = palpites.slice(Math.max(palpites.length - 10, 0))
-                        for (let j = 0; j < palpites.length; j++) {
+                    if (orderUser.bets !== undefined && orderUser.bets.length > 0) {
+                        const bets = betsUpToMatch(orderUser.bets, ultimaPartida).slice(-10)
+                        for (let j = 0; j < bets.length; j++) {
                             if (i === userIndex) {
-                                chartClassificacaoData.labels.push(`${palpites[j].partida!.timeA!.sigla} x ${palpites[j].partida!.timeB!.sigla}`)
+                                chartClassificacaoData.labels.push(matchLabel(bets[j].match))
                             }
-                            data.push(palpites[j].classificacao!)
+                            data.push(bets[j].classificacao!)
                         }
                     }
                     colorIndex++
@@ -331,8 +325,8 @@ const dashboard = () => {
                     <div />
                     <If test={user !== undefined && user.ativo === true}>
                         <div>
-                            <h3 className='mb-1 card-title'>Classificação: { user !== undefined && user.palpites !== undefined && user.classificacao !== undefined ? user.classificacao : '0' }</h3>
-                            <h5 className='text-muted'>Total pontos: { user !== undefined && user.palpites !== undefined && user.totalAcumulado !== undefined ? user.totalAcumulado : '0' }</h5>
+                            <h3 className='mb-1 card-title'>Classificação: { user !== undefined && user.bets !== undefined && user.classificacao !== undefined ? user.classificacao : '0' }</h3>
+                            <h5 className='text-muted'>Total pontos: { user !== undefined && user.bets !== undefined && user.totalAcumulado !== undefined ? user.totalAcumulado : '0' }</h5>
                         </div>
                     </If>
                     <If test={user !== undefined && user.ativo === false}>
@@ -359,7 +353,7 @@ const dashboard = () => {
                                     <div className='small text-muted'>Histórico de classificação por partida</div>
                                 </div>
                                 <div className='chart-wrapper'>
-                                    <Line data={montarGraficoClassificacoes(user.palpites!)} options={chartLineOpts(false)} height={150} redraw={true} />
+                                    <Line data={montarGraficoClassificacoes(user.bets!)} options={chartLineOpts(false)} height={150} redraw={true} />
                                 </div>
                             </CardBody>
                         </Card>
@@ -372,7 +366,7 @@ const dashboard = () => {
                                     <div className='small text-muted'>Pontuações obtidas por partida</div>
                                 </div>
                                 <div className='chart-wrapper'>
-                                    <Bar data={montarGraficoPontuacoes(user.palpites!)} options={chartBarOpts} height={150} redraw={true} />
+                                    <Bar data={montarGraficoPontuacoes(user.bets!)} options={chartBarOpts} height={150} redraw={true} />
                                 </div>
                             </CardBody>
                         </Card>
@@ -400,7 +394,7 @@ const dashboard = () => {
                                     <div className='small text-muted'>Total de pontuações por tipo</div>
                                 </div>
                                 <div className='chart-wrapper'>
-                                    <Pie data={montarGraficoPontuacoesPorTipo(user.palpites!)} options={{ maintainAspectRatio: false, responsive: true }} height={150} redraw={true} />
+                                    <Pie data={montarGraficoPontuacoesPorTipo(user.bets!)} options={{ maintainAspectRatio: false, responsive: true }} height={150} redraw={true} />
                                 </div>
                             </CardBody>
                         </Card>

@@ -7,6 +7,7 @@ import { Line } from 'react-chartjs-2'
 import If from '../../app/components/if';
 import { selectAuthUser } from '../../app/auth/authSlice';
 import { getConfigsAsync, selectAtualizandoPontuacoes } from '../../app/config/configSlice';
+import { matchHasResult, sortMatchesByDate, teamLabel } from '../../lib/domain';
 import { getPartidasAsync, selectPartidas } from '../partida/partidaSlice';
 import { getUsersAsync, select, selectUser, selectUsers, UserType } from '../user/userSlice';
 
@@ -79,13 +80,8 @@ const disputa = () => {
     }
 
     const encontrarUltimaPartida = (): number => {
-		let ultimaPartida = 0
-		partidas.forEach(partida => {
-			if (partida.placarTimeA !== undefined && partida.placarTimeA >= 0 && partida.placarTimeB !== undefined && partida.placarTimeB >= 0) {
-				ultimaPartida = partida.order!
-			}
-		});
-		return ultimaPartida
+		const comResultado = sortMatchesByDate(partidas.filter(matchHasResult))
+		return comResultado.length > 0 ? comResultado[comResultado.length - 1].id : 0
 	}
 
     const ordenarUsuarios = (users: UserType[]) => {
@@ -134,14 +130,18 @@ const disputa = () => {
 					pointHoverBorderWidth: 2,
 					pointRadius: 2,
 				})
-				if (user.palpites) {
-					let palpites = user.palpites.filter(palpite => palpite.partida!.order! <= ultimaPartida)
-					palpites = palpites.slice(Math.max(palpites.length - 10, 0))
-					for (let j = 0; j < palpites.length; j++) {
+				if (user.bets) {
+					let bets = user.bets
+						.filter((bet) => bet.match?.id !== undefined && bet.match.id <= ultimaPartida)
+						.sort((a, b) => (a.match?.utcDate && b.match?.utcDate ? new Date(a.match.utcDate).getTime() - new Date(b.match.utcDate).getTime() : 0))
+					bets = bets.slice(Math.max(bets.length - 10, 0))
+					for (let j = 0; j < bets.length; j++) {
 						if (i === 0) {
-							chartClassificacaoData.labels.push(`${palpites[j].partida!.timeA!.sigla} x ${palpites[j].partida!.timeB!.sigla}`)
+							chartClassificacaoData.labels.push(
+								`${teamLabel(bets[j].match?.homeTeam)} x ${teamLabel(bets[j].match?.awayTeam)}`,
+							)
 						}
-						data.push(palpites[j].classificacao!)
+						data.push(bets[j].classificacao!)
 					}
 				}
 			}
@@ -167,7 +167,7 @@ const disputa = () => {
                         </div>
                     </CardHeader>
                     <CardBody style={{ padding: '0px' }}>
-                        <If test={user !== undefined && user.palpites !== undefined}>
+                        <If test={user !== undefined && user.bets !== undefined}>
                             <>
                                 <Row>
                                     <div className='col-sx-12 col-sm-12 col-md-12 col-lg-12 col-xl-12'>

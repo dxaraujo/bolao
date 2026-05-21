@@ -26,7 +26,7 @@ export type UserType = {
 	classificacaoAnterior?: number,
 	isAdmin?: boolean,
 	ativo?: boolean,
-  palpites?: PalpiteType[]
+  bets?: PalpiteType[]
 };
 
 export interface UserState {

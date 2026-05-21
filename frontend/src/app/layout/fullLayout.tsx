@@ -14,6 +14,7 @@ import { ToastContainer } from 'react-toastify'
 import { useAppSelector, useAppDispatch } from '../hooks'
 import { UserType } from '../../features/user/userSlice'
 import { getAuthUserAsync, selectAuthUser } from '../auth/authSlice'
+import { phaseIsVisibleInNav } from '../../lib/domain'
 import { FaseType, getFasesAsync, selectFases } from '../../features/fase/faseSlice'
 import { selectLoading } from '../../features/loading/loadingSlice'
 import Loading from '../../features/loading/loading'
@@ -50,11 +51,11 @@ const proccessNavigation = (
 	navv.items.push(...navigationsPalpites)
 	if (fases) {
 		;[...fases]
-			.sort((a, b) => a.ordem - b.ordem)
+			.sort((a, b) => a.name.localeCompare(b.name))
 			.forEach((fase) => {
-				if (fase.status === 'A' || fase.status === 'B') {
+				if (phaseIsVisibleInNav(fase.status)) {
 					newNavPalpites.push({
-						name: `${fase.nome}`,
+						name: fase.name,
 						url: `/palpite/${fase._id}`,
 						icon: 'fas fa-futbol',
 					})

@@ -39,7 +39,7 @@ const UserForm = () => {
 
 	const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
 		event.preventDefault()
-		const name = event.target.name
+		const name = event.target.name as 'isAdmin' | 'ativo'
 		const value = Number(event.target.value) === 1
 		dispatch(handle({ name, value }))
 	}

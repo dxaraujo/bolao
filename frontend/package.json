@@ -10,6 +10,7 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"@bolao/shared": "workspace:*",
 		"@coreui/coreui": "^2.0.2",
 		"@coreui/react": "^2.0.1",
 		"@fortawesome/fontawesome-free": "^6.7.1",

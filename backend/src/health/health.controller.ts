@@ -6,6 +6,7 @@ import { Public } from '../common/public.decorator'
 @ApiTags('health')
 @Controller('healthcheck')
 export class HealthController {
+
 	@Public()
 	@Get()
 	@ApiOkResponse({

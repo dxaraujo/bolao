@@ -1,20 +1,22 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { PhaseStatus } from '@bolao/shared'
 import { Card, CardHeader, CardBody, Table, ButtonGroup, Button } from 'reactstrap'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
-import { addHours, format } from 'date-fns'
+import { format } from 'date-fns'
 
 import If from '../../app/components/if'
 import { rootUser } from '../../app/config/config'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
+import { sortMatchesByDate, teamLabel } from '../../lib/domain'
 import {
 	getPartidasAsync,
 	deletePartidaAsync,
 	selectPartidas,
 	select,
 	create,
-	PartidaType,
+	MatchType,
 } from './partidaSlice'
 import { selectAuthUser } from '../../app/auth/authSlice'
 import { selectFases } from '../fase/faseSlice'
@@ -35,12 +37,12 @@ const PartidaList = () => {
 		navigate('/partida/create')
 	}
 
-	const update = (user: PartidaType) => {
-		dispatch(select(user))
+	const update = (partida: MatchType) => {
+		dispatch(select(partida))
 		navigate('/partida/update')
 	}
 
-	const prepareDelete = (partida: PartidaType) => {
+	const prepareDelete = (partida: MatchType) => {
 		Swal.fire({
 			title: 'Você tem certeza?',
 			text: 'Depois de deletado, você não poderá recupear os dados!',
@@ -52,7 +54,7 @@ const PartidaList = () => {
 				dispatch(
 					deletePartidaAsync({
 						partida,
-						callback: () => toast.success('Usuário apagado com sucesso!'),
+						callback: () => toast.success('Partida apagada com sucesso!'),
 					}),
 				)
 			} else {
@@ -61,9 +63,9 @@ const PartidaList = () => {
 		})
 	}
 
-	const desabilitado = (nomeFase: string | undefined) => {
-		const fase = fases.find((f) => f.nome === nomeFase) || { status: 'D' }
-		return fase.status === 'D'
+	const desabilitado = (stage: string | undefined) => {
+		const fase = fases.find((f) => f.stage === stage) || { status: PhaseStatus.DISABLED }
+		return fase.status === PhaseStatus.DISABLED
 	}
 
 	return (
@@ -89,18 +91,18 @@ const PartidaList = () => {
 					</thead>
 					<tbody>
 						{partidas &&
-							partidas.map((partida, idx) => (
-								<tr key={idx} className='gridPartidas'>
-									<td className='text-center'>{partida.order}</td>
-									<td>{partida.timeA ? partida.timeA.nome : ''}</td>
-									<td>{partida.timeB ? partida.timeB.nome : ''}</td>
+							sortMatchesByDate(partidas).map((partida, idx) => (
+								<tr key={partida._id ?? idx} className='gridPartidas'>
+									<td className='text-center'>{partida.id}</td>
+									<td>{teamLabel(partida.homeTeam)}</td>
+									<td>{teamLabel(partida.awayTeam)}</td>
 									<th>
-										{partida.data
-											? format(addHours(new Date(partida.data), 3), 'dd/MM/yyyy HH:mm:ss')
+										{partida.utcDate
+											? format(new Date(partida.utcDate), 'dd/MM/yyyy HH:mm:ss')
 											: ''}
 									</th>
 									<td className='text-center'>
-										<If test={desabilitado(partida.fase)}>
+										<If test={desabilitado(partida.stage)}>
 											<ButtonGroup>
 												<Button
 													className='text-white'

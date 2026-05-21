@@ -47,7 +47,8 @@ const TimeForm = () => {
 	const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
 		event.preventDefault()
 		const { name, value } = event.target
-		dispatch(handle({ name, value }))
+		const parsed = name === 'id' ? (value === '' ? undefined : Number(value)) : value
+		dispatch(handle({ name: name as 'id' | 'name' | 'shortName' | 'tla' | 'crest', value: parsed }))
 	}
 
 	const back = () => {
@@ -62,15 +63,33 @@ const TimeForm = () => {
 				<Form className='form-horizontal' onSubmit={handleSubmit}>
 					<FormGroup row>
 						<Col xs='12' md='2'>
+							<Label>ID (Football Data)</Label>
+						</Col>
+						<Col xs='12' md='10'>
+							<InputGroup className='input-prepend'>
+								<InputGroupText>@</InputGroupText>
+								<Input
+									name='id'
+									type='number'
+									value={time?.id ?? ''}
+									onChange={handleChange}
+									placeholder='Ex: 758'
+									disabled={!!time?._id}
+								/>
+							</InputGroup>
+						</Col>
+					</FormGroup>
+					<FormGroup row>
+						<Col xs='12' md='2'>
 							<Label>Nome</Label>
 						</Col>
 						<Col xs='12' md='10'>
 							<InputGroup className='input-prepend'>
 								<InputGroupText>@</InputGroupText>
 								<Input
-									name='nome'
+									name='name'
 									type='text'
-									value={time ? time.nome : ''}
+									value={time?.name ?? ''}
 									onChange={handleChange}
 									placeholder='Nome do Time, Ex: Brasil'
 								/>
@@ -79,15 +98,32 @@ const TimeForm = () => {
 					</FormGroup>
 					<FormGroup row>
 						<Col xs='12' md='2'>
-							<Label>Sigla</Label>
+							<Label>Nome curto</Label>
 						</Col>
 						<Col xs='12' md='10'>
 							<InputGroup className='input-prepend'>
 								<InputGroupText>@</InputGroupText>
 								<Input
-									name='sigla'
+									name='shortName'
 									type='text'
-									value={time ? time.sigla : ''}
+									value={time?.shortName ?? ''}
+									onChange={handleChange}
+									placeholder='Ex: Brazil'
+								/>
+							</InputGroup>
+						</Col>
+					</FormGroup>
+					<FormGroup row>
+						<Col xs='12' md='2'>
+							<Label>Sigla (TLA)</Label>
+						</Col>
+						<Col xs='12' md='10'>
+							<InputGroup className='input-prepend'>
+								<InputGroupText>@</InputGroupText>
+								<Input
+									name='tla'
+									type='text'
+									value={time?.tla ?? ''}
 									onChange={handleChange}
 									placeholder='Sigla do Time. Ex: BRA'
 								/>
@@ -96,17 +132,17 @@ const TimeForm = () => {
 					</FormGroup>
 					<FormGroup row>
 						<Col xs='12' md='2'>
-							<Label>Bandeira</Label>
+							<Label>Escudo (URL)</Label>
 						</Col>
 						<Col xs='12' md='10'>
 							<InputGroup className='input-prepend'>
 								<InputGroupText>@</InputGroupText>
 								<Input
-									name='bandeira'
+									name='crest'
 									type='text'
-									value={time ? time.bandeira : ''}
+									value={time?.crest ?? ''}
 									onChange={handleChange}
-									placeholder='Bandeira do time, Ex: br'
+									placeholder='URL do escudo'
 								/>
 							</InputGroup>
 						</Col>

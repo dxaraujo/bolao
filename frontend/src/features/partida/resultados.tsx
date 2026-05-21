@@ -1,68 +1,62 @@
-import { useEffect } from 'react';
-import { addHours, format } from 'date-fns';
-import { useAppSelector, useAppDispatch } from '../../app/hooks';
-import { Card, CardHeader, CardBody, Table } from 'reactstrap'
+import { useEffect } from 'react'
+import { format } from 'date-fns'
+import { Card, CardHeader, CardBody } from 'reactstrap'
 
+import TeamCrest from '../../app/components/TeamCrest'
+import { sortMatchesByDate, teamLabel } from '../../lib/domain'
+import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { getResultadosAsync, selectPartidas } from './partidaSlice'
 
-const resultado = () => {
+const Resultados = () => {
+	const dispatch = useAppDispatch()
+	const partidas = useAppSelector(selectPartidas)
 
-    const dispatch = useAppDispatch()
-    const partidas = useAppSelector(selectPartidas)
+	useEffect(() => {
+		dispatch(getResultadosAsync())
+	}, [dispatch])
 
-    useEffect(() => {
-        dispatch(getResultadosAsync())
-    }, [])
-
-    let resultadoIndex = partidas && partidas.length
-    return (
-        <Card>
-            <CardHeader>Resultados das Partidas</CardHeader>
-            <CardBody style={{ padding: '0px' }}>
-                <Table responsive striped borderless>
-                    <thead>
-                        <tr className='gridResultadosView'>
-                            <th className='text-center'>#</th>
-                            <th className='text-center'>Partida</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {partidas && [...partidas].sort((partidaA, partidaB) => partidaB.order! - partidaA.order!).map(partida => (
-                            <tr key={partida._id} className='gridResultadosView'>
-                                <td className='text-center'>{resultadoIndex--}</td>
-                                <td className='text-center'>
-                                    <div className='rodada'>
-                                        <div className='nomeTimeA'>
-                                            <span className='h6 nomeTimeA'>{partida.timeA ? partida.timeA.sigla : ''}</span>
-                                        </div>
-                                        <div className='bandeiraTimeA'>
-                                            <i className={`bandeiraTimeA flag-icon flag-icon-${partida.timeA ? partida.timeA.bandeira : 'xx'}`} />
-                                        </div>
-                                        <div className='palpiteTimeA'>
-                                            {partida.placarTimeA}
-                                        </div>
-                                        <div className='divisorPalpite'>x</div>
-                                        <div className='palpiteTimeB'>
-                                            {partida.placarTimeB}
-                                        </div>
-                                        <div className='bandeiraTimeB'>
-                                            <i className={`bandeiraTimeB flag-icon flag-icon-${partida.timeB ? partida.timeB.bandeira : 'xx'}`} />
-                                        </div>
-                                        <div className='nomeTimeB'>
-                                            <span className='h6 nomeTimeB'>{partida.timeB ? partida.timeB.sigla : ''}</span>
-                                        </div>
-                                        <div className='horaPartida'>
-                                            <span className='horaPartida text-secundary'>{partida.data ? format(addHours(new Date(partida.data), 3), 'dd/MM/yyyy HH:mm:ss') : ''}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </Table>
-            </CardBody>
-        </Card>
-    )
+	return (
+		<Card>
+			<CardHeader>Resultados</CardHeader>
+			<CardBody style={{ padding: '0px' }}>
+				<table className='table table-striped table-borderless'>
+					<tbody>
+						{partidas &&
+							sortMatchesByDate(partidas).map((partida) => (
+								<tr key={partida._id} className='gridResultadosView'>
+									<td className='text-center'>
+										<div className='rodada'>
+											<div className='nomeTimeA'>
+												<span className='h6 nomeTimeA'>{teamLabel(partida.homeTeam)}</span>
+											</div>
+											<div className='bandeiraTimeA'>
+												<TeamCrest team={partida.homeTeam} className='bandeiraTimeA' />
+											</div>
+											<div className='palpiteTimeA'>{partida.homeTeamScore}</div>
+											<div className='divisorPalpite'>x</div>
+											<div className='palpiteTimeB'>{partida.awayTeamScore}</div>
+											<div className='bandeiraTimeB'>
+												<TeamCrest team={partida.awayTeam} className='bandeiraTimeB' />
+											</div>
+											<div className='nomeTimeB'>
+												<span className='h6 nomeTimeB'>{teamLabel(partida.awayTeam)}</span>
+											</div>
+											<div className='horaPartida'>
+												<span className='horaPartida text-secundary'>
+													{partida.utcDate
+														? format(new Date(partida.utcDate), 'dd/MM/yyyy HH:mm:ss')
+														: ''}
+												</span>
+											</div>
+										</div>
+									</td>
+								</tr>
+							))}
+					</tbody>
+				</table>
+			</CardBody>
+		</Card>
+	)
 }
 
-export default resultado
+export default Resultados

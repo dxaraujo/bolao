@@ -1,4 +1,5 @@
 import { ChangeEvent, FormEvent, useEffect } from 'react'
+import { MatchStage, MatchStatus } from '@bolao/shared'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import {
@@ -16,11 +17,11 @@ import {
 	Label,
 } from 'reactstrap'
 import MaskedInput from 'react-maskedinput'
-import { addHours, format, parse } from 'date-fns'
+import { format, parse } from 'date-fns'
 
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
 import { rootUser } from '../../app/config/config'
-import { selectPartida, updatePartidaAsync, handle, reset } from './partidaSlice'
+import { selectPartida, updatePartidaAsync, handle, reset, HandleChangeType } from './partidaSlice'
 import { selectAuthUser } from '../../app/auth/authSlice'
 import { getTimesAsync, selectTimes } from '../time/timeSlice'
 
@@ -41,20 +42,23 @@ const PartidaForm = () => {
 		dispatch(
 			updatePartidaAsync({
 				partida,
-				callback: () => toast.success('Usuário atualizado com sucesso'),
+				callback: () => toast.success('Partida atualizada com sucesso'),
 			}),
 		)
 	}
 
 	const handleChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
 		event.preventDefault()
-		const name = event.target.name
+		const name = event.target.name as HandleChangeType['name']
 		let value: unknown = event.target.value
-		if (name === 'timeA' || name === 'timeB') {
-			value = times?.find((time) => time.nome === value)
+		if (name === 'homeTeam' || name === 'awayTeam') {
+			value = times?.find((time) => time.name === value)
 		}
-		if (name === 'data') {
+		if (name === 'utcDate') {
 			value = parse(value as string, 'dd/MM/yyyy HH:mm:ss', new Date())
+		}
+		if (name === 'id' || name === 'matchday' || name === 'homeTeamScore' || name === 'awayTeamScore') {
+			value = value === '' ? undefined : Number(value)
 		}
 		dispatch(handle({ name, value }))
 	}
@@ -64,6 +68,8 @@ const PartidaForm = () => {
 		navigate(-1)
 	}
 
+	const disabled = rootUser !== authUser?.email
+
 	return (
 		<Card>
 			<CardHeader>Cadastro de Partidas</CardHeader>
@@ -71,47 +77,45 @@ const PartidaForm = () => {
 				<Form className='form-horizontal' onSubmit={handleSubmit}>
 					<FormGroup row>
 						<Col xs='12' md='2'>
-							<Label>Ordem</Label>
+							<Label>ID (Football Data)</Label>
 						</Col>
 						<Col xs='12' md='10'>
-							<InputGroup className='input-prepend'>
-								<InputGroupText>@</InputGroupText>
-								<Input
-									id='order'
-									name='order'
-									type='text'
-									className='form-control'
-									value={(partida && partida.order) || ''}
-									onChange={handleChange}
-									disabled={rootUser !== authUser?.email}
-								/>
-							</InputGroup>
+							<Input
+								id='id'
+								name='id'
+								type='number'
+								value={partida?.id ?? ''}
+								onChange={handleChange}
+								disabled={disabled}
+							/>
 						</Col>
 					</FormGroup>
 					<FormGroup row>
 						<Col xs='12' md='2'>
-							<Label>Fase</Label>
+							<Label>Stage</Label>
 						</Col>
 						<Col xs='12' md='10'>
-							<InputGroup className='input-prepend'>
-								<InputGroupText>@</InputGroupText>
-								<Input
-									id='fase'
-									name='fase'
-									type='select'
-									value={(partida && partida.fase) || ''}
-									onChange={handleChange}
-									disabled={rootUser !== authUser?.email}
-								>
-									<option value=''>Selecione uma Fase</option>
-									<option value='FASE DE GRUPOS'>FASE DE GRUPOS</option>
-									<option value='OITAVAS DE FINAL'>OITAVAS DE FINAL</option>
-									<option value='QUARTAS DE FINAL'>QUARTAS DE FINAL</option>
-									<option value='SEMIFINAL'>SEMIFINAL</option>
-									<option value='DISPUTA DO 3º LUGAR'>DISPUTA DO 3º LUGAR</option>
-									<option value='FINAL'>FINAL</option>
-								</Input>
-							</InputGroup>
+							<Input id='stage' name='stage' type='select' value={partida?.stage ?? ''} onChange={handleChange} disabled={disabled}>
+								{Object.values(MatchStage).map((stage) => (
+									<option key={stage} value={stage}>
+										{stage}
+									</option>
+								))}
+							</Input>
+						</Col>
+					</FormGroup>
+					<FormGroup row>
+						<Col xs='12' md='2'>
+							<Label>Status</Label>
+						</Col>
+						<Col xs='12' md='10'>
+							<Input id='status' name='status' type='select' value={partida?.status ?? ''} onChange={handleChange} disabled={disabled}>
+								{Object.values(MatchStatus).map((status) => (
+									<option key={status} value={status}>
+										{status}
+									</option>
+								))}
+							</Input>
 						</Col>
 					</FormGroup>
 					<FormGroup row>
@@ -119,28 +123,7 @@ const PartidaForm = () => {
 							<Label>Grupo</Label>
 						</Col>
 						<Col xs='12' md='10'>
-							<InputGroup className='input-prepend'>
-								<InputGroupText>@</InputGroupText>
-								<Input
-									id='grupo'
-									name='grupo'
-									type='select'
-									value={(partida && partida.grupo) || ''}
-									onChange={handleChange}
-									disabled={rootUser !== authUser?.email}
-								>
-									<option value=''>Selecione um Grupo</option>
-									<option value='SEM GRUPO'>SEM GRUPO</option>
-									<option value='GRUPO A'>GRUPO A</option>
-									<option value='GRUPO B'>GRUPO B</option>
-									<option value='GRUPO C'>GRUPO C</option>
-									<option value='GRUPO D'>GRUPO D</option>
-									<option value='GRUPO E'>GRUPO E</option>
-									<option value='GRUPO F'>GRUPO F</option>
-									<option value='GRUPO G'>GRUPO G</option>
-									<option value='GRUPO H'>GRUPO H</option>
-								</Input>
-							</InputGroup>
+							<Input id='group' name='group' type='text' value={partida?.group ?? ''} onChange={handleChange} disabled={disabled} />
 						</Col>
 					</FormGroup>
 					<FormGroup row>
@@ -148,45 +131,36 @@ const PartidaForm = () => {
 							<Label>Rodada</Label>
 						</Col>
 						<Col xs='12' md='10'>
-							<InputGroup className='input-prepend'>
-								<InputGroupText>@</InputGroupText>
-								<Input
-									id='rodada'
-									name='rodada'
-									type='select'
-									value={(partida && partida.rodada) || ''}
-									onChange={handleChange}
-									disabled={rootUser !== authUser?.email}
-								>
-									<option value=''>Selecione uma Rodada</option>
-									<option value='SEM RODADA'>SEM RODADA</option>
-									<option value='1ª RODADA'>1ª RODADA</option>
-									<option value='2ª RODADA'>2ª RODADA</option>
-									<option value='3ª RODADA'>3ª RODADA</option>
-								</Input>
-							</InputGroup>
+							<Input
+								id='matchday'
+								name='matchday'
+								type='number'
+								value={partida?.matchday ?? ''}
+								onChange={handleChange}
+								disabled={disabled}
+							/>
 						</Col>
 					</FormGroup>
 					<FormGroup row>
 						<Col xs='12' md='2'>
-							<Label>Data</Label>
+							<Label>Data (UTC)</Label>
 						</Col>
 						<Col xs='12' md='10'>
 							<InputGroup className='input-prepend'>
 								<InputGroupText>@</InputGroupText>
 								<MaskedInput
 									mask='11/11/1111 11:11:11'
-									id='data'
-									name='data'
+									id='utcDate'
+									name='utcDate'
 									type='text'
 									className='form-control'
 									value={
-										partida && partida.data
-											? format(addHours(new Date(partida.data), 3), 'dd/MM/yyyy HH:mm:ss')
+										partida?.utcDate
+											? format(new Date(partida.utcDate), 'dd/MM/yyyy HH:mm:ss')
 											: ''
 									}
 									onChange={handleChange}
-									disabled={rootUser !== authUser?.email}
+									disabled={disabled}
 								/>
 							</InputGroup>
 						</Col>
@@ -196,24 +170,20 @@ const PartidaForm = () => {
 							<Label>Time A</Label>
 						</Col>
 						<Col xs='12' md='10'>
-							<InputGroup className='input-prepend'>
-								<InputGroupText>@</InputGroupText>
-								<Input
-									id='timeA'
-									name='timeA'
-									type='select'
-									value={(partida && partida.timeA && partida.timeA.nome) || ''}
-									onChange={handleChange}
-								>
-									<option value=''>Selecione um Time</option>
-									{times &&
-										times.map((time, idx) => (
-											<option key={idx} value={time.nome}>
-												{time.nome}
-											</option>
-										))}
-								</Input>
-							</InputGroup>
+							<Input
+								id='homeTeam'
+								name='homeTeam'
+								type='select'
+								value={partida?.homeTeam?.name ?? ''}
+								onChange={handleChange}
+							>
+								<option value=''>Selecione um Time</option>
+								{times?.map((time, idx) => (
+									<option key={idx} value={time.name}>
+										{time.name}
+									</option>
+								))}
+							</Input>
 						</Col>
 					</FormGroup>
 					<FormGroup row>
@@ -221,24 +191,20 @@ const PartidaForm = () => {
 							<Label>Time B</Label>
 						</Col>
 						<Col xs='12' md='10'>
-							<InputGroup className='input-prepend'>
-								<InputGroupText>@</InputGroupText>
-								<Input
-									id='timeB'
-									name='timeB'
-									type='select'
-									value={(partida && partida.timeB && partida.timeB.nome) || ''}
-									onChange={handleChange}
-								>
-									<option value=''>Selecione um Time</option>
-									{times &&
-										times.map((time, idx) => (
-											<option key={idx} value={time.nome}>
-												{time.nome}
-											</option>
-										))}
-								</Input>
-							</InputGroup>
+							<Input
+								id='awayTeam'
+								name='awayTeam'
+								type='select'
+								value={partida?.awayTeam?.name ?? ''}
+								onChange={handleChange}
+							>
+								<option value=''>Selecione um Time</option>
+								{times?.map((time, idx) => (
+									<option key={idx} value={time.name}>
+										{time.name}
+									</option>
+								))}
+							</Input>
 						</Col>
 					</FormGroup>
 				</Form>

@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '../../app/hooks';
 import { Card, CardHeader, CardBody, Table, Alert } from 'reactstrap'
 
+import { sortMatchesByDate } from '../../lib/domain'
 import ResultadoForm from './resultadoForm'
 import { getResultadosAsync, selectPartidas } from './partidaSlice'
 import { getConfigsAsync, selectAtualizandoPontuacoes } from '../../app/config/configSlice';
@@ -33,7 +34,7 @@ const resultado = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {partidas && [...partidas].sort((partidaA, partidaB) => partidaB.order! - partidaA.order!).map(partida => (
+                            {partidas && sortMatchesByDate([...partidas]).reverse().map(partida => (
                                 <ResultadoForm key={partida._id} index={--resultadoIndex} partida={partida} atualizandoPontuacoes={atualizandoPontuacoes} />
                             ))}
                         </tbody>

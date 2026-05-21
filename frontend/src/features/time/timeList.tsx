@@ -5,16 +5,10 @@ import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 
 import If from '../../app/components/if'
+import TeamCrest from '../../app/components/TeamCrest'
 import { rootUser } from '../../app/config/config'
 import { useAppDispatch, useAppSelector } from '../../app/hooks'
-import {
-	TimeType,
-	selectTimes,
-	select,
-	create,
-	getTimesAsync,
-	deleteTimeAsync,
-} from './timeSlice'
+import { TeamType, selectTimes, select, create, getTimesAsync, deleteTimeAsync } from './timeSlice'
 import { selectAuthUser } from '../../app/auth/authSlice'
 
 const TimeList = () => {
@@ -32,12 +26,12 @@ const TimeList = () => {
 		navigate('/time/create')
 	}
 
-	const update = (time: TimeType) => {
+	const update = (time: TeamType) => {
 		dispatch(select(time))
 		navigate('/time/update')
 	}
 
-	const prepareDelete = (time: TimeType) => {
+	const prepareDelete = (time: TeamType) => {
 		Swal.fire({
 			title: 'Você tem certeza?',
 			text: 'Depois de deletado, você não poderá recupear os dados!',
@@ -86,15 +80,12 @@ const TimeList = () => {
 					<tbody>
 						{times &&
 							times.map((time, idx) => (
-								<tr key={idx} className='gridTime'>
+								<tr key={time._id ?? idx} className='gridTime'>
 									<td className='text-center'>{idx + 1}</td>
-									<td>{time.nome}</td>
-									<td className='text-center'>{time.sigla}</td>
+									<td>{time.name}</td>
+									<td className='text-center'>{time.tla}</td>
 									<td className='text-center'>
-										<i
-											className={`flag-icon flag-icon-${time.bandeira} h4`}
-											style={{ margin: '0px' }}
-										></i>
+										<TeamCrest team={time} height={24} />
 									</td>
 									<td className='text-center'>
 										<ButtonGroup>

@@ -1,9 +1,12 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger'
 
+import { Public } from '../common/public.decorator'
+
 @ApiTags('health')
 @Controller('healthcheck')
 export class HealthController {
+	@Public()
 	@Get()
 	@ApiOkResponse({
 		description: 'Status do servidor',

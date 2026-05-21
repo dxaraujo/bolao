@@ -10,9 +10,10 @@ import {
 	Put,
 	Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiOperation, ApiTags } from '@nestjs/swagger'
 
 import { Public } from 'src/common/public.decorator'
+import { ApiProtectedInDocs } from 'src/common/swagger-auth.decorator'
 import { CreateMatchDto } from './dto/create-match.dto'
 import { UpdateMatchDto } from './dto/update-match.dto'
 import { UpdateScoreDto } from './dto/update-score.dto'
@@ -38,14 +39,14 @@ export class MatchController {
 	}
 
 	@Get()
-	@ApiBearerAuth('access-token')
+	@ApiProtectedInDocs()
 	async list(@Query() query: Record<string, unknown>) {
 		const data = await this.service.findAll(query)
 		return { data }
 	}
 
 	@Get('resultado')
-	@ApiBearerAuth('access-token')
+	@ApiProtectedInDocs()
 	@ApiOperation({ summary: 'Partidas já encerradas (com placar definido)' })
 	async listResultados() {
 		const data = await this.service.findResultados()
@@ -53,7 +54,7 @@ export class MatchController {
 	}
 
 	@Get(':id')
-	@ApiBearerAuth('access-token')
+	@ApiProtectedInDocs()
 	async getById(@Param('id') id: string) {
 		const data = await this.service.findById(id)
 		return { data }
@@ -61,14 +62,14 @@ export class MatchController {
 
 	@Post()
 	@HttpCode(HttpStatus.CREATED)
-	@ApiBearerAuth('access-token')
+	@ApiProtectedInDocs()
 	async create(@Body() body: CreateMatchDto) {
 		const data = await this.service.create(body)
 		return { data }
 	}
 
 	@Put(':id/updateResultado')
-	@ApiBearerAuth('access-token')
+	@ApiProtectedInDocs()
 	@ApiOperation({ summary: 'Atualiza o placar de uma partida e dispara recálculo de pontuação dos palpites' })
 	async updateResultado(@Param('id') id: string, @Body() body: UpdateScoreDto) {
 		const data = await this.resultService.atualizarResults(id, body)
@@ -76,14 +77,14 @@ export class MatchController {
 	}
 
 	@Put(':id')
-	@ApiBearerAuth('access-token')
+	@ApiProtectedInDocs()
 	async update(@Param('id') id: string, @Body() body: UpdateMatchDto) {
 		const data = await this.service.update(id, body)
 		return { data }
 	}
 
 	@Delete(':id')
-	@ApiBearerAuth('access-token')
+	@ApiProtectedInDocs()
 	async remove(@Param('id') id: string) {
 		const data = await this.service.remove(id)
 		return { data }

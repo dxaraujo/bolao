@@ -6,6 +6,7 @@ import helmet from 'helmet'
 
 import { AppModule } from './app.module'
 import { AllExceptionsFilter } from './common/all-exceptions.filter'
+import { SWAGGER_BEARER_AUTH } from './common/swagger-auth.decorator'
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule)
@@ -34,7 +35,7 @@ async function bootstrap() {
 			.setVersion('1.0')
 			.addBearerAuth(
 				{ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-				'access-token',
+				SWAGGER_BEARER_AUTH,
 			)
 			.build()
 		const document = SwaggerModule.createDocument(app, swaggerConfig)

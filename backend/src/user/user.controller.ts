@@ -8,15 +8,16 @@ import {
 	Put,
 	Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { ApiTags } from '@nestjs/swagger'
 
 import { CurrentUser } from '../common/current-user.decorator'
+import { ApiProtectedInDocs } from '../common/swagger-auth.decorator'
 import type { JwtPayload } from '../auth/jwt.strategy'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserService } from './user.service'
 
 @ApiTags('user')
-@ApiBearerAuth('access-token')
+@ApiProtectedInDocs()
 @Controller('api/user')
 export class UserController {
 	constructor(private readonly userService: UserService) {}

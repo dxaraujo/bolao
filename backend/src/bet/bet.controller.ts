@@ -11,15 +11,16 @@ import {
 	Put,
 	Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 
+import { ApiProtectedInDocs } from '../common/swagger-auth.decorator'
 import { CreateBetDto } from './dto/create-bet.dto'
 import { UpdateBetDto } from './dto/update-bet.dto'
 import { BetUpdateItemDto } from './dto/update-bets.dto'
 import { BetService } from './bet.service'
 
 @ApiTags('bet')
-@ApiBearerAuth('access-token')
+@ApiProtectedInDocs()
 @Controller('api/bet')
 export class BetController {
 	constructor(private readonly service: BetService) {}

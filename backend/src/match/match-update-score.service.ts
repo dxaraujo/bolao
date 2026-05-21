@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
+import { nowtoLocalISOString } from '@bolao/shared'
 import { MatchService } from './match.service'
 import { ResultService } from './result.service'
 
@@ -28,7 +29,7 @@ export class MatchUpdateScoreService {
 
 	async updateScores() {
 
-		this.logger.log(`Update scores started at: ${new Date().toISOString()}`)
+		this.logger.log(`Update scores started at: ${nowtoLocalISOString()}`)
 
 		try {
 
@@ -80,7 +81,7 @@ export class MatchUpdateScoreService {
 				this.logger.log(`Updated match ${finishedMatch.id}: ${homeTeamScore} x ${awayTeamScore}`)
 			}
 
-			this.logger.log(`Finished updating scores at: ${new Date().toISOString()}`)
+			this.logger.log(`Finished updating scores at: ${nowtoLocalISOString()}`)
 
 		} catch (err) {
 			this.logger.error('Error updating scores', err)

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
+import { nowtoLocalISOString } from '@bolao/shared'
 import { TeamService } from '../team/team.service'
 import { Match } from './schemas/match.schema'
 
@@ -36,7 +37,7 @@ export class MatchImportService {
 
 	async importMatches() {
 
-		this.logger.log(`Import matches started at: ${new Date().toISOString()}`)
+		this.logger.log(`Import matches started at: ${nowtoLocalISOString()}`)
 
 		try {
 
@@ -98,7 +99,7 @@ export class MatchImportService {
 				this.logger.log(`Updated match ${externalMatch.id}: ${homeTeam?.tla ?? '-'} x ${awayTeam?.tla ?? '-'}`)
 			}
 
-			this.logger.log(`Finished importing matches at: ${new Date().toISOString()}`)
+			this.logger.log(`Finished importing matches at: ${nowtoLocalISOString()}`)
 
 		} catch (err) {
 

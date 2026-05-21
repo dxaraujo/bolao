@@ -10,14 +10,15 @@ import {
 	Put,
 	Query,
 } from '@nestjs/common'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { ApiTags } from '@nestjs/swagger'
 
+import { ApiProtectedInDocs } from '../common/swagger-auth.decorator'
 import { CreatePhaseDto } from './dto/create-phase.dto'
 import { UpdatePhaseDto } from './dto/update-phase.dto'
 import { PhaseService } from './phase.service'
 
 @ApiTags('phase')
-@ApiBearerAuth('access-token')
+@ApiProtectedInDocs()
 @Controller('api/phase')
 export class PhaseController {
 	constructor(private readonly service: PhaseService) {}

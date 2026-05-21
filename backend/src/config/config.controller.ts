@@ -1,10 +1,11 @@
 import { Controller, Get } from '@nestjs/common'
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger'
+import { ApiTags } from '@nestjs/swagger'
 
+import { ApiProtectedInDocs } from '../common/swagger-auth.decorator'
 import { AppConfigService } from './config.service'
 
 @ApiTags('config')
-@ApiBearerAuth('access-token')
+@ApiProtectedInDocs()
 @Controller('api/config')
 export class AppConfigController {
 	constructor(private readonly service: AppConfigService) {}

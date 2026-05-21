@@ -1,62 +1,46 @@
-import {
-	ArgumentsHost,
-	Catch,
-	ExceptionFilter,
-	HttpException,
-	HttpStatus,
-	Logger,
-} from '@nestjs/common'
+import { nowtoLocalISOString, type ApiErrorBody } from '@bolao/shared'
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common'
 import type { Request, Response } from 'express'
-import type { ApiErrorBody } from '@bolao/shared'
-
-type RequestWithId = Request & { id?: string }
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
+
 	private readonly logger = new Logger(AllExceptionsFilter.name)
 
 	catch(exception: unknown, host: ArgumentsHost) {
+
 		const ctx = host.switchToHttp()
-		const response = ctx.getResponse<Response>()
-		const request = ctx.getRequest<RequestWithId>()
+		const res = ctx.getResponse<Response>()
+		const req = ctx.getRequest<Request>()
 
-		const status =
-			exception instanceof HttpException
-				? exception.getStatus()
-				: HttpStatus.INTERNAL_SERVER_ERROR
-
-		const errors = extractErrors(exception)
+		const status = exception instanceof HttpException
+			? exception.getStatus()
+			: HttpStatus.INTERNAL_SERVER_ERROR
 
 		if (status >= 500) {
-			this.logger.error(
-				`${request.method} ${request.url} → ${status} (reqId=${request.id ?? '-'})`,
-				exception instanceof Error ? exception.stack : String(exception),
-			)
+			this.logger.error(`${req.method} ${req.url} → ${status}`, exception instanceof Error ? exception.stack : exception)
 		}
 
 		const body: ApiErrorBody = {
-			errors,
+			errors: messageFrom(exception),
 			statusCode: status,
-			path: request.url,
-			timestamp: new Date().toISOString(),
-			requestId: request.id,
+			path: req.url,
+			timestamp: nowtoLocalISOString(),
 		}
-		response.status(status).json(body)
+
+		res.status(status).json(body)
 	}
 }
 
-const extractErrors = (exception: unknown): string | string[] => {
+function messageFrom(exception: unknown): string | string[] {
 	if (exception instanceof HttpException) {
-		const res = exception.getResponse()
-		if (typeof res === 'string') return res
-		if (res && typeof res === 'object') {
-			const obj = res as Record<string, unknown>
-			if (Array.isArray(obj.message)) return obj.message as string[]
-			if (typeof obj.message === 'string') return obj.message
-			if (typeof obj.error === 'string') return obj.error
+		const body = exception.getResponse()
+		if (typeof body === 'string') return body
+		if (typeof body === 'object' && body !== null && 'message' in body) {
+			const msg = (body as { message: unknown }).message
+			if (typeof msg === 'string' || Array.isArray(msg)) return msg
 		}
 		return exception.message
 	}
-	if (exception instanceof Error) return exception.message
-	return 'Internal Server Error'
+	return exception instanceof Error ? exception.message : 'Internal Server Error'
 }

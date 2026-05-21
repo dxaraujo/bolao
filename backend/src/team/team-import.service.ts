@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
+import { nowtoLocalISOString } from '@bolao/shared'
 import { Team } from './schemas/team.schema'
 
 interface FootballDataTeam {
@@ -31,7 +32,7 @@ export class TeamImportService {
 
 	async importTeams() {
 
-		this.logger.log(`Import teams started at: ${new Date().toISOString()}`)
+		this.logger.log(`Import teams started at: ${nowtoLocalISOString()}`)
 
 		try {
 
@@ -85,7 +86,7 @@ export class TeamImportService {
 				this.logger.log(`Updated team ${externalTeam.tla} (${externalTeam.id})`)
 			}
 
-			this.logger.log(`Finished importing teams at: ${new Date().toISOString()}`)
+			this.logger.log(`Finished importing teams at: ${nowtoLocalISOString()}`)
 
 		} catch (err) {
 			this.logger.error('Error importing teams', err)

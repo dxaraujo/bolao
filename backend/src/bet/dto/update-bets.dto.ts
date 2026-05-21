@@ -1,4 +1,4 @@
-import { IsInt, IsMongoId, IsOptional, Min } from 'class-validator'
+import { IsInt, IsMongoId, IsOptional, Max, Min } from 'class-validator'
 
 export class BetUpdateItemDto {
 
@@ -8,10 +8,12 @@ export class BetUpdateItemDto {
 	@IsOptional()
 	@IsInt()
 	@Min(0)
+	@Max(99)
 	homeTeamScore?: number
 
 	@IsOptional()
 	@IsInt()
 	@Min(0)
+	@Max(99)
 	awayTeamScore?: number
 }

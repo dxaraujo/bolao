@@ -1,18 +1,15 @@
 import {
 	Body,
 	Controller,
-	Delete,
 	Get,
-	NotFoundException,
 	Param,
-	Put,
-	Query,
+	Put
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 
+import type { JwtPayload } from '../auth/jwt.strategy'
 import { CurrentUser } from '../common/current-user.decorator'
 import { ApiProtectedInDocs } from '../common/swagger-auth.decorator'
-import type { JwtPayload } from '../auth/jwt.strategy'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserService } from './user.service'
 
@@ -29,27 +26,20 @@ export class UserController {
 	}
 
 	@Get()
-	async list(@Query() query: Record<string, unknown>) {
-		const data = await this.userService.findAllWithBets(query)
+	async findAll() {
+		const data = await this.userService.findAll()
 		return { data }
 	}
 
-	@Get(':id')
-	async getById(@Param('id') id: string) {
-		const data = await this.userService.findById(id)
+	@Get('active')
+	async findActiveUsers() {
+		const data = await this.userService.findActiveUsers()
 		return { data }
 	}
 
 	@Put(':id')
 	async update(@Param('id') id: string, @Body() body: UpdateUserDto) {
 		const data = await this.userService.update(id, body)
-		return { data }
-	}
-
-	@Delete(':id')
-	async remove(@Param('id') id: string) {
-		const data = await this.userService.remove(id)
-		if (!data) throw new NotFoundException('Usuário não encontrado')
 		return { data }
 	}
 }

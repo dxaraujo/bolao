@@ -1,12 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { HydratedDocument } from 'mongoose'
-import { MatchStage, PhaseStatus } from '@bolao/shared'
+import { MatchStage, StageStatus } from '@bolao/shared'
 
-export type PhaseDocument = HydratedDocument<Phase>
-export { PhaseStatus }
+export type StageDocument = HydratedDocument<Stage>
+export { StageStatus }
 
 @Schema()
-export class Phase {
+export class Stage {
 
 	@Prop({ required: true, unique: true })
 	name!: string
@@ -22,11 +22,11 @@ export class Phase {
 
 	@Prop({
 		required: true,
-		enum: Object.values(PhaseStatus),
-		default: PhaseStatus.DISABLED,
+		enum: Object.values(StageStatus),
+		default: StageStatus.DISABLED,
 		index: true,
 	})
-	status!: PhaseStatus
+	status!: StageStatus
 }
 
-export const PhaseSchema = SchemaFactory.createForClass(Phase)
+export const StageSchema = SchemaFactory.createForClass(Stage)

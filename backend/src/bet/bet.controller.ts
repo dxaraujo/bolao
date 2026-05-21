@@ -1,79 +1,29 @@
-import {
-	Body,
-	Controller,
-	Delete,
-	Get,
-	HttpCode,
-	HttpStatus,
-	Param,
-	ParseArrayPipe,
-	Post,
-	Put,
-	Query,
-} from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Get, ParseArrayPipe, Put, Query } from '@nestjs/common'
+import { ApiBody, ApiTags } from '@nestjs/swagger'
 
+import { JwtPayload } from '../auth/jwt.strategy'
+import { CurrentUser } from '../common/current-user.decorator'
 import { ApiProtectedInDocs } from '../common/swagger-auth.decorator'
-import { CreateBetDto } from './dto/create-bet.dto'
-import { UpdateBetDto } from './dto/update-bet.dto'
-import { BetUpdateItemDto } from './dto/update-bets.dto'
 import { BetService } from './bet.service'
+import { BetUpdateItemDto } from './dto/update-bets.dto'
 
 @ApiTags('bet')
-@ApiProtectedInDocs()
 @Controller('api/bet')
+@ApiProtectedInDocs()
 export class BetController {
-	constructor(private readonly service: BetService) {}
+
+	constructor(private readonly service: BetService) { }
 
 	@Get()
-	async list(@Query() query: Record<string, unknown>) {
-		const data = await this.service.findAll(query)
+	async list(@CurrentUser() user: JwtPayload) {
+		const data = await this.service.findAll(user._id)
 		return { data }
 	}
 
-	@Get(':id')
-	async getById(@Param('id') id: string) {
-		const data = await this.service.findById(id)
-		return { data }
-	}
-
-	@Post()
-	@HttpCode(HttpStatus.CREATED)
-	async create(@Body() body: CreateBetDto) {
-		const data = await this.service.create(body)
-		return { data }
-	}
-
-	@Put('/:user/updateBets')
-	@ApiOperation({ summary: 'Atualiza placares de múltiplos palpites em lote' })
+	@Put('/updateBets')
 	@ApiBody({ type: [BetUpdateItemDto] })
-	async updateBets(
-		@Body(new ParseArrayPipe({ items: BetUpdateItemDto }))
-		body: BetUpdateItemDto[],
-	) {
-		const data = await this.service.updateBets(body)
-		return { data }
-	}
-
-	@Get('/:user/:phase/montarbets')
-	@ApiOperation({
-		summary:
-			'Retorna palpites do usuário para a phase agrupados por grupo/rodada; cria palpites em branco se não existirem',
-	})
-	async montarBets(@Param('user') user: string, @Param('phase') phase: string) {
-		const data = await this.service.montarParaPhase(user, phase)
-		return { data }
-	}
-
-	@Put(':id')
-	async update(@Param('id') id: string, @Body() body: UpdateBetDto) {
-		const data = await this.service.update(id, body)
-		return { data }
-	}
-
-	@Delete(':id')
-	async remove(@Param('id') id: string) {
-		const data = await this.service.remove(id)
+	async updateBets(@CurrentUser() user: JwtPayload, @Body(new ParseArrayPipe({ items: BetUpdateItemDto })) body: BetUpdateItemDto[]) {
+		const data = await this.service.updateBets(user._id, body)
 		return { data }
 	}
 }

@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
 import { AppConfigService } from '../config/config.service'
-import { Bet, BetDocument } from '../bet/schemas/bet.schema'
+import { Bet, BetDocument, BetPopulated } from '../bet/schemas/bet.schema'
 import { User, UserDocument } from '../user/schemas/user.schema'
 import { Match, MatchDocument } from './schemas/match.schema'
 
@@ -21,7 +21,7 @@ export interface UserAggregate {
 	placarTimeVencedorComGol: number
 	placarTimeVencedor: number
 	placarGol: number
-	bets: BetDocument[]
+	bets: BetPopulated[]
 }
 
 const isValidPlacar = (value: unknown): value is number =>
@@ -50,8 +50,8 @@ export class ResultService {
 
 			const [matches, allBets, usersDoc] = await Promise.all([
 				this.matchModel.find({}).sort({ utcDate: 'asc' }).exec(),
-				this.betModel.find({}).sort({ 'match.utcDate': 'asc' }).exec(),
-				this.userModel.find({ ativo: true }).exec(),
+				this.betModel.find({}).populate('match').exec(),
+				this.userModel.find({ isActive: true }).exec(),
 			])
 
 			let users: UserAggregate[] = usersDoc.map((user) => ({
@@ -63,7 +63,7 @@ export class ResultService {
 				placarTimeVencedorComGol: 0,
 				placarTimeVencedor: 0,
 				placarGol: 0,
-				bets: allBets.filter((p) => p.user.equals(user._id)),
+				bets: allBets.filter((p) => p.user.equals(user._id)) as unknown as BetPopulated[],
 			}))
 
 			for (let i = 0; i < matches.length; i++) {
@@ -74,19 +74,19 @@ export class ResultService {
 					const bet = findBet(user.bets, match)
 					if (bet == null) continue
 					calcularPontuacaoBet(bet, match)
-					user.totalAcumulado += bet.totalPontosObitidos
-					user.placarCheio += bet.placarCheio ? 1 : 0
-					user.placarTimeVencedorComGol += bet.placarTimeVencedorComGol ? 1 : 0
-					user.placarTimeVencedor += bet.placarTimeVencedor ? 1 : 0
-					user.placarGol += bet.placarGol ? 1 : 0
-					bet.totalAcumulado = user.totalAcumulado
+					user.totalAcumulado += bet.totalPointsEarned
+					user.placarCheio += bet.exactScore ? 1 : 0
+					user.placarTimeVencedorComGol += bet.winnerWithGoal ? 1 : 0
+					user.placarTimeVencedor += bet.correctWinner ? 1 : 0
+					user.placarGol += bet.oneGoalCorrect ? 1 : 0
+					bet.cumulativeTotal = user.totalAcumulado
 				}
 				users = classificar(users, i)
 				for (const user of users) {
 					const bet = findBet(user.bets, match)
 					if (bet == null) continue
-					bet.classificacao = user.classificacao
-					bet.classificacaoAnterior = user.classificacaoAnterior
+					bet.ranking = user.classificacao
+					bet.previousRanking = user.classificacaoAnterior
 				}
 			}
 
@@ -97,14 +97,14 @@ export class ResultService {
 							.findByIdAndUpdate(
 								bet._id,
 								{
-									totalPontosObitidos: bet.totalPontosObitidos,
-									totalAcumulado: bet.totalAcumulado,
-									classificacao: bet.classificacao,
-									classificacaoAnterior: bet.classificacaoAnterior,
-									placarCheio: bet.placarCheio,
-									placarTimeVencedorComGol: bet.placarTimeVencedorComGol,
-									placarTimeVencedor: bet.placarTimeVencedor,
-									placarGol: bet.placarGol,
+									totalPointsEarned: bet.totalPointsEarned,
+									cumulativeTotal: bet.cumulativeTotal,
+									ranking: bet.ranking,
+									previousRanking: bet.previousRanking,
+									exactScore: bet.exactScore,
+									winnerWithGoal: bet.winnerWithGoal,
+									correctWinner: bet.correctWinner,
+									oneGoalCorrect: bet.oneGoalCorrect,
 								},
 								{ new: true },
 							)
@@ -137,11 +137,11 @@ export class ResultService {
 	}
 }
 
-const findBet = (bets: BetDocument[], match: MatchDocument) =>
-	bets.find((bet) => bet.match.id === match.id)
+const findBet = (bets: BetPopulated[], match: MatchDocument) =>
+	bets.find((bet) => bet.match.footballDataId === match.footballDataId)
 
 // Exportado para testes unitários (lógica de pontuação isolada, sem depender do Mongoose)
-export const calcularPontuacaoBet = (bet: BetDocument, match: MatchDocument) => {
+export const calcularPontuacaoBet = (bet: BetPopulated, match: MatchDocument) => {
 	if (!isValidPlacar(bet.homeTeamScore) || !isValidPlacar(bet.awayTeamScore)) {
 		zerarPontuacao(bet)
 		return
@@ -153,42 +153,42 @@ export const calcularPontuacaoBet = (bet: BetDocument, match: MatchDocument) => 
 		bet.homeTeamScore === match.homeTeamScore &&
 		bet.awayTeamScore === match.awayTeamScore
 	) {
-		bet.totalPontosObitidos = 5
-		bet.placarCheio = true
-		bet.placarTimeVencedorComGol = false
-		bet.placarTimeVencedor = false
-		bet.placarGol = false
+		bet.totalPointsEarned = 5
+		bet.exactScore = true
+		bet.winnerWithGoal = false
+		bet.correctWinner = false
+		bet.oneGoalCorrect = false
 		return
 	}
 
 	if (betVencedor === matchVencedor) {
-		const acertouUmGol =
+		const scoredOneGoal =
 			bet.homeTeamScore === match.homeTeamScore ||
 			bet.awayTeamScore === match.awayTeamScore
-		bet.totalPontosObitidos = acertouUmGol ? 3 : 2
-		bet.placarCheio = false
-		bet.placarTimeVencedorComGol = acertouUmGol
-		bet.placarTimeVencedor = !acertouUmGol
-		bet.placarGol = false
+		bet.totalPointsEarned = scoredOneGoal ? 3 : 2
+		bet.exactScore = false
+		bet.winnerWithGoal = scoredOneGoal
+		bet.correctWinner = !scoredOneGoal
+		bet.oneGoalCorrect = false
 		return
 	}
 
-	const acertouSoUmGol =
+	const scoredOnlyOneGoal =
 		bet.homeTeamScore === match.homeTeamScore ||
 		bet.awayTeamScore === match.awayTeamScore
-	bet.totalPontosObitidos = acertouSoUmGol ? 1 : 0
-	bet.placarCheio = false
-	bet.placarTimeVencedorComGol = false
-	bet.placarTimeVencedor = false
-	bet.placarGol = acertouSoUmGol
+	bet.totalPointsEarned = scoredOnlyOneGoal ? 1 : 0
+	bet.exactScore = false
+	bet.winnerWithGoal = false
+	bet.correctWinner = false
+	bet.oneGoalCorrect = scoredOnlyOneGoal
 }
 
-const zerarPontuacao = (bet: BetDocument) => {
-	bet.totalPontosObitidos = 0
-	bet.placarCheio = false
-	bet.placarTimeVencedorComGol = false
-	bet.placarTimeVencedor = false
-	bet.placarGol = false
+const zerarPontuacao = (bet: BetPopulated) => {
+	bet.totalPointsEarned = 0
+	bet.exactScore = false
+	bet.winnerWithGoal = false
+	bet.correctWinner = false
+	bet.oneGoalCorrect = false
 }
 
 const vencedor = (placarA: number, placarB: number): 'A' | 'B' | 'E' =>

@@ -16,7 +16,7 @@ export class CreateMatchDto {
 
 	@IsInt()
 	@Min(0)
-	id!: number
+	footballDataId!: number
 
 	@Type(() => Date)
 	@IsDate()

@@ -70,10 +70,10 @@ export class MatchImportService {
 					this.logger.warn(`Away team ${externalMatch.awayTeam.id} not found for match ${externalMatch.id}`)
 				}
 
-				const registeredMatch = await this.model.findOne({ id: externalMatch.id }).exec()
+				const registeredMatch = await this.model.findOne({ footballDataId: externalMatch.id }).exec()
 
 				const matchData = {
-					id: externalMatch.id,
+					footballDataId: externalMatch.id,
 					utcDate: new Date(externalMatch.utcDate),
 					status: externalMatch.status,
 					matchday: externalMatch.matchday,
@@ -95,7 +95,7 @@ export class MatchImportService {
 					continue
 				}
 
-				await this.model.updateOne({ id: externalMatch.id }, { $set: matchData }).exec()
+				await this.model.updateOne({ footballDataId: externalMatch.id }, { $set: matchData }).exec()
 				this.logger.log(`Updated match ${externalMatch.id}: ${homeTeam?.tla ?? '-'} x ${awayTeam?.tla ?? '-'}`)
 			}
 

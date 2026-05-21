@@ -7,7 +7,7 @@ import { validateEnv } from './common/env.validation'
 import { JwtAuthGuard } from './auth/jwt-auth.guard'
 import { AuthModule } from './auth/auth.module'
 import { AppConfigModule } from './config/config.module'
-import { PhaseModule } from './phase/phase.module'
+import { StageModule } from './stage/stage.module'
 import { HealthModule } from './health/health.module'
 import { BetModule } from './bet/bet.module'
 import { MatchModule } from './match/match.module'
@@ -33,7 +33,7 @@ import { UserModule } from './user/user.module'
 		AuthModule,
 		UserModule,
 		TeamModule,
-		PhaseModule,
+		StageModule,
 		AppConfigModule,
 		MatchModule,
 		BetModule,

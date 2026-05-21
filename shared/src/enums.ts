@@ -2,7 +2,7 @@
  * Enums de domínio compartilhados entre backend e frontend.
  */
 
-export enum PhaseStatus {
+export enum StageStatus {
 	DISABLED = 0,
 	OPEN = 1,
 	BLOCKED = 2,
@@ -50,6 +50,6 @@ export enum MatchStatus {
 	CANCELLED = 'CANCELLED',
 }
 
-/** Pontuações válidas para um palpite, conforme regra do bolão. */
-export const PONTOS_VALIDOS = [0, 1, 2, 3, 5] as const
-export type PontosObtidos = (typeof PONTOS_VALIDOS)[number]
+/** Valid points for a bet, according to the pool rules. */
+export const VALID_POINTS = [0, 1, 2, 3, 5] as const
+export type PointsEarned = (typeof VALID_POINTS)[number]

@@ -1,19 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose'
-import { PONTOS_VALIDOS, type PontosObtidos } from '@bolao/shared'
+import { VALID_POINTS, type PointsEarned } from '@bolao/shared'
 
-import { Match, MatchSchema } from '../../match/schemas/match.schema'
+import { Match, MatchDocument } from '../../match/schemas/match.schema'
 
 export type BetDocument = HydratedDocument<Bet>
-export { PONTOS_VALIDOS, type PontosObtidos }
+export type BetPopulated = Omit<BetDocument, 'match'> & { match: MatchDocument }
+export { VALID_POINTS, type PointsEarned }
 
 @Schema()
 export class Bet {
+
 	@Prop({ type: MongooseSchema.Types.ObjectId, required: true, index: true })
 	user!: Types.ObjectId
 
-	@Prop({ type: MatchSchema, required: true })
-	match!: Match
+	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Match.name, required: true })
+	match!: Types.ObjectId
 
 	@Prop({ required: false })
 	homeTeamScore?: number
@@ -21,35 +23,31 @@ export class Bet {
 	@Prop({ required: false })
 	awayTeamScore?: number
 
-	@Prop({ required: false, enum: PONTOS_VALIDOS, default: 0 })
-	totalPontosObitidos!: PontosObtidos
+	@Prop({ required: false, enum: VALID_POINTS, default: 0 })
+	totalPointsEarned!: PointsEarned
 
 	@Prop({ required: true, default: false })
-	placarCheio!: boolean
+	exactScore!: boolean
 
 	@Prop({ required: true, default: false })
-	placarTimeVencedorComGol!: boolean
+	winnerWithGoal!: boolean
 
 	@Prop({ required: true, default: false })
-	placarTimeVencedor!: boolean
+	correctWinner!: boolean
 
 	@Prop({ required: true, default: false })
-	placarGol!: boolean
-
-	@Prop({ required: false })
-	classificacao?: number
+	oneGoalCorrect!: boolean
 
 	@Prop({ required: true, default: 0 })
-	classificacaoAnterior!: number
+	ranking?: number
 
-	@Prop({ required: false })
-	totalAcumulado?: number
+	@Prop({ required: true, default: 0 })
+	previousRanking!: number
+
+	@Prop({ required: true, default: 0 })
+	cumulativeTotal?: number
 }
 
 export const BetSchema = SchemaFactory.createForClass(Bet)
 
-// Composto: query mais quente é "todos palpites de X usuário para Y phase" (montarbets)
-BetSchema.index({ user: 1, 'match.stage': 1 })
-
-// Sort por data da partida ao listar palpites
-BetSchema.index({ 'match.utcDate': 1 })
+BetSchema.index({ user: 1, match: 1 })

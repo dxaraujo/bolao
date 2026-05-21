@@ -19,31 +19,31 @@ export class User {
 	picture!: string
 
 	@Prop({ required: true, default: 0 })
-	placarCheio!: number
+	exactScore!: boolean
 
 	@Prop({ required: true, default: 0 })
-	placarTimeVencedorComGol!: number
+	winnerWithGoal!: boolean
 
 	@Prop({ required: true, default: 0 })
-	placarTimeVencedor!: number
+	correctWinner!: boolean
 
 	@Prop({ required: true, default: 0 })
-	placarGol!: number
+	oneGoalCorrect!: boolean
 
 	@Prop({ required: true, default: 0 })
-	totalAcumulado!: number
+	cumulativeTotal!: number
 
 	@Prop({ required: true, default: 0 })
-	classificacao!: number
+	ranking?: number
 
 	@Prop({ required: true, default: 0 })
-	classificacaoAnterior!: number
+	previousRanking!: number
 
 	@Prop({ required: true, default: false })
 	isAdmin!: boolean
 
 	@Prop({ required: true, default: false })
-	ativo!: boolean
+	isActive!: boolean
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)

@@ -8,5 +8,5 @@ export class UpdateUserDto {
 
 	@IsOptional()
 	@IsBoolean()
-	ativo?: boolean
+	isActive?: boolean
 }

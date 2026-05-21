@@ -26,8 +26,16 @@ export class MatchService {
 	}
 
 
+	findIdsByStages(stageNames: string[]) {
+		return this.model.find({ stage: { $in: stageNames } }).distinct('_id').exec()
+	}
+
+	findByStage(stageName: string) {
+		return this.model.find({ stage: stageName }).sort({ utcDate: 'asc' }).exec()
+	}
+
 	findByFootballDataMatchId(id: number) {
-		return this.model.findOne({ id }).exec()
+		return this.model.findOne({ footballDataId: id }).exec()
 	}
 
 	create(dto: CreateMatchDto) {
@@ -35,7 +43,7 @@ export class MatchService {
 	}
 
 	upsertByFootballDataMatchId(id: number, dto: CreateMatchDto) {
-		return this.model.findOneAndUpdate({ id }, { $set: dto }, { new: true, upsert: true }).exec()
+		return this.model.findOneAndUpdate({ footballDataId: id }, { $set: dto }, { new: true, upsert: true }).exec()
 	}
 
 	async update(id: string, dto: UpdateMatchDto) {

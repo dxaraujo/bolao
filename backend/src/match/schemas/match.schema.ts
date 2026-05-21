@@ -11,7 +11,7 @@ export { MatchStage, MatchStatus }
 export class Match {
 
 	@Prop({ required: true, unique: true })
-	id!: number
+	footballDataId!: number
 
 	@Prop({ required: true, index: true })
 	utcDate!: Date

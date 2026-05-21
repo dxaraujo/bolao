@@ -31,7 +31,7 @@ export class TeamImportService {
 
 	async importTeams() {
 
-		this.logger.log(`Import teams started at: ${new Date().toISOString()}`)
+		this.logger.log('Import teams started at: {}', new Date().toISOString())
 
 		try {
 
@@ -42,13 +42,13 @@ export class TeamImportService {
 			})
 
 			if (!response.ok) {
-				this.logger.warn(`Football Data API returned error: ${response.statusText}`)
+				this.logger.warn('Football Data API returned error: {}. Response: {}', response.statusText, await response.json())
 				return
 			}
 
 			const data = await response.json()
 			const teams = data.teams as FootballDataTeam[]
-			this.logger.log(`Found ${teams.length} teams`)
+			this.logger.log('Found {} teams', teams.length)
 
 			for (const externalTeam of teams) {
 
@@ -64,12 +64,12 @@ export class TeamImportService {
 						crest: externalTeam.crest,
 						lastUpdated,
 					})
-					this.logger.log(`Created team ${externalTeam.tla} (${externalTeam.id})`)
+					this.logger.log('Created team {}: ({})', externalTeam.tla, externalTeam.id)
 					continue
 				}
 
 				if (registeredTeam.lastUpdated && registeredTeam.lastUpdated >= lastUpdated) {
-					this.logger.log(`Team ${externalTeam.tla} already up to date`)
+					this.logger.log('Team {} already up to date', externalTeam.tla)
 					continue
 				}
 
@@ -82,13 +82,13 @@ export class TeamImportService {
 						lastUpdated,
 					},
 				}).exec()
-				this.logger.log(`Updated team ${externalTeam.tla} (${externalTeam.id})`)
+				this.logger.log('Updated team {}: ({})', externalTeam.tla, externalTeam.id)
 			}
 
-			this.logger.log(`Finished importing teams at: ${new Date().toISOString()}`)
+			this.logger.log('Finished importing teams at: {}', new Date().toISOString())
 
 		} catch (err) {
-			this.logger.error('Erro ao importar times', err)
+			this.logger.error('Error importing teams: {}', err)
 		}
 	}
 }

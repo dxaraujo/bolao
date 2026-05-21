@@ -25,6 +25,7 @@ export async function createTestApp(env: Record<string, string> = {}): Promise<T
 	process.env.AUTH_SECRET = env.AUTH_SECRET ?? 'test-secret'
 	process.env.GOOGLE_CLIENT_ID = env.GOOGLE_CLIENT_ID ?? 'test-google-id'
 	process.env.FOOTBALL_DATA_API_URL = env.FOOTBALL_DATA_API_URL ?? 'http://example.test/api'
+	process.env.FOOTBALL_DATA_API_KEY = env.FOOTBALL_DATA_API_KEY ?? 'test-football-data-api-key'
 	process.env.MONGODB_URI = mongo.getUri()
 	process.env.CORS_ORIGINS = env.CORS_ORIGINS ?? 'http://localhost:3000'
 	process.env.THROTTLE_TTL_SECONDS = '60'

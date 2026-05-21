@@ -47,13 +47,13 @@ export class MatchImportService {
 			})
 
 			if (!response.ok) {
-				this.logger.warn('Football Data API returned error: {}', response.json())
+				this.logger.warn('Football Data API returned error: {}. Response: {}', response.statusText, await response.json())
 				return
 			}
 
 			const data = await response.json()
 			const matches = data.matches as FootballDataMatch[]
-			this.logger.log(`Found ${matches.length} matches`)
+			this.logger.log('Found {} matches', matches.length)
 
 			for (const externalMatch of matches) {
 
@@ -62,11 +62,11 @@ export class MatchImportService {
 				const awayTeam = await this.teamService.findByFootballDataTeamId(externalMatch.awayTeam.id)
 
 				if (!homeTeam) {
-					this.logger.warn(`Home team ${externalMatch.homeTeam.id} not found for match ${externalMatch.id}`)
+					this.logger.warn('Home team {} not found for match {}', externalMatch.homeTeam.id, externalMatch.id)
 				}
 
 				if (!awayTeam) {
-					this.logger.warn(`Away team ${externalMatch.awayTeam.id} not found for match ${externalMatch.id}`)
+					this.logger.warn('Away team {} not found for match {}', externalMatch.awayTeam.id, externalMatch.id)
 				}
 
 				const registeredMatch = await this.model.findOne({ id: externalMatch.id }).exec()
@@ -78,30 +78,31 @@ export class MatchImportService {
 					matchday: externalMatch.matchday,
 					stage: externalMatch.stage,
 					group: externalMatch.group,
-					homeTeam: homeTeam ?? undefined,
-					awayTeam: awayTeam ?? undefined,
+					homeTeam: homeTeam,
+					awayTeam: awayTeam,
 					lastUpdated,
 				}
 
 				if (!registeredMatch) {
 					await this.model.create(matchData)
-					this.logger.log(`Created match ${externalMatch.id}: ${homeTeam?.tla ?? '-'} x ${awayTeam?.tla ?? '-'}`)
+					this.logger.log('Created match {}: {} x {}', externalMatch.id, homeTeam?.tla ?? '-', awayTeam?.tla ?? '-')
 					continue
 				}
 
 				if (registeredMatch.lastUpdated && registeredMatch.lastUpdated >= lastUpdated) {
-					this.logger.log(`Match ${externalMatch.id} already up to date`)
+					this.logger.log('Match {} already up to date', externalMatch.id)
 					continue
 				}
 
 				await this.model.updateOne({ id: externalMatch.id }, { $set: matchData }).exec()
-				this.logger.log(`Updated match ${externalMatch.id}: ${homeTeam?.tla ?? '-'} x ${awayTeam?.tla ?? '-'}`)
+				this.logger.log('Updated match {}: {} x {}', externalMatch.id, homeTeam?.tla ?? '-', awayTeam?.tla ?? '-')
 			}
 
-			this.logger.log(`Finished importing matches at: ${new Date().toISOString()}`)
+			this.logger.log('Finished importing matches at: {}', new Date().toISOString())
 
 		} catch (err) {
-			this.logger.error('Erro ao importar partidas', err)
+
+			this.logger.error('Error importing matches: {}', err)
 		}
 	}
 }

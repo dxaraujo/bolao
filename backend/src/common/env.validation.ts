@@ -14,6 +14,7 @@ const toStringArray = ({ value }: { value: unknown }): string[] => {
 }
 
 export class EnvironmentVariables {
+
 	@IsOptional()
 	@IsEnum(NodeEnv)
 	NODE_ENV: NodeEnv = NodeEnv.Development
@@ -34,7 +35,10 @@ export class EnvironmentVariables {
 	JWT_EXPIRES_IN: string = '30d'
 
 	@IsUrl({ require_tld: false })
-	FOOTBALL_DATA_API_URL!: string
+	FOOTBALL_DATA_API_URL: string = 'https://api.football-data.org/v4'
+
+	@IsString()
+	FOOTBALL_DATA_API_KEY!: string
 
 	@Transform(toStringArray)
 	@IsString({ each: true })

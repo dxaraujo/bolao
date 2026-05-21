@@ -4,14 +4,9 @@ import { Model } from 'mongoose'
 
 import { Bet, BetPopulated } from '../bet/schemas/bet.schema'
 import { AppConfigService } from '../config/config.service'
+import { StageService } from '../stage/stage.service'
 import { User, UserDocument } from '../user/schemas/user.schema'
-import { Match, MatchDocument, MatchStatus } from './schemas/match.schema'
-
-interface ResultInput {
-	status: MatchStatus
-	homeTeamScore?: number
-	awayTeamScore?: number
-}
+import { Match, MatchDocument } from './schemas/match.schema'
 
 export interface UserAggregate {
 	_id: UserDocument['_id']
@@ -38,6 +33,7 @@ export class ResultService {
 		@InjectModel(Bet.name) private readonly betModel: Model<Bet>,
 		@InjectModel(User.name) private readonly userModel: Model<User>,
 		private readonly appConfig: AppConfigService,
+		private readonly stageService: StageService,
 	) { }
 
 	async updateResults() {
@@ -46,13 +42,28 @@ export class ResultService {
 
 		try {
 
-			const [matches, allBets, usersDoc] = await Promise.all([
-				this.matchModel.find({}).sort({ utcDate: 'asc' }).exec(),
-				this.betModel.find({}).populate('match').exec(),
+			const blockedStages = await this.stageService.findBlockedStages()
+			if (blockedStages.length === 0) return
+
+			const [matches, activeUsers] = await Promise.all([
+				this.matchModel
+					.find({ stage: { $in: blockedStages } })
+					.sort({ utcDate: 1, footballDataId: 1 })
+					.exec(),
 				this.userModel.find({ isActive: true }).exec(),
 			])
 
-			let users: UserAggregate[] = usersDoc.map((user) => ({
+			if (matches.length === 0 || activeUsers.length === 0) return
+
+			const matchIds = matches.map((m) => m._id)
+			const userIds = activeUsers.map((u) => u._id)
+
+			const allBets = await this.betModel
+				.find({ match: { $in: matchIds }, user: { $in: userIds } })
+				.populate<{ match: MatchDocument }>('match')
+				.exec()
+
+			let users: UserAggregate[] = activeUsers.map((user) => ({
 				_id: user._id,
 				cumulativeTotal: 0,
 				ranking: 0,
@@ -61,7 +72,7 @@ export class ResultService {
 				winnerWithGoal: 0,
 				correctWinner: 0,
 				oneGoalCorrect: 0,
-				bets: allBets.filter((p) => p.user.equals(user._id)) as unknown as BetPopulated[],
+				bets: allBets.filter((bet) => bet.user.equals(user._id)) as unknown as BetPopulated[],
 			}))
 
 			for (let i = 0; i < matches.length; i++) {
@@ -79,7 +90,9 @@ export class ResultService {
 					user.oneGoalCorrect += bet.oneGoalCorrect ? 1 : 0
 					bet.cumulativeTotal = user.cumulativeTotal
 				}
+
 				users = rankUsers(users, i)
+
 				for (const user of users) {
 					const bet = findBet(user.bets, match)
 					if (bet == null) continue
@@ -141,6 +154,7 @@ export const calculateBetScore = (bet: BetPopulated, match: MatchDocument) => {
 		resetScore(bet)
 		return
 	}
+
 	const betWinner = winner(bet.homeTeamScore, bet.awayTeamScore)
 	const matchWinner = winner(match.homeTeamScore!, match.awayTeamScore!)
 

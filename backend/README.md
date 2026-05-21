@@ -55,8 +55,6 @@ A API sobe na porta definida em `PORT` (default 3001).
 | `JWT_EXPIRES_IN`     | não         | `30d`                            |
 | `FOOTBALL_DATA_API_URL` | **sim**     | —                                |
 
-Validação acontece no startup via [`src/common/env.validation.ts`](src/common/env.validation.ts). Se faltar variável obrigatória, a app falha rápido.
-
 ## Endpoints
 
 | Método | Path                                          | Auth     |

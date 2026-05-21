@@ -40,6 +40,7 @@ export enum MatchStage {
 
 /** Status de partida conforme Football Data API. */
 export enum MatchStatus {
+	TIMED = 'TIMED',
 	SCHEDULED = 'SCHEDULED',
 	LIVE = 'LIVE',
 	IN_PLAY = 'IN_PLAY',

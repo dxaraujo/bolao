@@ -20,8 +20,7 @@ export interface UserAggregate {
 	bets: BetPopulated[]
 }
 
-const isValidScore = (value: unknown): value is number =>
-	typeof value === 'number' && Number.isFinite(value) && value >= 0
+const isValidScore = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0
 
 @Injectable()
 export class ResultService {
@@ -43,6 +42,7 @@ export class ResultService {
 		try {
 
 			const blockedStages = await this.stageService.findBlockedStages()
+
 			if (blockedStages.length === 0) return
 
 			const [matches, activeUsers] = await Promise.all([
@@ -76,13 +76,19 @@ export class ResultService {
 			}))
 
 			for (let i = 0; i < matches.length; i++) {
+
 				const match = matches[i]
+
 				if (!isValidScore(match.homeTeamScore) || !isValidScore(match.awayTeamScore)) continue
 
 				for (const user of users) {
+
 					const bet = findBet(user.bets, match)
+
 					if (bet == null) continue
+
 					calculateBetScore(bet, match)
+
 					user.cumulativeTotal += bet.totalPointsEarned
 					user.exactScore += bet.exactScore ? 1 : 0
 					user.winnerWithGoal += bet.winnerWithGoal ? 1 : 0

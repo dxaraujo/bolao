@@ -1,92 +1,34 @@
-import {
-	Body,
-	Controller,
-	Delete,
-	Get,
-	HttpCode,
-	HttpStatus,
-	Param,
-	Post,
-	Put,
-	Query,
-} from '@nestjs/common'
-import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { Controller, Get, UseGuards } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 
-import { Public } from 'src/common/public.decorator'
+import { AdminGuard } from 'src/common/admin.guard'
 import { ApiProtectedInDocs } from 'src/common/swagger-auth.decorator'
-import { CreateMatchDto } from './dto/create-match.dto'
-import { UpdateMatchDto } from './dto/update-match.dto'
-import { UpdateScoreDto } from './dto/update-score.dto'
-import { MatchImportService } from './match-import.service'
 import { MatchService } from './match.service'
-import { ResultService } from './result.service'
 
 @ApiTags('match')
 @Controller('api/match')
+@ApiProtectedInDocs()
 export class MatchController {
 
-	constructor(
-		private readonly service: MatchService,
-		private readonly matchImportService: MatchImportService,
-		private readonly resultService: ResultService,
-	) { }
+	constructor(private readonly service: MatchService) { }
 
-	@Public()
-	@Get('import')
-	async import() {
-		await this.matchImportService.importMatches()
-		return { data: 'Matches imported successfully' }
+	@Get('visible')
+	async findVisible() {
+		const data = await this.service.findVisible()
+		return { data }
 	}
 
 	@Get()
-	@ApiProtectedInDocs()
-	async list(@Query() query: Record<string, unknown>) {
-		const data = await this.service.findAll(query)
+	@UseGuards(AdminGuard)
+	async findAll() {
+		const data = await this.service.findAll()
 		return { data }
 	}
 
-	@Get('resultado')
-	@ApiProtectedInDocs()
-	@ApiOperation({ summary: 'Partidas já encerradas (com placar definido)' })
-	async listResultados() {
-		const data = await this.service.findResultados()
-		return { data }
-	}
-
-	@Get(':id')
-	@ApiProtectedInDocs()
-	async getById(@Param('id') id: string) {
-		const data = await this.service.findById(id)
-		return { data }
-	}
-
-	@Post()
-	@HttpCode(HttpStatus.CREATED)
-	@ApiProtectedInDocs()
-	async create(@Body() body: CreateMatchDto) {
-		const data = await this.service.create(body)
-		return { data }
-	}
-
-	@Put(':id/updateResultado')
-	@ApiProtectedInDocs()
-	@ApiOperation({ summary: 'Atualiza o placar de uma partida e dispara recálculo de pontuação dos palpites' })
-	async updateResultado(@Param('id') id: string, @Body() body: UpdateScoreDto) {
-		const data = await this.resultService.atualizarResults(id, body)
-		return { data }
-	}
-
-	@Put(':id')
-	@ApiProtectedInDocs()
-	async update(@Param('id') id: string, @Body() body: UpdateMatchDto) {
-		const data = await this.service.update(id, body)
-		return { data }
-	}
-
-	@Delete(':id')
-	@ApiProtectedInDocs()
-	async remove(@Param('id') id: string) {
-		const data = await this.service.remove(id)
-		return { data }
+	@Get('import')
+	@UseGuards(AdminGuard)
+	async import() {
+		await this.service.importMatches()
+		return { data: 'Matches imported successfully' }
 	}
 }

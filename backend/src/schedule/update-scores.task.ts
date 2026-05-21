@@ -1,15 +1,15 @@
 import { Injectable } from '@nestjs/common'
 import { Cron } from '@nestjs/schedule'
 
-import { MatchUpdateScoreService } from '../match/match-update-score.service'
+import { ScoreService } from '../match/score.service'
 
 @Injectable()
 export class UpdateScoresTask {
 
-	constructor(private readonly matchUpdateScoreService: MatchUpdateScoreService) { }
+	constructor(private readonly ScoreService: ScoreService) { }
 
 	@Cron('*/5 7-20 * * *')
 	async updateScores() {
-		await this.matchUpdateScoreService.updateScores()
+		await this.ScoreService.updateScores()
 	}
 }

@@ -19,16 +19,16 @@ export class User {
 	picture!: string
 
 	@Prop({ required: true, default: 0 })
-	exactScore!: boolean
+	exactScore!: number
 
 	@Prop({ required: true, default: 0 })
-	winnerWithGoal!: boolean
+	winnerWithGoal!: number
 
 	@Prop({ required: true, default: 0 })
-	correctWinner!: boolean
+	correctWinner!: number
 
 	@Prop({ required: true, default: 0 })
-	oneGoalCorrect!: boolean
+	oneGoalCorrect!: number
 
 	@Prop({ required: true, default: 0 })
 	cumulativeTotal!: number

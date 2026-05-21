@@ -1,17 +1,14 @@
 import {
 	Body,
 	Controller,
-	Delete,
 	Get,
-	HttpCode,
-	HttpStatus,
 	Param,
-	Post,
 	Put,
-	Query,
+	UseGuards
 } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 
+import { AdminGuard } from 'src/common/admin.guard'
 import { ApiProtectedInDocs } from '../common/swagger-auth.decorator'
 import { UpdateStageDto } from './dto/update-stage.dto'
 import { StageService } from './stage.service'
@@ -23,19 +20,21 @@ export class StageController {
 
 	constructor(private readonly service: StageService) {}
 
-	@Get()
-	async findAll() {
-		const data = await this.service.findAll()
-		return { data }
-	}
-
 	@Get('visible')
 	async findVisible() {
 		const data = await this.service.findVisibleStages()
 		return { data }
 	}
 
+	@Get()
+	@UseGuards(AdminGuard)
+	async findAll() {
+		const data = await this.service.findAll()
+		return { data }
+	}
+
 	@Put(':matchStage')
+	@UseGuards(AdminGuard)
 	async update(@Param('matchStage') matchStage: string, @Body() body: UpdateStageDto) {
 		const data = await this.service.update(matchStage, body)
 		return { data }

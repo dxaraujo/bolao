@@ -1,4 +1,18 @@
-import { PartialType } from '@nestjs/mapped-types'
-import { CreateMatchDto } from './create-match.dto'
+import { MatchStatus } from '@bolao/shared'
+import { IsEnum, IsInt, Max, Min } from 'class-validator'
 
-export class UpdateMatchDto extends PartialType(CreateMatchDto) {}
+export class UpdateMatchDto {
+
+    @IsEnum(MatchStatus)
+	status!: MatchStatus
+
+	@IsInt()
+	@Min(0)
+	@Max(99)
+	homeTeamScore?: number
+
+	@IsInt()
+	@Min(0)
+	@Max(99)
+	awayTeamScore?: number
+}

@@ -33,12 +33,14 @@ export class TeamService {
 	}
 
 	findByFootballDataTeamId(id: number) {
-		return this.model.findOne({ id }).exec()
+		return this.model.findOne({ footballDataId: id }).exec()
 	}
 
 	async update(id: string, dto: UpdateTeamDto) {
 		const updated = await this.model.findByIdAndUpdate(id, dto, { new: true }).exec()
-		if (!updated) throw new NotFoundException(`Team ${id} não encontrado`)
+		if (!updated) {
+			throw new NotFoundException(`Team ${id} not found`)
+		}
 		return updated
 	}
 
@@ -48,11 +50,7 @@ export class TeamService {
 
 		try {
 
-			const response = await fetch(this.apiUrl + '/competitions/WC/teams?season=2026', {
-				headers: {
-					'X-Auth-Token': this.apiKey,
-				},
-			})
+			const response = await fetch(this.apiUrl + '/competitions/WC/teams?season=2026', { headers: { 'X-Auth-Token': this.apiKey } })
 
 			if (!response.ok) {
 				this.logger.warn(`Football Data API returned error: ${response.statusText}. Response: ${JSON.stringify(await response.json())}`)
@@ -66,11 +64,11 @@ export class TeamService {
 			for (const externalTeam of teams) {
 
 				const lastUpdated = new Date(externalTeam.lastUpdated)
-				const registeredTeam = await this.model.findOne({ id: externalTeam.id }).exec()
+				const registeredTeam = await this.model.findOne({ footballDataId: externalTeam.id }).exec()
 
 				if (!registeredTeam) {
 					await this.model.create({
-						id: externalTeam.id,
+						footballDataId: externalTeam.id,
 						name: externalTeam.name,
 						shortName: externalTeam.shortName,
 						tla: externalTeam.tla,
@@ -86,7 +84,7 @@ export class TeamService {
 					continue
 				}
 
-				await this.model.updateOne({ id: externalTeam.id }, {
+				await this.model.updateOne({ footballDataId: externalTeam.id }, {
 					$set: {
 						name: externalTeam.name,
 						shortName: externalTeam.shortName,

@@ -2,29 +2,30 @@ import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
+import { Bet, BetPopulated } from '../bet/schemas/bet.schema'
 import { AppConfigService } from '../config/config.service'
-import { Bet, BetDocument, BetPopulated } from '../bet/schemas/bet.schema'
 import { User, UserDocument } from '../user/schemas/user.schema'
-import { Match, MatchDocument } from './schemas/match.schema'
+import { Match, MatchDocument, MatchStatus } from './schemas/match.schema'
 
 interface ResultInput {
+	status: MatchStatus
 	homeTeamScore?: number
 	awayTeamScore?: number
 }
 
 export interface UserAggregate {
 	_id: UserDocument['_id']
-	totalAcumulado: number
-	classificacao: number
-	classificacaoAnterior: number
-	placarCheio: number
-	placarTimeVencedorComGol: number
-	placarTimeVencedor: number
-	placarGol: number
+	cumulativeTotal: number
+	ranking: number
+	previousRanking: number
+	exactScore: number
+	winnerWithGoal: number
+	correctWinner: number
+	oneGoalCorrect: number
 	bets: BetPopulated[]
 }
 
-const isValidPlacar = (value: unknown): value is number =>
+const isValidScore = (value: unknown): value is number =>
 	typeof value === 'number' && Number.isFinite(value) && value >= 0
 
 @Injectable()
@@ -39,14 +40,11 @@ export class ResultService {
 		private readonly appConfig: AppConfigService,
 	) { }
 
-	async atualizarResults(matchId: string, { homeTeamScore, awayTeamScore }: ResultInput) {
-		this.logger.log(`Updating result for match ${matchId}: ${homeTeamScore} x ${awayTeamScore}`)
+	async updateResults() {
 
 		await this.appConfig.setUpdatingScores(true)
+
 		try {
-			const newMatch = await this.matchModel
-				.findByIdAndUpdate(matchId, { homeTeamScore, awayTeamScore }, { new: true })
-				.exec()
 
 			const [matches, allBets, usersDoc] = await Promise.all([
 				this.matchModel.find({}).sort({ utcDate: 'asc' }).exec(),
@@ -56,37 +54,37 @@ export class ResultService {
 
 			let users: UserAggregate[] = usersDoc.map((user) => ({
 				_id: user._id,
-				totalAcumulado: 0,
-				classificacao: 0,
-				classificacaoAnterior: 0,
-				placarCheio: 0,
-				placarTimeVencedorComGol: 0,
-				placarTimeVencedor: 0,
-				placarGol: 0,
+				cumulativeTotal: 0,
+				ranking: 0,
+				previousRanking: 0,
+				exactScore: 0,
+				winnerWithGoal: 0,
+				correctWinner: 0,
+				oneGoalCorrect: 0,
 				bets: allBets.filter((p) => p.user.equals(user._id)) as unknown as BetPopulated[],
 			}))
 
 			for (let i = 0; i < matches.length; i++) {
 				const match = matches[i]
-				if (!isValidPlacar(match.homeTeamScore) || !isValidPlacar(match.awayTeamScore)) continue
+				if (!isValidScore(match.homeTeamScore) || !isValidScore(match.awayTeamScore)) continue
 
 				for (const user of users) {
 					const bet = findBet(user.bets, match)
 					if (bet == null) continue
-					calcularPontuacaoBet(bet, match)
-					user.totalAcumulado += bet.totalPointsEarned
-					user.placarCheio += bet.exactScore ? 1 : 0
-					user.placarTimeVencedorComGol += bet.winnerWithGoal ? 1 : 0
-					user.placarTimeVencedor += bet.correctWinner ? 1 : 0
-					user.placarGol += bet.oneGoalCorrect ? 1 : 0
-					bet.cumulativeTotal = user.totalAcumulado
+					calculateBetScore(bet, match)
+					user.cumulativeTotal += bet.totalPointsEarned
+					user.exactScore += bet.exactScore ? 1 : 0
+					user.winnerWithGoal += bet.winnerWithGoal ? 1 : 0
+					user.correctWinner += bet.correctWinner ? 1 : 0
+					user.oneGoalCorrect += bet.oneGoalCorrect ? 1 : 0
+					bet.cumulativeTotal = user.cumulativeTotal
 				}
-				users = classificar(users, i)
+				users = rankUsers(users, i)
 				for (const user of users) {
 					const bet = findBet(user.bets, match)
 					if (bet == null) continue
-					bet.ranking = user.classificacao
-					bet.previousRanking = user.classificacaoAnterior
+					bet.ranking = user.ranking
+					bet.previousRanking = user.previousRanking
 				}
 			}
 
@@ -114,13 +112,13 @@ export class ResultService {
 						.findByIdAndUpdate(
 							user._id,
 							{
-								totalAcumulado: user.totalAcumulado,
-								classificacao: user.classificacao,
-								classificacaoAnterior: user.classificacaoAnterior,
-								placarCheio: user.placarCheio,
-								placarTimeVencedorComGol: user.placarTimeVencedorComGol,
-								placarTimeVencedor: user.placarTimeVencedor,
-								placarGol: user.placarGol,
+								cumulativeTotal: user.cumulativeTotal,
+								ranking: user.ranking,
+								previousRanking: user.previousRanking,
+								exactScore: user.exactScore,
+								winnerWithGoal: user.winnerWithGoal,
+								correctWinner: user.correctWinner,
+								oneGoalCorrect: user.oneGoalCorrect,
 							},
 							{ new: true },
 						)
@@ -129,8 +127,6 @@ export class ResultService {
 				}),
 			)
 
-			this.logger.log(`Updated match ${newMatch?._id}: ${newMatch?.homeTeamScore} x ${newMatch?.awayTeamScore}`)
-			return newMatch
 		} finally {
 			await this.appConfig.setUpdatingScores(false)
 		}
@@ -140,19 +136,15 @@ export class ResultService {
 const findBet = (bets: BetPopulated[], match: MatchDocument) =>
 	bets.find((bet) => bet.match.footballDataId === match.footballDataId)
 
-// Exportado para testes unitários (lógica de pontuação isolada, sem depender do Mongoose)
-export const calcularPontuacaoBet = (bet: BetPopulated, match: MatchDocument) => {
-	if (!isValidPlacar(bet.homeTeamScore) || !isValidPlacar(bet.awayTeamScore)) {
-		zerarPontuacao(bet)
+export const calculateBetScore = (bet: BetPopulated, match: MatchDocument) => {
+	if (!isValidScore(bet.homeTeamScore) || !isValidScore(bet.awayTeamScore)) {
+		resetScore(bet)
 		return
 	}
-	const betVencedor = vencedor(bet.homeTeamScore, bet.awayTeamScore)
-	const matchVencedor = vencedor(match.homeTeamScore!, match.awayTeamScore!)
+	const betWinner = winner(bet.homeTeamScore, bet.awayTeamScore)
+	const matchWinner = winner(match.homeTeamScore!, match.awayTeamScore!)
 
-	if (
-		bet.homeTeamScore === match.homeTeamScore &&
-		bet.awayTeamScore === match.awayTeamScore
-	) {
+	if (bet.homeTeamScore === match.homeTeamScore && bet.awayTeamScore === match.awayTeamScore) {
 		bet.totalPointsEarned = 5
 		bet.exactScore = true
 		bet.winnerWithGoal = false
@@ -161,7 +153,7 @@ export const calcularPontuacaoBet = (bet: BetPopulated, match: MatchDocument) =>
 		return
 	}
 
-	if (betVencedor === matchVencedor) {
+	if (betWinner === matchWinner) {
 		const scoredOneGoal =
 			bet.homeTeamScore === match.homeTeamScore ||
 			bet.awayTeamScore === match.awayTeamScore
@@ -183,7 +175,7 @@ export const calcularPontuacaoBet = (bet: BetPopulated, match: MatchDocument) =>
 	bet.oneGoalCorrect = scoredOnlyOneGoal
 }
 
-const zerarPontuacao = (bet: BetPopulated) => {
+const resetScore = (bet: BetPopulated) => {
 	bet.totalPointsEarned = 0
 	bet.exactScore = false
 	bet.winnerWithGoal = false
@@ -191,32 +183,32 @@ const zerarPontuacao = (bet: BetPopulated) => {
 	bet.oneGoalCorrect = false
 }
 
-const vencedor = (placarA: number, placarB: number): 'A' | 'B' | 'E' =>
-	placarA > placarB ? 'A' : placarB > placarA ? 'B' : 'E'
+const winner = (scoreA: number, scoreB: number): 'A' | 'B' | 'E' =>
+	scoreA > scoreB ? 'A' : scoreB > scoreA ? 'B' : 'E'
 
-export const classificar = (users: UserAggregate[], index: number): UserAggregate[] => {
-	users.sort(compararUsuarios)
-	let cla = 1
-	let mesmoplacar = 1
+export const rankUsers = (users: UserAggregate[], index: number): UserAggregate[] => {
+	users.sort(compareUsers)
+	let currentRank = 1
+	let tiedCount = 1
 	for (let i = 0; i < users.length; i++) {
 		if (i > 0) {
-			if (compararUsuarios(users[i], users[i - 1]) === 0) {
-				cla = users[i - 1].classificacao
-				mesmoplacar += 1
+			if (compareUsers(users[i], users[i - 1]) === 0) {
+				currentRank = users[i - 1].ranking
+				tiedCount += 1
 			} else {
-				cla = cla + mesmoplacar
-				mesmoplacar = 1
+				currentRank = currentRank + tiedCount
+				tiedCount = 1
 			}
 		}
-		users[i].classificacaoAnterior = index > 0 ? users[i].classificacao : 0
-		users[i].classificacao = cla
+		users[i].previousRanking = index > 0 ? users[i].ranking : 0
+		users[i].ranking = currentRank
 	}
 	return users
 }
 
-const compararUsuarios = (u1: UserAggregate, u2: UserAggregate): number =>
-	u2.totalAcumulado - u1.totalAcumulado ||
-	u2.placarCheio - u1.placarCheio ||
-	u2.placarTimeVencedorComGol - u1.placarTimeVencedorComGol ||
-	u2.placarTimeVencedor - u1.placarTimeVencedor ||
-	u2.placarGol - u1.placarGol
+const compareUsers = (u1: UserAggregate, u2: UserAggregate): number =>
+	u2.cumulativeTotal - u1.cumulativeTotal ||
+	u2.exactScore - u1.exactScore ||
+	u2.winnerWithGoal - u1.winnerWithGoal ||
+	u2.correctWinner - u1.correctWinner ||
+	u2.oneGoalCorrect - u1.oneGoalCorrect

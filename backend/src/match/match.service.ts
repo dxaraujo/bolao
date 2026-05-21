@@ -1,60 +1,131 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
-import { subHours } from 'date-fns'
 import { Model } from 'mongoose'
 
-import { CreateMatchDto } from './dto/create-match.dto'
-import { UpdateMatchDto } from './dto/update-match.dto'
+import { MatchStage, MatchStatus, nowtoLocalISOString } from '@bolao/shared'
+import { ConfigService } from '@nestjs/config'
+import { StageService } from 'src/stage/stage.service'
+import { TeamService } from 'src/team/team.service'
 import { Match } from './schemas/match.schema'
+import { UpdateMatchDto } from './dto/update-match.dto'
+
+interface FootballDataMatch {
+	id: number
+	utcDate: string
+	status: MatchStatus
+	matchday: number
+	stage: MatchStage
+	group: string
+	homeTeam: { id: number }
+	awayTeam: { id: number }
+	lastUpdated: string
+}
 
 @Injectable()
 export class MatchService {
 
-	constructor(@InjectModel(Match.name) private readonly model: Model<Match>) { }
+	private readonly logger = new Logger(MatchService.name)
+	private readonly apiUrl: string
+	private readonly apiKey: string
 
-	findAll(query: Record<string, unknown>) {
-		return this.model.find(query).sort({ order: 'asc' }).exec()
+	constructor(
+		@InjectModel(Match.name) private readonly model: Model<Match>,
+		private readonly stageService: StageService,
+		private readonly teamService: TeamService,
+		private readonly config: ConfigService
+	) {
+		this.apiUrl = config.getOrThrow<string>('FOOTBALL_DATA_API_URL')
+		this.apiKey = config.getOrThrow<string>('FOOTBALL_DATA_API_KEY')
 	}
 
-	findResultados() {
-		const limite = subHours(new Date(), 3)
-		return this.model.find({ utcDate: { $lt: limite } }).sort({ order: 'asc' }).exec()
+	async findVisible() {
+		const stageNames = await this.stageService.findBlockedStages()
+		const matches = await this.model.find({ stage: { $in: stageNames } }).exec()
+		return matches.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf() || a.footballDataId - b.footballDataId)
 	}
 
-	findById(id: string) {
-		return this.model.findById(id).exec()
+	async findAll() {
+		const matches = await this.model.find().exec()
+		return matches.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf() || a.footballDataId - b.footballDataId)
 	}
-
 
 	findIdsByStages(stageNames: string[]) {
 		return this.model.find({ stage: { $in: stageNames } }).distinct('_id').exec()
-	}
-
-	findByStage(stageName: string) {
-		return this.model.find({ stage: stageName }).sort({ utcDate: 'asc' }).exec()
 	}
 
 	findByFootballDataMatchId(id: number) {
 		return this.model.findOne({ footballDataId: id }).exec()
 	}
 
-	create(dto: CreateMatchDto) {
-		return this.model.create(dto)
+	async importMatches() {
+
+		this.logger.log(`Import matches started at: ${nowtoLocalISOString()}`)
+
+		try {
+
+			const response = await fetch(this.apiUrl + '/competitions/WC/matches?season=2026', { headers: { 'X-Auth-Token': this.apiKey } })
+
+			if (!response.ok) {
+				this.logger.warn(`Football Data API returned error: ${response.statusText}. Response: ${JSON.stringify(await response.json())}`)
+				return
+			}
+
+			const data = await response.json()
+			const matches = data.matches as FootballDataMatch[]
+			this.logger.log(`Found ${matches.length} matches`)
+
+			for (const externalMatch of matches) {
+
+				const lastUpdated = new Date(externalMatch.lastUpdated)
+				const homeTeam = await this.teamService.findByFootballDataTeamId(externalMatch.homeTeam.id)
+				const awayTeam = await this.teamService.findByFootballDataTeamId(externalMatch.awayTeam.id)
+
+				if (!homeTeam) {
+					this.logger.warn(`Home team ${externalMatch.homeTeam.id} not found for match ${externalMatch.id}`)
+				}
+
+				if (!awayTeam) {
+					this.logger.warn(`Away team ${externalMatch.awayTeam.id} not found for match ${externalMatch.id}`)
+				}
+
+				const registeredMatch = await this.model.findOne({ footballDataId: externalMatch.id }).exec()
+
+				const matchData = {
+					footballDataId: externalMatch.id,
+					utcDate: new Date(externalMatch.utcDate),
+					status: externalMatch.status,
+					matchday: externalMatch.matchday,
+					stage: externalMatch.stage,
+					group: externalMatch.group,
+					homeTeam: homeTeam,
+					awayTeam: awayTeam,
+					lastUpdated,
+				}
+
+				if (!registeredMatch) {
+					await this.model.create(matchData)
+					this.logger.log(`Created match ${externalMatch.id}: ${homeTeam?.tla ?? '-'} x ${awayTeam?.tla ?? '-'}`)
+					continue
+				}
+
+				if (registeredMatch.lastUpdated && registeredMatch.lastUpdated >= lastUpdated) {
+					this.logger.log(`Match ${externalMatch.id} already up to date`)
+					continue
+				}
+
+				await this.model.updateOne({ footballDataId: externalMatch.id }, { $set: matchData }).exec()
+				this.logger.log(`Updated match ${externalMatch.id}: ${homeTeam?.tla ?? '-'} x ${awayTeam?.tla ?? '-'}`)
+			}
+
+			this.logger.log(`Finished importing matches at: ${nowtoLocalISOString()}`)
+
+		} catch (err) {
+
+			this.logger.error('Error importing matches', err)
+		}
 	}
 
-	upsertByFootballDataMatchId(id: number, dto: CreateMatchDto) {
-		return this.model.findOneAndUpdate({ footballDataId: id }, { $set: dto }, { new: true, upsert: true }).exec()
-	}
-
-	async update(id: string, dto: UpdateMatchDto) {
-		const updated = await this.model.findByIdAndUpdate(id, dto, { new: true }).exec()
-		if (!updated) throw new NotFoundException(`Match ${id} não encontrada`)
-		return updated
-	}
-
-	async remove(id: string) {
-		const removed = await this.model.findByIdAndDelete(id).exec()
-		if (!removed) throw new NotFoundException(`Match ${id} não encontrada`)
-		return removed
+	updateMatch(matchId: string, { status, homeTeamScore, awayTeamScore }: UpdateMatchDto) {
+		return this.model.findByIdAndUpdate(matchId, { status, homeTeamScore, awayTeamScore }, { new: true }).exec()
 	}
 }

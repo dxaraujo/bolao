@@ -3,16 +3,16 @@ import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
-import { nowtoLocalISOString } from '@bolao/shared'
+import { MatchStage, MatchStatus, nowtoLocalISOString } from '@bolao/shared'
 import { TeamService } from '../team/team.service'
 import { Match } from './schemas/match.schema'
 
 interface FootballDataMatch {
 	id: number
 	utcDate: string
-	status: string
+	status: MatchStatus
 	matchday: number
-	stage: string
+	stage: MatchStage
 	group: string
 	homeTeam: { id: number }
 	awayTeam: { id: number }

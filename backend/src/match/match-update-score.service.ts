@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
-import { nowtoLocalISOString } from '@bolao/shared'
+import { MatchStatus, nowtoLocalISOString } from '@bolao/shared'
 import { MatchService } from './match.service'
 import { ResultService } from './result.service'
 
 interface FootballDataMatch {
 	id: number
-	status: string
+	status: MatchStatus
 	score: { fullTime: { home: number, away: number } }
 }
 
@@ -48,7 +48,7 @@ export class MatchUpdateScoreService {
 			const matches = data.matches as FootballDataMatch[]
 			this.logger.log(`Found ${matches.length} matches`)
 
-			const finishedMatches = matches.filter((match) => match.status === 'FINISHED')
+			const finishedMatches = matches.filter((match) => match.status === MatchStatus.FINISHED)
 			this.logger.log(`Found ${finishedMatches.length} finished matches`)
 
 			for (const finishedMatch of finishedMatches) {

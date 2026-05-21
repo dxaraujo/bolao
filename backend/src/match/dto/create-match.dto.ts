@@ -10,6 +10,7 @@ import {
 	ValidateNested,
 } from 'class-validator'
 import { CreateTeamDto } from '../../team/dto/create-team.dto'
+import { MatchStage, MatchStatus } from '../schemas/match.schema'
 
 export class CreateMatchDto {
 
@@ -21,15 +22,15 @@ export class CreateMatchDto {
 	@IsDate()
 	utcDate!: Date
 
-	@IsString()
-	status!: string
+	@IsEnum(MatchStatus)
+	status!: MatchStatus
 
 	@IsInt()
 	@Min(0)
 	matchday!: number
 
-	@IsString()
-	stage!: string
+	@IsEnum(MatchStage)
+	stage!: MatchStage
 
 	@IsString()
 	group!: string

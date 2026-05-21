@@ -1,4 +1,8 @@
-import { PartialType } from '@nestjs/mapped-types'
-import { CreatePhaseDto } from './create-phase.dto'
+import { PhaseStatus } from '@bolao/shared'
+import { IsEnum, IsOptional } from 'class-validator'
 
-export class UpdatePhaseDto extends PartialType(CreatePhaseDto) { }
+export class UpdatePhaseDto {
+
+    @IsEnum(PhaseStatus)
+    status!: PhaseStatus
+}

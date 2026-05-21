@@ -62,7 +62,7 @@ Validação acontece no startup via [`src/common/env.validation.ts`](src/common/
 | Método | Path                                          | Auth     |
 |--------|-----------------------------------------------|----------|
 | GET    | `/healthcheck`                                | público  |
-| POST   | `/registerGoogleUser?token=…`                 | público  |
+| POST   | `/auth/google` `{ "credential": "…" }`        | público  |
 | GET    | `/api/user`, `/api/user/:id`, `/api/user/authenticated` | JWT |
 | PUT    | `/api/user/:id`                               | JWT      |
 | DELETE | `/api/user/:id`                               | JWT      |
@@ -79,7 +79,7 @@ Validação acontece no startup via [`src/common/env.validation.ts`](src/common/
 | PUT    | `/api/bet/:user/updateBets`           | JWT      |
 | GET    | `/api/bet/:user/:fase/montarbets`     | JWT      |
 
-JWT é exigido no header `Authorization: Bearer <token>`. O token é emitido por `/registerGoogleUser` após verificação do `idToken` do Google.
+JWT é exigido no header `Authorization: Bearer <token>`. O token é emitido por `POST /auth/google` após verificação do ID token do Google (`credential` no body).
 
 ## Estrutura
 

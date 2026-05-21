@@ -6,13 +6,16 @@ export type UserDocument = HydratedDocument<User>
 @Schema({ strict: false })
 export class User {
 
+	@Prop({ required: true, unique: true, index: true })
+	googleSub!: string
+
 	@Prop({ required: true })
 	name!: string
 
-	@Prop({ required: true, unique: true, index: true })
+	@Prop({ required: true })
 	email!: string
 
-	@Prop({ required: true })
+	@Prop({ default: '' })
 	picture!: string
 
 	@Prop({ required: true, default: 0 })

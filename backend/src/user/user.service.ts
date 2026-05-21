@@ -7,9 +7,10 @@ import { Bet } from '../bet/schemas/bet.schema'
 import { User } from './schemas/user.schema'
 
 export interface CreateUserInput {
+	googleSub: string
 	name: string
 	email: string
-	picture: string
+	picture?: string
 }
 
 export interface UpdateUserInput {
@@ -29,12 +30,10 @@ export class UserService {
 		return this.userModel.findById(id).exec()
 	}
 
-	findByEmail(email: string) {
-		return this.userModel.findOne({ email }).exec()
-	}
-
-	create(input: CreateUserInput) {
-		return this.userModel.create(input)
+	upsert(input: CreateUserInput) {
+		return this.userModel
+			.findOneAndUpdate({ googleSub: input.googleSub }, input, { new: true, upsert: true })
+			.exec()
 	}
 
 	async findAllWithBets(query: Record<string, unknown>) {

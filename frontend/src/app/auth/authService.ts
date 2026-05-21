@@ -5,18 +5,15 @@ interface JwtPayload {
 	exp: number
 }
 
-export const loginWithGoogle = (token: string, callback: () => void) => {
-	setGoogleToken(token)
-	registerGoogleUser(token, callback)
+export const loginWithGoogle = (credential: string, callback: () => void) => {
+	authFetch('auth/google', {
+		method: 'POST',
+		body: JSON.stringify({ credential }),
+	}).then((data: { token: string }) => {
+		setToken(data.token)
+		if (callback) callback()
+	})
 }
-
-const registerGoogleUser = (token: string, callback: () => void) =>
-	authFetch(`registerGoogleUser?token=${token}`, { method: 'POST' }).then(
-		(data: { token: string }) => {
-			setToken(data.token)
-			if (callback) callback()
-		},
-	)
 
 export const loggedIn = () => {
 	const token = getToken()
@@ -40,13 +37,8 @@ const getToken = () => {
 	return localStorage.getItem('jwt_token')
 }
 
-const setGoogleToken = (token: string) => {
-	localStorage.setItem('google_token', token)
-}
-
 export const logout = (callback?: () => void) => {
 	localStorage.removeItem('jwt_token')
-	localStorage.removeItem('google_token')
 	callback && callback()
 }
 

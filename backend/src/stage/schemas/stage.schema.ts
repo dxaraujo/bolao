@@ -8,9 +8,6 @@ export { StageStatus }
 @Schema()
 export class Stage {
 
-	@Prop({ required: true, unique: true })
-	name!: string
-
 	@Prop({
 		required: true,
 		unique: true,
@@ -18,7 +15,7 @@ export class Stage {
 		default: MatchStage.GROUP_STAGE,
 		index: true,
 	})
-	stage!: MatchStage
+	matchStage!: MatchStage
 
 	@Prop({
 		required: true,

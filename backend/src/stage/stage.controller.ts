@@ -20,17 +20,24 @@ import { StageService } from './stage.service'
 @ApiProtectedInDocs()
 @Controller('api/stage')
 export class StageController {
+
 	constructor(private readonly service: StageService) {}
 
 	@Get()
-	async list(@Query() query: Record<string, unknown>) {
-		const data = await this.service.findAll(query)
+	async findAll() {
+		const data = await this.service.findAll()
 		return { data }
 	}
 
-	@Put(':name')
-	async update(@Param('name') name: string, @Body() body: UpdateStageDto) {
-		const data = await this.service.update(name, body)
+	@Get('visible')
+	async findVisible() {
+		const data = await this.service.findVisibleStages()
+		return { data }
+	}
+
+	@Put(':matchStage')
+	async update(@Param('matchStage') matchStage: string, @Body() body: UpdateStageDto) {
+		const data = await this.service.update(matchStage, body)
 		return { data }
 	}
 }

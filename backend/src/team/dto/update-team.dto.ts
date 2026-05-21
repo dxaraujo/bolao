@@ -1,4 +1,13 @@
-import { PartialType } from '@nestjs/mapped-types'
-import { CreateTeamDto } from './create-team.dto'
+import { IsMongoId, IsString } from "class-validator"
 
-export class UpdateTeamDto extends PartialType(CreateTeamDto) { }
+export class UpdateTeamDto {
+
+    @IsString()
+    name!: string
+
+    @IsString()
+    shortName!: string
+
+    @IsString()
+    tla!: string
+}

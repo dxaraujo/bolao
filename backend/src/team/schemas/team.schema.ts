@@ -7,7 +7,7 @@ export type TeamDocument = HydratedDocument<Team>
 export class Team {
 
 	@Prop({ required: true, unique: true })
-	id!: number
+	footballDataId!: number
 
 	@Prop({ required: true })
 	name!: string

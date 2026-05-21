@@ -28,7 +28,7 @@ export class MatchUpdateScoreService {
 
 	async updateScores() {
 
-		this.logger.log('Update scores started at: {}', new Date().toISOString())
+		this.logger.log(`Update scores started at: ${new Date().toISOString()}`)
 
 		try {
 
@@ -39,16 +39,16 @@ export class MatchUpdateScoreService {
 			})
 
 			if (!response.ok) {
-				this.logger.warn('Football Data API returned error: %s. Response: %j', response.statusText, await response.json())
+				this.logger.warn(`Football Data API returned error: ${response.statusText}. Response: ${JSON.stringify(await response.json())}`)
 				return
 			}
 
 			const data = await response.json()
 			const matches = data.matches as FootballDataMatch[]
-			this.logger.log('Found {} matches', matches.length)
+			this.logger.log(`Found ${matches.length} matches`)
 
 			const finishedMatches = matches.filter((match) => match.status === 'FINISHED')
-			this.logger.log('Found {} finished matches', finishedMatches.length)
+			this.logger.log(`Found ${finishedMatches.length} finished matches`)
 
 			for (const finishedMatch of finishedMatches) {
 
@@ -56,38 +56,34 @@ export class MatchUpdateScoreService {
 				const awayTeamScore = finishedMatch.score.fullTime.away
 
 				if (homeTeamScore == null || awayTeamScore == null || homeTeamScore < 0 || awayTeamScore < 0) {
-					this.logger.warn('Invalid score for match {}: {} x {}', finishedMatch.id, homeTeamScore, awayTeamScore)
+					this.logger.warn(`Invalid score for match ${finishedMatch.id}: ${homeTeamScore} x ${awayTeamScore}`)
 					continue
 				}
 
 				const registeredMatch = await this.matchService.findByFootballDataMatchId(finishedMatch.id)
 				if (!registeredMatch) {
-					this.logger.warn('Match {} not found', finishedMatch.id)
+					this.logger.warn(`Match ${finishedMatch.id} not found`)
 					continue
 				}
 
 				if (registeredMatch.homeTeamScore === homeTeamScore && registeredMatch.awayTeamScore === awayTeamScore) {
-					this.logger.log('Match {} already has score: {} x {}', finishedMatch.id, homeTeamScore, awayTeamScore)
+					this.logger.log(`Match ${finishedMatch.id} already has score: ${homeTeamScore} x ${awayTeamScore}`)
 					continue
 				}
 
-				this.logger.log('Updating match {}: {} x {} → {} x {}',
-					registeredMatch.homeTeam?.tla,
-					registeredMatch.homeTeamScore ?? '-',
-					registeredMatch.awayTeamScore ?? '-',
-					registeredMatch.awayTeam?.tla,
-					homeTeamScore,
-					awayTeamScore)
+				this.logger.log(
+					`Updating match ${finishedMatch.id}: ${registeredMatch.homeTeamScore ?? '-'} x ${registeredMatch.awayTeamScore ?? '-'} → ${homeTeamScore} x ${awayTeamScore}`,
+				)
 
 				await this.resultService.atualizarResults(String(registeredMatch._id), { homeTeamScore, awayTeamScore })
 
-				this.logger.log('Updated match {}: {} x {}', finishedMatch.id, homeTeamScore, awayTeamScore)
+				this.logger.log(`Updated match ${finishedMatch.id}: ${homeTeamScore} x ${awayTeamScore}`)
 			}
 
-			this.logger.log('Finished updating scores at: {}', new Date().toISOString())
+			this.logger.log(`Finished updating scores at: ${new Date().toISOString()}`)
 
 		} catch (err) {
-			this.logger.error('Error updating scores: {}', err)
+			this.logger.error('Error updating scores', err)
 		}
 	}
 }

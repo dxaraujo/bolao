@@ -47,13 +47,13 @@ export class MatchImportService {
 			})
 
 			if (!response.ok) {
-				this.logger.warn('Football Data API returned error: %s. Response: %j', response.statusText, await response.json())
+				this.logger.warn(`Football Data API returned error: ${response.statusText}. Response: ${JSON.stringify(await response.json())}`)
 				return
 			}
 
 			const data = await response.json()
 			const matches = data.matches as FootballDataMatch[]
-			this.logger.log('Found {} matches', matches.length)
+			this.logger.log(`Found ${matches.length} matches`)
 
 			for (const externalMatch of matches) {
 
@@ -62,11 +62,11 @@ export class MatchImportService {
 				const awayTeam = await this.teamService.findByFootballDataTeamId(externalMatch.awayTeam.id)
 
 				if (!homeTeam) {
-					this.logger.warn('Home team {} not found for match {}', externalMatch.homeTeam.id, externalMatch.id)
+					this.logger.warn(`Home team ${externalMatch.homeTeam.id} not found for match ${externalMatch.id}`)
 				}
 
 				if (!awayTeam) {
-					this.logger.warn('Away team {} not found for match {}', externalMatch.awayTeam.id, externalMatch.id)
+					this.logger.warn(`Away team ${externalMatch.awayTeam.id} not found for match ${externalMatch.id}`)
 				}
 
 				const registeredMatch = await this.model.findOne({ id: externalMatch.id }).exec()
@@ -85,24 +85,24 @@ export class MatchImportService {
 
 				if (!registeredMatch) {
 					await this.model.create(matchData)
-					this.logger.log('Created match {}: {} x {}', externalMatch.id, homeTeam?.tla ?? '-', awayTeam?.tla ?? '-')
+					this.logger.log(`Created match ${externalMatch.id}: ${homeTeam?.tla ?? '-'} x ${awayTeam?.tla ?? '-'}`)
 					continue
 				}
 
 				if (registeredMatch.lastUpdated && registeredMatch.lastUpdated >= lastUpdated) {
-					this.logger.log('Match {} already up to date', externalMatch.id)
+					this.logger.log(`Match ${externalMatch.id} already up to date`)
 					continue
 				}
 
 				await this.model.updateOne({ id: externalMatch.id }, { $set: matchData }).exec()
-				this.logger.log('Updated match {}: {} x {}', externalMatch.id, homeTeam?.tla ?? '-', awayTeam?.tla ?? '-')
+				this.logger.log(`Updated match ${externalMatch.id}: ${homeTeam?.tla ?? '-'} x ${awayTeam?.tla ?? '-'}`)
 			}
 
-			this.logger.log('Finished importing matches at: {}', new Date().toISOString())
+			this.logger.log(`Finished importing matches at: ${new Date().toISOString()}`)
 
 		} catch (err) {
 
-			this.logger.error('Error importing matches: {}', err)
+			this.logger.error('Error importing matches', err)
 		}
 	}
 }

@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: bolao-backend
+    runtime: node
+    buildCommand: npm install -g pnpm@9.15.0 && pnpm install --frozen-lockfile && pnpm build:shared && pnpm build:backend
+    startCommand: node backend/dist/main.js
+    healthCheckPath: /healthcheck
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: AUTH_SECRET
+        generateValue: true
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 30d
+      - key: FOOTBALL_DATA_API_URL
+        value: https://api.football-data.org/v4
+      - key: FOOTBALL_DATA_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false

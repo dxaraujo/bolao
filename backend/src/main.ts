@@ -45,9 +45,9 @@ async function bootstrap() {
 	}
 
 	const port = config.getOrThrow<number>('PORT')
-	await app.listen(port)
+	await app.listen(port, '0.0.0.0')
 
-	logger.log(`API listening on http://localhost:${port}`)
+	logger.log(`API listening on port ${port}`)
 }
 
 bootstrap()

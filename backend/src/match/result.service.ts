@@ -21,6 +21,7 @@ export interface UserAggregate {
 }
 
 const isValidScore = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0
+const winner = (scoreA: number, scoreB: number): 'A' | 'B' | 'E' => scoreA > scoreB ? 'A' : scoreB > scoreA ? 'B' : 'E'
 
 @Injectable()
 export class ResultService {
@@ -50,7 +51,10 @@ export class ResultService {
 					.find({ stage: { $in: blockedStages } })
 					.sort({ utcDate: 1, footballDataId: 1 })
 					.exec(),
-				this.userModel.find({ isActive: true }).exec(),
+				this.userModel
+					.find({ isActive: true })
+					.sort({ name: 1 })
+					.exec(),
 			])
 
 			if (matches.length === 0 || activeUsers.length === 0) return
@@ -65,13 +69,13 @@ export class ResultService {
 
 			let users: UserAggregate[] = activeUsers.map((user) => ({
 				_id: user._id,
-				cumulativeTotal: 0,
-				ranking: 0,
-				previousRanking: 0,
 				exactScore: 0,
 				winnerWithGoal: 0,
 				correctWinner: 0,
 				oneGoalCorrect: 0,
+				cumulativeTotal: 0,
+				ranking: 0,
+				previousRanking: 0,
 				bets: allBets.filter((bet) => bet.user.equals(user._id)) as unknown as BetPopulated[],
 			}))
 
@@ -83,7 +87,7 @@ export class ResultService {
 
 				for (const user of users) {
 
-					const bet = findBet(user.bets, match)
+					const bet = user.bets.find(bet => bet.match.footballDataId === match.footballDataId)
 
 					if (bet == null) continue
 
@@ -100,7 +104,7 @@ export class ResultService {
 				users = rankUsers(users, i)
 
 				for (const user of users) {
-					const bet = findBet(user.bets, match)
+					const bet = user.bets.find(bet => bet.match.footballDataId === match.footballDataId)
 					if (bet == null) continue
 					bet.ranking = user.ranking
 					bet.previousRanking = user.previousRanking
@@ -152,12 +156,14 @@ export class ResultService {
 	}
 }
 
-const findBet = (bets: BetPopulated[], match: MatchDocument) =>
-	bets.find((bet) => bet.match.footballDataId === match.footballDataId)
-
 export const calculateBetScore = (bet: BetPopulated, match: MatchDocument) => {
+
 	if (!isValidScore(bet.homeTeamScore) || !isValidScore(bet.awayTeamScore)) {
-		resetScore(bet)
+		bet.totalPointsEarned = 0
+		bet.exactScore = false
+		bet.winnerWithGoal = false
+		bet.correctWinner = false
+		bet.oneGoalCorrect = false
 		return
 	}
 
@@ -174,9 +180,7 @@ export const calculateBetScore = (bet: BetPopulated, match: MatchDocument) => {
 	}
 
 	if (betWinner === matchWinner) {
-		const scoredOneGoal =
-			bet.homeTeamScore === match.homeTeamScore ||
-			bet.awayTeamScore === match.awayTeamScore
+		const scoredOneGoal = bet.homeTeamScore === match.homeTeamScore || bet.awayTeamScore === match.awayTeamScore
 		bet.totalPointsEarned = scoredOneGoal ? 3 : 2
 		bet.exactScore = false
 		bet.winnerWithGoal = scoredOneGoal
@@ -185,26 +189,13 @@ export const calculateBetScore = (bet: BetPopulated, match: MatchDocument) => {
 		return
 	}
 
-	const scoredOnlyOneGoal =
-		bet.homeTeamScore === match.homeTeamScore ||
-		bet.awayTeamScore === match.awayTeamScore
+	const scoredOnlyOneGoal = bet.homeTeamScore === match.homeTeamScore || bet.awayTeamScore === match.awayTeamScore
 	bet.totalPointsEarned = scoredOnlyOneGoal ? 1 : 0
 	bet.exactScore = false
 	bet.winnerWithGoal = false
 	bet.correctWinner = false
 	bet.oneGoalCorrect = scoredOnlyOneGoal
 }
-
-const resetScore = (bet: BetPopulated) => {
-	bet.totalPointsEarned = 0
-	bet.exactScore = false
-	bet.winnerWithGoal = false
-	bet.correctWinner = false
-	bet.oneGoalCorrect = false
-}
-
-const winner = (scoreA: number, scoreB: number): 'A' | 'B' | 'E' =>
-	scoreA > scoreB ? 'A' : scoreB > scoreA ? 'B' : 'E'
 
 export const rankUsers = (users: UserAggregate[], index: number): UserAggregate[] => {
 	users.sort(compareUsers)

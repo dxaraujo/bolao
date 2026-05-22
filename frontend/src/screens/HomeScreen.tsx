@@ -22,13 +22,13 @@ function MatchCard({ m, stages }: { m: Match; stages: Stage[] }) {
     >
       {isLive && <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-red-500 to-transparent" />}
       <div className="flex justify-between items-center mb-3">
-        <span className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] uppercase tracking-wide">
+        <span className="text-[12px] font-bold text-copa-sub dark:text-[#64849f] uppercase tracking-wide">
           {stage?.short ?? m.matchStage}
         </span>
         <div className="flex items-center gap-1.5">
           {isLive && <LiveDot />}
           <span
-            className={`text-[10px] font-bold ${isLive ? 'text-red-400' : done ? 'text-copa-sub dark:text-[#64849f]' : 'text-copa-acc dark:text-[#00e5ff]'}`}
+            className={`text-[12px] font-bold ${isLive ? 'text-red-400' : done ? 'text-copa-sub dark:text-[#64849f]' : 'text-copa-acc dark:text-[#00e5ff]'}`}
           >
             {isLive ? 'AO VIVO' : done ? 'Encerrado' : `${m.date.slice(8)}/${m.date.slice(5, 7)} · ${m.time}`}
           </span>
@@ -47,7 +47,7 @@ function MatchCard({ m, stages }: { m: Match; stages: Stage[] }) {
           ) : (
             <div className="text-sm font-bold text-copa-muted dark:text-[#243347] tracking-widest">VS</div>
           )}
-          {!done && !isLive && <div className="text-[9px] text-copa-mutedT dark:text-[#3a5270] mt-1">{m.time}</div>}
+          {!done && !isLive && <div className="text-[11px] text-copa-mutedT dark:text-[#3a5270] mt-1">{m.time}</div>}
         </div>
         <div className="text-center">
           <div className="text-3xl mb-1 font-bold text-copa-acc dark:text-[#00e5ff]">{m.af}</div>
@@ -101,7 +101,7 @@ export function HomeScreen({ onNav }: HomeScreenProps) {
         border border-[#00e5ff]/20 dark:border-[#00e5ff]/20"
       >
         <div className="absolute -right-6 -top-6 w-28 h-28 rounded-full bg-[#00e5ff] opacity-[0.04]" />
-        <div className="text-[10px] font-bold text-copa-acc dark:text-[#00e5ff] tracking-widest uppercase mb-2">
+        <div className="text-[12px] font-bold text-copa-acc dark:text-[#00e5ff] tracking-widest uppercase mb-2">
           Sua Posição Atual
         </div>
         <div className="flex items-center gap-4 mb-3">
@@ -112,7 +112,7 @@ export function HomeScreen({ onNav }: HomeScreenProps) {
             <div className="font-display text-3xl text-copa-acc dark:text-[#00e5ff] leading-none">
               {me.pts} <span className="text-base text-copa-sub dark:text-[#64849f]">pts</span>
             </div>
-            <div className="text-[10px] text-copa-sub dark:text-[#64849f]">
+            <div className="text-[12px] text-copa-sub dark:text-[#64849f]">
               de {users.length} participante{users.length !== 1 ? 's' : ''}
             </div>
           </div>
@@ -132,7 +132,7 @@ export function HomeScreen({ onNav }: HomeScreenProps) {
                 <div className="font-display text-xl leading-none" style={{ color: meta.color }}>
                   {value}
                 </div>
-                <div className="text-[9px] text-copa-sub dark:text-[#64849f] uppercase tracking-wide mt-0.5">
+                <div className="text-[11px] text-copa-sub dark:text-[#64849f] uppercase tracking-wide mt-0.5">
                   {meta.label}
                 </div>
               </div>
@@ -151,7 +151,7 @@ export function HomeScreen({ onNav }: HomeScreenProps) {
             <div className="text-xs font-bold text-[#22c55e]">
               📋 Apostas das {openStage.short} abertas
             </div>
-            <div className="text-[10px] text-copa-sub dark:text-[#64849f] mt-0.5">
+            <div className="text-[12px] text-copa-sub dark:text-[#64849f] mt-0.5">
               {openDeadline ? `Prazo: ${openDeadline} · ` : ''}
               {openMatches.length} jogo{openMatches.length !== 1 ? 's' : ''} · toque para apostar
             </div>
@@ -162,7 +162,7 @@ export function HomeScreen({ onNav }: HomeScreenProps) {
 
       {openMatches.length > 0 && (
         <>
-          <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-2.5">
+          <div className="text-[12px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-2.5">
             {openStage?.name ?? 'Fase aberta'}
           </div>
           <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-1">
@@ -175,7 +175,7 @@ export function HomeScreen({ onNav }: HomeScreenProps) {
 
       {recentMatches.length > 0 && (
         <>
-          <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mt-5 mb-2.5">
+          <div className="text-[12px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mt-5 mb-2.5">
             Resultados Recentes
           </div>
           <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-1">

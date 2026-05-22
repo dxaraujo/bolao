@@ -69,7 +69,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
             <p className="text-xs text-red-400 text-center">{error}</p>
           )}
         </div>
-        <p className="text-center text-[10px] text-copa-mutedT dark:text-[#3a5270] mt-3">
+        <p className="text-center text-[12px] text-copa-mutedT dark:text-[#3a5270] mt-3">
           Apenas membros do grupo têm acesso
         </p>
       </div>

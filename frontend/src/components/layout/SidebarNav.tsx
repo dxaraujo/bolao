@@ -20,7 +20,7 @@ export function SidebarNav({ active, onNav, onLogout }: SidebarNavProps) {
         <h1 className="font-display text-2xl leading-none tracking-wider text-copa-text dark:text-[#f0f6ff]">
           COPA<span className="text-copa-acc dark:text-[#00e5ff]">BET</span>
         </h1>
-        <p className="text-[10px] text-copa-sub dark:text-[#64849f] mt-1 tracking-widest uppercase">
+        <p className="text-[12px] text-copa-sub dark:text-[#64849f] mt-1 tracking-widest uppercase">
           Copa 2026
         </p>
       </div>

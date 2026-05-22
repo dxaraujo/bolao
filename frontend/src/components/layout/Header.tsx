@@ -36,7 +36,7 @@ export function Header({ isDark, onToggle, onLogout, screen = 'home' }: HeaderPr
           {screenTitle}
         </p>
         {updatingScores && (
-          <p className="text-[9px] text-amber-400 mt-0.5">Atualizando placares…</p>
+          <p className="text-[11px] text-amber-400 mt-0.5">Atualizando placares…</p>
         )}
       </div>
       <div className="flex items-center gap-2">

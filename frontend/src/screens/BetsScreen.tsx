@@ -148,7 +148,7 @@ export function BetsScreen() {
                   ? '🔒 Fase encerrada — palpites bloqueados'
                   : '⏳ Fase não disponível ainda'}
             </div>
-            <div className="text-[10px] text-copa-sub dark:text-[#64849f] mt-0.5">
+            <div className="text-[12px] text-copa-sub dark:text-[#64849f] mt-0.5">
               +{SCORING.exactScore} exato · +{SCORING.winnerWithGoal} venc.+gol · +{SCORING.correctWinner} vencedor · +{SCORING.oneGoalCorrect} 1 gol
             </div>
           </div>
@@ -194,11 +194,11 @@ export function BetsScreen() {
               >
                 {filled2 && <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[#00e5ff] rounded-l-none" />}
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-[10px] font-semibold text-copa-sub dark:text-[#64849f]">
+                  <span className="text-[12px] font-semibold text-copa-sub dark:text-[#64849f]">
                     Jogo {i + 1} · {m.date.slice(8)}/{m.date.slice(5, 7)} · {m.time}
                   </span>
                   {res && (
-                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md border ${RESULT_COLOR[res]}`}>
+                    <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md border ${RESULT_COLOR[res]}`}>
                       {RESULT_LABEL[res]}
                     </span>
                   )}
@@ -259,7 +259,7 @@ export function BetsScreen() {
                           disabled:cursor-default`}
                       />
                     </div>
-                    <div className="text-[9px] text-copa-mutedT dark:text-[#3a5270] mt-1 text-center">palpite</div>
+                    <div className="text-[11px] text-copa-mutedT dark:text-[#3a5270] mt-1 text-center">palpite</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl mb-1 font-bold text-copa-acc dark:text-[#00e5ff]">{m.af}</div>

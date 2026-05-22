@@ -85,7 +85,7 @@ export function BolaoScreen() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="screen-px pt-3 pb-0 bg-gradient-to-b from-copa-bg2 dark:from-[#0d1526] to-transparent border-b border-copa-border dark:border-[#1e2f45]">
-        <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-2.5">
+        <div className="text-[12px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-2.5">
           Palpites encerrados
         </div>
         <div className="flex gap-2 overflow-x-auto pb-3">
@@ -106,7 +106,7 @@ export function BolaoScreen() {
               >
                 {s.short}
                 <span
-                  className={`text-[9px] font-bold px-1.5 py-0 rounded ${active ? 'bg-[#00e5ff]/20 text-[#00e5ff]' : 'bg-copa-muted dark:bg-[#243347] text-copa-mutedT dark:text-[#3a5270]'}`}
+                  className={`text-[11px] font-bold px-1.5 py-0 rounded ${active ? 'bg-[#00e5ff]/20 text-[#00e5ff]' : 'bg-copa-muted dark:bg-[#243347] text-copa-mutedT dark:text-[#3a5270]'}`}
                 >
                   {cnt}
                 </span>
@@ -140,7 +140,7 @@ export function BolaoScreen() {
                 onClick={() => void toggle(m.id)}
               >
                 <div className="flex justify-between items-center mb-3">
-                  <span className="text-[10px] font-semibold text-copa-sub dark:text-[#64849f]">
+                  <span className="text-[12px] font-semibold text-copa-sub dark:text-[#64849f]">
                     {m.date.slice(8)}/{m.date.slice(5, 7)} · {m.time}
                   </span>
                   <div className="flex items-center gap-2">
@@ -153,7 +153,7 @@ export function BolaoScreen() {
                           return (
                             <span
                               key={key}
-                              className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+                              className="text-[11px] font-bold px-1.5 py-0.5 rounded"
                               style={{ color: meta.color, background: `${meta.color}15` }}
                             >
                               {count}
@@ -175,7 +175,7 @@ export function BolaoScreen() {
                     <div className="text-xs font-bold text-copa-text dark:text-[#f0f6ff]">{m.home}</div>
                   </div>
                   <div className="text-center min-w-[60px]">
-                    <div className="text-[10px] text-copa-sub dark:text-[#64849f] mb-1">Resultado</div>
+                    <div className="text-[12px] text-copa-sub dark:text-[#64849f] mb-1">Resultado</div>
                     <div className="font-display text-3xl text-copa-text dark:text-[#f0f6ff] tracking-widest leading-none">
                       {m.hs}&nbsp;–&nbsp;{m.as}
                     </div>
@@ -213,7 +213,7 @@ export function BolaoScreen() {
                         {['Jogador', 'Palpite', 'Resultado', 'Pts'].map((h) => (
                           <div
                             key={h}
-                            className="text-[9px] font-bold text-copa-sub dark:text-[#64849f] tracking-wide uppercase text-center first:text-left"
+                            className="text-[11px] font-bold text-copa-sub dark:text-[#64849f] tracking-wide uppercase text-center first:text-left"
                           >
                             {h}
                           </div>
@@ -240,7 +240,7 @@ export function BolaoScreen() {
                                     {user.name}
                                   </span>
                                   {isMeUser && (
-                                    <span className="text-[8px] font-bold text-[#00e5ff] bg-[#00e5ff]/10 px-1 rounded">
+                                    <span className="text-[10px] font-bold text-[#00e5ff] bg-[#00e5ff]/10 px-1 rounded">
                                       Você
                                     </span>
                                   )}
@@ -257,7 +257,7 @@ export function BolaoScreen() {
                               )}
                             </div>
                             <div className="text-center">
-                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${display.tw}`}>
+                              <span className={`text-[11px] font-bold px-1.5 py-0.5 rounded border ${display.tw}`}>
                                 {display.label}
                               </span>
                             </div>
@@ -274,7 +274,7 @@ export function BolaoScreen() {
                       })}
                       </div>
                       <div className="flex justify-between items-center px-4 py-2 bg-copa-surf2 dark:bg-[#172438]">
-                        <span className="text-[10px] text-copa-sub dark:text-[#64849f] font-semibold">
+                        <span className="text-[12px] text-copa-sub dark:text-[#64849f] font-semibold">
                           {items.length} palpite{items.length !== 1 ? 's' : ''}
                         </span>
                         <div className="flex gap-2 flex-wrap justify-end">
@@ -284,7 +284,7 @@ export function BolaoScreen() {
                               return (
                                 <span
                                   key={key}
-                                  className="text-[10px] font-bold flex items-center gap-0.5"
+                                  className="text-[12px] font-bold flex items-center gap-0.5"
                                   style={{ color: meta.color }}
                                 >
                                   {meta.icon} {summary[key]}

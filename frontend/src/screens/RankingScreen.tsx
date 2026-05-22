@@ -68,7 +68,7 @@ export function RankingScreen() {
       {users.length >= 3 && (
         <div className="rounded-2xl overflow-hidden border border-copa-border dark:border-[#1e2f45] bg-copa-surface dark:bg-[#111d2e] mb-4 lg:mb-0">
           <div className="px-4 pt-4 pb-0 bg-gradient-to-br from-[#00e5ff]/8 to-[#f59e0b]/5">
-            <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
+            <div className="text-[12px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
               Pódio
             </div>
             <div className="flex items-end justify-center">
@@ -76,7 +76,7 @@ export function RankingScreen() {
                 <div key={u.id} className="flex-1 text-center">
                   <div className="text-sm mb-1">{PODIUM_MEDALS[i]}</div>
                   <Avatar user={u} size="md" className="mx-auto mb-1" />
-                  <div className="text-[10px] font-bold text-copa-text dark:text-[#f0f6ff]">{u.name}</div>
+                  <div className="text-[12px] font-bold text-copa-text dark:text-[#f0f6ff]">{u.name}</div>
                   <div className="font-display text-sm mb-1.5" style={{ color: PODIUM_COLORS[i] }}>
                     {u.pts}pts
                   </div>
@@ -95,7 +95,7 @@ export function RankingScreen() {
       )}
 
       <div className="mb-4 lg:mb-0">
-        <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-3">
+        <div className="text-[12px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-3">
           Classificação Completa
         </div>
         {users.map((u, i) => {
@@ -119,7 +119,7 @@ export function RankingScreen() {
                 <div className="flex items-center gap-1.5 mb-1.5">
                   <span className="text-xs font-bold text-copa-text dark:text-[#f0f6ff]">{u.name}</span>
                   {isMe && (
-                    <span className="text-[8px] font-bold text-[#00e5ff] bg-[#00e5ff]/10 px-1.5 py-0 rounded">
+                    <span className="text-[10px] font-bold text-[#00e5ff] bg-[#00e5ff]/10 px-1.5 py-0 rounded">
                       Você
                     </span>
                   )}
@@ -138,8 +138,8 @@ export function RankingScreen() {
                 <div className="font-display text-xl leading-none" style={{ color: i === 0 ? '#f59e0b' : 'inherit' }}>
                   {u.pts}
                 </div>
-                <div className="text-[9px] text-copa-sub dark:text-[#64849f] uppercase">pts</div>
-                <div className="text-[8px] text-copa-sub dark:text-[#64849f] mt-0.5 max-w-[140px] truncate">
+                <div className="text-[11px] text-copa-sub dark:text-[#64849f] uppercase">pts</div>
+                <div className="text-[10px] text-copa-sub dark:text-[#64849f] mt-0.5 max-w-[140px] truncate">
                   {formatUserStatsCompact(u)}
                 </div>
               </div>
@@ -151,7 +151,7 @@ export function RankingScreen() {
 
       {users.length > 0 && (
         <div className="rounded-2xl border border-copa-border dark:border-[#1e2f45] bg-copa-surface dark:bg-[#111d2e] p-4 mb-4">
-          <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
+          <div className="text-[12px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
             Pontuação por Tipo de Acerto
           </div>
           <ResponsiveContainer width="100%" height={180} className="min-h-[150px] sm:min-h-[180px]">
@@ -159,12 +159,12 @@ export function RankingScreen() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,132,159,.15)" vertical={false} />
               <XAxis
                 dataKey="name"
-                tick={{ fontSize: 9, fill: '#64849f', fontFamily: 'Outfit' }}
+                tick={{ fontSize: 11, fill: '#64849f', fontFamily: 'Outfit' }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fontSize: 9, fill: '#64849f', fontFamily: 'Outfit' }}
+                tick={{ fontSize: 11, fill: '#64849f', fontFamily: 'Outfit' }}
                 axisLine={false}
                 tickLine={false}
                 width={22}
@@ -181,7 +181,7 @@ export function RankingScreen() {
       )}
 
       <div className="rounded-2xl border border-copa-border dark:border-[#1e2f45] bg-copa-surface dark:bg-[#111d2e] p-4 mb-2">
-        <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-3">
+        <div className="text-[12px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-3">
           Tabela de Pontuação
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -197,7 +197,7 @@ export function RankingScreen() {
               <div className="font-display text-2xl leading-none" style={{ color: c }}>
                 {v}
               </div>
-              <div className="text-[9px] text-copa-sub dark:text-[#64849f] mt-1 font-semibold">{l}</div>
+              <div className="text-[11px] text-copa-sub dark:text-[#64849f] mt-1 font-semibold">{l}</div>
             </div>
           ))}
         </div>

@@ -138,7 +138,7 @@ export function StatsScreen() {
             <div className="font-display text-2xl leading-none mb-1 truncate" style={{ color }}>
               {val}
             </div>
-            <div className="text-[9px] text-copa-sub dark:text-[#64849f] uppercase tracking-wide font-semibold">
+            <div className="text-[11px] text-copa-sub dark:text-[#64849f] uppercase tracking-wide font-semibold">
               {label}
             </div>
           </div>
@@ -146,7 +146,7 @@ export function StatsScreen() {
       </div>
 
       <div className="rounded-2xl border border-copa-border dark:border-[#1e2f45] bg-copa-surface dark:bg-[#111d2e] p-4 mb-3">
-        <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
+        <div className="text-[12px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
           Desempenho por Jogador
         </div>
         {users.map((u, i) => {
@@ -160,12 +160,12 @@ export function StatsScreen() {
                 <span className="text-xs font-semibold text-copa-text dark:text-[#f0f6ff] flex items-center gap-1.5 min-w-0">
                   {u.name}
                   {isMe && (
-                    <span className="text-[8px] font-bold text-[#00e5ff] bg-[#00e5ff]/10 px-1 rounded shrink-0">
+                    <span className="text-[10px] font-bold text-[#00e5ff] bg-[#00e5ff]/10 px-1 rounded shrink-0">
                       Você
                     </span>
                   )}
                 </span>
-                <span className="text-[10px] font-bold text-right shrink-0" style={{ color }}>
+                <span className="text-[12px] font-bold text-right shrink-0" style={{ color }}>
                   {formatUserStatsCompact(u)} · {u.pts}pts
                 </span>
               </div>
@@ -185,10 +185,10 @@ export function StatsScreen() {
                       className="rounded-lg py-1 text-center border"
                       style={{ background: `${meta.color}12`, borderColor: `${meta.color}30` }}
                     >
-                      <div className="text-[10px] font-bold" style={{ color: meta.color }}>
+                      <div className="text-[12px] font-bold" style={{ color: meta.color }}>
                         {count}
                       </div>
-                      <div className="text-[7px] text-copa-sub dark:text-[#64849f] font-semibold uppercase">
+                      <div className="text-[9px] text-copa-sub dark:text-[#64849f] font-semibold uppercase">
                         {meta.short}
                       </div>
                     </div>
@@ -211,7 +211,7 @@ export function StatsScreen() {
 
       {myAccuracyByStage.length > 0 && (
         <div className="rounded-2xl border border-copa-border dark:border-[#1e2f45] bg-copa-surface dark:bg-[#111d2e] p-4 mb-3">
-          <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
+          <div className="text-[12px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
             Seu Acerto por Fase (%)
           </div>
           <ResponsiveContainer width="100%" height={180} className="min-h-[150px] sm:min-h-[180px]">
@@ -219,12 +219,12 @@ export function StatsScreen() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,132,159,.15)" vertical={false} />
               <XAxis
                 dataKey="fase"
-                tick={{ fontSize: 9, fill: '#64849f', fontFamily: 'Outfit' }}
+                tick={{ fontSize: 11, fill: '#64849f', fontFamily: 'Outfit' }}
                 axisLine={false}
                 tickLine={false}
               />
               <YAxis
-                tick={{ fontSize: 9, fill: '#64849f', fontFamily: 'Outfit' }}
+                tick={{ fontSize: 11, fill: '#64849f', fontFamily: 'Outfit' }}
                 axisLine={false}
                 tickLine={false}
                 width={24}
@@ -245,7 +245,7 @@ export function StatsScreen() {
       )}
 
       <div className="rounded-2xl border border-copa-border dark:border-[#1e2f45] bg-copa-surface dark:bg-[#111d2e] p-4 mb-2">
-        <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
+        <div className="text-[12px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
           Distribuição Total do Grupo
         </div>
         <div className="flex gap-4 items-center">
@@ -269,14 +269,14 @@ export function StatsScreen() {
               x="18"
               y="18.5"
               textAnchor="middle"
-              fontSize="6.5"
+              fontSize="8"
               fontWeight="700"
               fill="currentColor"
               fontFamily="Bebas Neue"
             >
               {groupAccuracy}%
             </text>
-            <text x="18" y="23.5" textAnchor="middle" fontSize="3.5" fill="#64849f" fontFamily="Outfit">
+            <text x="18" y="23.5" textAnchor="middle" fontSize="4.5" fill="#64849f" fontFamily="Outfit">
               acerto
             </text>
           </svg>
@@ -284,15 +284,15 @@ export function StatsScreen() {
             {distributionRows.map((row) => (
               <div key={row.key}>
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-[10px] text-copa-sub dark:text-[#64849f] flex items-center gap-1.5">
+                  <span className="text-[12px] text-copa-sub dark:text-[#64849f] flex items-center gap-1.5">
                     <span
                       className="w-1.5 h-1.5 rounded-full flex-shrink-0"
                       style={{ background: row.meta.color }}
                     />
                     {row.meta.label}
-                    <span className="text-[8px] opacity-70">+{row.points}pts</span>
+                    <span className="text-[10px] opacity-70">+{row.points}pts</span>
                   </span>
-                  <span className="text-[10px] font-bold" style={{ color: row.meta.color }}>
+                  <span className="text-[12px] font-bold" style={{ color: row.meta.color }}>
                     {row.count} ({row.percent}%)
                   </span>
                 </div>

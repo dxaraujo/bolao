@@ -24,7 +24,7 @@ export function BottomNav({ active, onNav }: BottomNavProps) {
           >
             <span className="text-lg leading-none">{tab.icon}</span>
             <span className={cn(
-              'text-[9px] font-semibold tracking-wide transition-colors',
+              'text-[11px] font-semibold tracking-wide transition-colors',
               isActive ? 'text-copa-acc dark:text-[#00e5ff]' : 'text-copa-sub dark:text-[#64849f]'
             )}>
               {tab.label}

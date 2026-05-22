@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import type { StageVisibleItem } from '@bolao/shared'
@@ -11,6 +11,8 @@ import { Stage, StageStatus } from './schemas/stage.schema'
 
 @Injectable()
 export class StageService {
+
+	private readonly logger = new Logger(StageService.name)
 
 	constructor(
 		@InjectModel(Stage.name) private readonly model: Model<Stage>,
@@ -72,23 +74,30 @@ export class StageService {
 
 		const updated = await this.model.findOneAndUpdate({ matchStage }, dto, { new: true }).exec()
 
+		this.logger.log(`Stage ${matchStage} updated to ${StageStatus[dto.status]}`)
+
 		if (dto.status === StageStatus.OPEN) {
+			this.logger.log(`Seeding bets for stage ${matchStage}`)
 			await this.seedBetsForStage(matchStage)
+			this.logger.log(`Bets seeded for stage ${matchStage}`)
 		}
 
 		return updated
 	}
 
-	private async seedBetsForStage(matchStage: string) {
+	async seedBetsForStage(matchStage: string) {
 
 		const [matches, users] = await Promise.all([
 			this.matchModel.find({ stage: matchStage }, { _id: 1 }).exec(),
 			this.userModel.find({ isActive: true }, { _id: 1 }).exec(),
 		])
 
-		if (matches.length === 0 || users.length === 0) return
+		if (matches.length === 0 || users.length === 0) {
+			this.logger.log(`Skipping seed for ${matchStage}: ${matches.length} match(es), ${users.length} active user(s)`)
+			return
+		}
 
-		await this.betModel.bulkWrite(
+		const result = await this.betModel.bulkWrite(
 			matches.flatMap((match) =>
 				users.map((user) => ({
 					updateOne: {
@@ -99,5 +108,6 @@ export class StageService {
 				})),
 			),
 		)
+		this.logger.log(`Seed ${matchStage}: ${result.upsertedCount} new bet(s) for ${users.length} user(s) × ${matches.length} match(es)`)
 	}
 }

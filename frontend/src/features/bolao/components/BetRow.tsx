@@ -20,18 +20,18 @@ export function BetRow({ bet, isMe }: BetRowProps) {
 	return (
 		<div
 			className={cn(
-				'grid grid-cols-[1fr_56px_104px_44px] items-center gap-2 px-4 py-2 text-xs',
+				'grid grid-cols-[1fr_56px_104px_44px] items-center gap-2 px-4 py-2 text-sm',
 				isMe && 'bg-acc/[0.06]',
 			)}
 		>
 			<div className="flex items-center gap-2 min-w-0">
 				<Avatar className="h-7 w-7 shrink-0">
 					<AvatarImage src={`https://${bet.user.picture}`} alt={bet.user.name} />
-					<AvatarFallback className="text-[10px]">{bet.user.name.charAt(0)}</AvatarFallback>
+					<AvatarFallback className="text-xs">{bet.user.name.charAt(0)}</AvatarFallback>
 				</Avatar>
 				<div className="truncate font-semibold">
 					{bet.user.name}
-					{isMe && <span className="ml-1 rounded bg-acc/15 px-1 py-px text-[9px] font-bold text-acc">Você</span>}
+					{isMe && <span className="ml-1 rounded bg-acc/15 px-1 py-px text-[11px] font-bold text-acc">Você</span>}
 				</div>
 			</div>
 

@@ -16,7 +16,7 @@ export function TeamCrest({ src, alt, size = 32, className }: TeamCrestProps) {
 	if (error || !src) {
 		return (
 			<div
-				className={cn('grid place-items-center rounded-full bg-muted text-[10px] font-bold uppercase text-sub', className)}
+				className={cn('grid place-items-center rounded-full bg-muted text-xs font-bold uppercase text-sub', className)}
 				style={{ width: size, height: size }}
 			>
 				{label}

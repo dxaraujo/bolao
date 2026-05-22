@@ -24,7 +24,7 @@ export function HeroPosition() {
 				aria-hidden
 			/>
 			<div className="relative px-4 pt-4">
-				<div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-acc">
+				<div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-acc">
 					<Trophy className="h-3 w-3" /> Sua posição atual
 				</div>
 				<div className="mt-3 flex items-center gap-4">
@@ -34,7 +34,7 @@ export function HeroPosition() {
 							{me.totalPointsEarned}
 							<span className="ml-1 text-base text-sub">pts</span>
 						</div>
-						<div className="text-[11px] text-sub">de {total} participantes</div>
+						<div className="text-xs text-sub">de {total} participantes</div>
 					</div>
 				</div>
 			</div>
@@ -51,7 +51,7 @@ function HeroStat({ value, label }: { value: number; label: string }) {
 	return (
 		<div>
 			<div className="font-display text-2xl leading-none">{value}</div>
-			<div className="text-[9px] uppercase tracking-wide text-sub">{label}</div>
+			<div className="text-[11px] uppercase tracking-wide text-sub">{label}</div>
 		</div>
 	)
 }

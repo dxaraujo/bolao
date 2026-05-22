@@ -25,7 +25,7 @@ export function SideNav() {
 				<div className="font-display text-2xl leading-none tracking-wider">
 					COPA<span className="text-acc">BET</span>
 				</div>
-				<div className="mt-1 text-[11px] font-medium text-sub">2026</div>
+				<div className="mt-1 text-xs font-medium text-sub">2026</div>
 			</div>
 			<nav className="flex flex-col gap-1">
 				{tabs.map(({ to, icon: Icon, label, end }) => (

@@ -28,7 +28,7 @@ export function DistributionDonut({ data }: DistributionDonutProps) {
 
 	return (
 		<Card className="animate-fade-up p-3">
-			<div className="mb-3 text-[11px] font-bold uppercase tracking-wider text-sub">
+			<div className="mb-3 text-xs font-bold uppercase tracking-wider text-sub">
 				Distribuição total do grupo
 			</div>
 			<div className="flex items-center gap-3.5">
@@ -36,7 +36,7 @@ export function DistributionDonut({ data }: DistributionDonutProps) {
 				<div className="flex flex-1 flex-col gap-2.5">
 					{segments.map((s) => (
 						<div key={s.label}>
-							<div className="mb-1 flex items-center justify-between text-[10px]">
+							<div className="mb-1 flex items-center justify-between text-xs">
 								<span className="flex items-center gap-1.5 text-sub">
 									<span className="h-1.5 w-1.5 rounded-full" style={{ background: s.color }} />
 									{s.label}

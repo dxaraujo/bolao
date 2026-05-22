@@ -28,7 +28,7 @@ export function RankingScreen() {
 			<Podium leaders={ranking.slice(0, 3)} />
 			<div className="grid gap-4 lg:grid-cols-2">
 				<section className="flex flex-col gap-2">
-					<h2 className="text-[11px] font-bold uppercase tracking-wider text-sub">Classificação completa</h2>
+					<h2 className="text-xs font-bold uppercase tracking-wider text-sub">Classificação completa</h2>
 					<RankingList users={ranking} currentUserId={me?._id} />
 				</section>
 				<div className="flex flex-col gap-4">

@@ -49,7 +49,7 @@ export function BolaoScreen() {
 	return (
 		<div className="flex flex-col">
 			<div className="border-b border-border bg-gradient-to-b from-surface to-background px-4 pt-3">
-				<p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-sub">Palpites encerrados</p>
+				<p className="mb-2 text-xs font-bold uppercase tracking-wider text-sub">Palpites encerrados</p>
 				<Tabs value={tab} onValueChange={(v) => setTab(v as MatchStage)}>
 					<TabsList className="pb-3">
 						{blockedStages.map((s) => {
@@ -57,7 +57,7 @@ export function BolaoScreen() {
 							return (
 								<TabsTrigger key={s.matchStage} value={s.matchStage}>
 									{STAGE_LABELS[s.matchStage]?.short ?? s.matchStage}
-									<span className="ml-1 rounded bg-muted px-1 text-[9px] font-bold text-muted-foreground">
+									<span className="ml-1 rounded bg-muted px-1 text-[11px] font-bold text-muted-foreground">
 										{count}
 									</span>
 								</TabsTrigger>

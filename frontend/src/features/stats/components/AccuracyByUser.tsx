@@ -26,14 +26,14 @@ const LEGEND: Array<{ icon: string; label: string; color: string }> = [
 export function AccuracyByUser({ users }: AccuracyByUserProps) {
 	return (
 		<Card className="animate-fade-up p-3">
-			<div className="mb-3 text-[11px] font-bold uppercase tracking-wider text-sub">% Acerto por jogador</div>
+			<div className="mb-3 text-xs font-bold uppercase tracking-wider text-sub">% Acerto por jogador</div>
 			<div className="flex flex-col gap-3">
 				{users.map((u, i) => {
 					const color = USER_COLORS[i % USER_COLORS.length]
 					const pct = u.totalBets === 0 ? 0 : (u.exactScore / u.totalBets) * 100
 					return (
 						<div key={u._id}>
-							<div className="flex items-center justify-between text-xs">
+							<div className="flex items-center justify-between text-sm">
 								<span className="font-bold">{u.name}</span>
 								<span className="font-bold" style={{ color }}>
 									{u.exactScore}E · {u.correctBets}R · {u.wrong}X
@@ -52,7 +52,7 @@ export function AccuracyByUser({ users }: AccuracyByUserProps) {
 					)
 				})}
 			</div>
-			<div className="mt-3 flex flex-wrap gap-3 border-t border-border pt-2 text-[10px] text-sub">
+			<div className="mt-3 flex flex-wrap gap-3 border-t border-border pt-2 text-xs text-sub">
 				{LEGEND.map(({ icon, label, color }) => (
 					<span key={label} className="flex items-center gap-1">
 						<span className="h-1.5 w-1.5 rounded-full" style={{ background: color }} />

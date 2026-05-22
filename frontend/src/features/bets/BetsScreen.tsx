@@ -174,7 +174,7 @@ export function BetsScreen() {
 									</>
 								)}
 							</span>
-							<span className="text-[10px] text-sub">
+							<span className="text-xs text-sub">
 								{isOpen && currentStage.deadline
 									? `Prazo: ${formatDeadline(currentStage.deadline)}`
 									: isOpen
@@ -224,7 +224,7 @@ export function BetsScreen() {
 
 			{isOpen && stageBets.length > 0 && (
 				<div className="sticky bottom-0 border-t border-border bg-background/95 px-4 py-3 backdrop-blur">
-					<div className="mb-2 flex items-center justify-between text-[11px]">
+					<div className="mb-2 flex items-center justify-between text-xs">
 						<span className="text-sub">Palpites preenchidos</span>
 						<span className={filled === stageBets.length ? 'font-bold text-green' : 'font-bold text-sub'}>
 							{filled}/{stageBets.length}

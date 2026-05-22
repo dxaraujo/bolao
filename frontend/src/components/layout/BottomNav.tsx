@@ -28,7 +28,7 @@ export function BottomNav() {
 					end={end}
 					className={({ isActive }) =>
 						cn(
-							'flex flex-1 flex-col items-center gap-1 py-2 text-[10px] font-medium transition-colors',
+							'flex flex-1 flex-col items-center gap-1 py-2 text-xs font-medium transition-colors',
 							isActive ? 'text-acc' : 'text-sub hover:text-foreground',
 						)
 					}
@@ -36,7 +36,7 @@ export function BottomNav() {
 					{({ isActive }) => (
 						<>
 							<Icon className="h-5 w-5" />
-							<span className={cn('text-[10px]', isActive && 'font-bold')}>{label}</span>
+							<span className={cn('text-xs', isActive && 'font-bold')}>{label}</span>
 							{isActive && <span className="h-0.5 w-4 rounded-full bg-acc" />}
 						</>
 					)}

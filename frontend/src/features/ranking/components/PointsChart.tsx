@@ -16,7 +16,7 @@ export function PointsChart({ users }: PointsChartProps) {
 
 	return (
 		<Card className="animate-fade-up p-3">
-			<div className="mb-3 text-[11px] font-bold uppercase tracking-wider text-sub">Pontuação e placares exatos</div>
+			<div className="mb-3 text-xs font-bold uppercase tracking-wider text-sub">Pontuação e placares exatos</div>
 			<ResponsiveContainer width="100%" height={180}>
 				<BarChart data={data} barCategoryGap="28%">
 					<CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--border))" vertical={false} />

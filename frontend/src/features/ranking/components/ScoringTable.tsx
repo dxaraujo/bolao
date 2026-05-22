@@ -17,12 +17,12 @@ export function ScoringTable({ config }: ScoringTableProps) {
 
 	return (
 		<Card className="animate-fade-up p-3">
-			<div className="mb-3 text-[11px] font-bold uppercase tracking-wider text-sub">Tabela de pontuação</div>
+			<div className="mb-3 text-xs font-bold uppercase tracking-wider text-sub">Tabela de pontuação</div>
 			<div className="grid grid-cols-2 gap-2">
 				{items.map((i) => (
 					<div key={i.label} className={`rounded-md border px-3 py-2 text-center ${i.tone}`}>
 						<div className="font-display text-xl leading-none">{i.points}</div>
-						<div className="mt-1 text-[10px] font-semibold">{i.label}</div>
+						<div className="mt-1 text-xs font-semibold">{i.label}</div>
 					</div>
 				))}
 			</div>

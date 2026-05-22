@@ -21,7 +21,7 @@ const BARS = [
 export function Podium({ leaders }: PodiumProps) {
 	return (
 		<Card className="animate-fade-up overflow-hidden border-acc/20 bg-gradient-to-br from-acc/10 to-gold/10">
-			<div className="px-4 pt-4 pb-2 text-[11px] font-bold uppercase tracking-wider text-sub">Pódio</div>
+			<div className="px-4 pt-4 pb-2 text-xs font-bold uppercase tracking-wider text-sub">Pódio</div>
 			<div className="flex items-end justify-center gap-2 px-4 pb-2">
 				{PODIUM_ORDER.map((idx, slot) => {
 					const user = leaders[idx]
@@ -33,7 +33,7 @@ export function Podium({ leaders }: PodiumProps) {
 								<AvatarImage src={user.picture} alt={user.name} />
 								<AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
 							</Avatar>
-							<div className="text-[10px] font-bold">{user.name}</div>
+							<div className="text-sm font-bold">{user.name}</div>
 							<div className={`font-display text-lg leading-none ${TONES[slot]}`}>{user.totalPointsEarned}pts</div>
 							<div className={`mt-1 w-full rounded-t ${HEIGHTS[slot]} ${BARS[slot]}`} />
 						</div>

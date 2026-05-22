@@ -22,7 +22,7 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 						<AccordionTrigger className="px-4 py-3">
 							<div className="flex w-full flex-col gap-3">
 								<div className="flex items-center justify-between">
-									<span className="text-[10px] font-bold uppercase tracking-wider text-sub">
+									<span className="text-xs font-bold uppercase tracking-wider text-sub">
 										{formatMatchDate(g.utcDate)}
 									</span>
 									<div className="flex gap-1.5">
@@ -34,23 +34,23 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 								<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
 									<div className="flex flex-col items-center gap-1 text-center">
 										<TeamCrest src={g.homeTeam.crest} alt={g.homeTeam.tla} size={40} />
-										<span className="text-xs font-bold">{g.homeTeam.shortName ?? g.homeTeam.name}</span>
+										<span className="text-sm font-bold">{g.homeTeam.shortName ?? g.homeTeam.name}</span>
 									</div>
 									<div className="text-center">
-										<div className="text-[10px] uppercase tracking-wider text-sub">Resultado</div>
+										<div className="text-xs uppercase tracking-wider text-sub">Resultado</div>
 										<div className="font-display text-2xl tracking-widest">
 											{g.homeTeamScore ?? '-'}&nbsp;–&nbsp;{g.awayTeamScore ?? '-'}
 										</div>
 									</div>
 									<div className="flex flex-col items-center gap-1 text-center">
 										<TeamCrest src={g.awayTeam.crest} alt={g.awayTeam.tla} size={40} />
-										<span className="text-xs font-bold">{g.awayTeam.shortName ?? g.awayTeam.name}</span>
+										<span className="text-sm font-bold">{g.awayTeam.shortName ?? g.awayTeam.name}</span>
 									</div>
 								</div>
 							</div>
 						</AccordionTrigger>
 						<AccordionContent>
-							<div className="grid grid-cols-[1fr_56px_104px_44px] gap-2 bg-surface-2 px-4 py-2 text-[10px] font-bold uppercase tracking-wide text-sub">
+							<div className="grid grid-cols-[1fr_56px_104px_44px] gap-2 bg-surface-2 px-4 py-2 text-xs font-bold uppercase tracking-wide text-sub">
 								<span>Jogador</span>
 								<span className="text-center">Palpite</span>
 								<span className="text-center">Resultado</span>
@@ -61,7 +61,7 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 									<BetRow key={b.user._id} bet={b} isMe={b.user._id === currentUserId} />
 								))}
 							</div>
-							<div className="flex items-center justify-between border-t border-border bg-surface-2 px-4 py-2 text-[10px]">
+							<div className="flex items-center justify-between border-t border-border bg-surface-2 px-4 py-2 text-xs">
 								<span className="font-bold text-sub">
 									{g.total} palpite{g.total === 1 ? '' : 's'}
 								</span>

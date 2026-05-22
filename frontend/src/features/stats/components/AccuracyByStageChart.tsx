@@ -29,7 +29,7 @@ export function AccuracyByStageChart({ data }: AccuracyByStageChartProps) {
 
 	return (
 		<Card className="animate-fade-up p-3">
-			<div className="mb-3 text-[11px] font-bold uppercase tracking-wider text-sub">Evolução por fase (%)</div>
+			<div className="mb-3 text-xs font-bold uppercase tracking-wider text-sub">Evolução por fase (%)</div>
 			<ResponsiveContainer width="100%" height={180}>
 				<LineChart data={rows}>
 					<CartesianGrid strokeDasharray="3 3" stroke="rgb(var(--border))" vertical={false} />
@@ -48,7 +48,7 @@ export function AccuracyByStageChart({ data }: AccuracyByStageChartProps) {
 					))}
 				</LineChart>
 			</ResponsiveContainer>
-			<div className="mt-2 flex flex-wrap gap-3 text-[10px] text-sub">
+			<div className="mt-2 flex flex-wrap gap-3 text-xs text-sub">
 				{users.map((u, i) => (
 					<span key={u} className="flex items-center gap-1">
 						<span className="h-1 w-3 rounded-full" style={{ background: COLORS[i % COLORS.length] }} /> {u}

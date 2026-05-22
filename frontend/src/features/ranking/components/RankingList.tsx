@@ -39,7 +39,7 @@ export function RankingList({ users, currentUserId }: RankingListProps) {
 						<div className="flex-1">
 							<div className="flex items-center gap-2 text-sm font-bold">
 								<span>{user.name}</span>
-								{isMe && <span className="rounded bg-acc/15 px-1 py-px text-[9px] text-acc">Você</span>}
+								{isMe && <span className="rounded bg-acc/15 px-1 py-px text-[11px] text-acc">Você</span>}
 							</div>
 							<div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
 								<div
@@ -52,7 +52,7 @@ export function RankingList({ users, currentUserId }: RankingListProps) {
 							<div className={cn('font-display text-xl leading-none', ptsColor)}>
 								{user.totalPointsEarned}
 							</div>
-							<div className="text-[9px] uppercase tracking-wide text-sub">pts</div>
+							<div className="text-[11px] uppercase tracking-wide text-sub">pts</div>
 						</div>
 					</Card>
 				)

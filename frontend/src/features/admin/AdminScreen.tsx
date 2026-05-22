@@ -23,7 +23,7 @@ export function AdminScreen() {
 		<div className="flex flex-col gap-4 px-4 py-4">
 			<header>
 				<h1 className="font-display text-2xl tracking-wider">Painel Admin</h1>
-				<p className="mt-1 text-[11px] text-sub">
+				<p className="mt-1 text-xs text-sub">
 					Acesso restrito. Use com cuidado — as importações chamam a Football Data API.
 				</p>
 			</header>
@@ -94,7 +94,7 @@ function ImportSection() {
 
 	return (
 		<section className="flex flex-col gap-2">
-			<h2 className="text-[11px] font-bold uppercase tracking-wider text-sub">Importações</h2>
+			<h2 className="text-xs font-bold uppercase tracking-wider text-sub">Importações</h2>
 			<div className="grid gap-2 md:grid-cols-3">
 				{actions.map(({ key, title, description, icon: Icon, tone, run, isPending }) => {
 					const t = toneClasses[tone]
@@ -105,7 +105,7 @@ function ImportSection() {
 							</div>
 							<div className="flex-1">
 								<div className="text-sm font-bold">{title}</div>
-								<div className="text-[11px] text-sub">{description}</div>
+								<div className="text-xs text-sub">{description}</div>
 							</div>
 							<Button
 								size="sm"
@@ -128,8 +128,8 @@ function StagesSection() {
 
 	return (
 		<section className="flex flex-col gap-2">
-			<h2 className="text-[11px] font-bold uppercase tracking-wider text-sub">Gerenciar Fases</h2>
-			<p className="text-[11px] text-sub">
+			<h2 className="text-xs font-bold uppercase tracking-wider text-sub">Gerenciar Fases</h2>
+			<p className="text-xs text-sub">
 				Avance pela ordem <span className="font-bold text-foreground">DISABLED → OPEN → BLOCKED</span>.
 				Abrir uma fase cria automaticamente palpites em branco para os usuários ativos.
 			</p>
@@ -218,21 +218,21 @@ function StageRow({ stage }: { stage: StageVisibleItem }) {
 					<StatusIcon className="h-4 w-4 text-sub" />
 					<div>
 						<div className="text-sm font-bold">{label}</div>
-						<div className="mt-0.5 text-[10px] text-sub">{stage.matchStage}</div>
+						<div className="mt-0.5 text-xs text-sub">{stage.matchStage}</div>
 					</div>
 				</div>
 				<Badge tone={STATUS_TONE[stage.status]}>{STATUS_LABEL[stage.status]}</Badge>
 			</div>
 
 			{stage.deadline && (
-				<div className="mt-2 text-[10px] text-sub">Prazo atual: {formatDeadline(stage.deadline)}</div>
+				<div className="mt-2 text-xs text-sub">Prazo atual: {formatDeadline(stage.deadline)}</div>
 			)}
 
 			{next && (
 				<div className="mt-3 flex flex-col gap-2">
 					{needsDeadline && (
 						<div className="flex flex-col gap-1">
-							<label className="text-[10px] font-semibold uppercase tracking-wide text-sub">
+							<label className="text-xs font-semibold uppercase tracking-wide text-sub">
 								Prazo para apostas
 							</label>
 							<Input

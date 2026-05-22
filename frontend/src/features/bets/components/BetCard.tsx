@@ -26,7 +26,7 @@ export function BetCard({ bet, draft, disabled, onChange }: BetCardProps) {
 			{filled && !disabled && <div className="absolute left-0 top-0 h-full w-0.5 bg-acc" />}
 
 			<div className="flex items-center justify-between px-4 pt-3">
-				<span className="text-[10px] font-semibold text-sub">{formatMatchDate(bet.utcDate)}</span>
+				<span className="text-xs font-semibold text-sub">{formatMatchDate(bet.utcDate)}</span>
 				{hasMatchScore && (
 					<span className="font-display text-xs tracking-widest text-sub">
 						{bet.matchHomeTeamScore} – {bet.matchAwayTeamScore}
@@ -37,7 +37,7 @@ export function BetCard({ bet, draft, disabled, onChange }: BetCardProps) {
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3">
 				<div className="flex flex-col items-center gap-1 text-center">
 					<TeamCrest src={bet.homeTeam.crest} alt={bet.homeTeam.tla} size={40} />
-					<span className="text-xs font-bold">{bet.homeTeam.shortName ?? bet.homeTeam.name}</span>
+					<span className="text-sm font-bold">{bet.homeTeam.shortName ?? bet.homeTeam.name}</span>
 				</div>
 
 				<div className="flex flex-col items-center gap-1">
@@ -64,17 +64,17 @@ export function BetCard({ bet, draft, disabled, onChange }: BetCardProps) {
 							className="h-10 w-10 text-center font-display text-xl"
 						/>
 					</div>
-					<span className="text-[9px] uppercase tracking-wide text-muted-foreground">palpite</span>
+					<span className="text-[11px] uppercase tracking-wide text-muted-foreground">palpite</span>
 				</div>
 
 				<div className="flex flex-col items-center gap-1 text-center">
 					<TeamCrest src={bet.awayTeam.crest} alt={bet.awayTeam.tla} size={40} />
-					<span className="text-xs font-bold">{bet.awayTeam.shortName ?? bet.awayTeam.name}</span>
+					<span className="text-sm font-bold">{bet.awayTeam.shortName ?? bet.awayTeam.name}</span>
 				</div>
 			</div>
 
 			{disabled && (bet.homeTeamScore != null || bet.awayTeamScore != null) && (
-				<div className="border-t border-border px-4 py-2 text-[11px] text-sub">
+				<div className="border-t border-border px-4 py-2 text-xs text-sub">
 					Seu palpite:&nbsp;
 					<span className="font-bold text-foreground">
 						{bet.homeTeamScore ?? '-'} × {bet.awayTeamScore ?? '-'}

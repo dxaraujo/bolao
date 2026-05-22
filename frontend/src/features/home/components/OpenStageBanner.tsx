@@ -28,10 +28,10 @@ export function OpenStageBanner({ stages, bets }: OpenStageBannerProps) {
 			)}
 		>
 			<div>
-				<div className="flex items-center gap-2 text-xs font-bold text-green">
+				<div className="flex items-center gap-2 text-sm font-bold text-green">
 					<Calendar className="h-3.5 w-3.5" /> Apostas das {stageLabel} abertas
 				</div>
-				<div className="mt-1 text-[10px] text-sub">
+				<div className="mt-1 text-xs text-sub">
 					{open.deadline ? `Prazo: ${formatDeadline(open.deadline)} · ` : ''}
 					{count} jogo{count === 1 ? '' : 's'}
 				</div>

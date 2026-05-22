@@ -38,28 +38,28 @@ export function MatchCard({ bet }: MatchCardProps) {
 				</div>
 			</div>
 
-			<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3">
-				<div className="flex flex-col items-center gap-1 text-center">
-					<TeamCrest src={bet.homeTeam.crest} alt={bet.homeTeam.tla} size={40} />
-					<span className="text-sm font-bold">{bet.homeTeam.shortName ?? bet.homeTeam.name}</span>
-				</div>
-				<div className="min-w-[60px] text-center">
-					{hasScore ? (
-						<div className="font-display text-3xl tracking-widest">
-							{bet.matchHomeTeamScore ?? 0} – {bet.matchAwayTeamScore ?? 0}
-						</div>
-					) : (
-						<div className="text-xs font-bold tracking-widest text-muted-foreground">VS</div>
-					)}
-				</div>
-				<div className="flex flex-col items-center gap-1 text-center">
-					<TeamCrest src={bet.awayTeam.crest} alt={bet.awayTeam.tla} size={40} />
-					<span className="text-sm font-bold">{bet.awayTeam.shortName ?? bet.awayTeam.name}</span>
-				</div>
+		<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3">
+			<div className="flex min-w-0 flex-col items-center gap-1 text-center">
+				<TeamCrest src={bet.homeTeam.crest} alt={bet.homeTeam.tla} size={40} />
+				<span className="w-full truncate text-sm font-bold">{bet.homeTeam.shortName ?? bet.homeTeam.name}</span>
 			</div>
+			<div className="min-w-[56px] shrink-0 text-center">
+				{hasScore ? (
+					<div className="font-display text-3xl tracking-widest">
+						{bet.matchHomeTeamScore ?? 0} – {bet.matchAwayTeamScore ?? 0}
+					</div>
+				) : (
+					<div className="text-xs font-bold tracking-widest text-muted-foreground">VS</div>
+				)}
+			</div>
+			<div className="flex min-w-0 flex-col items-center gap-1 text-center">
+				<TeamCrest src={bet.awayTeam.crest} alt={bet.awayTeam.tla} size={40} />
+				<span className="w-full truncate text-sm font-bold">{bet.awayTeam.shortName ?? bet.awayTeam.name}</span>
+			</div>
+		</div>
 
 			{hasUserBet && (
-				<div className="border-t border-border/60 px-4 py-2 text-xs text-sub">
+				<div className="flex align-center justify-center border-t border-border/60 px-4 py-2 text-xs text-sub">
 					Seu palpite:&nbsp;
 					<span className="font-bold text-foreground">
 						{bet.homeTeamScore} × {bet.awayTeamScore}

@@ -74,7 +74,7 @@ export function BetCard({ bet, draft, disabled, onChange }: BetCardProps) {
 			</div>
 
 			{disabled && (bet.homeTeamScore != null || bet.awayTeamScore != null) && (
-				<div className="border-t border-border px-4 py-2 text-xs text-sub">
+				<div className="flex align-center justify-center border-t border-border px-4 py-2 text-xs text-sub">
 					Seu palpite:&nbsp;
 					<span className="font-bold text-foreground">
 						{bet.homeTeamScore ?? '-'} × {bet.awayTeamScore ?? '-'}

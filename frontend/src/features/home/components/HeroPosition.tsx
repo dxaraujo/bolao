@@ -38,20 +38,22 @@ export function HeroPosition() {
 					</div>
 				</div>
 			</div>
-			<div className="relative mt-3 flex gap-6 border-t border-acc/15 px-4 py-3">
-				<HeroStat value={me.exactScore} label="Placar exato" />
-				<HeroStat value={me.correctWinner + me.winnerWithGoal + me.oneGoalCorrect} label="Resultados" />
-				<HeroStat value={me.wrong} label="Erros" />
+			<div className="flex justify-between border-t border-acc/15 px-4 py-3">
+				<HeroStat value={me.exactScore} label="Exato" tone="text-green" />
+				<HeroStat value={me.winnerWithGoal} label="Venc+Gol" tone="text-acc" />
+				<HeroStat value={me.correctWinner} label="Vencedor" tone="text-gold" />
+				<HeroStat value={me.oneGoalCorrect} label="Gol" tone="text-purple" />
+				<HeroStat value={me.wrong} label="Erros" tone="text-red" />
 			</div>
 		</Card>
 	)
 }
 
-function HeroStat({ value, label }: { value: number; label: string }) {
+function HeroStat({ value, label, tone = 'text-main' }: { value: number; label: string; tone?: string }) {
 	return (
-		<div>
-			<div className="font-display text-2xl leading-none">{value}</div>
-			<div className="text-[11px] uppercase tracking-wide text-sub">{label}</div>
+		<div className="flex flex-col items-center">
+			<div className={`font-display text-2xl leading-none ${tone}`}>{value}</div>
+			<div className="text-[10px] uppercase tracking-wide text-sub text-center">{label}</div>
 		</div>
 	)
 }

@@ -11,6 +11,7 @@ import { useStages } from '@/hooks/useStages'
 import { HeroPosition } from './components/HeroPosition'
 import { OpenStageBanner } from './components/OpenStageBanner'
 import { MatchCard } from './components/MatchCard'
+import { UpcomingMatchCard } from './components/UpcomingMatchCard'
 
 const LIVE_STATUSES = new Set<MatchStatus>([MatchStatus.LIVE, MatchStatus.IN_PLAY, MatchStatus.PAUSED])
 const UPCOMING_STATUSES = new Set<MatchStatus>([MatchStatus.TIMED, MatchStatus.SCHEDULED])
@@ -37,41 +38,39 @@ export function HomeScreen() {
 			<HeroPosition />
 			{stages && bets && <OpenStageBanner stages={stages} bets={bets} />}
 
-			{live.length > 0 && (
-				<Section title="Ao vivo">
-					<div className="flex flex-col gap-2">
-						{live.map((b) => (
-							<MatchCard key={b._id} bet={b} />
-						))}
-					</div>
-				</Section>
+		{live.length > 0 && (
+			<Section title="Ao vivo">
+				<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+					{live.map((b) => (
+						<MatchCard key={b._id} bet={b} />
+					))}
+				</div>
+			</Section>
+		)}
+
+		<Section title="Próximos jogos">
+			{betsLoading ? (
+				<Skeleton className="h-24 w-full rounded-lg" />
+			) : upcoming.length === 0 ? (
+				<EmptyState icon={Goal} title="Nenhuma partida agendada" />
+			) : (
+				<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+					{upcoming.map((b) => (
+						<UpcomingMatchCard key={b._id} bet={b} />
+					))}
+				</div>
 			)}
+		</Section>
 
-			<div className="grid gap-4 lg:grid-cols-2">
-				<Section title="Próximos jogos">
-					{betsLoading ? (
-						<Skeleton className="h-24 w-full rounded-lg" />
-					) : upcoming.length === 0 ? (
-						<EmptyState icon={Goal} title="Nenhuma partida agendada" />
-					) : (
-						<div className="flex flex-col gap-2">
-							{upcoming.map((b) => (
-								<MatchCard key={b._id} bet={b} />
-							))}
-						</div>
-					)}
-				</Section>
-
-				{recent.length > 0 && (
-					<Section title="Resultados recentes">
-						<div className="flex flex-col gap-2">
-							{recent.map((b) => (
-								<MatchCard key={b._id} bet={b} />
-							))}
-						</div>
-					</Section>
-				)}
-			</div>
+		{recent.length > 0 && (
+			<Section title="Resultados recentes">
+				<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+					{recent.map((b) => (
+						<MatchCard key={b._id} bet={b} />
+					))}
+				</div>
+			</Section>
+		)}
 		</div>
 	)
 }

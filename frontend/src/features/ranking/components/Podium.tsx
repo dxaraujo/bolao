@@ -28,7 +28,7 @@ export function Podium({ leaders }: PodiumProps) {
 				if (!user) return <div key={slot} className="flex-1" />
 				return (
 					<div key={slot} className="flex flex-1 flex-col items-center">
-							<div className="text-base leading-none">{MEDALS[slot]}</div>
+							<div className="text-4xl leading-none p-2">{MEDALS[slot]}</div>
 							<Avatar className={`my-1 h-16 w-16 ring-2 ring-offset-2 ring-offset-surface ${RING[slot]}`}>
 								<AvatarImage src={user.picture} alt={user.name} />
 								<AvatarFallback>{user.name.charAt(0)}</AvatarFallback>

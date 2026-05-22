@@ -29,7 +29,7 @@ export function RankingList({ users, currentUserId }: RankingListProps) {
 							isMe && 'border-acc/40 bg-gradient-to-br from-acc/10 to-transparent',
 						)}
 					>
-						<div className={cn('w-7 text-center font-bold', i < 3 ? 'text-base' : 'text-sub')}>
+						<div className={cn('w-7 text-center font-bold', i < 3 ? 'text-2xl' : 'text-sub')}>
 							{i < 3 ? MEDALS[i] : `${i + 1}°`}
 						</div>
 						<Avatar className="h-14 w-14">

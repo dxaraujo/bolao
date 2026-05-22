@@ -29,6 +29,8 @@ interface RequestOptions {
 	method?: Method
 	body?: unknown
 	signal?: AbortSignal
+	/** Quando false, retorna o JSON da resposta direto (ex.: `{ token }` em /auth/google). */
+	envelope?: boolean
 }
 
 async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
@@ -54,12 +56,16 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 		throw new ApiError(payload as ApiErrorBody)
 	}
 
+	if (options.envelope === false) {
+		return payload as T
+	}
+
 	return (payload as { data: T }).data
 }
 
 export const api = {
 	get: <T>(path: string, signal?: AbortSignal) => request<T>(path, { signal }),
-	post: <T>(path: string, body?: unknown) => request<T>(path, { method: 'POST', body }),
+	post: <T>(path: string, body?: unknown, opts?: { envelope?: boolean }) => request<T>(path, { method: 'POST', body, envelope: opts?.envelope }),
 	put: <T>(path: string, body?: unknown) => request<T>(path, { method: 'PUT', body }),
 	del: <T>(path: string) => request<T>(path, { method: 'DELETE' }),
 }

@@ -45,7 +45,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
 	}, [])
 
 	const loginWithGoogle = useCallback(async (credential: string) => {
-		const { token } = await api.post<{ token: string }>('/auth/google', { credential })
+		const { token } = await api.post<{ token: string }>('/auth/google', { credential }, { envelope: false })
 		setToken(token)
 		setUser(parseToken(token))
 	}, [])

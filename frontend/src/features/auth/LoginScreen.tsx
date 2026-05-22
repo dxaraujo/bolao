@@ -45,11 +45,19 @@ export function LoginScreen() {
 				<div className="relative z-10 w-full rounded-lg border border-border bg-surface p-6 text-left">
 					<h2 className="text-sm font-bold">Dispute com seus amigos</h2>
 					<p className="mt-2 text-xs text-sub">Aposte nos placares de cada jogo e suba no ranking fase a fase.</p>
-					<ul className="mt-4 space-y-2 text-xs text-sub">
-						<li>🎯 +{config?.pointsExactScore ?? 5} pontos por placar exato</li>
-						<li>✅ +{config?.pointsCorrectWinner ?? 1} pontos pelo resultado correto</li>
-						<li>📅 Apostas por fase com prazo definido</li>
-					</ul>
+					<div className="mt-4 space-y-1.5 text-xs text-sub">
+						<p className="font-semibold text-foreground">Pontuação por jogo:</p>
+						<ul className="space-y-1">
+							<li>🎯 +{config?.pointsExactScore ?? 5} pts — Placar exato</li>
+							<li>⚽ +{config?.pointsWinnerWithGoal ?? 3} pts — Vencedor + saldo de gols</li>
+							<li>✅ +{config?.pointsCorrectWinner ?? 1} pts — Só o vencedor</li>
+							<li>🔢 +{config?.pointsOneGoalCorrect ?? 1} pts — Acertou um gol</li>
+							<li>❌ 0 pts — Errou tudo</li>
+						</ul>
+						<p className="mt-3 text-[10px] text-muted-foreground">
+							⏱ Apenas tempo regulamentar. Pênaltis não são considerados.
+						</p>
+					</div>
 				</div>
 
 				<div className="relative z-10 flex w-full justify-center">

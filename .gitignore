@@ -3,6 +3,7 @@
 .pnp.*
 
 # Build outputs
+**/dev-dist
 **/dist
 **/build
 **/*.tsbuildinfo

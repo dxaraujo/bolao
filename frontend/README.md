@@ -87,10 +87,7 @@ Login: Google Identity Services → `POST /auth/google` → JWT em `localStorage
 
 ## PWA
 
-Para habilitar PWA, adicione `vite-plugin-pwa`:
+O frontend usa [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) com service worker (`autoUpdate`), manifest e cache de assets.
 
-```bash
-npm install -D vite-plugin-pwa
-```
-
-E configure em `vite.config.ts` com `VitePWA({ registerType: 'autoUpdate', ... })`.
+- Ícones em `public/` (`favicon.ico`, `pwa-192x192.png`, `pwa-512x512.png`, `apple-touch-icon.png`).
+- Em dev, o SW fica ativo (`devOptions.enabled`); em produção, rode `pnpm build` e `pnpm preview` para testar instalação.

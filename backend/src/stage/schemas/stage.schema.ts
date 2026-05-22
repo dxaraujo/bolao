@@ -24,6 +24,9 @@ export class Stage {
 		index: true,
 	})
 	status!: StageStatus
+
+	@Prop({ required: false })
+	deadline?: Date
 }
 
 export const StageSchema = SchemaFactory.createForClass(Stage)

@@ -36,6 +36,11 @@ export class StageService {
 		return stages.map((s) => s.matchStage)
 	}
 
+	async isStageBlocked(matchStage: string): Promise<boolean> {
+		const stage = await this.model.findOne({ matchStage, status: StageStatus.BLOCKED }).exec()
+		return stage != null
+	}
+
 	async update(matchStage: string, dto: UpdateStageDto) {
 
 		const current = await this.model.findOne({ matchStage }).exec()

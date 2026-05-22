@@ -39,7 +39,8 @@ export class MatchService {
 	}
 
 	async findVisible() {
-		const stageNames = await this.stageService.findBlockedStages()
+		const stages = await this.stageService.findVisibleStages()
+		const stageNames = stages.map((stage) => stage.matchStage)
 		const matches = await this.model.find({ stage: { $in: stageNames } }).exec()
 		return matches.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf() || a.footballDataId - b.footballDataId)
 	}
@@ -55,6 +56,10 @@ export class MatchService {
 
 	findByFootballDataMatchId(id: number) {
 		return this.model.findOne({ footballDataId: id }).exec()
+	}
+
+	findById(id: string) {
+		return this.model.findById(id).exec()
 	}
 
 	async importMatches() {

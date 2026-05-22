@@ -3,6 +3,7 @@ import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose'
 import { VALID_POINTS, type PointsEarned } from '@bolao/shared'
 
 import { Match, MatchDocument } from '../../match/schemas/match.schema'
+import { User } from '../../user/schemas/user.schema'
 
 export type BetDocument = HydratedDocument<Bet>
 export type BetPopulated = Omit<BetDocument, 'match'> & { match: MatchDocument }
@@ -11,10 +12,10 @@ export { VALID_POINTS, type PointsEarned }
 @Schema()
 export class Bet {
 
-	@Prop({ type: MongooseSchema.Types.ObjectId, required: true, index: true })
+	@Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true, index: true })
 	user!: Types.ObjectId
 
-	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Match.name, required: true })
+	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Match.name, required: true, index: true })
 	match!: Types.ObjectId
 
 	@Prop({ required: false })

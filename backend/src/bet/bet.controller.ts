@@ -1,4 +1,4 @@
-import { Body, Controller, Get, ParseArrayPipe, Put, Query } from '@nestjs/common'
+import { Body, Controller, Get, Param, ParseArrayPipe, Put } from '@nestjs/common'
 import { ApiBody, ApiTags } from '@nestjs/swagger'
 
 import { JwtPayload } from '../auth/jwt.strategy'
@@ -17,6 +17,12 @@ export class BetController {
 	@Get()
 	async list(@CurrentUser() user: JwtPayload) {
 		const data = await this.service.findAll(user._id)
+		return { data }
+	}
+
+	@Get('by-match/:matchId')
+	async findByMatch(@Param('matchId') matchId: string) {
+		const data = await this.service.findByMatch(matchId)
 		return { data }
 	}
 

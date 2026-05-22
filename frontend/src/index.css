@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background:    0 0% 100%;
+    --foreground:    222 47% 11%;
+    --card:          0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --primary:       192 100% 36%;
+    --primary-foreground: 0 0% 100%;
+    --secondary:     214 32% 91%;
+    --secondary-foreground: 222 47% 11%;
+    --muted:         214 32% 91%;
+    --muted-foreground: 215 16% 47%;
+    --accent:        192 100% 36%;
+    --accent-foreground: 0 0% 100%;
+    --destructive:   0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border:        214 32% 91%;
+    --input:         214 32% 91%;
+    --ring:          192 100% 36%;
+    --radius:        0.75rem;
+  }
+
+  .dark {
+    --background:    222 47% 6%;
+    --foreground:    210 40% 96%;
+    --card:          221 44% 12%;
+    --card-foreground: 210 40% 96%;
+    --primary:       192 100% 50%;
+    --primary-foreground: 222 47% 6%;
+    --secondary:     217 33% 18%;
+    --secondary-foreground: 210 40% 96%;
+    --muted:         217 33% 18%;
+    --muted-foreground: 215 20% 55%;
+    --accent:        192 100% 50%;
+    --accent-foreground: 222 47% 6%;
+    --destructive:   0 63% 55%;
+    --destructive-foreground: 210 40% 96%;
+    --border:        217 33% 18%;
+    --input:         217 33% 18%;
+    --ring:          192 100% 50%;
+  }
+}
+
+@layer base {
+  * { box-sizing: border-box; }
+  
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+  input[type=number] { -moz-appearance: textfield; }
+
+  ::-webkit-scrollbar        { width: 3px; background: transparent; }
+  ::-webkit-scrollbar-thumb  { background: rgba(255,255,255,.08); border-radius: 3px; }
+
+  body {
+    @apply bg-copa-bg dark:bg-[#070d18] font-sans antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: none;
+  }
+}
+
+@layer utilities {
+  .font-display   { font-family: 'Bebas Neue', cursive; }
+  .font-sans      { font-family: 'Outfit', sans-serif; }
+
+  /* Glass nav */
+  .glass-nav {
+    @apply backdrop-blur-xl border-t;
+    background: rgba(7,13,24,.94);
+  }
+  .glass-nav-light {
+    background: rgba(238,243,249,.96);
+  }
+
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .screen-px {
+    @apply px-4 sm:px-5 lg:px-8;
+  }
+}

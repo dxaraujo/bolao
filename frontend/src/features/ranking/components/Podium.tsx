@@ -23,11 +23,11 @@ export function Podium({ leaders }: PodiumProps) {
 		<Card className="animate-fade-up overflow-hidden border-acc/20 bg-gradient-to-br from-acc/10 to-gold/10">
 			<div className="px-4 pt-4 pb-2 text-xs font-bold uppercase tracking-wider text-sub">Pódio</div>
 			<div className="flex items-end justify-center gap-2 px-4 pb-2">
-				{PODIUM_ORDER.map((idx, slot) => {
-					const user = leaders[idx]
-					if (!user) return <div key={slot} className="flex-1" />
-					return (
-						<div key={user._id} className="flex flex-1 flex-col items-center">
+			{PODIUM_ORDER.map((idx, slot) => {
+				const user = leaders[idx]
+				if (!user) return <div key={slot} className="flex-1" />
+				return (
+					<div key={slot} className="flex flex-1 flex-col items-center">
 							<div className="text-base leading-none">{MEDALS[slot]}</div>
 							<Avatar className={`my-1 h-16 w-16 ring-2 ring-offset-2 ring-offset-surface ${RING[slot]}`}>
 								<AvatarImage src={user.picture} alt={user.name} />

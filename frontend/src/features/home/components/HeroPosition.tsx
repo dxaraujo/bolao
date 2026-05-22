@@ -23,18 +23,18 @@ export function HeroPosition() {
 				className="pointer-events-none absolute -right-6 -top-6 h-32 w-32 rounded-full bg-acc/10 blur-xl"
 				aria-hidden
 			/>
-			<div className="relative px-4 pt-4">
+			<div className="flex flex-col gap-2 px-4 pt-4">
 				<div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-acc">
 					<Trophy className="h-3 w-3" /> Sua posição atual
 				</div>
-				<div className="mt-3 flex items-center gap-4">
+				<div className="mt-3 flex gap-4">
 					<div className="font-display text-5xl leading-none">{medal}</div>
-					<div>
-						<div className="font-display text-4xl leading-none text-acc">
-							{me.totalPointsEarned}
-							<span className="ml-1 text-base text-sub">pts</span>
-						</div>
+					<div className="flex flex-col items-center justify-center">
 						<div className="text-xs text-sub">de {total} participantes</div>
+					</div>
+					<div className="flex font-display text-4xl leading-none text-acc ml-auto">
+						{me.totalPointsEarned}
+						<span className="ml-1 text-base text-sub">pts</span>
 					</div>
 				</div>
 			</div>

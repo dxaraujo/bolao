@@ -12,16 +12,9 @@ export class MatchController {
 
 	constructor(private readonly service: MatchService) { }
 
-	@Get('visible')
-	async findVisible() {
-		const data = await this.service.findVisible()
-		return { data }
-	}
-
 	@Get()
-	@UseGuards(AdminGuard)
-	async findAll() {
-		const data = await this.service.findAll()
+	async list() {
+		const data = await this.service.list()
 		return { data }
 	}
 

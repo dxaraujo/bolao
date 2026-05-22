@@ -31,10 +31,13 @@ export class User {
 	oneGoalCorrect!: number
 
 	@Prop({ required: true, default: 0 })
-	cumulativeTotal!: number
+	wrong!: number
 
 	@Prop({ required: true, default: 0 })
-	ranking?: number
+	totalPoints!: number
+
+	@Prop({ required: true, default: 0 })
+	ranking!: number
 
 	@Prop({ required: true, default: 0 })
 	previousRanking!: number

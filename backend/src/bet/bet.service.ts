@@ -7,9 +7,39 @@ import { MatchDocument } from '../match/schemas/match.schema'
 import { StageService } from '../stage/stage.service'
 import { UserDocument } from '../user/schemas/user.schema'
 import { UserService } from '../user/user.service'
-import { BetUpdateItemDto } from './dto/update-bets.dto'
+import { UpdateBetsDto } from './dto/update-bets.dto'
 import { Bet } from './schemas/bet.schema'
+import { TeamDocument } from 'src/team/schemas/team.schema'
 
+export interface GroupedBetItem {
+	user: { _id: string; name: string; picture: string }
+	homeTeamScore?: number
+	awayTeamScore?: number
+	exactScore: boolean
+	winnerWithGoal: boolean
+	correctWinner: boolean
+	oneGoalCorrect: boolean
+	wrong: boolean
+	totalPointsEarned: number
+}
+
+export interface GroupedBet {
+	matchId: string
+	utcDate: Date
+	stage: string
+	group: string
+	homeTeam: { name: string; shortName: string; tla: string; crest: string }
+	homeTeamScore?: number
+	awayTeam: { name: string; shortName: string; tla: string; crest: string }
+	awayTeamScore?: number
+	exactScore: number
+	winnerWithGoal: number
+	correctWinner: number
+	oneGoalCorrect: number
+	wrong: number
+	total: number
+	bets: GroupedBetItem[]
+}
 @Injectable()
 export class BetService {
 
@@ -20,7 +50,7 @@ export class BetService {
 		private readonly matchService: MatchService
 	) { }
 
-	async findAll(userId: string) {
+	async list(userId: string) {
 
 		if (!Types.ObjectId.isValid(userId)) {
 			throw new NotFoundException(`User ${userId} not valid`)
@@ -28,15 +58,40 @@ export class BetService {
 
 		const bets = await this.model
 			.find({ user: userId })
-			.populate<{ match: MatchDocument }>('match')
+			.populate<{ match: MatchDocument & { homeTeam: TeamDocument; awayTeam: TeamDocument } }>({
+				path: 'match',
+				populate: [
+					{ path: 'homeTeam' },
+					{ path: 'awayTeam' }
+				]
+			})
 			.exec()
 
-		return bets.sort((a, b) => a.match.utcDate.valueOf() - b.match.utcDate.valueOf() || a.match.footballDataId - b.match.footballDataId)
+		return bets.map((bet) => ({
+			_id: bet._id,
+			utcDate: bet.match.utcDate,
+			stage: bet.match.stage,
+			group: bet.match.group,
+			homeTeam: {
+				name: bet.match.homeTeam.name,
+				shortName: bet.match.homeTeam.shortName,
+				tla: bet.match.homeTeam.tla,
+				crest: bet.match.homeTeam.crest,
+			},
+			homeTeamScore: bet.homeTeamScore,
+			awayTeam: {
+				name: bet.match.awayTeam.name,
+				shortName: bet.match.awayTeam.shortName,
+				tla: bet.match.awayTeam.tla,
+				crest: bet.match.awayTeam.crest,
+			},
+			awayTeamScore: bet.awayTeamScore,
+		})).sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf())
 	}
 
-	async updateBets(userId: string, itens: BetUpdateItemDto[]) {
+	async updateBets(userId: string, bets: UpdateBetsDto[]) {
 
-		if (itens.length === 0) return await this.findAll(userId)
+		if (bets.length === 0) return
 
 		if (!Types.ObjectId.isValid(userId)) {
 			throw new NotFoundException(`User ${userId} not valid`)
@@ -46,46 +101,98 @@ export class BetService {
 		const openMatchIds = await this.matchService.findIdsByStages(openStages)
 
 		await this.model.bulkWrite(
-			itens.map((item) => ({
+			bets.map((bet) => ({
 				updateOne: {
-					filter: { _id: item._id, user: userId, match: { $in: openMatchIds } },
-					update: { $set: { homeTeamScore: item.homeTeamScore, awayTeamScore: item.awayTeamScore } },
+					filter: { _id: bet._id, user: userId, match: { $in: openMatchIds } },
+					update: { $set: { homeTeamScore: bet.homeTeamScore, awayTeamScore: bet.awayTeamScore } },
 				},
 			})),
 		)
-
-		return await this.findAll(userId)
 	}
 
-	async findByMatch(matchId: string) {
+	async listAll() {
 
-		if (!Types.ObjectId.isValid(matchId)) {
-			throw new NotFoundException(`Match ${matchId} not valid`)
-		}
+		const blockedStages = await this.stageService.findBlockedStages()
 
-		const match = await this.matchService.findById(matchId)
-		if (!match) {
-			throw new NotFoundException(`Match ${matchId} not found`)
-		}
+		if (blockedStages.length === 0) return []
 
-		const stageBlocked = await this.stageService.isStageBlocked(match.stage)
-		if (!stageBlocked) {
-			throw new ForbiddenException('Bets are only available after the stage is blocked')
-		}
+		const matchIds = await this.matchService.findIdsByStages(blockedStages)
 
-		const activeUserIds = (await this.userService.findActiveUsers()).map((user) => user._id)
+		if (matchIds.length === 0) return []
+
+		const activeUserIds = (await this.userService.findActiveUsers()).map((u) => u._id)
 
 		const bets = await this.model
-			.find({ match: match._id, user: { $in: activeUserIds } })
+			.find({ match: { $in: matchIds }, user: { $in: activeUserIds } })
+			.populate<{ match: MatchDocument & { homeTeam: TeamDocument; awayTeam: TeamDocument } }>({
+				path: 'match',
+				populate: [
+					{ path: 'homeTeam' },
+					{ path: 'awayTeam' }
+				]
+			})
 			.populate<{ user: UserDocument }>('user')
 			.exec()
 
-		return bets
-			.map((bet) => bet.toObject())
-			.sort((a, b) => {
-				const nameA = (a.user as UserDocument).name
-				const nameB = (b.user as UserDocument).name
-				return nameA.localeCompare(nameB, 'pt-BR')
+		const groupedBets = bets.reduce<Record<string, GroupedBet>>((acc, bet) => {
+			const matchId = bet.match.id
+			acc[matchId] = acc[matchId] || {
+				matchId,
+				utcDate: bet.match.utcDate,
+				stage: bet.match.stage,
+				group: bet.match.group,
+				homeTeam: {
+					name: bet.match.homeTeam.name,
+					shortName: bet.match.homeTeam.shortName,
+					tla: bet.match.homeTeam.tla,
+					crest: bet.match.homeTeam.crest,
+				},
+				homeTeamScore: bet.match.homeTeamScore,
+				awayTeam: {
+					name: bet.match.awayTeam.name,
+					shortName: bet.match.awayTeam.shortName,
+					tla: bet.match.awayTeam.tla,
+					crest: bet.match.awayTeam.crest,
+				},
+				awayTeamScore: bet.match.awayTeamScore,
+				exactScore: 0,
+				winnerWithGoal: 0,
+				correctWinner: 0,
+				oneGoalCorrect: 0,
+				wrong: 0,
+				total: 0,
+				bets: [],
+			}
+			const entry = acc[matchId]
+			entry.exactScore += bet.exactScore ? 1 : 0
+			entry.winnerWithGoal += bet.winnerWithGoal ? 1 : 0
+			entry.correctWinner += bet.correctWinner ? 1 : 0
+			entry.oneGoalCorrect += bet.oneGoalCorrect ? 1 : 0
+			entry.wrong += bet.wrong ? 1 : 0
+			entry.total++
+			entry.bets.push({
+				user: {
+					_id: bet.user.id,
+					name: bet.user.name,
+					picture: bet.user.picture,
+				},
+				homeTeamScore: bet.homeTeamScore,
+				awayTeamScore: bet.awayTeamScore,
+				exactScore: bet.exactScore,
+				winnerWithGoal: bet.winnerWithGoal,
+				correctWinner: bet.correctWinner,
+				oneGoalCorrect: bet.oneGoalCorrect,
+				wrong: bet.wrong,
+				totalPointsEarned: bet.totalPointsEarned,
 			})
+			return acc
+		}, {})
+
+		return Object.values(groupedBets)
+			.map((group) => ({
+				...group,
+				bets: group.bets.sort((a, b) => a.user.name.localeCompare(b.user.name, 'pt-BR')),
+			}))
+			.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf())
 	}
 }

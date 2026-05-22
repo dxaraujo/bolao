@@ -10,7 +10,7 @@ import { Match, MatchDocument } from './schemas/match.schema'
 
 export interface UserAggregate {
 	_id: UserDocument['_id']
-	cumulativeTotal: number
+	totalPoints: number
 	ranking: number
 	previousRanking: number
 	exactScore: number
@@ -73,7 +73,7 @@ export class ResultService {
 				winnerWithGoal: 0,
 				correctWinner: 0,
 				oneGoalCorrect: 0,
-				cumulativeTotal: 0,
+				totalPoints: 0,
 				ranking: 0,
 				previousRanking: 0,
 				bets: allBets.filter((bet) => bet.user.equals(user._id)) as unknown as BetPopulated[],
@@ -93,12 +93,12 @@ export class ResultService {
 
 					calculateBetScore(bet, match)
 
-					user.cumulativeTotal += bet.totalPointsEarned
+					user.totalPoints += bet.totalPointsEarned
 					user.exactScore += bet.exactScore ? 1 : 0
 					user.winnerWithGoal += bet.winnerWithGoal ? 1 : 0
 					user.correctWinner += bet.correctWinner ? 1 : 0
 					user.oneGoalCorrect += bet.oneGoalCorrect ? 1 : 0
-					bet.cumulativeTotal = user.cumulativeTotal
+					// bet.totalPoints = user.totalPoints
 				}
 
 				users = rankUsers(users, i)
@@ -106,8 +106,8 @@ export class ResultService {
 				for (const user of users) {
 					const bet = user.bets.find(bet => bet.match.footballDataId === match.footballDataId)
 					if (bet == null) continue
-					bet.ranking = user.ranking
-					bet.previousRanking = user.previousRanking
+					// bet.ranking = user.ranking
+					// bet.previousRanking = user.previousRanking
 				}
 			}
 
@@ -119,9 +119,9 @@ export class ResultService {
 								bet._id,
 								{
 									totalPointsEarned: bet.totalPointsEarned,
-									cumulativeTotal: bet.cumulativeTotal,
-									ranking: bet.ranking,
-									previousRanking: bet.previousRanking,
+									// totalPoints: bet.totalPoints,
+									// ranking: bet.ranking,
+									// previousRanking: bet.previousRanking,
 									exactScore: bet.exactScore,
 									winnerWithGoal: bet.winnerWithGoal,
 									correctWinner: bet.correctWinner,
@@ -135,7 +135,7 @@ export class ResultService {
 						.findByIdAndUpdate(
 							user._id,
 							{
-								cumulativeTotal: user.cumulativeTotal,
+								totalPoints: user.totalPoints,
 								ranking: user.ranking,
 								previousRanking: user.previousRanking,
 								exactScore: user.exactScore,
@@ -218,7 +218,7 @@ export const rankUsers = (users: UserAggregate[], index: number): UserAggregate[
 }
 
 const compareUsers = (u1: UserAggregate, u2: UserAggregate): number =>
-	u2.cumulativeTotal - u1.cumulativeTotal ||
+	u2.totalPoints - u1.totalPoints ||
 	u2.exactScore - u1.exactScore ||
 	u2.winnerWithGoal - u1.winnerWithGoal ||
 	u2.correctWinner - u1.correctWinner ||

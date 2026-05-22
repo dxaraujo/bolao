@@ -1,11 +1,11 @@
-import { Body, Controller, Get, Param, ParseArrayPipe, Put } from '@nestjs/common'
+import { Body, Controller, Get, Put } from '@nestjs/common'
 import { ApiBody, ApiTags } from '@nestjs/swagger'
 
 import { JwtPayload } from '../auth/jwt.strategy'
 import { CurrentUser } from '../common/current-user.decorator'
 import { ApiProtectedInDocs } from '../common/swagger-auth.decorator'
 import { BetService } from './bet.service'
-import { BetUpdateItemDto } from './dto/update-bets.dto'
+import { UpdateBetsDto } from './dto/update-bets.dto'
 
 @ApiTags('bet')
 @Controller('api/bet')
@@ -16,20 +16,19 @@ export class BetController {
 
 	@Get()
 	async list(@CurrentUser() user: JwtPayload) {
-		const data = await this.service.findAll(user._id)
+		const data = await this.service.list(user._id)
 		return { data }
 	}
 
-	@Get('by-match/:matchId')
-	async findByMatch(@Param('matchId') matchId: string) {
-		const data = await this.service.findByMatch(matchId)
+	@Get('all')
+	async listAll() {
+		const data = await this.service.listAll()
 		return { data }
 	}
 
 	@Put('/updateBets')
-	@ApiBody({ type: [BetUpdateItemDto] })
-	async updateBets(@CurrentUser() user: JwtPayload, @Body(new ParseArrayPipe({ items: BetUpdateItemDto })) body: BetUpdateItemDto[]) {
-		const data = await this.service.updateBets(user._id, body)
-		return { data }
+	@ApiBody({ type: [UpdateBetsDto] })
+	async updateBets(@CurrentUser() user: JwtPayload, @Body() body: { bets: UpdateBetsDto[] }) {
+		return await this.service.updateBets(user._id, body.bets)
 	}
 }

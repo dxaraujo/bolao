@@ -24,9 +24,6 @@ export class Bet {
 	@Prop({ required: false })
 	awayTeamScore?: number
 
-	@Prop({ required: false, enum: VALID_POINTS, default: 0 })
-	totalPointsEarned!: PointsEarned
-
 	@Prop({ required: true, default: false })
 	exactScore!: boolean
 
@@ -40,13 +37,10 @@ export class Bet {
 	oneGoalCorrect!: boolean
 
 	@Prop({ required: true, default: 0 })
-	ranking?: number
+	wrong!: boolean
 
-	@Prop({ required: true, default: 0 })
-	previousRanking!: number
-
-	@Prop({ required: true, default: 0 })
-	cumulativeTotal?: number
+	@Prop({ required: false, enum: VALID_POINTS, default: 0 })
+	totalPointsEarned!: PointsEarned
 }
 
 export const BetSchema = SchemaFactory.createForClass(Bet)

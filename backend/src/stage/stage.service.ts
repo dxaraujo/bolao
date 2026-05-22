@@ -22,8 +22,9 @@ export class StageService {
 		return this.model.find().exec()
 	}
 
-	findVisibleStages() {
-		return this.model.find({ status: { $in: [StageStatus.OPEN, StageStatus.BLOCKED] } }).exec()
+	async findVisibleStages(): Promise<string[]> {
+		const stages = await this.model.find({ status: { $in: [StageStatus.OPEN, StageStatus.BLOCKED] } }).exec()
+		return stages.map(stage => stage.matchStage)
 	}
 
 	async findBlockedStages(): Promise<string[]> {

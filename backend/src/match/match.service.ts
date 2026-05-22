@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
-import { Model } from 'mongoose'
+import { Model, Types } from 'mongoose'
 
 import { MatchStage, MatchStatus, nowtoLocalISOString } from '@bolao/shared'
 import { ConfigService } from '@nestjs/config'
 import { StageService } from 'src/stage/stage.service'
+import { TeamDocument } from 'src/team/schemas/team.schema'
 import { TeamService } from 'src/team/team.service'
 import { Match } from './schemas/match.schema'
-import { UpdateMatchDto } from './dto/update-match.dto'
 
 interface FootballDataMatch {
 	id: number
@@ -38,15 +38,9 @@ export class MatchService {
 		this.apiKey = this.config.getOrThrow<string>('FOOTBALL_DATA_API_KEY')
 	}
 
-	async findVisible() {
-		const stages = await this.stageService.findVisibleStages()
-		const stageNames = stages.map((stage) => stage.matchStage)
+	async list() {
+		const stageNames = await this.stageService.findVisibleStages()
 		const matches = await this.model.find({ stage: { $in: stageNames } }).exec()
-		return matches.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf() || a.footballDataId - b.footballDataId)
-	}
-
-	async findAll() {
-		const matches = await this.model.find().exec()
 		return matches.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf() || a.footballDataId - b.footballDataId)
 	}
 
@@ -60,6 +54,13 @@ export class MatchService {
 
 	findById(id: string) {
 		return this.model.findById(id).exec()
+	}
+
+	findByIds(ids: Types.ObjectId[]) {
+		return this.model
+			.find({ _id: { $in: ids } })
+			.populate<{ homeTeam: TeamDocument; awayTeam: TeamDocument }>(['homeTeam', 'awayTeam'])
+			.exec()
 	}
 
 	async importMatches() {
@@ -128,9 +129,5 @@ export class MatchService {
 
 			this.logger.error('Error importing matches', err)
 		}
-	}
-
-	updateMatch(matchId: string, { status, homeTeamScore, awayTeamScore }: UpdateMatchDto) {
-		return this.model.findByIdAndUpdate(matchId, { status, homeTeamScore, awayTeamScore }, { new: true }).exec()
 	}
 }

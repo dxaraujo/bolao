@@ -1,6 +1,6 @@
 import { IsInt, IsMongoId, IsOptional, Max, Min } from 'class-validator'
 
-export class BetUpdateItemDto {
+export class UpdateBetsDto {
 
 	@IsMongoId()
 	_id!: string

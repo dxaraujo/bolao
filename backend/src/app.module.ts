@@ -1,16 +1,18 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
-import { MongooseModule } from '@nestjs/mongoose'
 import { APP_GUARD } from '@nestjs/core'
+import { MongooseModule } from '@nestjs/mongoose'
 
-import { JwtAuthGuard } from './auth/jwt-auth.guard'
 import { AuthModule } from './auth/auth.module'
-import { AppConfigModule } from './config/config.module'
-import { StageModule } from './stage/stage.module'
-import { HealthModule } from './health/health.module'
+import { JwtAuthGuard } from './auth/jwt-auth.guard'
 import { BetModule } from './bet/bet.module'
+import { AppConfigModule } from './config/config.module'
+import { HealthModule } from './health/health.module'
 import { MatchModule } from './match/match.module'
+import { RankingModule } from './ranking/ranking.module'
 import { ScheduleModule } from './schedule/schedule.module'
+import { StageModule } from './stage/stage.module'
+import { StatsModule } from './stats/stats.module'
 import { TeamModule } from './team/team.module'
 import { UserModule } from './user/user.module'
 
@@ -29,6 +31,8 @@ import { UserModule } from './user/user.module'
 		UserModule,
 		TeamModule,
 		StageModule,
+		RankingModule,
+		StatsModule,
 		AppConfigModule,
 		MatchModule,
 		BetModule,

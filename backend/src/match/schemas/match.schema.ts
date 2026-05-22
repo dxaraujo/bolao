@@ -1,10 +1,11 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
-import { HydratedDocument } from 'mongoose'
+import { HydratedDocument, Schema as MongooseSchema, Types } from 'mongoose'
 import { MatchStage, MatchStatus } from '@bolao/shared'
 
-import { Team, TeamSchema } from '../../team/schemas/team.schema'
+import { Team, TeamDocument, TeamSchema } from '../../team/schemas/team.schema'
 
 export type MatchDocument = HydratedDocument<Match>
+
 export { MatchStage, MatchStatus }
 
 @Schema()
@@ -28,11 +29,11 @@ export class Match {
 	@Prop({ required: true })
 	group!: string
 
-	@Prop({ type: TeamSchema, required: false })
-	homeTeam?: Team
+	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Team.name, required: true, index: true })
+	homeTeam!: Types.ObjectId
 
-	@Prop({ type: TeamSchema, required: false })
-	awayTeam?: Team
+	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Team.name, required: true, index: true })
+	awayTeam!: Types.ObjectId
 
 	@Prop({ required: false })
 	homeTeamScore?: number

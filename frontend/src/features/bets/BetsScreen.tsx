@@ -14,7 +14,7 @@ import { cn } from '@/lib/cn'
 import { useMyBets, useUpdateBets } from '@/hooks/useBets'
 import { useStages } from '@/hooks/useStages'
 import { useConfig } from '@/hooks/useConfig'
-import { STAGE_LABELS } from '@/lib/stage'
+import { STAGE_LABELS, groupLabel } from '@/lib/stage'
 import { formatDeadline } from '@/lib/format'
 
 import { BetCard, type BetDraft } from './components/BetCard'
@@ -63,6 +63,18 @@ export function BetsScreen() {
 			.filter((b) => b.stage === currentStage.matchStage)
 			.sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime())
 	}, [bets, currentStage])
+
+	const groupedBets = useMemo(() => {
+		if (!stageBets.length) return null
+		if (!stageBets.some((b) => b.group)) return null
+		const map = new Map<string, typeof stageBets>()
+		for (const bet of stageBets) {
+			const key = bet.group ?? ''
+			if (!map.has(key)) map.set(key, [])
+			map.get(key)!.push(bet)
+		}
+		return map
+	}, [stageBets])
 
 	const filled = useMemo(() => {
 		if (!isOpen) return 0
@@ -175,6 +187,25 @@ export function BetsScreen() {
 
 					{stageBets.length === 0 ? (
 						<EmptyState icon={Target} title="Nenhum palpite disponível" />
+					) : groupedBets ? (
+						Array.from(groupedBets.entries()).map(([group, bets]) => (
+							<div key={group}>
+								<p className="mb-2 mt-4 text-xs font-bold uppercase tracking-widest text-sub first:mt-0">
+									{groupLabel(group)}
+								</p>
+								<div className="flex flex-col gap-2">
+									{bets.map((bet) => (
+										<BetCard
+											key={bet._id}
+											bet={bet}
+											draft={draft[bet._id] ?? emptyDraft}
+											disabled={!isOpen}
+											onChange={(d) => setDraft((cur) => ({ ...cur, [bet._id]: d }))}
+										/>
+									))}
+								</div>
+							</div>
+						))
 					) : (
 						<div className="flex flex-col gap-2">
 							{stageBets.map((bet) => (

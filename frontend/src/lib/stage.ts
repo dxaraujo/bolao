@@ -29,6 +29,13 @@ export const STAGE_LABELS: Record<MatchStage, { full: string; short: string }> =
 	[MatchStage.RELEGATION_ROUND]: { full: 'Rebaix.', short: 'Rebaix.' },
 }
 
+export function groupLabel(group: string | null | undefined): string {
+	if (!group) return ''
+	const match = group.match(/GROUP_([A-Z]+)/)
+	if (match) return `Grupo ${match[1]}`
+	return group
+}
+
 const STAGE_ORDER: MatchStage[] = [
 	MatchStage.GROUP_STAGE,
 	MatchStage.LAST_16,

@@ -39,22 +39,22 @@ export function LoginScreen() {
 					<h1 className="font-display text-5xl tracking-widest">
 						COPA<span className="text-acc">BET</span>
 					</h1>
-					<p className="text-[11px] uppercase tracking-[0.2em] text-sub">Bolão · Copa do Mundo 2026</p>
+					<p className="text-xs uppercase tracking-[0.2em] text-sub">Bolão · Copa do Mundo 2026</p>
 				</div>
 
 				<div className="relative z-10 w-full rounded-lg border border-border bg-surface p-6 text-left">
-					<h2 className="text-sm font-bold">Dispute com seus amigos</h2>
-					<p className="mt-2 text-xs text-sub">Aposte nos placares de cada jogo e suba no ranking fase a fase.</p>
-					<div className="mt-4 space-y-1.5 text-xs text-sub">
+					<h2 className="text-base font-bold">Dispute com seus amigos</h2>
+					<p className="mt-2 text-sm text-sub">Aposte nos placares de cada jogo e suba no ranking fase a fase.</p>
+					<div className="mt-4 space-y-2 text-sm text-sub">
 						<p className="font-semibold text-foreground">Pontuação por jogo:</p>
-						<ul className="space-y-1">
+						<ul className="space-y-1.5">
 							<li>🎯 +{config?.pointsExactScore ?? 5} pts — Placar exato</li>
 							<li>⚽ +{config?.pointsWinnerWithGoal ?? 3} pts — Vencedor + saldo de gols</li>
 							<li>✅ +{config?.pointsCorrectWinner ?? 1} pts — Só o vencedor</li>
 							<li>🔢 +{config?.pointsOneGoalCorrect ?? 1} pts — Acertou um gol</li>
 							<li>❌ 0 pts — Errou tudo</li>
 						</ul>
-						<p className="mt-3 text-[10px] text-muted-foreground">
+						<p className="mt-3 text-xs text-muted-foreground">
 							⏱ Apenas tempo regulamentar. Pênaltis não são considerados.
 						</p>
 					</div>
@@ -71,9 +71,9 @@ export function LoginScreen() {
 					/>
 				</div>
 
-				{loading && <p className="relative z-10 text-xs text-sub">Entrando…</p>}
+				{loading && <p className="relative z-10 text-sm text-sub">Entrando…</p>}
 
-				<p className="relative z-10 text-[11px] text-muted-foreground">Apenas membros do grupo têm acesso.</p>
+				<p className="relative z-10 text-xs text-muted-foreground">Apenas membros do grupo têm acesso.</p>
 			</div>
 		</div>
 	)

@@ -140,11 +140,6 @@ export interface UserAccuracy {
 	accuracyPct: number
 }
 
-export interface StageAccuracy {
-	matchStage: MatchStage
-	users: Array<{ _id: string; name: string; accuracyPct: number }>
-}
-
 export interface Distribution {
 	exact: { count: number; pct: number }
 	winnerWithGoal: { count: number; pct: number }

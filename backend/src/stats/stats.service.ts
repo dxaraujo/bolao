@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 
-import { MatchStage } from '@bolao/shared'
-
 import { Bet } from '../bet/schemas/bet.schema'
 import { Match, MatchStatus } from '../match/schemas/match.schema'
 import { User, UserDocument } from '../user/schemas/user.schema'
@@ -26,11 +24,6 @@ export interface UserAccuracy {
 	wrong: number
 	totalBets: number
 	accuracyPct: number
-}
-
-export interface StageAccuracy {
-	matchStage: MatchStage
-	users: Array<{ _id: string; name: string; accuracyPct: number }>
 }
 
 export interface Distribution {
@@ -128,65 +121,6 @@ export class StatsService {
 				}
 			})
 			.sort((a, b) => b.accuracyPct - a.accuracyPct || a.name.localeCompare(b.name, 'pt-BR'))
-	}
-
-	async accuracyByStage(): Promise<StageAccuracy[]> {
-
-		const activeUsers = await this.userModel.find({ isActive: true }).exec()
-		const activeUserIds = activeUsers.map((u) => u._id)
-
-		const finishedMatches = await this.matchModel.find({ status: MatchStatus.FINISHED }, { _id: 1, stage: 1 }).exec()
-		if (finishedMatches.length === 0 || activeUserIds.length === 0) return []
-
-		const matchIdToStage = new Map(finishedMatches.map((m) => [m._id.toString(), m.stage]))
-
-		const grouped = await this.betModel.aggregate<{
-			_id: { user: Types.ObjectId; match: Types.ObjectId }
-			exact: number
-			correct: number
-			total: number
-		}>([
-			{ $match: { user: { $in: activeUserIds }, match: { $in: finishedMatches.map((m) => m._id) } } },
-			{
-				$group: {
-					_id: { user: '$user', match: '$match' },
-					exact: { $sum: { $cond: ['$exactScore', 1, 0] } },
-					correct: {
-						$sum: {
-							$cond: [
-								{ $or: ['$winnerWithGoal', '$oneGoalCorrect', '$correctWinner'] },
-								1,
-								0,
-							],
-						},
-					},
-					total: { $sum: 1 },
-				},
-			},
-		])
-
-		const byStage = new Map<MatchStage, Map<string, { exact: number; total: number }>>()
-
-		for (const g of grouped) {
-			const stage = matchIdToStage.get(g._id.match.toString())
-			if (!stage) continue
-			const userKey = g._id.user.toString()
-			if (!byStage.has(stage)) byStage.set(stage, new Map())
-			const entry = byStage.get(stage)!.get(userKey) ?? { exact: 0, total: 0 }
-			entry.exact += g.exact
-			entry.total += g.total
-			byStage.get(stage)!.set(userKey, entry)
-		}
-
-		return Array.from(byStage.entries()).map(([stage, perUser]) => ({
-			matchStage: stage as MatchStage,
-			users: activeUsers
-				.map((u) => {
-					const entry = perUser.get(u.id) ?? { exact: 0, total: 0 }
-					const accuracyPct = entry.total === 0 ? 0 : Math.round((entry.exact / entry.total) * 100)
-					return { _id: u.id, name: u.name, accuracyPct }
-				}),
-		}))
 	}
 
 	async distribution(): Promise<Distribution> {

@@ -23,12 +23,6 @@ export class StatsController {
 		return { data }
 	}
 
-	@Get('accuracy-by-stage')
-	async accuracyByStage() {
-		const data = await this.service.accuracyByStage()
-		return { data }
-	}
-
 	@Get('distribution')
 	async distribution() {
 		const data = await this.service.distribution()

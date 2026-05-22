@@ -11,22 +11,20 @@ import type { BetMap } from '@/types'
 const RESULT_COLOR: Record<string, string> = {
   exact: 'text-[#22c55e] border-[#22c55e]/30 bg-[#22c55e]/8',
   correct: 'text-[#f59e0b] border-[#f59e0b]/30 bg-[#f59e0b]/8',
-  wrong: 'text-[#ef4444] border-[#ef4444]/30 bg-[#ef4444]/8',
 }
 const RESULT_LABEL: Record<string, string> = {
-  exact: '🎯 Exato +5pts',
-  correct: '✓ Resultado +2pts',
-  wrong: '✗ Errou +0pts',
+  exact: `🎯 Exato +${SCORING.exactScore}pts`,
+  correct: `✓ Vencedor +${SCORING.correctWinner}pts`,
 }
 
-function getResult(bet: { h: number; a: number }, hs: number, as_: number) {
+function getResult(bet: { h: number; a: number }, hs: number, as_: number): 'exact' | 'correct' | null {
   if (bet.h === hs && bet.a === as_) return 'exact'
   const dir = (h: number, a: number) => (h > a ? 'H' : h < a ? 'A' : 'D')
-  return dir(bet.h, bet.a) === dir(hs, as_) ? 'correct' : 'wrong'
+  return dir(bet.h, bet.a) === dir(hs, as_) ? 'correct' : null
 }
 
 export function BetsScreen() {
-  const { me, stages, matches, allBets, myOpenBets, loading, error, refresh, refreshBets } = useAppData()
+  const { me, stages, matches, myBets, myOpenBets, loading, error, refresh, refreshBets } = useAppData()
   const [si, setSi] = useState(0)
   const [bets, setBets] = useState<BetMap>({})
   const [saved, setSaved] = useState(false)
@@ -177,7 +175,7 @@ export function BetsScreen() {
           )}
           <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1">
           {stageMatches.map((m, i) => {
-            const bet = isOpen ? bets[m.id] : (me ? allBets[m.id]?.[me.id] : undefined)
+            const bet = isOpen ? bets[m.id] : myBets[m.id]
             const filled2 = isOpen && bet && bet.h !== '' && bet.a !== ''
             const res =
               isBlocked && bet && bet.h !== '' && bet.a !== '' && m.hs !== null
@@ -188,7 +186,7 @@ export function BetsScreen() {
                 key={m.id}
                 style={{
                   animationDelay: `${i * 55}ms`,
-                  ...(res ? { borderLeftColor: res === 'exact' ? '#22c55e' : res === 'correct' ? '#f59e0b' : '#ef4444' } : {}),
+                  ...(res ? { borderLeftColor: res === 'exact' ? '#22c55e' : '#f59e0b' } : {}),
                 }}
                 className={`animate-fade-up rounded-2xl border p-4 mb-0 relative overflow-hidden bg-copa-surface dark:bg-[#111d2e] transition-colors
                   ${filled2 ? 'border-[#00e5ff]/40' : 'border-copa-border dark:border-[#1e2f45]'}

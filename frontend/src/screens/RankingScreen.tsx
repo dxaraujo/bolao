@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useAppData } from '@/context/AppDataContext'
+import { formatUserStatsCompact } from '@/lib/bet'
 import { SCORING } from '@/lib/enums'
 import { Avatar } from '@/components/shared/Avatar'
 import { LoadingState, ErrorState } from '@/components/shared/LoadingState'
@@ -10,13 +11,32 @@ const PODIUM_HEIGHTS = [56, 80, 44]
 const PODIUM_COLORS = ['#64849f', '#f59e0b', '#00e5ff']
 const PODIUM_MEDALS = ['🥈', '🥇', '🥉']
 
-function ChartTooltip({ active, payload, label }: { active?: boolean; payload?: { value: number }[]; label?: string }) {
+const CHART_BAR_LABELS: Record<string, string> = {
+  pts: 'Pontos',
+  exactScore: 'Exatos',
+  winnerWithGoal: 'Venc.+ Gol',
+  correctWinner: 'Vencedor',
+  oneGoalCorrect: 'Gol',
+}
+
+function ChartTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean
+  payload?: { dataKey: string; value: number; color: string }[]
+  label?: string
+}) {
   if (!active || !payload?.length) return null
   return (
     <div className="rounded-xl border border-copa-border dark:border-[#1e2f45] bg-copa-surface dark:bg-[#111d2e] px-3 py-2">
       <div className="text-xs font-bold text-copa-text dark:text-[#f0f6ff] mb-1">{label}</div>
-      <div className="text-xs text-[#00e5ff]">{payload[0]?.value} pts</div>
-      <div className="text-xs text-[#f59e0b]">{payload[1]?.value} exatos</div>
+      {payload.map((p) => (
+        <div key={p.dataKey} className="text-xs" style={{ color: p.color }}>
+          {CHART_BAR_LABELS[p.dataKey] ?? p.dataKey}: {p.value}
+        </div>
+      ))}
     </div>
   )
 }
@@ -30,7 +50,14 @@ export function RankingScreen() {
     return [users[1], users[0], users[2]]
   }, [users])
 
-  const chartData = users.map((u) => ({ name: u.name, pts: u.pts, exact: u.exact }))
+  const chartData = users.map((u) => ({
+    name: u.name,
+    pts: u.pts,
+    exactScore: u.exactScore,
+    winnerWithGoal: u.winnerWithGoal,
+    correctWinner: u.correctWinner,
+    oneGoalCorrect: u.oneGoalCorrect,
+  }))
 
   if (loading) return <LoadingState />
   if (error) return <ErrorState message={error} onRetry={refresh} />
@@ -112,6 +139,9 @@ export function RankingScreen() {
                   {u.pts}
                 </div>
                 <div className="text-[9px] text-copa-sub dark:text-[#64849f] uppercase">pts</div>
+                <div className="text-[8px] text-copa-sub dark:text-[#64849f] mt-0.5 max-w-[140px] truncate">
+                  {formatUserStatsCompact(u)}
+                </div>
               </div>
             </div>
           )
@@ -122,7 +152,7 @@ export function RankingScreen() {
       {users.length > 0 && (
         <div className="rounded-2xl border border-copa-border dark:border-[#1e2f45] bg-copa-surface dark:bg-[#111d2e] p-4 mb-4">
           <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
-            Pontuação e Placares Exatos
+            Pontuação por Tipo de Acerto
           </div>
           <ResponsiveContainer width="100%" height={180} className="min-h-[150px] sm:min-h-[180px]">
             <BarChart data={chartData} barCategoryGap="30%">
@@ -141,7 +171,10 @@ export function RankingScreen() {
               />
               <Tooltip content={<ChartTooltip />} />
               <Bar dataKey="pts" fill="#00e5ff" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="exact" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="exactScore" fill="#22c55e" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="winnerWithGoal" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="correctWinner" fill="#eab308" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="oneGoalCorrect" fill="#a78bfa" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -151,14 +184,13 @@ export function RankingScreen() {
         <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-3">
           Tabela de Pontuação
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {(
             [
               ['#22c55e', `+${SCORING.exactScore}`, 'Placar Exato'],
               ['#f59e0b', `+${SCORING.winnerWithGoal}`, 'Venc. + Gol'],
               ['#eab308', `+${SCORING.correctWinner}`, 'Vencedor'],
-              ['#a78bfa', `+${SCORING.oneGoalCorrect}`, '1 Gol'],
-              ['#ef4444', String(SCORING.wrong), 'Errou'],
+              ['#a78bfa', `+${SCORING.oneGoalCorrect}`, 'Gol'],
             ] as const
           ).map(([c, v, l]) => (
             <div key={l} className="rounded-xl p-3 text-center border" style={{ background: `${c}12`, borderColor: `${c}30` }}>

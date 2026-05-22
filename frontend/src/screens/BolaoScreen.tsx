@@ -2,7 +2,13 @@ import { useCallback, useMemo, useState } from 'react'
 import { api } from '@/api/client'
 import type { ApiBet, ApiBetUser } from '@/api/types'
 import { useAppData } from '@/context/AppDataContext'
-import { isPopulatedUser, resolveBetDisplay, summaryBucketFromBet, type BetSummaryBucket } from '@/lib/bet'
+import {
+  aggregateOutcomes,
+  BET_OUTCOME_META,
+  BET_OUTCOME_ORDER,
+  isPopulatedUser,
+  resolveBetDisplay,
+} from '@/lib/bet'
 import { Avatar } from '@/components/shared/Avatar'
 import { LoadingState, ErrorState } from '@/components/shared/LoadingState'
 import type { User } from '@/types'
@@ -17,14 +23,7 @@ function toAvatarUser(user: ApiBetUser): Pick<User, 'id' | 'name' | 'avatar' | '
 }
 
 function buildSummary(items: ApiBet[]) {
-  return items.reduce(
-    (acc, item) => {
-      const bucket = summaryBucketFromBet(item)
-      if (bucket) acc[bucket] = (acc[bucket] || 0) + 1
-      return acc
-    },
-    {} as Record<BetSummaryBucket, number>,
-  )
+  return aggregateOutcomes(items).counts
 }
 
 export function BolaoScreen() {
@@ -126,7 +125,7 @@ export function BolaoScreen() {
         {stageMatches.map((m, mi) => {
           const isOpen = expanded[m.id]
           const items = betsCache[m.id]
-          const summary: Partial<Record<BetSummaryBucket, number>> = items ? buildSummary(items) : {}
+          const summary = items ? buildSummary(items) : null
           const isLoadingBets = loadingMatch[m.id]
           const matchError = matchErrors[m.id]
 
@@ -145,25 +144,22 @@ export function BolaoScreen() {
                     {m.date.slice(8)}/{m.date.slice(5, 7)} · {m.time}
                   </span>
                   <div className="flex items-center gap-2">
-                    <div className="flex gap-1">
-                      {(
-                        [
-                          ['exact', '#22c55e'],
-                          ['correct', '#f59e0b'],
-                          ['wrong', '#ef4444'],
-                        ] as const
-                      ).map(
-                        ([r, c]) =>
-                          (summary[r] || 0) > 0 && (
+                    <div className="flex gap-1 flex-wrap justify-end">
+                      {summary &&
+                        BET_OUTCOME_ORDER.map((key) => {
+                          const count = summary[key]
+                          if (!count) return null
+                          const meta = BET_OUTCOME_META[key]
+                          return (
                             <span
-                              key={r}
+                              key={key}
                               className="text-[9px] font-bold px-1.5 py-0.5 rounded"
-                              style={{ color: c, background: `${c}15` }}
+                              style={{ color: meta.color, background: `${meta.color}15` }}
                             >
-                              {summary[r]}
+                              {count}
                             </span>
-                          ),
-                      )}
+                          )
+                        })}
                     </div>
                     <span
                       className="text-copa-sub dark:text-[#64849f] text-sm transition-transform duration-200"
@@ -281,18 +277,20 @@ export function BolaoScreen() {
                         <span className="text-[10px] text-copa-sub dark:text-[#64849f] font-semibold">
                           {items.length} palpite{items.length !== 1 ? 's' : ''}
                         </span>
-                        <div className="flex gap-3">
-                          {(
-                            [
-                              ['🎯', summary.exact || 0, '#22c55e'],
-                              ['✓', summary.correct || 0, '#f59e0b'],
-                              ['✗', summary.wrong || 0, '#ef4444'],
-                            ] as const
-                          ).map(([ic, n, c]) => (
-                            <span key={ic} className="text-[10px] font-bold flex items-center gap-1" style={{ color: c }}>
-                              {ic} {n}
-                            </span>
-                          ))}
+                        <div className="flex gap-2 flex-wrap justify-end">
+                          {summary &&
+                            BET_OUTCOME_ORDER.map((key) => {
+                              const meta = BET_OUTCOME_META[key]
+                              return (
+                                <span
+                                  key={key}
+                                  className="text-[10px] font-bold flex items-center gap-0.5"
+                                  style={{ color: meta.color }}
+                                >
+                                  {meta.icon} {summary[key]}
+                                </span>
+                              )
+                            })}
                         </div>
                       </div>
                     </>

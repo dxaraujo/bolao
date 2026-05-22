@@ -1,10 +1,23 @@
 import { useMemo } from 'react'
 import { useAppData } from '@/context/AppDataContext'
-import { betResult } from '@/lib/bet'
+import {
+  aggregateUserOutcomes,
+  BET_OUTCOME_META,
+  BET_OUTCOME_ORDER,
+  betOutcomeFromApi,
+  formatUserStatsCompact,
+  userHits,
+  type BetOutcomeType,
+} from '@/lib/bet'
+import { SCORING } from '@/lib/enums'
 import { LoadingState, ErrorState } from '@/components/shared/LoadingState'
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts'
 
 const USER_COLORS = ['#00e5ff', '#f59e0b', '#a78bfa', '#22c55e', '#ef4444', '#64849f', '#ec4899', '#14b8a6']
+
+function pct(count: number, total: number) {
+  return total > 0 ? Math.round((count / total) * 100) : 0
+}
 
 function ChartTooltip({
   active,
@@ -29,71 +42,94 @@ function ChartTooltip({
 }
 
 export function StatsScreen() {
-  const { me, users, stages, matches, allBets, loading, error, refresh } = useAppData()
+  const { me, users, stages, matches, myApiBets, loading, error, refresh } = useAppData()
 
   const finishedMatches = useMemo(() => matches.filter((m) => m.status === 'finished'), [matches])
 
-  const groupStats = useMemo(() => {
-    let exact = 0
-    let correct = 0
-    let wrong = 0
-    for (const m of finishedMatches) {
-      const matchBets = allBets[m.id] || {}
-      for (const u of users) {
-        const r = betResult(matchBets[u.id], m)
-        if (r === 'exact') exact++
-        else if (r === 'correct') correct++
-        else if (r === 'wrong') wrong++
-      }
-    }
-    const total = exact + correct + wrong
-    return { exact, correct, wrong, total }
-  }, [finishedMatches, allBets, users])
+  const groupStats = useMemo(() => aggregateUserOutcomes(users), [users])
+
+  const maxUserHits = useMemo(() => Math.max(1, ...users.map(userHits)), [users])
 
   const leader = users[0]
 
-  const accuracyByStage = useMemo(() => {
+  const myAccuracyByStage = useMemo(() => {
+    if (!me) return []
     const blocked = stages.filter((s) => s.status === 'BLOCKED')
-    return blocked.map((stage) => {
-      const stageMatches = finishedMatches.filter((m) => m.matchStage === stage.matchStage)
-      const row: Record<string, string | number> = { fase: stage.short }
-      for (const u of users) {
+    return blocked
+      .map((stage) => {
+        const stageMatchIds = new Set(
+          finishedMatches.filter((m) => m.matchStage === stage.matchStage).map((m) => m.id),
+        )
         let hits = 0
         let total = 0
-        for (const m of stageMatches) {
-          const bet = allBets[m.id]?.[u.id]
-          const r = betResult(bet, m)
-          if (r === 'pending') continue
+        for (const bet of myApiBets) {
+          const matchId = typeof bet.match === 'string' ? bet.match : bet.match._id
+          if (!stageMatchIds.has(matchId)) continue
+          if (bet.homeTeamScore == null || bet.awayTeamScore == null) continue
           total++
-          if (r === 'exact' || r === 'correct') hits++
+          if (betOutcomeFromApi(bet)) hits++
         }
-        row[u.name] = total > 0 ? Math.round((hits / total) * 100) : 0
-      }
-      return row
+        return { fase: stage.short, acerto: pct(hits, total), jogos: total }
+      })
+      .filter((row) => row.jogos > 0)
+  }, [me, stages, finishedMatches, myApiBets])
+
+  const distributionRows = useMemo(
+    () =>
+      BET_OUTCOME_ORDER.map((key) => {
+        const meta = BET_OUTCOME_META[key]
+        const count = groupStats.counts[key]
+        const points = SCORING[key]
+        return {
+          key,
+          meta,
+          count,
+          points,
+          percent: pct(count, groupStats.total),
+        }
+      }),
+    [groupStats],
+  )
+
+  const groupAccuracy = useMemo(() => {
+    const hits =
+      groupStats.counts.exactScore +
+      groupStats.counts.winnerWithGoal +
+      groupStats.counts.correctWinner +
+      groupStats.counts.oneGoalCorrect
+    return pct(hits, groupStats.total)
+  }, [groupStats])
+
+  const donutSegments = useMemo(() => {
+    let offset = 25
+    return distributionRows.map((row) => {
+      const segment = { ...row, dashOffset: offset }
+      offset -= row.percent
+      return segment
     })
-  }, [stages, finishedMatches, allBets, users])
+  }, [distributionRows])
 
   if (loading) return <LoadingState />
   if (error) return <ErrorState message={error} onRetry={refresh} />
 
-  const exactPct = groupStats.total ? Math.round((groupStats.exact / groupStats.total) * 100) : 0
-  const correctPct = groupStats.total ? Math.round((groupStats.correct / groupStats.total) * 100) : 0
-  const wrongPct = groupStats.total ? Math.round((groupStats.wrong / groupStats.total) * 100) : 0
-  const groupAccuracy = groupStats.total
-    ? Math.round(((groupStats.exact + groupStats.correct) / groupStats.total) * 100)
-    : 0
+  const topCards = [
+    { icon: '⚽', label: 'Jogos Finalizados', val: String(finishedMatches.length), color: '#00e5ff' },
+    ...BET_OUTCOME_ORDER.map((key) => {
+      const meta = BET_OUTCOME_META[key]
+      return {
+        icon: meta.icon,
+        label: meta.label,
+        val: String(groupStats.counts[key]),
+        color: meta.color,
+      }
+    }),
+    { icon: '👑', label: 'Líder do Grupo', val: leader?.name ?? '—', color: '#a78bfa' },
+  ]
 
   return (
     <div className="flex-1 overflow-y-auto screen-px pt-4 pb-2">
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 mb-4">
-        {(
-          [
-            { icon: '⚽', label: 'Jogos Finalizados', val: String(finishedMatches.length), color: '#00e5ff' },
-            { icon: '🎯', label: 'Placares Exatos', val: String(groupStats.exact), color: '#22c55e' },
-            { icon: '✅', label: 'Resultados Certos', val: String(groupStats.correct), color: '#f59e0b' },
-            { icon: '👑', label: 'Líder do Grupo', val: leader?.name ?? '—', color: '#a78bfa' },
-          ] as const
-        ).map(({ icon, label, val, color }) => (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 mb-4">
+        {topCards.map(({ icon, label, val, color }) => (
           <div
             key={label}
             className="rounded-2xl border border-copa-border dark:border-[#1e2f45] bg-copa-surface dark:bg-[#111d2e] p-4"
@@ -114,27 +150,58 @@ export function StatsScreen() {
           Desempenho por Jogador
         </div>
         {users.map((u, i) => {
-          const total = u.exact + u.correct
-          const pct = total > 0 ? Math.round((u.exact / total) * 100) : 0
+          const hits = userHits(u)
+          const hitPct = pct(hits, maxUserHits)
           const color = USER_COLORS[i % USER_COLORS.length]
           const isMe = me?.id === u.id
           return (
-            <div key={u.id} className="mb-3 last:mb-0">
-              <div className="flex justify-between items-center mb-1.5">
-                <span className="text-xs font-semibold text-copa-text dark:text-[#f0f6ff] flex items-center gap-1.5">
+            <div key={u.id} className="mb-4 last:mb-0">
+              <div className="flex justify-between items-center mb-1.5 gap-2">
+                <span className="text-xs font-semibold text-copa-text dark:text-[#f0f6ff] flex items-center gap-1.5 min-w-0">
                   {u.name}
                   {isMe && (
-                    <span className="text-[8px] font-bold text-[#00e5ff] bg-[#00e5ff]/10 px-1 rounded">Você</span>
+                    <span className="text-[8px] font-bold text-[#00e5ff] bg-[#00e5ff]/10 px-1 rounded shrink-0">
+                      Você
+                    </span>
                   )}
                 </span>
-                <span className="text-xs font-bold" style={{ color }}>
-                  {u.exact}E · {u.correct}R · {u.pts}pts
+                <span className="text-[10px] font-bold text-right shrink-0" style={{ color }}>
+                  {formatUserStatsCompact(u)} · {u.pts}pts
                 </span>
+              </div>
+              <div className="grid grid-cols-4 gap-1 mb-2">
+                {(
+                  [
+                    ['exactScore', u.exactScore],
+                    ['winnerWithGoal', u.winnerWithGoal],
+                    ['correctWinner', u.correctWinner],
+                    ['oneGoalCorrect', u.oneGoalCorrect],
+                  ] as [BetOutcomeType, number][]
+                ).map(([key, count]) => {
+                  const meta = BET_OUTCOME_META[key]
+                  return (
+                    <div
+                      key={key}
+                      className="rounded-lg py-1 text-center border"
+                      style={{ background: `${meta.color}12`, borderColor: `${meta.color}30` }}
+                    >
+                      <div className="text-[10px] font-bold" style={{ color: meta.color }}>
+                        {count}
+                      </div>
+                      <div className="text-[7px] text-copa-sub dark:text-[#64849f] font-semibold uppercase">
+                        {meta.short}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
               <div className="h-2 rounded-full bg-copa-muted dark:bg-[#243347] overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-700"
-                  style={{ width: `${Math.min(pct, 100)}%`, background: `linear-gradient(90deg,${color}88,${color})` }}
+                  style={{
+                    width: `${Math.min(hitPct, 100)}%`,
+                    background: `linear-gradient(90deg,${color}88,${color})`,
+                  }}
                 />
               </div>
             </div>
@@ -142,13 +209,13 @@ export function StatsScreen() {
         })}
       </div>
 
-      {accuracyByStage.length > 0 && (
+      {myAccuracyByStage.length > 0 && (
         <div className="rounded-2xl border border-copa-border dark:border-[#1e2f45] bg-copa-surface dark:bg-[#111d2e] p-4 mb-3">
           <div className="text-[10px] font-bold text-copa-sub dark:text-[#64849f] tracking-widest uppercase mb-4">
-            Acerto por Fase (%)
+            Seu Acerto por Fase (%)
           </div>
           <ResponsiveContainer width="100%" height={180} className="min-h-[150px] sm:min-h-[180px]">
-            <LineChart data={accuracyByStage}>
+            <LineChart data={myAccuracyByStage}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(100,132,159,.15)" vertical={false} />
               <XAxis
                 dataKey="fase"
@@ -164,17 +231,14 @@ export function StatsScreen() {
                 domain={[0, 100]}
               />
               <Tooltip content={<ChartTooltip />} />
-              {users.map((u, i) => (
-                <Line
-                  key={u.id}
-                  type="monotone"
-                  dataKey={u.name}
-                  stroke={USER_COLORS[i % USER_COLORS.length]}
-                  strokeWidth={2}
-                  dot={{ r: 3, fill: USER_COLORS[i % USER_COLORS.length], strokeWidth: 0 }}
-                  activeDot={{ r: 5 }}
-                />
-              ))}
+              <Line
+                type="monotone"
+                dataKey="acerto"
+                stroke="#00e5ff"
+                strokeWidth={2}
+                dot={{ r: 3, fill: '#00e5ff', strokeWidth: 0 }}
+                activeDot={{ r: 5 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -187,55 +251,56 @@ export function StatsScreen() {
         <div className="flex gap-4 items-center">
           <svg width={88} height={88} viewBox="0 0 36 36" className="flex-shrink-0">
             <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(100,132,159,.15)" strokeWidth="4" />
-            <circle
-              cx="18"
-              cy="18"
-              r="15.9"
-              fill="none"
-              stroke="#22c55e"
-              strokeWidth="4"
-              strokeDasharray={`${exactPct} ${100 - exactPct}`}
-              strokeDashoffset="25"
-              strokeLinecap="round"
-            />
-            <circle
-              cx="18"
-              cy="18"
-              r="15.9"
-              fill="none"
-              stroke="#f59e0b"
-              strokeWidth="4"
-              strokeDasharray={`${correctPct} ${100 - correctPct}`}
-              strokeDashoffset={25 - exactPct}
-              strokeLinecap="round"
-            />
-            <text x="18" y="18.5" textAnchor="middle" fontSize="6.5" fontWeight="700" fill="currentColor" fontFamily="Bebas Neue">
+            {donutSegments.map((row) => (
+              <circle
+                key={row.key}
+                cx="18"
+                cy="18"
+                r="15.9"
+                fill="none"
+                stroke={row.meta.color}
+                strokeWidth="4"
+                strokeDasharray={`${row.percent} ${100 - row.percent}`}
+                strokeDashoffset={row.dashOffset}
+                strokeLinecap="round"
+              />
+            ))}
+            <text
+              x="18"
+              y="18.5"
+              textAnchor="middle"
+              fontSize="6.5"
+              fontWeight="700"
+              fill="currentColor"
+              fontFamily="Bebas Neue"
+            >
               {groupAccuracy}%
             </text>
             <text x="18" y="23.5" textAnchor="middle" fontSize="3.5" fill="#64849f" fontFamily="Outfit">
               acerto
             </text>
           </svg>
-          <div className="flex-1 space-y-2.5">
-            {(
-              [
-                ['#22c55e', 'Placar Exato', `${exactPct}%`],
-                ['#f59e0b', 'Resultado Certo', `${correctPct}%`],
-                ['#ef4444', 'Errou', `${wrongPct}%`],
-              ] as const
-            ).map(([c, l, v]) => (
-              <div key={l}>
+          <div className="flex-1 space-y-2">
+            {distributionRows.map((row) => (
+              <div key={row.key}>
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-[10px] text-copa-sub dark:text-[#64849f] flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: c }} />
-                    {l}
+                    <span
+                      className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                      style={{ background: row.meta.color }}
+                    />
+                    {row.meta.label}
+                    <span className="text-[8px] opacity-70">+{row.points}pts</span>
                   </span>
-                  <span className="text-[10px] font-bold" style={{ color: c }}>
-                    {v}
+                  <span className="text-[10px] font-bold" style={{ color: row.meta.color }}>
+                    {row.count} ({row.percent}%)
                   </span>
                 </div>
                 <div className="h-1.5 rounded-full bg-copa-muted dark:bg-[#243347] overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: v, background: c }} />
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${row.percent}%`, background: row.meta.color }}
+                  />
                 </div>
               </div>
             ))}

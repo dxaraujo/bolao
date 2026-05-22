@@ -1,7 +1,7 @@
 import type { ApiBet, ApiMatch, ApiStage, ApiUser } from '@/api/types'
 import { MatchStage, MatchStatus, StageStatus } from '@/lib/enums'
 import { STAGE_LABELS, STAGE_ORDER } from '@/lib/stages'
-import type { AllBetsMap, Bet, Match, Stage, StageStatus as UiStageStatus, User, UserBetMap } from '@/types'
+import type { Bet, BetMap, Match, Stage, StageStatus as UiStageStatus, User } from '@/types'
 
 export function mapStageStatus(status: StageStatus): UiStageStatus {
   if (status === StageStatus.OPEN) return 'OPEN'
@@ -60,7 +60,6 @@ export function mapMatch(api: ApiMatch): Match {
 }
 
 export function mapUser(api: ApiUser): User {
-  const correct = api.correctWinner + api.winnerWithGoal + api.oneGoalCorrect
   return {
     id: api._id,
     name: api.name,
@@ -68,9 +67,10 @@ export function mapUser(api: ApiUser): User {
     picture: api.picture,
     flag: '',
     pts: api.cumulativeTotal,
-    exact: api.exactScore,
-    correct,
-    wrong: 0,
+    exactScore: api.exactScore,
+    winnerWithGoal: api.winnerWithGoal,
+    correctWinner: api.correctWinner,
+    oneGoalCorrect: api.oneGoalCorrect,
     ranking: api.ranking,
   }
 }
@@ -79,20 +79,15 @@ function matchIdFromBet(match: ApiBet['match']): string {
   return typeof match === 'string' ? match : match._id
 }
 
-export function buildAllBetsMap(bets: ApiBet[], users: User[]): AllBetsMap {
-  const userIds = new Set(users.map((u) => u.id))
-  const map: AllBetsMap = {}
-
+/** Apostas do usuário logado (GET /api/bet retorna só o próprio usuário). */
+export function buildMyBetsMap(bets: ApiBet[], myId: string): BetMap {
+  const map: BetMap = {}
   for (const bet of bets) {
     const userId = typeof bet.user === 'string' ? bet.user : bet.user._id
-    if (!userIds.has(userId)) continue
+    if (userId !== myId) continue
     if (bet.homeTeamScore == null || bet.awayTeamScore == null) continue
-
-    const matchId = matchIdFromBet(bet.match)
-    if (!map[matchId]) map[matchId] = {}
-    map[matchId][userId] = { h: bet.homeTeamScore, a: bet.awayTeamScore }
+    map[matchIdFromBet(bet.match)] = { h: bet.homeTeamScore, a: bet.awayTeamScore }
   }
-
   return map
 }
 
@@ -112,13 +107,3 @@ export function buildMyOpenBets(bets: ApiBet[], myId: string): Record<string, { 
   return map
 }
 
-export function buildBlockedBetsForUser(bets: ApiBet[], userId: string): UserBetMap {
-  const map: UserBetMap = {}
-  for (const b of bets) {
-    const uid = typeof b.user === 'string' ? b.user : b.user._id
-    if (uid !== userId) continue
-    if (b.homeTeamScore == null || b.awayTeamScore == null) continue
-    map[matchIdFromBet(b.match)] = { h: b.homeTeamScore, a: b.awayTeamScore }
-  }
-  return map
-}

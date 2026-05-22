@@ -33,5 +33,4 @@ export const SCORING = {
   winnerWithGoal: 3,
   correctWinner: 2,
   oneGoalCorrect: 1,
-  wrong: 0,
 } as const

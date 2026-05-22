@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { useAppData } from '@/context/AppDataContext'
 import { LiveDot } from '@/components/shared/LiveDot'
 import { LoadingState, ErrorState } from '@/components/shared/LoadingState'
+import { BET_OUTCOME_META } from '@/lib/bet'
 import { formatDeadline } from '@/lib/format'
 import type { Match, Screen, Stage } from '@/types'
 
@@ -116,18 +117,27 @@ export function HomeScreen({ onNav }: HomeScreenProps) {
             </div>
           </div>
         </div>
-        <div className="flex gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {(
             [
-              [me.exact, 'placar exato'],
-              [me.correct, 'acertos parciais'],
-            ] as [number, string][]
-          ).map(([v, l]) => (
-            <div key={l}>
-              <div className="font-display text-xl leading-none text-copa-text dark:text-[#f0f6ff]">{v}</div>
-              <div className="text-[9px] text-copa-sub dark:text-[#64849f] uppercase tracking-wide mt-0.5">{l}</div>
-            </div>
-          ))}
+              ['exactScore', me.exactScore],
+              ['winnerWithGoal', me.winnerWithGoal],
+              ['correctWinner', me.correctWinner],
+              ['oneGoalCorrect', me.oneGoalCorrect],
+            ] as const
+          ).map(([key, value]) => {
+            const meta = BET_OUTCOME_META[key]
+            return (
+              <div key={key}>
+                <div className="font-display text-xl leading-none" style={{ color: meta.color }}>
+                  {value}
+                </div>
+                <div className="text-[9px] text-copa-sub dark:text-[#64849f] uppercase tracking-wide mt-0.5">
+                  {meta.label}
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
 

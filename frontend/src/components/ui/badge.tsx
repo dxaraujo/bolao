@@ -13,7 +13,6 @@ const badgeVariants = cva(
         disabled: 'border-slate-700/30 bg-slate-700/10 text-slate-600',
         exact:    'border-[#22c55e]/30 bg-[#22c55e]/10 text-[#22c55e]',
         correct:  'border-[#f59e0b]/30 bg-[#f59e0b]/10 text-[#f59e0b]',
-        wrong:    'border-[#ef4444]/30 bg-[#ef4444]/10 text-[#ef4444]',
         live:     'border-[#ef4444]/30 bg-[#ef4444]/10 text-[#ef4444]',
         gold:     'border-[#f59e0b]/30 bg-[#f59e0b]/10 text-[#f59e0b]',
         me:       'border-cyan-400/30 bg-cyan-400/10 text-cyan-400',

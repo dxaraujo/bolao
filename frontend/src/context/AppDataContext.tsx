@@ -8,22 +8,26 @@ import {
   type ReactNode,
 } from 'react'
 import { api } from '@/api/client'
+import type { ApiBet } from '@/api/types'
 import {
-  buildAllBetsMap,
+  buildMyBetsMap,
   buildMyOpenBets,
   mapMatch,
   mapStage,
   mapUser,
   sortStages,
 } from '@/lib/mappers'
-import type { AllBetsMap, Match, Stage, User } from '@/types'
+import type { BetMap, Match, Stage, User } from '@/types'
 
 interface AppDataContextValue {
   me: User | null
   users: User[]
   stages: Stage[]
   matches: Match[]
-  allBets: AllBetsMap
+  /** Palpites do usuário logado em fases bloqueadas/finalizadas (com placar). */
+  myBets: BetMap
+  /** Resposta bruta de GET /api/bet — apenas apostas do usuário logado. */
+  myApiBets: ApiBet[]
   myOpenBets: Record<string, { betId: string; bet: import('@/types').Bet }>
   loading: boolean
   error: string | null
@@ -45,15 +49,17 @@ export function AppDataProvider({
   const [users, setUsers] = useState<User[]>([])
   const [stages, setStages] = useState<Stage[]>([])
   const [matches, setMatches] = useState<Match[]>([])
-  const [allBets, setAllBets] = useState<AllBetsMap>({})
+  const [myBets, setMyBets] = useState<BetMap>({})
+  const [myApiBets, setMyApiBets] = useState<ApiBet[]>([])
   const [myOpenBets, setMyOpenBets] = useState<Record<string, { betId: string; bet: import('@/types').Bet }>>({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [updatingScores, setUpdatingScores] = useState(false)
 
-  const loadBets = useCallback(async (mappedUsers: User[], myId: string) => {
+  const loadBets = useCallback(async (myId: string) => {
     const betsRaw = await api.getBets()
-    setAllBets(buildAllBetsMap(betsRaw, mappedUsers))
+    setMyApiBets(betsRaw)
+    setMyBets(buildMyBetsMap(betsRaw, myId))
     setMyOpenBets(buildMyOpenBets(betsRaw, myId))
   }, [])
 
@@ -80,7 +86,7 @@ export function AppDataProvider({
       setMatches(mappedMatches)
       setUpdatingScores(configRaw?.updatingScores ?? false)
 
-      await loadBets(mappedUsers, mappedMe.id)
+      await loadBets(mappedMe.id)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro ao carregar dados')
     } finally {
@@ -91,7 +97,7 @@ export function AppDataProvider({
   const refreshBets = useCallback(async () => {
     if (!me) return
     try {
-      await loadBets(users, me.id)
+      await loadBets(me.id)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Erro ao atualizar apostas')
     }
@@ -104,7 +110,8 @@ export function AppDataProvider({
       setUsers([])
       setStages([])
       setMatches([])
-      setAllBets({})
+      setMyBets({})
+      setMyApiBets([])
       setMyOpenBets({})
       setLoading(false)
     }
@@ -116,7 +123,8 @@ export function AppDataProvider({
       users,
       stages,
       matches,
-      allBets,
+      myBets,
+      myApiBets,
       myOpenBets,
       loading,
       error,
@@ -124,7 +132,7 @@ export function AppDataProvider({
       refresh,
       refreshBets,
     }),
-    [me, users, stages, matches, allBets, myOpenBets, loading, error, updatingScores, refresh, refreshBets],
+    [me, users, stages, matches, myBets, myApiBets, myOpenBets, loading, error, updatingScores, refresh, refreshBets],
   )
 
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>

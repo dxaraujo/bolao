@@ -2,7 +2,7 @@ import type { MatchStage } from '@/lib/enums'
 
 export type StageStatus = 'OPEN' | 'BLOCKED' | 'DISABLED'
 export type MatchStatus = 'upcoming' | 'live' | 'finished'
-export type BetResult = 'exact' | 'correct' | 'wrong' | 'pending'
+export type BetResult = 'exact' | 'correct' | 'pending'
 
 export interface Stage {
   matchStage: MatchStage | string
@@ -36,9 +36,10 @@ export interface User {
   picture?: string
   flag: string
   pts: number
-  exact: number
-  correct: number
-  wrong: number
+  exactScore: number
+  winnerWithGoal: number
+  correctWinner: number
+  oneGoalCorrect: number
   ranking?: number
 }
 
@@ -48,7 +49,5 @@ export interface Bet {
 }
 
 export type BetMap = Record<string, Bet>
-export type UserBetMap = Record<string, Bet>
-export type AllBetsMap = Record<string, UserBetMap>
 
 export type Screen = 'home' | 'rank' | 'bets' | 'bolao' | 'stats'

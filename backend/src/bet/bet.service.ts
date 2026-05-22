@@ -22,45 +22,25 @@ export class BetService {
 
 	async findAll(userId: string) {
 
-		const [activeUsers, blockedStages, openStages] = await Promise.all([
-			this.userService.findActiveUsers(),
-			this.stageService.findBlockedStages(),
-			this.stageService.findOpenStages(),
-		])
+		if (!Types.ObjectId.isValid(userId)) {
+			throw new NotFoundException(`User ${userId} not valid`)
+		}
 
-		const [blockedMatchIds, openMatchIds] = await Promise.all([
-			this.matchService.findIdsByStages(blockedStages),
-			this.matchService.findIdsByStages(openStages),
-		])
+		const bets = await this.model
+			.find({ user: userId })
+			.populate<{ match: MatchDocument }>('match')
+			.exec()
 
-		const activeUserIds = activeUsers.map((user) => user._id)
-
-		const [blockedBets, openBets] = await Promise.all([
-			blockedMatchIds.length === 0
-				? []
-				: this.model
-					.find({ match: { $in: blockedMatchIds }, user: { $in: activeUserIds } })
-					.populate<{ match: MatchDocument }>('match')
-					.exec(),
-			openMatchIds.length === 0
-				? []
-				: this.model
-					.find({ match: { $in: openMatchIds }, user: userId })
-					.populate<{ match: MatchDocument }>('match')
-					.exec(),
-		])
-
-		const bets = [...openBets, ...blockedBets]
-
-		return bets.map((bet) => {
-			const { _id, ...rest } = bet.toObject()
-			return bet.user.toString() === userId ? { _id, ...rest } : rest
-		}).sort((a, b) => a.match.utcDate.valueOf() - b.match.utcDate.valueOf() || a.match.footballDataId - b.match.footballDataId)
+		return bets.sort((a, b) => a.match.utcDate.valueOf() - b.match.utcDate.valueOf() || a.match.footballDataId - b.match.footballDataId)
 	}
 
 	async updateBets(userId: string, itens: BetUpdateItemDto[]) {
 
 		if (itens.length === 0) return await this.findAll(userId)
+
+		if (!Types.ObjectId.isValid(userId)) {
+			throw new NotFoundException(`User ${userId} not valid`)
+		}
 
 		const openStages = await this.stageService.findOpenStages()
 		const openMatchIds = await this.matchService.findIdsByStages(openStages)
@@ -68,7 +48,7 @@ export class BetService {
 		await this.model.bulkWrite(
 			itens.map((item) => ({
 				updateOne: {
-					filter: { user: userId, _id: item._id, match: { $in: openMatchIds } },
+					filter: { _id: item._id, user: userId, match: { $in: openMatchIds } },
 					update: { $set: { homeTeamScore: item.homeTeamScore, awayTeamScore: item.awayTeamScore } },
 				},
 			})),

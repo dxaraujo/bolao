@@ -55,13 +55,13 @@ export function BolaoScreen() {
 	}
 
 	if (blockedStages.length === 0) {
-		return <EmptyState icon={Search} title="Nenhuma fase encerrada" description="Os palpites do grupo aparecem aqui após cada fase ser bloqueada." />
+		return <EmptyState icon={Search} title="Nenhuma fase encerrada" description="As apostas do grupo aparecem aqui após cada fase ser bloqueada." />
 	}
 
 	return (
 		<div className="flex flex-col">
 			<div className="border-b border-border bg-gradient-to-b from-surface to-background px-4 pt-3">
-				<p className="mb-2 text-xs font-bold uppercase tracking-wider text-sub">Palpites encerrados</p>
+				<p className="mb-2 text-xs font-bold uppercase tracking-wider text-sub">Apostas encerradas</p>
 				<Tabs value={tab} onValueChange={(v) => setTab(v as MatchStage)}>
 					<TabsList className="pb-3">
 						{blockedStages.map((s) => {

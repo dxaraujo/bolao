@@ -41,30 +41,45 @@ export function BetCard({ bet, draft, disabled, onChange }: BetCardProps) {
 				</div>
 
 				<div className="flex flex-col items-center gap-1">
-					<div className="flex items-center gap-1">
-						<Input
-							disabled={disabled}
-							value={draft.homeTeamScore}
-							onChange={(e) => onChange({ ...draft, homeTeamScore: sanitize(e.target.value) })}
-							type="number"
-							min={0}
-							max={20}
-							inputMode="numeric"
-							className="h-10 w-10 text-center font-display text-xl"
-						/>
-						<span className="font-bold text-sub">×</span>
-						<Input
-							disabled={disabled}
-							value={draft.awayTeamScore}
-							onChange={(e) => onChange({ ...draft, awayTeamScore: sanitize(e.target.value) })}
-							type="number"
-							min={0}
-							max={20}
-							inputMode="numeric"
-							className="h-10 w-10 text-center font-display text-xl"
-						/>
-					</div>
-					<span className="text-[11px] uppercase tracking-wide text-muted-foreground">palpite</span>
+					{disabled ? (
+						<>
+							<div className="flex items-center gap-2 rounded-md border border-acc/40 bg-acc/10 px-3 py-1.5">
+								<span className="font-display text-2xl font-bold text-foreground">
+									{bet.homeTeamScore ?? '-'}
+								</span>
+								<span className="font-bold text-sub">×</span>
+								<span className="font-display text-2xl font-bold text-foreground">
+									{bet.awayTeamScore ?? '-'}
+								</span>
+							</div>
+							<span className="text-[11px] uppercase tracking-wide text-acc">sua aposta</span>
+						</>
+					) : (
+						<>
+							<div className="flex items-center gap-1">
+								<Input
+									value={draft.homeTeamScore}
+									onChange={(e) => onChange({ ...draft, homeTeamScore: sanitize(e.target.value) })}
+									type="number"
+									min={0}
+									max={20}
+									inputMode="numeric"
+									className="h-10 w-10 text-center font-display text-xl"
+								/>
+								<span className="font-bold text-sub">×</span>
+								<Input
+									value={draft.awayTeamScore}
+									onChange={(e) => onChange({ ...draft, awayTeamScore: sanitize(e.target.value) })}
+									type="number"
+									min={0}
+									max={20}
+									inputMode="numeric"
+									className="h-10 w-10 text-center font-display text-xl"
+								/>
+							</div>
+							<span className="text-[11px] uppercase tracking-wide text-muted-foreground">aposta</span>
+						</>
+					)}
 				</div>
 
 				<div className="flex flex-col items-center gap-1 text-center">
@@ -72,15 +87,6 @@ export function BetCard({ bet, draft, disabled, onChange }: BetCardProps) {
 					<span className="text-sm font-bold">{bet.awayTeam.shortName ?? bet.awayTeam.name}</span>
 				</div>
 			</div>
-
-			{disabled && (bet.homeTeamScore != null || bet.awayTeamScore != null) && (
-				<div className="flex align-center justify-center border-t border-border px-4 py-2 text-xs text-sub">
-					Seu palpite:&nbsp;
-					<span className="font-bold text-foreground">
-						{bet.homeTeamScore ?? '-'} × {bet.awayTeamScore ?? '-'}
-					</span>
-				</div>
-			)}
 		</Card>
 	)
 }

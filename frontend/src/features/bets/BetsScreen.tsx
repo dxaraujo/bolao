@@ -105,15 +105,15 @@ export function BetsScreen() {
 			.filter((b) => b.homeTeamScore != null && b.awayTeamScore != null)
 
 		if (payload.length === 0) {
-			toast.error('Preencha pelo menos um palpite')
+			toast.error('Preencha pelo menos uma aposta')
 			return
 		}
 
 		try {
 			await updateBets.mutateAsync(payload)
-			toast.success(`${payload.length} palpite${payload.length > 1 ? 's salvos' : ' salvo'}`)
+			toast.success(`${payload.length} aposta${payload.length > 1 ? 's salvos' : ' salvo'}`)
 		} catch (e) {
-			toast.error(e instanceof Error ? e.message : 'Falha ao salvar palpites')
+			toast.error(e instanceof Error ? e.message : 'Falha ao salvar apostas')
 		}
 	}
 
@@ -194,7 +194,7 @@ export function BetsScreen() {
 					</div>
 
 					{stageBets.length === 0 ? (
-						<EmptyState icon={Target} title="Nenhum palpite disponível" />
+						<EmptyState icon={Target} title="Nenhuma aposta disponível" />
 					) : groupedBets ? (
 						Array.from(groupedBets.entries()).map(([group, bets]) => (
 							<div key={group}>
@@ -233,7 +233,7 @@ export function BetsScreen() {
 			{isOpen && stageBets.length > 0 && (
 				<div className="sticky bottom-0 border-t border-border bg-background/95 px-4 py-3 backdrop-blur">
 					<div className="mb-2 flex items-center justify-between text-xs">
-						<span className="text-sub">Palpites preenchidos</span>
+						<span className="text-sub">Apostas preenchidas</span>
 						<span className={filled === stageBets.length ? 'font-bold text-green' : 'font-bold text-sub'}>
 							{filled}/{stageBets.length}
 						</span>
@@ -245,7 +245,7 @@ export function BetsScreen() {
 						size="lg"
 						className="w-full font-display text-lg tracking-wider shadow-[0_8px_24px_-12px_rgb(var(--acc)/0.6)]"
 					>
-						<Save className="h-4 w-4" /> {updateBets.isPending ? 'SALVANDO…' : `SALVAR ${filled} PALPITE${filled === 1 ? '' : 'S'}`}
+						<Save className="h-4 w-4" /> {updateBets.isPending ? 'SALVANDO…' : `SALVAR ${filled} APOSTA${filled === 1 ? '' : 'S'}`}
 					</Button>
 				</div>
 			)}

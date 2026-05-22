@@ -60,7 +60,7 @@ export function MatchCard({ bet }: MatchCardProps) {
 
 			{hasUserBet && (
 				<div className="flex align-center justify-center border-t border-border/60 px-4 py-2 text-xs text-sub">
-					Seu palpite:&nbsp;
+					Suas aposta:&nbsp;
 					<span className="font-bold text-foreground">
 						{bet.homeTeamScore} × {bet.awayTeamScore}
 					</span>

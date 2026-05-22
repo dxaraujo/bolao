@@ -52,7 +52,7 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 						<AccordionContent>
 							<div className="grid grid-cols-[1fr_56px_104px_44px] gap-2 bg-surface-2 px-4 py-2 text-xs font-bold uppercase tracking-wide text-sub">
 								<span>Jogador</span>
-								<span className="text-center">Palpite</span>
+								<span className="text-center">Aposta</span>
 								<span className="text-center">Resultado</span>
 								<span className="text-center">Pts</span>
 							</div>
@@ -69,7 +69,7 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 							</div>
 							<div className="flex items-center justify-between border-t border-border bg-surface-2 px-4 py-2 text-xs">
 								<span className="font-bold text-sub">
-									{g.total} palpite{g.total === 1 ? '' : 's'}
+									{g.total} aposta{g.total === 1 ? '' : 's'}
 								</span>
 								<div className="flex gap-3 font-bold">
 									<span className="text-green">🎯 {g.exactScore}</span>

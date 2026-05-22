@@ -65,7 +65,7 @@ export interface BetListItem {
 	/** Placar real da partida (definitivo quando FINISHED, parcial quando LIVE). */
 	matchHomeTeamScore?: number
 	matchAwayTeamScore?: number
-	/** Palpite do usuário para essa partida. */
+	/** Aposta do usuário para essa partida. */
 	homeTeamScore?: number
 	awayTeamScore?: number
 }

@@ -131,7 +131,7 @@ function StagesSection() {
 			<h2 className="text-xs font-bold uppercase tracking-wider text-sub">Gerenciar Fases</h2>
 			<p className="text-xs text-sub">
 				Avance pela ordem <span className="font-bold text-foreground">DISABLED → OPEN → BLOCKED</span>.
-				Abrir uma fase cria automaticamente palpites em branco para os usuários ativos.
+				Abrir uma fase cria automaticamente apostas em branco para os usuários ativos.
 			</p>
 
 			{isLoading || !stages ? (

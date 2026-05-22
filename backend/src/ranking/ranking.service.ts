@@ -22,7 +22,7 @@ export class RankingService {
 			picture: user.picture,
 			ranking: user.ranking,
 			previousRanking: user.previousRanking,
-			totalPoints: user.totalPoints,
+			totalPointsEarned: user.totalPointsEarned,
 			exactScore: user.exactScore,
 			winnerWithGoal: user.winnerWithGoal,
 			correctWinner: user.correctWinner,

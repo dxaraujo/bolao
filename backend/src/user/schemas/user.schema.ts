@@ -34,7 +34,7 @@ export class User {
 	wrong!: number
 
 	@Prop({ required: true, default: 0 })
-	totalPoints!: number
+	totalPointsEarned!: number
 
 	@Prop({ required: true, default: 0 })
 	ranking!: number

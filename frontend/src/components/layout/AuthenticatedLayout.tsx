@@ -11,7 +11,7 @@ export function AuthenticatedLayout() {
 			<SideNav />
 			<div className="flex min-h-screen min-w-0 flex-1 flex-col">
 				<Header />
-				<main className="flex flex-1 flex-col overflow-y-auto">
+				<main className="flex flex-1 flex-col overflow-y-auto overscroll-contain">
 					<div className="mx-auto flex w-full max-w-screen-md flex-1 flex-col md:max-w-screen-lg md:px-2 lg:px-4">
 						<Outlet />
 					</div>

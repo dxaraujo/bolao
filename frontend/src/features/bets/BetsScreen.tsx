@@ -6,12 +6,11 @@ import { MatchStage, StageStatus } from '@bolao/shared'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { StageBadge } from '@/components/shared/StageBadge'
 import { cn } from '@/lib/cn'
 
-import { useMatches } from '@/hooks/useMatches'
 import { useMyBets, useUpdateBets } from '@/hooks/useBets'
 import { useStages } from '@/hooks/useStages'
 import { useConfig } from '@/hooks/useConfig'
@@ -24,7 +23,6 @@ const emptyDraft: BetDraft = { homeTeamScore: '', awayTeamScore: '' }
 
 export function BetsScreen() {
 	const { data: stages, isLoading: stagesLoading } = useStages()
-	const { data: matches } = useMatches()
 	const { data: bets, isLoading: betsLoading } = useMyBets()
 	const { data: config } = useConfig()
 	const updateBets = useUpdateBets()
@@ -60,18 +58,15 @@ export function BetsScreen() {
 	const isBlocked = currentStage?.status === StageStatus.BLOCKED
 
 	const stageBets = useMemo(() => {
-		if (!bets || !matches || !currentStage) return []
-		const matchById = new Map(matches.map((m) => [m._id, m]))
+		if (!bets || !currentStage) return []
 		return bets
 			.filter((b) => b.stage === currentStage.matchStage)
-			.map((b) => ({ bet: b, match: matchById.get(b._id)! }))
-			.filter((row) => row.match)
-			.sort((a, b) => new Date(a.bet.utcDate).getTime() - new Date(b.bet.utcDate).getTime())
-	}, [bets, matches, currentStage])
+			.sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime())
+	}, [bets, currentStage])
 
 	const filled = useMemo(() => {
 		if (!isOpen) return 0
-		return stageBets.filter(({ bet }) => {
+		return stageBets.filter((bet) => {
 			const d = draft[bet._id] ?? emptyDraft
 			return d.homeTeamScore !== '' && d.awayTeamScore !== ''
 		}).length
@@ -79,7 +74,7 @@ export function BetsScreen() {
 
 	async function handleSave() {
 		const payload = stageBets
-			.map(({ bet }) => {
+			.map((bet) => {
 				const d = draft[bet._id] ?? emptyDraft
 				return {
 					_id: bet._id,
@@ -181,18 +176,17 @@ export function BetsScreen() {
 					{stageBets.length === 0 ? (
 						<EmptyState icon={Target} title="Nenhum palpite disponível" />
 					) : (
-						<TabsContent value={currentStage.matchStage} forceMount className="mt-0 flex flex-col gap-2">
-							{stageBets.map(({ bet, match }) => (
+						<div className="flex flex-col gap-2">
+							{stageBets.map((bet) => (
 								<BetCard
 									key={bet._id}
-									match={match}
 									bet={bet}
 									draft={draft[bet._id] ?? emptyDraft}
 									disabled={!isOpen}
 									onChange={(d) => setDraft((cur) => ({ ...cur, [bet._id]: d }))}
 								/>
 							))}
-						</TabsContent>
+						</div>
 					)}
 				</div>
 			)}

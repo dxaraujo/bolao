@@ -1,4 +1,4 @@
-import { MatchStatus, type BetListItem, type MatchListItem } from '@bolao/shared'
+import { MatchStatus, type BetListItem } from '@bolao/shared'
 
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -9,15 +9,16 @@ import { cn } from '@/lib/cn'
 export type BetDraft = { homeTeamScore: string; awayTeamScore: string }
 
 interface BetCardProps {
-	match: MatchListItem
-	bet: BetListItem | undefined
+	bet: BetListItem
 	draft: BetDraft
 	disabled: boolean
 	onChange: (draft: BetDraft) => void
 }
 
-export function BetCard({ match, bet, draft, disabled, onChange }: BetCardProps) {
-	const finished = match.status === MatchStatus.FINISHED
+const FINISHED_STATUSES: MatchStatus[] = [MatchStatus.FINISHED, MatchStatus.LIVE, MatchStatus.IN_PLAY, MatchStatus.PAUSED]
+
+export function BetCard({ bet, draft, disabled, onChange }: BetCardProps) {
+	const hasMatchScore = FINISHED_STATUSES.includes(bet.status) && bet.matchHomeTeamScore != null
 	const filled = draft.homeTeamScore !== '' && draft.awayTeamScore !== ''
 
 	return (
@@ -25,18 +26,18 @@ export function BetCard({ match, bet, draft, disabled, onChange }: BetCardProps)
 			{filled && !disabled && <div className="absolute left-0 top-0 h-full w-0.5 bg-acc" />}
 
 			<div className="flex items-center justify-between px-4 pt-3">
-				<span className="text-[10px] font-semibold text-sub">{formatMatchDate(match.utcDate)}</span>
-				{finished && match.homeTeamScore != null && (
+				<span className="text-[10px] font-semibold text-sub">{formatMatchDate(bet.utcDate)}</span>
+				{hasMatchScore && (
 					<span className="font-display text-xs tracking-widest text-sub">
-						{match.homeTeamScore} – {match.awayTeamScore}
+						{bet.matchHomeTeamScore} – {bet.matchAwayTeamScore}
 					</span>
 				)}
 			</div>
 
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3">
 				<div className="flex flex-col items-center gap-1 text-center">
-					<TeamCrest src={match.homeTeam.crest} alt={match.homeTeam.tla} size={40} />
-					<span className="text-xs font-bold">{match.homeTeam.shortName ?? match.homeTeam.name}</span>
+					<TeamCrest src={bet.homeTeam.crest} alt={bet.homeTeam.tla} size={40} />
+					<span className="text-xs font-bold">{bet.homeTeam.shortName ?? bet.homeTeam.name}</span>
 				</div>
 
 				<div className="flex flex-col items-center gap-1">
@@ -67,12 +68,12 @@ export function BetCard({ match, bet, draft, disabled, onChange }: BetCardProps)
 				</div>
 
 				<div className="flex flex-col items-center gap-1 text-center">
-					<TeamCrest src={match.awayTeam.crest} alt={match.awayTeam.tla} size={40} />
-					<span className="text-xs font-bold">{match.awayTeam.shortName ?? match.awayTeam.name}</span>
+					<TeamCrest src={bet.awayTeam.crest} alt={bet.awayTeam.tla} size={40} />
+					<span className="text-xs font-bold">{bet.awayTeam.shortName ?? bet.awayTeam.name}</span>
 				</div>
 			</div>
 
-			{bet && disabled && (bet.homeTeamScore != null || bet.awayTeamScore != null) && (
+			{disabled && (bet.homeTeamScore != null || bet.awayTeamScore != null) && (
 				<div className="border-t border-border px-4 py-2 text-[11px] text-sub">
 					Seu palpite:&nbsp;
 					<span className="font-bold text-foreground">

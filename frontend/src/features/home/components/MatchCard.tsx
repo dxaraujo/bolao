@@ -1,4 +1,4 @@
-import { MatchStatus, type MatchListItem } from '@bolao/shared'
+import { MatchStatus, type BetListItem } from '@bolao/shared'
 
 import { Card } from '@/components/ui/card'
 import { LiveDot } from '@/components/shared/LiveDot'
@@ -8,16 +8,17 @@ import { formatMatchDate } from '@/lib/format'
 import { cn } from '@/lib/cn'
 
 interface MatchCardProps {
-	match: MatchListItem
+	bet: BetListItem
 }
 
-const FINISHED_STATUSES: MatchStatus[] = [MatchStatus.FINISHED, MatchStatus.LIVE, MatchStatus.IN_PLAY, MatchStatus.PAUSED]
 const LIVE_STATUSES: MatchStatus[] = [MatchStatus.LIVE, MatchStatus.IN_PLAY, MatchStatus.PAUSED]
+const HAS_SCORE: MatchStatus[] = [MatchStatus.FINISHED, ...LIVE_STATUSES]
 
-export function MatchCard({ match }: MatchCardProps) {
-	const isLive = LIVE_STATUSES.includes(match.status)
-	const hasScore = FINISHED_STATUSES.includes(match.status)
-	const stageLabel = STAGE_LABELS[match.stage]?.short ?? match.stage
+export function MatchCard({ bet }: MatchCardProps) {
+	const isLive = LIVE_STATUSES.includes(bet.status)
+	const hasScore = HAS_SCORE.includes(bet.status)
+	const stageLabel = STAGE_LABELS[bet.stage]?.short ?? bet.stage
+	const hasUserBet = bet.homeTeamScore != null && bet.awayTeamScore != null
 
 	return (
 		<Card className={cn('animate-fade-up relative overflow-hidden', isLive && 'border-red/40')}>
@@ -26,31 +27,45 @@ export function MatchCard({ match }: MatchCardProps) {
 				<span className="text-[10px] font-bold uppercase tracking-wide text-sub">{stageLabel}</span>
 				<div className="flex items-center gap-1.5">
 					{isLive && <LiveDot />}
-					<span className={cn('text-[10px] font-bold', isLive ? 'text-red' : hasScore ? 'text-sub' : 'text-acc')}>
-						{isLive ? 'AO VIVO' : hasScore ? 'Encerrado' : formatMatchDate(match.utcDate)}
+					<span
+						className={cn(
+							'text-[10px] font-bold',
+							isLive ? 'text-red' : bet.status === MatchStatus.FINISHED ? 'text-sub' : 'text-acc',
+						)}
+					>
+						{isLive ? 'AO VIVO' : bet.status === MatchStatus.FINISHED ? 'Encerrado' : formatMatchDate(bet.utcDate)}
 					</span>
 				</div>
 			</div>
 
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3">
 				<div className="flex flex-col items-center gap-1 text-center">
-					<TeamCrest src={match.homeTeam.crest} alt={match.homeTeam.tla} size={40} />
-					<span className="text-xs font-bold">{match.homeTeam.shortName ?? match.homeTeam.name}</span>
+					<TeamCrest src={bet.homeTeam.crest} alt={bet.homeTeam.tla} size={40} />
+					<span className="text-xs font-bold">{bet.homeTeam.shortName ?? bet.homeTeam.name}</span>
 				</div>
 				<div className="min-w-[60px] text-center">
 					{hasScore ? (
 						<div className="font-display text-3xl tracking-widest">
-							{match.homeTeamScore ?? 0} – {match.awayTeamScore ?? 0}
+							{bet.matchHomeTeamScore ?? 0} – {bet.matchAwayTeamScore ?? 0}
 						</div>
 					) : (
 						<div className="text-xs font-bold tracking-widest text-muted-foreground">VS</div>
 					)}
 				</div>
 				<div className="flex flex-col items-center gap-1 text-center">
-					<TeamCrest src={match.awayTeam.crest} alt={match.awayTeam.tla} size={40} />
-					<span className="text-xs font-bold">{match.awayTeam.shortName ?? match.awayTeam.name}</span>
+					<TeamCrest src={bet.awayTeam.crest} alt={bet.awayTeam.tla} size={40} />
+					<span className="text-xs font-bold">{bet.awayTeam.shortName ?? bet.awayTeam.name}</span>
 				</div>
 			</div>
+
+			{hasUserBet && (
+				<div className="border-t border-border/60 px-4 py-2 text-[10px] text-sub">
+					Seu palpite:&nbsp;
+					<span className="font-bold text-foreground">
+						{bet.homeTeamScore} × {bet.awayTeamScore}
+					</span>
+				</div>
+			)}
 		</Card>
 	)
 }

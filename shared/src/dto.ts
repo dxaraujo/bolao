@@ -59,9 +59,14 @@ export interface BetListItem {
 	utcDate: string
 	stage: MatchStage
 	group: string
+	status: MatchStatus
 	homeTeam: TeamPayload
-	homeTeamScore?: number
 	awayTeam: TeamPayload
+	/** Placar real da partida (definitivo quando FINISHED, parcial quando LIVE). */
+	matchHomeTeamScore?: number
+	matchAwayTeamScore?: number
+	/** Palpite do usuário para essa partida. */
+	homeTeamScore?: number
 	awayTeamScore?: number
 }
 

@@ -73,19 +73,22 @@ export class BetService {
 			utcDate: bet.match.utcDate,
 			stage: bet.match.stage,
 			group: bet.match.group,
+			status: bet.match.status,
 			homeTeam: {
 				name: bet.match.homeTeam.name,
 				shortName: bet.match.homeTeam.shortName,
 				tla: bet.match.homeTeam.tla,
 				crest: bet.match.homeTeam.crest,
 			},
-			homeTeamScore: bet.homeTeamScore,
 			awayTeam: {
 				name: bet.match.awayTeam.name,
 				shortName: bet.match.awayTeam.shortName,
 				tla: bet.match.awayTeam.tla,
 				crest: bet.match.awayTeam.crest,
 			},
+			matchHomeTeamScore: bet.match.homeTeamScore,
+			matchAwayTeamScore: bet.match.awayTeamScore,
+			homeTeamScore: bet.homeTeamScore,
 			awayTeamScore: bet.awayTeamScore,
 		})).sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf())
 	}

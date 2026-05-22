@@ -1,6 +1,6 @@
 import { ChevronRight, Calendar } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { StageStatus, type StageVisibleItem, type MatchListItem } from '@bolao/shared'
+import { StageStatus, type BetListItem, type StageVisibleItem } from '@bolao/shared'
 
 import { STAGE_LABELS } from '@/lib/stage'
 import { formatDeadline } from '@/lib/format'
@@ -8,15 +8,15 @@ import { cn } from '@/lib/cn'
 
 interface OpenStageBannerProps {
 	stages: StageVisibleItem[]
-	matches: MatchListItem[]
+	bets: BetListItem[]
 }
 
-export function OpenStageBanner({ stages, matches }: OpenStageBannerProps) {
+export function OpenStageBanner({ stages, bets }: OpenStageBannerProps) {
 	const navigate = useNavigate()
 	const open = stages.find((s) => s.status === StageStatus.OPEN)
 	if (!open) return null
 
-	const count = matches.filter((m) => m.stage === open.matchStage).length
+	const count = bets.filter((b) => b.stage === open.matchStage).length
 	const stageLabel = STAGE_LABELS[open.matchStage]?.full ?? open.matchStage
 
 	return (

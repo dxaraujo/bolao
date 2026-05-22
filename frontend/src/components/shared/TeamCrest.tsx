@@ -3,14 +3,15 @@ import { useState } from 'react'
 import { cn } from '@/lib/cn'
 
 interface TeamCrestProps {
-	src: string
-	alt: string
+	src?: string
+	alt?: string
 	size?: number
 	className?: string
 }
 
 export function TeamCrest({ src, alt, size = 32, className }: TeamCrestProps) {
 	const [error, setError] = useState(false)
+	const label = (alt ?? '').slice(0, 3) || '?'
 
 	if (error || !src) {
 		return (
@@ -18,7 +19,7 @@ export function TeamCrest({ src, alt, size = 32, className }: TeamCrestProps) {
 				className={cn('grid place-items-center rounded-full bg-muted text-[10px] font-bold uppercase text-sub', className)}
 				style={{ width: size, height: size }}
 			>
-				{alt.slice(0, 3)}
+				{label}
 			</div>
 		)
 	}
@@ -26,7 +27,7 @@ export function TeamCrest({ src, alt, size = 32, className }: TeamCrestProps) {
 	return (
 		<img
 			src={src}
-			alt={alt}
+			alt={alt ?? ''}
 			width={size}
 			height={size}
 			loading="lazy"

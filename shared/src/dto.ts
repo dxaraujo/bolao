@@ -139,7 +139,9 @@ export interface StageAccuracy {
 
 export interface Distribution {
 	exact: { count: number; pct: number }
-	correct: { count: number; pct: number }
+	winnerWithGoal: { count: number; pct: number }
+	correctWinner: { count: number; pct: number }
+	oneGoalCorrect: { count: number; pct: number }
 	wrong: { count: number; pct: number }
 	totalEvaluatedBets: number
 }

@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
+import type { StageVisibleItem } from '@bolao/shared'
 
 import { Bet } from '../bet/schemas/bet.schema'
-import { Match } from '../match/schemas/match.schema'
+import { Match, MatchStage } from '../match/schemas/match.schema'
 import { User } from '../user/schemas/user.schema'
 import { UpdateStageDto } from './dto/update-stage.dto'
 import { Stage, StageStatus } from './schemas/stage.schema'
@@ -22,9 +23,15 @@ export class StageService {
 		return this.model.find().exec()
 	}
 
-	async findVisibleStages(): Promise<string[]> {
-		const stages = await this.model.find({ status: { $in: [StageStatus.OPEN, StageStatus.BLOCKED] } }).exec()
-		return stages.map(stage => stage.matchStage)
+	async findVisibleStages(): Promise<StageVisibleItem[]> {
+		const stages = await this.model
+			.find({ status: { $in: [StageStatus.OPEN, StageStatus.BLOCKED] } })
+			.exec()
+		return stages.map((s) => ({
+			matchStage: s.matchStage,
+			status: s.status,
+			deadline: s.deadline ? s.deadline.toISOString() : undefined,
+		}))
 	}
 
 	async findBlockedStages(): Promise<string[]> {
@@ -42,6 +49,14 @@ export class StageService {
 		return stage != null
 	}
 
+	async existsByMatchStage(matchStage: MatchStage) {
+		return await this.model.exists({ matchStage }).exec();
+	}
+
+	async create(matchStage: MatchStage) {
+		return await this.model.create({ matchStage, status: StageStatus.DISABLED });
+	}
+
 	async update(matchStage: string, dto: UpdateStageDto) {
 
 		const current = await this.model.findOne({ matchStage }).exec()
@@ -49,8 +64,10 @@ export class StageService {
 			throw new NotFoundException(`Stage ${matchStage} not found`)
 		}
 
-		if (dto.status !== current.status + 1) {
-			throw new BadRequestException(`Invalid transition: ${StageStatus[current.status]} → ${StageStatus[dto.status]}`)
+		const order: StageStatus[] = [StageStatus.DISABLED, StageStatus.OPEN, StageStatus.BLOCKED]
+		const expectedNext = order[order.indexOf(current.status) + 1]
+		if (!expectedNext || dto.status !== expectedNext) {
+			throw new BadRequestException(`Invalid transition: ${current.status} → ${dto.status}`)
 		}
 
 		const updated = await this.model.findOneAndUpdate({ matchStage }, dto, { new: true }).exec()

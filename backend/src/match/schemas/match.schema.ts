@@ -46,3 +46,7 @@ export class Match {
 }
 
 export const MatchSchema = SchemaFactory.createForClass(Match)
+
+MatchSchema.index({ footballDataId: 1 }, { unique: true })
+MatchSchema.index({ utcDate: 1 })
+MatchSchema.index({ stage: 1 })

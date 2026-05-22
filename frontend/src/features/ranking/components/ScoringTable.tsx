@@ -7,11 +7,12 @@ interface ScoringTableProps {
 }
 
 export function ScoringTable({ config }: ScoringTableProps) {
-	const items: Array<{ label: string; points: number; tone: string }> = [
-		{ label: 'Placar exato', points: config.pointsExactScore, tone: 'text-green border-green/30 bg-green/10' },
-		{ label: 'Vencedor + gol', points: config.pointsWinnerWithGoal, tone: 'text-gold border-gold/30 bg-gold/10' },
-		{ label: 'Acertou um gol', points: config.pointsOneGoalCorrect, tone: 'text-acc border-acc/30 bg-acc/10' },
-		{ label: 'Vencedor', points: config.pointsCorrectWinner, tone: 'text-purple border-purple/30 bg-purple/10' },
+	const items: Array<{ label: string; points: number | string; tone: string }> = [
+		{ label: 'Placar Exato', points: `+${config.pointsExactScore}`, tone: 'text-green border-green/30 bg-green/10' },
+		{ label: 'Vencedor + Gol', points: `+${config.pointsWinnerWithGoal}`, tone: 'text-acc border-acc/30 bg-acc/10' },
+		{ label: 'Só o Vencedor', points: `+${config.pointsCorrectWinner}`, tone: 'text-gold border-gold/30 bg-gold/10' },
+		{ label: 'Um Gol', points: `+${config.pointsOneGoalCorrect}`, tone: 'text-purple border-purple/30 bg-purple/10' },
+		{ label: 'Errou Tudo', points: '0', tone: 'text-red border-red/30 bg-red/10' },
 	]
 
 	return (
@@ -20,7 +21,7 @@ export function ScoringTable({ config }: ScoringTableProps) {
 			<div className="grid grid-cols-2 gap-2">
 				{items.map((i) => (
 					<div key={i.label} className={`rounded-md border px-3 py-2 text-center ${i.tone}`}>
-						<div className="font-display text-xl leading-none">+{i.points}</div>
+						<div className="font-display text-xl leading-none">{i.points}</div>
 						<div className="mt-1 text-[10px] font-semibold">{i.label}</div>
 					</div>
 				))}

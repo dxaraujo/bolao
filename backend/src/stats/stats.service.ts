@@ -33,7 +33,9 @@ export interface StageAccuracy {
 
 export interface Distribution {
 	exact: { count: number; pct: number }
-	correct: { count: number; pct: number }
+	winnerWithGoal: { count: number; pct: number }
+	correctWinner: { count: number; pct: number }
+	oneGoalCorrect: { count: number; pct: number }
 	wrong: { count: number; pct: number }
 	totalEvaluatedBets: number
 }
@@ -196,7 +198,9 @@ export class StatsService {
 		if (finishedMatchIds.length === 0 || activeUserIds.length === 0) {
 			return {
 				exact: { count: 0, pct: 0 },
-				correct: { count: 0, pct: 0 },
+				winnerWithGoal: { count: 0, pct: 0 },
+				correctWinner: { count: 0, pct: 0 },
+				oneGoalCorrect: { count: 0, pct: 0 },
 				wrong: { count: 0, pct: 0 },
 				totalEvaluatedBets: 0,
 			}
@@ -204,7 +208,9 @@ export class StatsService {
 
 		const [agg] = await this.betModel.aggregate<{
 			exact: number
-			correct: number
+			winnerWithGoal: number
+			correctWinner: number
+			oneGoalCorrect: number
 			wrong: number
 			total: number
 		}>([
@@ -213,15 +219,9 @@ export class StatsService {
 				$group: {
 					_id: null,
 					exact: { $sum: { $cond: ['$exactScore', 1, 0] } },
-					correct: {
-						$sum: {
-							$cond: [
-								{ $or: ['$winnerWithGoal', '$oneGoalCorrect', '$correctWinner'] },
-								1,
-								0,
-							],
-						},
-					},
+					winnerWithGoal: { $sum: { $cond: ['$winnerWithGoal', 1, 0] } },
+					correctWinner: { $sum: { $cond: ['$correctWinner', 1, 0] } },
+					oneGoalCorrect: { $sum: { $cond: ['$oneGoalCorrect', 1, 0] } },
 					wrong: { $sum: { $cond: ['$wrong', 1, 0] } },
 					total: { $sum: 1 },
 				},
@@ -233,7 +233,9 @@ export class StatsService {
 
 		return {
 			exact: { count: agg?.exact ?? 0, pct: pct(agg?.exact ?? 0) },
-			correct: { count: agg?.correct ?? 0, pct: pct(agg?.correct ?? 0) },
+			winnerWithGoal: { count: agg?.winnerWithGoal ?? 0, pct: pct(agg?.winnerWithGoal ?? 0) },
+			correctWinner: { count: agg?.correctWinner ?? 0, pct: pct(agg?.correctWinner ?? 0) },
+			oneGoalCorrect: { count: agg?.oneGoalCorrect ?? 0, pct: pct(agg?.oneGoalCorrect ?? 0) },
 			wrong: { count: agg?.wrong ?? 0, pct: pct(agg?.wrong ?? 0) },
 			totalEvaluatedBets: total,
 		}

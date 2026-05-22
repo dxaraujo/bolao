@@ -18,8 +18,12 @@ export function HeroPosition() {
 	const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : `${position}°`
 
 	return (
-		<Card className="animate-fade-up relative overflow-hidden border-acc/30 bg-gradient-to-br from-acc/10 to-gold/5">
-			<div className="px-4 pt-4">
+		<Card className="animate-fade-up relative overflow-hidden border-acc/30 bg-gradient-to-br from-acc/15 to-gold/10">
+			<div
+				className="pointer-events-none absolute -right-6 -top-6 h-32 w-32 rounded-full bg-acc/10 blur-xl"
+				aria-hidden
+			/>
+			<div className="relative px-4 pt-4">
 				<div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-acc">
 					<Trophy className="h-3 w-3" /> Sua posição atual
 				</div>
@@ -34,7 +38,7 @@ export function HeroPosition() {
 					</div>
 				</div>
 			</div>
-			<div className="mt-3 flex gap-6 border-t border-border/50 px-4 py-3">
+			<div className="relative mt-3 flex gap-6 border-t border-acc/15 px-4 py-3">
 				<HeroStat value={me.exactScore} label="Placar exato" />
 				<HeroStat value={me.correctWinner + me.winnerWithGoal + me.oneGoalCorrect} label="Resultados" />
 				<HeroStat value={me.wrong} label="Erros" />

@@ -26,3 +26,5 @@ export class Team {
 }
 
 export const TeamSchema = SchemaFactory.createForClass(Team)
+
+TeamSchema.index({ footballDataId: 1 }, { unique: true })

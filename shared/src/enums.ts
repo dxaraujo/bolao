@@ -3,9 +3,9 @@
  */
 
 export enum StageStatus {
-	DISABLED = 0,
-	OPEN = 1,
-	BLOCKED = 2,
+	DISABLED = 'DISABLED',
+	OPEN = 'OPEN',
+	BLOCKED = 'BLOCKED',
 }
 
 /** Fase da competição conforme Football Data API. */

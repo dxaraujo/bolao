@@ -22,9 +22,9 @@ export const RESULT_LABEL: Record<ResultKind, string> = {
 
 export const RESULT_TONE: Record<ResultKind, 'green' | 'gold' | 'acc' | 'purple' | 'red' | 'sub'> = {
 	exact: 'green',
-	winnerWithGoal: 'gold',
-	oneGoalCorrect: 'acc',
-	correctWinner: 'purple',
+	winnerWithGoal: 'acc',
+	oneGoalCorrect: 'purple',
+	correctWinner: 'gold',
 	wrong: 'red',
 	pending: 'sub',
 }

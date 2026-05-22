@@ -8,10 +8,10 @@
 	},
 	"scripts": {
 		"build": "nest build",
-		"dev": "nest start --watch",
+		"dev": "nodemon",
 		"start": "nest start",
-		"start:dev": "nest start --watch",
-		"start:debug": "nest start --debug --watch",
+		"start:dev": "nodemon",
+		"start:debug": "nodemon --exec \"nest start --debug\"",
 		"start:prod": "node dist/main",
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint \"src/**/*.ts\" --max-warnings=0",
@@ -42,9 +42,9 @@
 		"rxjs": "7.8.1"
 	},
 	"devDependencies": {
+		"@eslint/js": "9.17.0",
 		"@nestjs/cli": "10.4.9",
 		"@nestjs/schematics": "10.2.3",
-		"@eslint/js": "9.17.0",
 		"@types/express": "5.0.0",
 		"@types/node": "22.10.2",
 		"@types/passport-jwt": "4.0.1",
@@ -52,6 +52,7 @@
 		"eslint-config-prettier": "9.1.0",
 		"eslint-plugin-prettier": "5.2.1",
 		"globals": "15.14.0",
+		"nodemon": "^3.1.14",
 		"prettier": "3.4.2",
 		"ts-node": "10.9.2",
 		"tsconfig-paths": "4.2.0",

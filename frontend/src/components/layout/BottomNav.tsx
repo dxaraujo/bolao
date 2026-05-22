@@ -1,7 +1,8 @@
-import { BarChart3, Goal, Home, Target, Trophy } from 'lucide-react'
+import { BarChart3, Goal, Settings, Target, Trophy, Users } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 import { cn } from '@/lib/cn'
+import { useAuth } from '@/providers/AuthProvider'
 
 type TabDef = { to: string; icon: typeof Goal; label: string; end?: boolean }
 
@@ -9,14 +10,18 @@ const TABS: TabDef[] = [
 	{ to: '/', icon: Goal, label: 'Jogos', end: true },
 	{ to: '/ranking', icon: Trophy, label: 'Ranking' },
 	{ to: '/apostas', icon: Target, label: 'Apostas' },
-	{ to: '/bolao', icon: Home, label: 'Bolão' },
+	{ to: '/bolao', icon: Users, label: 'Bolão' },
 	{ to: '/stats', icon: BarChart3, label: 'Stats' },
 ]
 
+const ADMIN_TAB: TabDef = { to: '/admin', icon: Settings, label: 'Admin' }
+
 export function BottomNav() {
+	const { user } = useAuth()
+	const tabs = user?.isAdmin ? [...TABS, ADMIN_TAB] : TABS
 	return (
 		<nav className="sticky bottom-0 z-50 flex border-t border-border bg-background/95 backdrop-blur">
-			{TABS.map(({ to, icon: Icon, label, end }) => (
+			{tabs.map(({ to, icon: Icon, label, end }) => (
 				<NavLink
 					key={to}
 					to={to}

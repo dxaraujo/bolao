@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common'
+import { Controller, Post, UseGuards } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 
 import { AdminGuard } from 'src/common/admin.guard'
@@ -12,7 +12,7 @@ export class TeamController {
 
 	constructor(private readonly service: TeamService) { }
 
-	@Get('import')
+	@Post('import')
 	@UseGuards(AdminGuard)
 	async import() {
 		await this.service.importTeams()

@@ -8,21 +8,10 @@ export { StageStatus }
 @Schema()
 export class Stage {
 
-	@Prop({
-		required: true,
-		unique: true,
-		enum: Object.values(MatchStage),
-		default: MatchStage.GROUP_STAGE,
-		index: true,
-	})
+	@Prop({ required: true, unique: true, enum: Object.values(MatchStage), index: true })
 	matchStage!: MatchStage
 
-	@Prop({
-		required: true,
-		enum: Object.values(StageStatus),
-		default: StageStatus.DISABLED,
-		index: true,
-	})
+	@Prop({ required: true, enum: Object.values(StageStatus), index: true })
 	status!: StageStatus
 
 	@Prop({ required: false })
@@ -30,3 +19,5 @@ export class Stage {
 }
 
 export const StageSchema = SchemaFactory.createForClass(Stage)
+
+StageSchema.index({ matchStage: 1 }, { unique: true })

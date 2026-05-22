@@ -39,7 +39,8 @@ export class MatchService {
 	}
 
 	async list() {
-		const stageNames = await this.stageService.findVisibleStages()
+		const visibleStages = await this.stageService.findVisibleStages()
+		const stageNames = visibleStages.map((s) => s.matchStage)
 		const matches = await this.model.find({ stage: { $in: stageNames } }).exec()
 		return matches.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf() || a.footballDataId - b.footballDataId)
 	}
@@ -88,10 +89,12 @@ export class MatchService {
 
 				if (!homeTeam) {
 					this.logger.warn(`Home team ${externalMatch.homeTeam.id} not found for match ${externalMatch.id}`)
+					continue
 				}
 
 				if (!awayTeam) {
 					this.logger.warn(`Away team ${externalMatch.awayTeam.id} not found for match ${externalMatch.id}`)
+					continue
 				}
 
 				const registeredMatch = await this.model.findOne({ footballDataId: externalMatch.id }).exec()
@@ -103,8 +106,8 @@ export class MatchService {
 					matchday: externalMatch.matchday,
 					stage: externalMatch.stage,
 					group: externalMatch.group,
-					homeTeam: homeTeam,
-					awayTeam: awayTeam,
+					homeTeam: homeTeam!.id,
+					awayTeam: awayTeam!.id,
 					lastUpdated,
 				}
 
@@ -124,6 +127,18 @@ export class MatchService {
 			}
 
 			this.logger.log(`Finished importing matches at: ${nowtoLocalISOString()}`)
+
+			const matchStages = await this.model.distinct('stage')
+			for (const matchStage of matchStages) {
+
+				if (!await this.stageService.existsByMatchStage(matchStage)) {
+					this.logger.log(`Stage ${matchStage} not found, creating...`)
+					await this.stageService.create(matchStage)
+					this.logger.log(`Created stage ${matchStage}`)
+				}
+			}
+
+			this.logger.log(`Stage's creation completed at: ${nowtoLocalISOString()}`)
 
 		} catch (err) {
 

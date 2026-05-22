@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { StageBadge } from '@/components/shared/StageBadge'
+import { cn } from '@/lib/cn'
 
 import { useMatches } from '@/hooks/useMatches'
 import { useMyBets, useUpdateBets } from '@/hooks/useBets'
@@ -135,20 +136,34 @@ export function BetsScreen() {
 
 			{currentStage && (
 				<div className="flex flex-col gap-3 px-4 py-3">
-					<div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-surface px-4 py-3">
+					<div
+						className={cn(
+							'flex items-center justify-between gap-2 rounded-lg border px-4 py-3',
+							isOpen
+								? 'border-green/40 bg-green/10'
+								: isBlocked
+									? 'border-border bg-surface'
+									: 'border-border bg-surface/60',
+						)}
+					>
 						<div className="flex flex-col gap-1">
-							<span className="flex items-center gap-2 text-xs font-bold">
+							<span
+								className={cn(
+									'flex items-center gap-2 text-xs font-bold',
+									isOpen ? 'text-green' : isBlocked ? 'text-sub' : 'text-muted-foreground',
+								)}
+							>
 								{isOpen ? (
 									<>
-										<CalendarClock className="h-3.5 w-3.5 text-green" /> Apostas abertas
+										<CalendarClock className="h-3.5 w-3.5" /> Apostas abertas
 									</>
 								) : isBlocked ? (
 									<>
-										<Lock className="h-3.5 w-3.5 text-sub" /> Fase encerrada
+										<Lock className="h-3.5 w-3.5" /> Fase encerrada
 									</>
 								) : (
 									<>
-										<CalendarClock className="h-3.5 w-3.5 text-sub" /> Fase não disponível
+										<CalendarClock className="h-3.5 w-3.5" /> Fase não disponível
 									</>
 								)}
 							</span>
@@ -191,7 +206,12 @@ export function BetsScreen() {
 						</span>
 					</div>
 					<Progress value={(filled / stageBets.length) * 100} className="mb-3" />
-					<Button onClick={handleSave} disabled={filled === 0 || updateBets.isPending} className="w-full font-display text-base tracking-wider">
+					<Button
+						onClick={handleSave}
+						disabled={filled === 0 || updateBets.isPending}
+						size="lg"
+						className="w-full font-display text-lg tracking-wider shadow-[0_8px_24px_-12px_rgb(var(--acc)/0.6)]"
+					>
 						<Save className="h-4 w-4" /> {updateBets.isPending ? 'SALVANDO…' : `SALVAR ${filled} PALPITE${filled === 1 ? '' : 'S'}`}
 					</Button>
 				</div>

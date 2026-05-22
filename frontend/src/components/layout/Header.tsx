@@ -12,7 +12,7 @@ export function Header() {
 	const initial = me?.name?.charAt(0)?.toUpperCase() ?? '?'
 
 	return (
-		<header className="sticky top-0 z-50 border-b border-border bg-gradient-to-b from-surface to-background px-4 py-3">
+		<header className="sticky top-0 z-50 border-b border-border bg-gradient-to-b from-surface-2 to-background px-4 py-3">
 			<div className="flex items-center justify-between">
 				<div className="font-display text-2xl leading-none tracking-wider">
 					COPA<span className="text-acc">BET</span>

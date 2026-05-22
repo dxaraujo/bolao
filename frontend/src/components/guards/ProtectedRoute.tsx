@@ -14,3 +14,9 @@ export function PublicOnlyRoute({ children }: PropsWithChildren) {
 	if (authenticated) return <Navigate to="/" replace />
 	return <>{children}</>
 }
+
+export function AdminRoute({ children }: PropsWithChildren) {
+	const { user } = useAuth()
+	if (!user?.isAdmin) return <Navigate to="/" replace />
+	return <>{children}</>
+}

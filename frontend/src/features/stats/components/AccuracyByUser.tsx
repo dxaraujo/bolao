@@ -16,11 +16,11 @@ const USER_COLORS = [
 ]
 
 const LEGEND: Array<{ icon: string; label: string; color: string }> = [
-	{ icon: '🎯', label: 'Exato', color: 'rgb(var(--green))' },
-	{ icon: '⚽', label: 'Venc+Gol', color: 'rgb(var(--acc))' },
-	{ icon: '✓', label: 'Vencedor', color: 'rgb(var(--gold))' },
-	{ icon: '〜', label: 'Gol', color: 'rgb(var(--purple))' },
-	{ icon: '✗', label: 'Errou', color: 'rgb(var(--red))' },
+	{ icon: 'E', label: 'Exato', color: 'rgb(var(--green))' },
+	{ icon: 'W+', label: 'Venc+Gol', color: 'rgb(var(--acc))' },
+	{ icon: 'W', label: 'Vencedor', color: 'rgb(var(--gold))' },
+	{ icon: 'G', label: 'Gol', color: 'rgb(var(--purple))' },
+	{ icon: 'X', label: 'Errou', color: 'rgb(var(--red))' },
 ]
 
 export function AccuracyByUser({ users }: AccuracyByUserProps) {
@@ -36,7 +36,7 @@ export function AccuracyByUser({ users }: AccuracyByUserProps) {
 							<div className="flex items-center justify-between text-sm">
 								<span className="font-bold">{u.name}</span>
 								<span className="font-bold" style={{ color }}>
-									{u.exactScore}E · {u.correctBets}R · {u.wrong}X
+									{u.exactScore}E · {u.winnerWithGoal}W+ · {u.correctWinner}W · {u.oneGoalCorrect}G · {u.wrong}X
 								</span>
 							</div>
 							<div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">

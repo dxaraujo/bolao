@@ -30,7 +30,7 @@ export function Header() {
 	return (
 		<header className="sticky top-0 z-40 border-b border-border bg-gradient-to-b from-surface-2 to-background px-4 py-3 md:px-6">
 			<div className="flex items-center justify-between">
-				<div className="font-display text-2xl leading-none tracking-wider md:hidden">
+				<div className="font-display text-3xl leading-none tracking-wider md:hidden">
 					COPA<span className="text-acc">BET</span>
 					<span className="ml-2 text-xs font-medium text-sub">2026</span>
 				</div>

@@ -22,7 +22,7 @@ export function AdminScreen() {
 	return (
 		<div className="flex flex-col gap-4 px-4 py-4">
 			<header>
-				<h1 className="font-display text-2xl tracking-wider">Painel Admin</h1>
+				<h1 className="font-display text-3xl tracking-wider">Painel Admin</h1>
 				<p className="mt-1 text-xs text-sub">
 					Acesso restrito. Use com cuidado — as importações chamam a Football Data API.
 				</p>

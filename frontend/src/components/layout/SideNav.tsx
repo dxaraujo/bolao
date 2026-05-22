@@ -22,7 +22,7 @@ export function SideNav() {
 	return (
 		<aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-border bg-gradient-to-b from-surface-2 to-background px-3 py-5 md:flex lg:w-64">
 			<div className="px-2 pb-6">
-				<div className="font-display text-2xl leading-none tracking-wider">
+				<div className="font-display text-3xl leading-none tracking-wider">
 					COPA<span className="text-acc">BET</span>
 				</div>
 				<div className="mt-1 text-xs font-medium text-sub">2026</div>

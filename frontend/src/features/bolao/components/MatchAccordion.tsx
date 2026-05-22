@@ -38,7 +38,7 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 									</div>
 									<div className="text-center">
 										<div className="text-xs uppercase tracking-wider text-sub">Resultado</div>
-										<div className="font-display text-2xl tracking-widest">
+										<div className="font-display text-3xl tracking-widest">
 											{g.homeTeamScore ?? '-'}&nbsp;–&nbsp;{g.awayTeamScore ?? '-'}
 										</div>
 									</div>

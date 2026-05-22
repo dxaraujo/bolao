@@ -52,7 +52,7 @@ export function HeroPosition() {
 function HeroStat({ value, label, tone = 'text-main' }: { value: number; label: string; tone?: string }) {
 	return (
 		<div className="flex flex-col items-center">
-			<div className={`font-display text-2xl leading-none ${tone}`}>{value}</div>
+			<div className={`font-display text-3xl leading-none ${tone}`}>{value}</div>
 			<div className="text-[10px] uppercase tracking-wide text-sub text-center">{label}</div>
 		</div>
 	)

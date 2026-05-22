@@ -132,7 +132,9 @@ export interface UserAccuracy {
 	name: string
 	picture: string
 	exactScore: number
-	correctBets: number
+	winnerWithGoal: number
+	correctWinner: number
+	oneGoalCorrect: number
 	wrong: number
 	totalBets: number
 	accuracyPct: number

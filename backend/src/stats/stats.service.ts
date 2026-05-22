@@ -20,7 +20,9 @@ export interface UserAccuracy {
 	name: string
 	picture: string
 	exactScore: number
-	correctBets: number
+	winnerWithGoal: number
+	correctWinner: number
+	oneGoalCorrect: number
 	wrong: number
 	totalBets: number
 	accuracyPct: number
@@ -86,7 +88,9 @@ export class StatsService {
 		const grouped = await this.betModel.aggregate<{
 			_id: Types.ObjectId
 			exactScore: number
-			correctBets: number
+			winnerWithGoal: number
+			correctWinner: number
+			oneGoalCorrect: number
 			wrong: number
 			totalBets: number
 		}>([
@@ -95,15 +99,9 @@ export class StatsService {
 				$group: {
 					_id: '$user',
 					exactScore: { $sum: { $cond: ['$exactScore', 1, 0] } },
-					correctBets: {
-						$sum: {
-							$cond: [
-								{ $or: ['$winnerWithGoal', '$oneGoalCorrect', '$correctWinner'] },
-								1,
-								0,
-							],
-						},
-					},
+					winnerWithGoal: { $sum: { $cond: ['$winnerWithGoal', 1, 0] } },
+					correctWinner: { $sum: { $cond: ['$correctWinner', 1, 0] } },
+					oneGoalCorrect: { $sum: { $cond: ['$oneGoalCorrect', 1, 0] } },
 					wrong: { $sum: { $cond: ['$wrong', 1, 0] } },
 					totalBets: { $sum: 1 },
 				},
@@ -122,7 +120,9 @@ export class StatsService {
 					name: user.name,
 					picture: user.picture,
 					exactScore: g.exactScore,
-					correctBets: g.correctBets,
+					winnerWithGoal: g.winnerWithGoal,
+					correctWinner: g.correctWinner,
+					oneGoalCorrect: g.oneGoalCorrect,
 					wrong: g.wrong,
 					totalBets: g.totalBets,
 					accuracyPct,
@@ -247,7 +247,9 @@ export class StatsService {
 			name: user.name,
 			picture: user.picture,
 			exactScore: 0,
-			correctBets: 0,
+			winnerWithGoal: 0,
+			correctWinner: 0,
+			oneGoalCorrect: 0,
 			wrong: 0,
 			totalBets: 0,
 			accuracyPct: 0,

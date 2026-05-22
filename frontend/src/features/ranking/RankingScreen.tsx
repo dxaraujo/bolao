@@ -32,7 +32,7 @@ export function RankingScreen() {
 					<RankingList users={ranking} currentUserId={me?._id} />
 				</section>
 				<div className="flex flex-col gap-4">
-					<PointsChart users={ranking} />
+					<PointsChart users={ranking} currentUserId={me?._id} />
 					{config && <ScoringTable config={config} />}
 				</div>
 			</div>

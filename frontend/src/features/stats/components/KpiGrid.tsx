@@ -19,7 +19,7 @@ export function KpiGrid({ overview }: KpiGridProps) {
 			{items.map(({ icon: Icon, label, value, tone }) => (
 				<Card key={label} className="animate-fade-up p-3 md:p-4">
 					<Icon className={`h-5 w-5 ${tone}`} />
-					<div className={`mt-2 font-display text-2xl leading-none md:text-3xl ${tone}`}>{value}</div>
+					<div className={`mt-2 font-display text-3xl leading-none md:text-3xl ${tone}`}>{value}</div>
 					<div className="mt-1 text-xs uppercase tracking-wide text-sub">{label}</div>
 				</Card>
 			))}

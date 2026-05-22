@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		--bg: 238 243 249;
+		--surface: 255 255 255;
+		--surface-2: 244 248 253;
+		--border: 202 216 236;
+		--text: 10 21 36;
+		--sub: 77 106 133;
+		--muted: 208 220 234;
+		--muted-fg: 143 168 192;
+		--acc: 0 119 182;
+		--gold: 194 120 0;
+		--green: 22 163 74;
+		--red: 220 38 38;
+		--purple: 124 58 237;
+	}
+
+	.dark {
+		--bg: 7 13 24;
+		--surface: 17 29 46;
+		--surface-2: 23 36 56;
+		--border: 30 47 69;
+		--text: 240 246 255;
+		--sub: 100 132 159;
+		--muted: 36 51 71;
+		--muted-fg: 58 82 112;
+		--acc: 0 229 255;
+		--gold: 245 158 11;
+		--green: 34 197 94;
+		--red: 239 68 68;
+		--purple: 167 139 250;
+	}
+
+	* {
+		box-sizing: border-box;
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	html,
+	body,
+	#root {
+		min-height: 100%;
+	}
+
+	body {
+		@apply bg-background font-sans text-foreground antialiased;
+	}
+
+	input[type='number']::-webkit-inner-spin-button,
+	input[type='number']::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+	}
+	input[type='number'] {
+		-moz-appearance: textfield;
+	}
+
+	::-webkit-scrollbar {
+		width: 3px;
+		background: transparent;
+	}
+	::-webkit-scrollbar-thumb {
+		background: rgb(var(--muted));
+		border-radius: 3px;
+	}
+}
+
+@layer utilities {
+	.scrollbar-none {
+		scrollbar-width: none;
+	}
+	.scrollbar-none::-webkit-scrollbar {
+		display: none;
+	}
+}

@@ -1,23 +1,18 @@
 {
 	"name": "@bolao/shared",
 	"version": "0.1.0",
+	"description": "Bolão da Copa do Mundo — enums e contratos de API consumidos por backend e frontend",
 	"private": true,
-	"main": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"exports": {
-		".": {
-			"types": "./dist/index.d.ts",
-			"default": "./dist/index.js"
-		}
-	},
-	"files": ["dist"],
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"type": "module",
+	"files": [
+		"dist"
+	],
 	"scripts": {
-		"build": "tsc",
-		"dev": "tsc --watch --preserveWatchOutput",
-		"clean": "rm -rf dist",
-		"prepare": "tsc"
+		"build": "tsc"
 	},
 	"devDependencies": {
-		"typescript": "5.7.2"
+		"typescript": "^5.0.0"
 	}
 }

@@ -31,7 +31,7 @@ pnpm install
 pnpm start:dev
 ```
 
-A API sobe na porta definida em `PORT` (default 3001).
+A API sobe na porta definida em `PORT` (default 3000).
 
 ## Scripts
 
@@ -48,7 +48,7 @@ A API sobe na porta definida em `PORT` (default 3001).
 | Variável             | Obrigatória | Default                          |
 |----------------------|-------------|----------------------------------|
 | `NODE_ENV`           | não         | `development`                    |
-| `PORT`               | não         | `3001`                           |
+| `PORT`               | não         | `3000`                           |
 | `MONGODB_URI`        | não         | `mongodb://localhost/bolao`      |
 | `AUTH_SECRET`        | **sim**     | —                                |
 | `GOOGLE_CLIENT_ID`   | **sim**     | —                                |

@@ -14,8 +14,8 @@ import { UserService } from './user.service'
 export class UserController {
 	constructor(private readonly userService: UserService) { }
 
-	@Get('authenticated')
-	async authenticated(@CurrentUser() user: JwtPayload) {
+	@Get('me')
+	async me(@CurrentUser() user: JwtPayload) {
 		const data = await this.userService.findById(user._id)
 		return { data }
 	}

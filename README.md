@@ -33,8 +33,8 @@ cp frontend/.env.example frontend/.env
 pnpm dev
 
 # individualmente
-pnpm dev:frontend     # http://localhost:3000
-pnpm dev:backend      # http://localhost:3001
+pnpm dev:frontend     # http://localhost:5173
+pnpm dev:backend      # http://localhost:3000
 ```
 
 ## Build de produção
@@ -74,7 +74,7 @@ docker compose up -d --build
 docker compose logs -f backend
 ```
 
-A API sobe em `http://localhost:3001` e o Mongo em `mongodb://localhost:27017`. Dados persistem no volume nomeado `mongo-data` entre restarts.
+A API sobe em `http://localhost:3000` e o Mongo em `mongodb://localhost:27017`. Dados persistem no volume nomeado `mongo-data` entre restarts.
 
 Para derrubar tudo:
 ```bash

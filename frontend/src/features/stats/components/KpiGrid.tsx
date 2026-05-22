@@ -10,7 +10,7 @@ interface KpiGridProps {
 export function KpiGrid({ overview }: KpiGridProps) {
 	const items = [
 		{ icon: Goal, label: 'Total de jogos', value: overview.totalMatches, tone: 'text-acc' },
-		{ icon: Target, label: 'Placares exatos', value: overview.totalExactBets, tone: 'text-green' },
+		{ icon: Target, label: 'Total de placares exatos', value: overview.totalExactBets, tone: 'text-green' },
 		{ icon: Sparkles, label: 'Resultados certos', value: overview.totalCorrectBets, tone: 'text-gold' },
 		{ icon: Crown, label: 'Líder', value: overview.leader?.name ?? '—', tone: 'text-purple' },
 	]

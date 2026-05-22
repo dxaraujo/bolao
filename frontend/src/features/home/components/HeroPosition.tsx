@@ -27,7 +27,7 @@ export function HeroPosition() {
 				<div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-acc">
 					<Trophy className="h-3 w-3" /> Sua posição atual
 				</div>
-				<div className="mt-3 flex gap-4">
+				<div className="flex items-center justify-between mt-3 ml-2">
 					<div className="font-display text-5xl leading-none">{medal}</div>
 					<div className="flex flex-col items-center justify-center">
 						<div className="text-xs text-sub">de {total} participantes</div>

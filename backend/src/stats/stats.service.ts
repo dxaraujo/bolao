@@ -56,8 +56,7 @@ export class StatsService {
 		const [totalMatches, totalExactBets, totalCorrectBets, leader] = await Promise.all([
 			this.matchModel.countDocuments({ status: MatchStatus.FINISHED }).exec(),
 			this.betModel.countDocuments({ exactScore: true }).exec(),
-			this.betModel.countDocuments({
-				$or: [{ winnerWithGoal: true }, { oneGoalCorrect: true }, { correctWinner: true }],
+			this.betModel.countDocuments({ $or: [{ winnerWithGoal: true }, { oneGoalCorrect: true }, { correctWinner: true }],
 			}).exec(),
 			this.userModel.findOne({ isActive: true }).sort({ totalPointsEarned: -1, name: 1 }).exec(),
 		])

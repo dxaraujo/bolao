@@ -19,7 +19,7 @@ const LEGEND: Array<{ icon: string; label: string; color: string }> = [
 	{ icon: '🎯', label: 'Exato', color: 'rgb(var(--green))' },
 	{ icon: '⚽', label: 'Venc+Gol', color: 'rgb(var(--acc))' },
 	{ icon: '✓', label: 'Vencedor', color: 'rgb(var(--gold))' },
-	{ icon: '〜', label: 'Um Gol', color: 'rgb(var(--purple))' },
+	{ icon: '〜', label: 'Gol', color: 'rgb(var(--purple))' },
 	{ icon: '✗', label: 'Errou', color: 'rgb(var(--red))' },
 ]
 

@@ -61,7 +61,15 @@ export function BetsScreen() {
 		if (!bets || !currentStage) return []
 		return bets
 			.filter((b) => b.stage === currentStage.matchStage)
-			.sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime())
+			.sort((a, b) => {
+				const groupCmp = (a.group ?? '').localeCompare(b.group ?? '')
+				if (groupCmp !== 0) return groupCmp
+				const dateCmp = new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime()
+				if (dateCmp !== 0) return dateCmp
+				const homeCmp = a.homeTeam.tla.localeCompare(b.homeTeam.tla)
+				if (homeCmp !== 0) return homeCmp
+				return a.awayTeam.tla.localeCompare(b.awayTeam.tla)
+			})
 	}, [bets, currentStage])
 
 	const groupedBets = useMemo(() => {
@@ -73,7 +81,7 @@ export function BetsScreen() {
 			if (!map.has(key)) map.set(key, [])
 			map.get(key)!.push(bet)
 		}
-		return map
+		return new Map([...map.entries()].sort(([a], [b]) => a.localeCompare(b)))
 	}, [stageBets])
 
 	const filled = useMemo(() => {
@@ -190,7 +198,7 @@ export function BetsScreen() {
 					) : groupedBets ? (
 						Array.from(groupedBets.entries()).map(([group, bets]) => (
 							<div key={group}>
-								<p className="mb-2 mt-4 text-xs font-bold uppercase tracking-widest text-sub first:mt-0">
+								<p className="mb-2 mt-4 text-xs font-bold uppercase tracking-widest text-md first:mt-0">
 									{groupLabel(group)}
 								</p>
 								<div className="flex flex-col gap-2">

@@ -9,9 +9,9 @@ interface ScoringTableProps {
 export function ScoringTable({ config }: ScoringTableProps) {
 	const items: Array<{ label: string; points: number | string; tone: string }> = [
 		{ label: 'Placar Exato', points: `+${config.pointsExactScore}`, tone: 'text-green border-green/30 bg-green/10' },
-		{ label: 'Vencedor + Gol', points: `+${config.pointsWinnerWithGoal}`, tone: 'text-acc border-acc/30 bg-acc/10' },
-		{ label: 'Só o Vencedor', points: `+${config.pointsCorrectWinner}`, tone: 'text-gold border-gold/30 bg-gold/10' },
-		{ label: 'Um Gol', points: `+${config.pointsOneGoalCorrect}`, tone: 'text-purple border-purple/30 bg-purple/10' },
+		{ label: 'Time vencedor + Gol', points: `+${config.pointsWinnerWithGoal}`, tone: 'text-acc border-acc/30 bg-acc/10' },
+		{ label: 'Somente o time vencedor', points: `+${config.pointsCorrectWinner}`, tone: 'text-gold border-gold/30 bg-gold/10' },
+		{ label: 'Gol', points: `+${config.pointsOneGoalCorrect}`, tone: 'text-purple border-purple/30 bg-purple/10' },
 		{ label: 'Errou Tudo', points: '0', tone: 'text-red border-red/30 bg-red/10' },
 	]
 

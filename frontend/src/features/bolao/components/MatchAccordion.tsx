@@ -56,8 +56,14 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 								<span className="text-center">Resultado</span>
 								<span className="text-center">Pts</span>
 							</div>
-							<div className="divide-y divide-border">
-								{g.bets.map((b) => (
+						<div className="divide-y divide-border">
+							{[...g.bets]
+								.sort((a, b) => {
+									const ptsDiff = (b.totalPointsEarned ?? 0) - (a.totalPointsEarned ?? 0)
+									if (ptsDiff !== 0) return ptsDiff
+									return a.user.name.localeCompare(b.user.name)
+								})
+								.map((b) => (
 									<BetRow key={b.user._id} bet={b} isMe={b.user._id === currentUserId} />
 								))}
 							</div>

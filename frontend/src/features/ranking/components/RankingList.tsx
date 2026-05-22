@@ -32,7 +32,7 @@ export function RankingList({ users, currentUserId }: RankingListProps) {
 						<div className={cn('w-7 text-center font-bold', i < 3 ? 'text-base' : 'text-sub')}>
 							{i < 3 ? MEDALS[i] : `${i + 1}°`}
 						</div>
-						<Avatar className="h-9 w-9">
+						<Avatar className="h-14 w-14">
 							<AvatarImage src={user.picture} alt={user.name} />
 							<AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
 						</Avatar>

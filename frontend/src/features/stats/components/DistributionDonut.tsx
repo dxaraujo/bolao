@@ -20,9 +20,9 @@ export function DistributionDonut({ data }: DistributionDonutProps) {
 
 	const segments: Segment[] = [
 		{ label: 'Placar Exato', pct: data.exact.pct, color: 'rgb(var(--green))' },
-		{ label: 'Vencedor + Gol', pct: data.winnerWithGoal.pct, color: 'rgb(var(--acc))' },
-		{ label: 'Só Vencedor', pct: data.correctWinner.pct, color: 'rgb(var(--gold))' },
-		{ label: 'Um Gol', pct: data.oneGoalCorrect.pct, color: 'rgb(var(--purple))' },
+		{ label: 'Time vencedor + Gol', pct: data.winnerWithGoal.pct, color: 'rgb(var(--acc))' },
+		{ label: 'Somente o time vencedor', pct: data.correctWinner.pct, color: 'rgb(var(--gold))' },
+		{ label: 'Gol', pct: data.oneGoalCorrect.pct, color: 'rgb(var(--purple))' },
 		{ label: 'Errou', pct: data.wrong.pct, color: 'rgb(var(--red))' },
 	]
 

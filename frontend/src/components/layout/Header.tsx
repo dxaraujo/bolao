@@ -47,7 +47,7 @@ export function Header() {
 							className="rounded-full ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-acc"
 							aria-label="Menu do usuário"
 						>
-							<Avatar className="h-8 w-8">
+							<Avatar className="h-10 w-10">
 								<AvatarImage src={me?.picture} alt={me?.name} />
 								<AvatarFallback className="text-xs">{initial}</AvatarFallback>
 							</Avatar>

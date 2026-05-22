@@ -25,8 +25,8 @@ export function BetRow({ bet, isMe }: BetRowProps) {
 			)}
 		>
 			<div className="flex items-center gap-2 min-w-0">
-				<Avatar className="h-7 w-7 shrink-0">
-					<AvatarImage src={`https://${bet.user.picture}`} alt={bet.user.name} />
+				<Avatar className="h-9 w-9 shrink-0">
+					<AvatarImage src={bet.user.picture} alt={bet.user.name} />
 					<AvatarFallback className="text-xs">{bet.user.name.charAt(0)}</AvatarFallback>
 				</Avatar>
 				<div className="truncate font-semibold">

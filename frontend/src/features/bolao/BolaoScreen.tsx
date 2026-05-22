@@ -8,7 +8,7 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { useAllBets } from '@/hooks/useBets'
 import { useStages } from '@/hooks/useStages'
 import { useMe } from '@/hooks/useMe'
-import { STAGE_LABELS } from '@/lib/stage'
+import { STAGE_LABELS, groupLabel } from '@/lib/stage'
 
 import { MatchAccordion } from './components/MatchAccordion'
 
@@ -31,6 +31,18 @@ export function BolaoScreen() {
 	}, [blockedStages, tab])
 
 	const filtered = useMemo(() => (groups ?? []).filter((g) => g.stage === tab), [groups, tab])
+
+	const groupedMatches = useMemo(() => {
+		if (!filtered.length) return null
+		if (!filtered.some((m) => m.group)) return null
+		const map = new Map<string, typeof filtered>()
+		for (const match of filtered) {
+			const key = match.group ?? ''
+			if (!map.has(key)) map.set(key, [])
+			map.get(key)!.push(match)
+		}
+		return map
+	}, [filtered])
 
 	if (stagesLoading || groupsLoading) {
 		return (
@@ -67,13 +79,22 @@ export function BolaoScreen() {
 				</Tabs>
 			</div>
 
-			<div className="px-4 py-3">
-				{filtered.length === 0 ? (
-					<EmptyState icon={Search} title="Nenhuma partida encerrada nesta fase" />
-				) : (
-					<MatchAccordion groups={filtered} currentUserId={me?._id} />
-				)}
-			</div>
+		<div className="px-4 py-3">
+			{filtered.length === 0 ? (
+				<EmptyState icon={Search} title="Nenhuma partida encerrada nesta fase" />
+			) : groupedMatches ? (
+				Array.from(groupedMatches.entries()).map(([group, matches]) => (
+					<div key={group}>
+						<p className="mb-2 mt-4 text-xs font-bold uppercase tracking-widest text-sub first:mt-0">
+							{groupLabel(group)}
+						</p>
+						<MatchAccordion groups={matches} currentUserId={me?._id} />
+					</div>
+				))
+			) : (
+				<MatchAccordion groups={filtered} currentUserId={me?._id} />
+			)}
+		</div>
 		</div>
 	)
 }

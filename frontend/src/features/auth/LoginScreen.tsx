@@ -50,7 +50,7 @@ export function LoginScreen() {
 						<ul className="space-y-1.5">
 							<li>🎯 +{config?.pointsExactScore ?? 5} pts — Placar exato</li>
 							<li>⚽ +{config?.pointsWinnerWithGoal ?? 3} pts — Vencedor + saldo de gols</li>
-							<li>✅ +{config?.pointsCorrectWinner ?? 1} pts — Só o vencedor</li>
+							<li>✅ +{config?.pointsCorrectWinner ?? 2} pts — Só o vencedor</li>
 							<li>🔢 +{config?.pointsOneGoalCorrect ?? 1} pts — Acertou um gol</li>
 							<li>❌ 0 pts — Errou tudo</li>
 						</ul>

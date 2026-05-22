@@ -95,7 +95,7 @@ function ImportSection() {
 	return (
 		<section className="flex flex-col gap-2">
 			<h2 className="text-[11px] font-bold uppercase tracking-wider text-sub">Importações</h2>
-			<div className="flex flex-col gap-2">
+			<div className="grid gap-2 md:grid-cols-3">
 				{actions.map(({ key, title, description, icon: Icon, tone, run, isPending }) => {
 					const t = toneClasses[tone]
 					return (
@@ -144,7 +144,7 @@ function StagesSection() {
 					Nenhuma fase cadastrada. Rode "Importar Partidas" primeiro.
 				</Card>
 			) : (
-				<div className="flex flex-col gap-2">
+				<div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
 					{stages.map((stage) => (
 						<StageRow key={stage.matchStage} stage={stage} />
 					))}

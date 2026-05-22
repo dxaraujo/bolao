@@ -15,11 +15,11 @@ export function KpiGrid({ overview }: KpiGridProps) {
 		{ icon: Crown, label: 'Líder', value: overview.leader?.name ?? '—', tone: 'text-purple' },
 	]
 	return (
-		<div className="grid grid-cols-2 gap-2">
+		<div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
 			{items.map(({ icon: Icon, label, value, tone }) => (
-				<Card key={label} className="animate-fade-up p-3">
+				<Card key={label} className="animate-fade-up p-3 md:p-4">
 					<Icon className={`h-5 w-5 ${tone}`} />
-					<div className={`mt-2 font-display text-2xl leading-none ${tone}`}>{value}</div>
+					<div className={`mt-2 font-display text-2xl leading-none md:text-3xl ${tone}`}>{value}</div>
 					<div className="mt-1 text-[10px] uppercase tracking-wide text-sub">{label}</div>
 				</Card>
 			))}

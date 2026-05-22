@@ -20,7 +20,7 @@ export function BottomNav() {
 	const { user } = useAuth()
 	const tabs = user?.isAdmin ? [...TABS, ADMIN_TAB] : TABS
 	return (
-		<nav className="sticky bottom-0 z-50 flex border-t border-border bg-background/95 backdrop-blur">
+		<nav className="sticky bottom-0 z-50 flex border-t border-border bg-background/95 backdrop-blur md:hidden">
 			{tabs.map(({ to, icon: Icon, label, end }) => (
 				<NavLink
 					key={to}

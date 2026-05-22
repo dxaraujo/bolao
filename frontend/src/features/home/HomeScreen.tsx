@@ -39,29 +39,31 @@ export function HomeScreen() {
 			<HeroPosition />
 			{stages && matches && <OpenStageBanner stages={stages} matches={matches} />}
 
-			<Section title="Próximos jogos">
-				{isLoading ? (
-					<Skeleton className="h-24 w-full rounded-lg" />
-				) : upcoming.length === 0 ? (
-					<EmptyState icon={Goal} title="Nenhuma fase aberta no momento" />
-				) : (
-					<div className="flex flex-col gap-2">
-						{upcoming.map((m) => (
-							<MatchCard key={m._id} match={m} />
-						))}
-					</div>
-				)}
-			</Section>
-
-			{recent.length > 0 && (
-				<Section title="Resultados recentes">
-					<div className="flex flex-col gap-2">
-						{recent.map((m) => (
-							<MatchCard key={m._id} match={m} />
-						))}
-					</div>
+			<div className="grid gap-4 lg:grid-cols-2">
+				<Section title="Próximos jogos">
+					{isLoading ? (
+						<Skeleton className="h-24 w-full rounded-lg" />
+					) : upcoming.length === 0 ? (
+						<EmptyState icon={Goal} title="Nenhuma fase aberta no momento" />
+					) : (
+						<div className="flex flex-col gap-2">
+							{upcoming.map((m) => (
+								<MatchCard key={m._id} match={m} />
+							))}
+						</div>
+					)}
 				</Section>
-			)}
+
+				{recent.length > 0 && (
+					<Section title="Resultados recentes">
+						<div className="flex flex-col gap-2">
+							{recent.map((m) => (
+								<MatchCard key={m._id} match={m} />
+							))}
+						</div>
+					</Section>
+				)}
+			</div>
 		</div>
 	)
 }

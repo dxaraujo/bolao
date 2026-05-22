@@ -26,12 +26,16 @@ export function RankingScreen() {
 	return (
 		<div className="flex flex-col gap-4 px-4 py-4">
 			<Podium leaders={ranking.slice(0, 3)} />
-			<section className="flex flex-col gap-2">
-				<h2 className="text-[11px] font-bold uppercase tracking-wider text-sub">Classificação completa</h2>
-				<RankingList users={ranking} currentUserId={me?._id} />
-			</section>
-			<PointsChart users={ranking} />
-			{config && <ScoringTable config={config} />}
+			<div className="grid gap-4 lg:grid-cols-2">
+				<section className="flex flex-col gap-2">
+					<h2 className="text-[11px] font-bold uppercase tracking-wider text-sub">Classificação completa</h2>
+					<RankingList users={ranking} currentUserId={me?._id} />
+				</section>
+				<div className="flex flex-col gap-4">
+					<PointsChart users={ranking} />
+					{config && <ScoringTable config={config} />}
+				</div>
+			</div>
 		</div>
 	)
 }

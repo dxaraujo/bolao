@@ -3,9 +3,7 @@ packages:
   - "backend"
   - "shared"
 allowBuilds:
-  '@coreui/coreui': true
   '@nestjs/core': true
   '@scarf/scarf': true
-  core-js: true
   esbuild: true
   mongodb-memory-server: true

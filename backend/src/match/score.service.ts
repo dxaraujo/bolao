@@ -77,7 +77,7 @@ export class ScoreService {
 				}
 
 				this.logger.log(`Updating match ${startedMatche.id}: ${registeredMatch.homeTeamScore ?? '-'} x ${registeredMatch.awayTeamScore ?? '-'} → ${homeTeamScore} x ${awayTeamScore}`,)
-				await this.matchService.updateMatch(String(registeredMatch._id), { status, homeTeamScore, awayTeamScore })
+				await this.matchService.updateMatch(registeredMatch.id, status, homeTeamScore, awayTeamScore)
 			}
 
 			this.logger.log(`Updating results at: ${nowtoLocalISOString()}`)

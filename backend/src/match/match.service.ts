@@ -130,4 +130,8 @@ export class MatchService {
 			this.logger.error('Error importing matches', err)
 		}
 	}
+
+	updateMatch(matchId: string, status: MatchStatus, homeTeamScore?: number, awayTeamScore?: number) {
+		return this.model.findByIdAndUpdate(matchId, { status, homeTeamScore, awayTeamScore }, { new: true }).exec()
+	}
 }

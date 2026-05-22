@@ -55,6 +55,7 @@ export interface MatchListItem {
 
 export interface BetListItem {
 	_id: string
+	matchId: string
 	utcDate: string
 	stage: MatchStage
 	group: string

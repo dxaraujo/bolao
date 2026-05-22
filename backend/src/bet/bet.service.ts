@@ -69,6 +69,7 @@ export class BetService {
 
 		return bets.map((bet) => ({
 			_id: bet._id,
+			matchId: bet.match._id,
 			utcDate: bet.match.utcDate,
 			stage: bet.match.stage,
 			group: bet.match.group,

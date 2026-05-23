@@ -34,6 +34,7 @@ export interface ConfigPayload {
 
 export interface StageVisibleItem {
 	matchStage: MatchStage
+	order: number
 	status: StageStatus
 	deadline?: string
 }

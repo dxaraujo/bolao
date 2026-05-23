@@ -5,6 +5,7 @@ import { Model, Types } from 'mongoose'
 import * as path from 'node:path'
 
 import { downloadImage } from '../common/download'
+import { StageService } from '../stage/stage.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User } from './schemas/user.schema'
 
@@ -21,7 +22,11 @@ export class UserService {
 	private readonly logger = new Logger(UserService.name)
 	private readonly staticDir: string
 
-	constructor(@InjectModel(User.name) private readonly userModel: Model<User>, config: ConfigService) {
+	constructor(
+		@InjectModel(User.name) private readonly userModel: Model<User>,
+		private readonly stageService: StageService,
+		config: ConfigService,
+	) {
 		this.staticDir = path.resolve(process.cwd(), config.get<string>('STATIC_DIR') ?? 'static')
 	}
 
@@ -81,6 +86,15 @@ export class UserService {
 			throw new NotFoundException(`User ${userId} not found`)
 		}
 
-		return await this.userModel.updateOne({ _id: user._id }, input, { new: true }).exec()
+		const willActivate = input.isActive === true && user.isActive === false
+
+		const result = await this.userModel.updateOne({ _id: user._id }, input, { new: true }).exec()
+
+		if (willActivate) {
+			this.logger.log(`User ${user._id} activated; seeding bets`)
+			await this.stageService.seedBetsForUser((user._id as Types.ObjectId).toString())
+		}
+
+		return result
 	}
 }

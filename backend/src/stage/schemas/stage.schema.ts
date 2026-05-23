@@ -11,6 +11,9 @@ export class Stage {
 	@Prop({ required: true, unique: true, enum: Object.values(MatchStage), index: true })
 	matchStage!: MatchStage
 
+	@Prop({ required: true, unique: true, min: 1, max: 7, index: true })
+	order!: number
+
 	@Prop({ required: true, enum: Object.values(StageStatus), index: true })
 	status!: StageStatus
 
@@ -21,3 +24,4 @@ export class Stage {
 export const StageSchema = SchemaFactory.createForClass(Stage)
 
 StageSchema.index({ matchStage: 1 }, { unique: true })
+StageSchema.index({ order: 1 }, { unique: true })

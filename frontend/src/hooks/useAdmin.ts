@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { StageStatus, StageVisibleItem } from '@bolao/shared'
+import type { AuthenticatedUser, StageStatus, StageVisibleItem } from '@bolao/shared'
 
 import { api } from '@/lib/api'
 import { sortStages } from '@/lib/stage'
@@ -49,18 +49,43 @@ export function useUpdateScores() {
 interface AdvanceStagePayload {
 	matchStage: string
 	status: StageStatus
-	deadline?: string
 }
 
 export function useAdvanceStage() {
 	const qc = useQueryClient()
 	return useMutation({
-		mutationFn: ({ matchStage, status, deadline }: AdvanceStagePayload) =>
-			api.put<StageVisibleItem>(`/api/stage/${matchStage}`, { status, deadline }),
+		mutationFn: ({ matchStage, status }: AdvanceStagePayload) =>
+			api.put<StageVisibleItem>(`/api/stage/${matchStage}`, { status }),
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: ['admin', 'stages'] })
 			qc.invalidateQueries({ queryKey: ['stages'] })
 			qc.invalidateQueries({ queryKey: ['bets'] })
+		},
+	})
+}
+
+export function useAdminUsers() {
+	return useQuery({
+		queryKey: ['admin', 'users'],
+		queryFn: ({ signal }) => api.get<AuthenticatedUser[]>('/api/user', signal),
+	})
+}
+
+interface UpdateUserPayload {
+	id: string
+	isActive?: boolean
+	isAdmin?: boolean
+}
+
+export function useUpdateUser() {
+	const qc = useQueryClient()
+	return useMutation({
+		mutationFn: ({ id, ...body }: UpdateUserPayload) =>
+			api.put<AuthenticatedUser>(`/api/user/${id}`, body),
+		onSuccess: () => {
+			qc.invalidateQueries({ queryKey: ['admin', 'users'] })
+			qc.invalidateQueries({ queryKey: ['bets'] })
+			qc.invalidateQueries({ queryKey: ['ranking'] })
 		},
 	})
 }

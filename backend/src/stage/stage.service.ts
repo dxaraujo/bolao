@@ -1,7 +1,7 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { STAGE_DEADLINES, STAGE_ORDER, type StageVisibleItem } from '@bolao/shared'
+import { BadRequestException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
-import type { StageVisibleItem } from '@bolao/shared'
 
 import { Bet } from '../bet/schemas/bet.schema'
 import { Match, MatchStage } from '../match/schemas/match.schema'
@@ -10,7 +10,7 @@ import { UpdateStageDto } from './dto/update-stage.dto'
 import { Stage, StageStatus } from './schemas/stage.schema'
 
 @Injectable()
-export class StageService {
+export class StageService implements OnModuleInit {
 
 	private readonly logger = new Logger(StageService.name)
 
@@ -21,16 +21,35 @@ export class StageService {
 		@InjectModel(User.name) private readonly userModel: Model<User>,
 	) { }
 
+	async onModuleInit() {
+
+		const count = await this.model.estimatedDocumentCount().exec()
+		if (count > 0) {
+			return
+		}
+
+		await this.model.insertMany(Object.entries(STAGE_ORDER).map(([matchStage, order]) => ({
+			matchStage: matchStage as MatchStage,
+			order,
+			status: matchStage === MatchStage.GROUP_STAGE ? StageStatus.OPEN : StageStatus.DISABLED,
+			deadline: new Date(STAGE_DEADLINES[matchStage as MatchStage]),
+		})))
+
+		this.logger.log(`Initialized stage collection with ${Object.entries(STAGE_ORDER).length} stages`)
+	}
+
 	findAll() {
-		return this.model.find().exec()
+		return this.model.find().sort({ order: 1 }).exec()
 	}
 
 	async findVisibleStages(): Promise<StageVisibleItem[]> {
 		const stages = await this.model
 			.find({ status: { $in: [StageStatus.OPEN, StageStatus.BLOCKED] } })
+			.sort({ order: 1 })
 			.exec()
 		return stages.map((s) => ({
 			matchStage: s.matchStage,
+			order: s.order,
 			status: s.status,
 			deadline: s.deadline ? s.deadline.toISOString() : undefined,
 		}))
@@ -53,10 +72,6 @@ export class StageService {
 
 	async existsByMatchStage(matchStage: MatchStage) {
 		return await this.model.exists({ matchStage }).exec();
-	}
-
-	async create(matchStage: MatchStage) {
-		return await this.model.create({ matchStage, status: StageStatus.DISABLED });
 	}
 
 	async update(matchStage: string, dto: UpdateStageDto) {
@@ -139,5 +154,37 @@ export class StageService {
 			),
 		)
 		this.logger.log(`Seed ${matchStage}: ${result.upsertedCount} new bet(s) for ${users.length} user(s) × ${matches.length} match(es)`)
+	}
+
+	async seedBetsForUser(userId: string) {
+
+		const stages = await this.model
+			.find({ status: { $in: [StageStatus.OPEN, StageStatus.BLOCKED] } }, { matchStage: 1 })
+			.exec()
+
+		if (stages.length === 0) {
+			this.logger.log(`Skipping seed for user ${userId}: no OPEN/BLOCKED stages`)
+			return
+		}
+
+		const matches = await this.matchModel
+			.find({ stage: { $in: stages.map((s) => s.matchStage) }, valid: true }, { _id: 1 })
+			.exec()
+
+		if (matches.length === 0) {
+			this.logger.log(`Skipping seed for user ${userId}: no valid matches in OPEN/BLOCKED stages`)
+			return
+		}
+
+		const result = await this.betModel.bulkWrite(
+			matches.map((match) => ({
+				updateOne: {
+					filter: { user: userId, match: match._id },
+					update: { $setOnInsert: { user: userId, match: match._id } },
+					upsert: true,
+				},
+			})),
+		)
+		this.logger.log(`Seed user ${userId}: ${result.upsertedCount} new bet(s) across ${matches.length} match(es)`)
 	}
 }

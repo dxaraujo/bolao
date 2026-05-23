@@ -1,19 +1,20 @@
-import { useState } from 'react'
-import { Loader2, Download, RefreshCw, Users, Lock, Play, CheckCircle2, ChevronRight } from 'lucide-react'
+import { Loader2, Download, RefreshCw, Users, Lock, Play, CheckCircle2, ChevronRight, UserCheck, UserX, Shield } from 'lucide-react'
 import { toast } from 'sonner'
-import { StageStatus, type StageVisibleItem } from '@bolao/shared'
+import { StageStatus, type AuthenticatedUser, type StageVisibleItem } from '@bolao/shared'
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import {
 	useAdminStages,
+	useAdminUsers,
 	useAdvanceStage,
 	useImportMatches,
 	useImportTeams,
 	useUpdateScores,
+	useUpdateUser,
 } from '@/hooks/useAdmin'
 import { STAGE_LABELS } from '@/lib/stage'
 import { cn } from '@/lib/cn'
@@ -30,6 +31,7 @@ export function AdminScreen() {
 
 			<ImportSection />
 			<StagesSection />
+			<UsersSection />
 		</div>
 	)
 }
@@ -185,26 +187,14 @@ const STATUS_ICON: Record<StageStatus, typeof Lock> = {
 function StageRow({ stage }: { stage: StageVisibleItem }) {
 	const advance = useAdvanceStage()
 	const next = NEXT_STATUS[stage.status]
-	const needsDeadline = next === StageStatus.OPEN
-	const [deadline, setDeadline] = useState<string>(() =>
-		stage.deadline ? toLocalInput(stage.deadline) : '',
-	)
 
 	const StatusIcon = STATUS_ICON[stage.status]
 	const label = STAGE_LABELS[stage.matchStage as keyof typeof STAGE_LABELS]?.full ?? stage.matchStage
 
 	async function handleAdvance() {
 		if (!next) return
-		if (needsDeadline && !deadline) {
-			toast.error('Informe o prazo antes de abrir a fase')
-			return
-		}
 		try {
-			await advance.mutateAsync({
-				matchStage: stage.matchStage,
-				status: next,
-				deadline: needsDeadline && deadline ? new Date(deadline).toISOString() : undefined,
-			})
+			await advance.mutateAsync({ matchStage: stage.matchStage, status: next })
 			toast.success(`${label}: ${STATUS_LABEL[next]}`)
 		} catch (err) {
 			toast.error(err instanceof Error ? err.message : 'Falha ao atualizar fase')
@@ -225,24 +215,11 @@ function StageRow({ stage }: { stage: StageVisibleItem }) {
 			</div>
 
 			{stage.deadline && (
-				<div className="mt-2 text-xs text-sub">Prazo atual: {formatDeadline(stage.deadline)}</div>
+				<div className="mt-2 text-xs text-sub">Prazo: {formatDeadline(stage.deadline)}</div>
 			)}
 
 			{next && (
 				<div className="mt-3 flex flex-col gap-2">
-					{needsDeadline && (
-						<div className="flex flex-col gap-1">
-							<label className="text-xs font-semibold uppercase tracking-wide text-sub">
-								Prazo para apostas
-							</label>
-							<Input
-								type="datetime-local"
-								value={deadline}
-								onChange={(e) => setDeadline(e.target.value)}
-								className="h-9 text-sm"
-							/>
-						</div>
-					)}
 					<Button
 						size="sm"
 						disabled={advance.isPending}
@@ -263,13 +240,103 @@ function StageRow({ stage }: { stage: StageVisibleItem }) {
 	)
 }
 
-function toLocalInput(iso: string) {
-	const d = new Date(iso)
-	const pad = (n: number) => String(n).padStart(2, '0')
-	return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
-}
-
 function formatDeadline(iso: string) {
 	const d = new Date(iso)
 	return d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
+}
+
+function UsersSection() {
+	const { data: users, isLoading } = useAdminUsers()
+
+	const sorted = users
+		? [...users].sort((a, b) => {
+			if (a.isActive !== b.isActive) return a.isActive ? -1 : 1
+			return a.name.localeCompare(b.name, 'pt-BR')
+		})
+		: []
+
+	return (
+		<section className="flex flex-col gap-2">
+			<h2 className="text-xs font-bold uppercase tracking-wider text-sub">Gerenciar Usuários</h2>
+			<p className="text-xs text-sub">
+				Ative um usuário para criar automaticamente as apostas em branco nas fases já abertas ou encerradas.
+			</p>
+
+			{isLoading || !users ? (
+				<>
+					<Skeleton className="h-16 w-full" />
+					<Skeleton className="h-16 w-full" />
+				</>
+			) : sorted.length === 0 ? (
+				<Card className="p-4 text-center text-xs text-sub">Nenhum usuário cadastrado.</Card>
+			) : (
+				<div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+					{sorted.map((user) => (
+						<UserRow key={user._id} user={user} />
+					))}
+				</div>
+			)}
+		</section>
+	)
+}
+
+function UserRow({ user }: { user: AuthenticatedUser }) {
+	const update = useUpdateUser()
+
+	async function toggleActive() {
+		const next = !user.isActive
+		try {
+			await update.mutateAsync({ id: user._id, isActive: next })
+			toast.success(next ? `${user.name} ativado` : `${user.name} desativado`)
+		} catch (err) {
+			toast.error(err instanceof Error ? err.message : 'Falha ao atualizar usuário')
+		}
+	}
+
+	const initials = user.name
+		.split(/\s+/)
+		.slice(0, 2)
+		.map((p) => p[0]?.toUpperCase() ?? '')
+		.join('')
+
+	return (
+		<Card className="animate-fade-up flex items-center gap-3 p-3">
+			<Avatar className="h-10 w-10">
+				{user.picture && <AvatarImage src={user.picture} alt={user.name} />}
+				<AvatarFallback>{initials}</AvatarFallback>
+			</Avatar>
+			<div className="min-w-0 flex-1">
+				<div className="flex items-center gap-1.5">
+					<span className="truncate text-sm font-bold">{user.name}</span>
+					{user.isAdmin && (
+						<Shield className="h-3.5 w-3.5 shrink-0 text-gold" aria-label="Admin" />
+					)}
+				</div>
+				<div className="truncate text-xs text-sub">{user.email}</div>
+				<div className="mt-1">
+					<Badge tone={user.isActive ? 'green' : 'sub'}>
+						{user.isActive ? 'Ativo' : 'Inativo'}
+					</Badge>
+				</div>
+			</div>
+			<Button
+				size="sm"
+				variant="outline"
+				disabled={update.isPending}
+				onClick={toggleActive}
+			>
+				{update.isPending ? (
+					<Loader2 className="h-4 w-4 animate-spin" />
+				) : user.isActive ? (
+					<>
+						<UserX className="h-4 w-4" /> Desativar
+					</>
+				) : (
+					<>
+						<UserCheck className="h-4 w-4" /> Ativar
+					</>
+				)}
+			</Button>
+		</Card>
+	)
 }

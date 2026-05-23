@@ -120,18 +120,6 @@ export class MatchService {
 
 			this.logger.log(`Finished importing matches at: ${nowtoLocalISOString()}`)
 
-			const matchStages = await this.model.distinct('stage')
-			for (const matchStage of matchStages) {
-
-				if (!await this.stageService.existsByMatchStage(matchStage)) {
-					this.logger.log(`Stage ${matchStage} not found, creating...`)
-					await this.stageService.create(matchStage)
-					this.logger.log(`Created stage ${matchStage}`)
-				}
-			}
-
-			this.logger.log(`Stage's creation completed at: ${nowtoLocalISOString()}`)
-
 		} catch (err) {
 
 			this.logger.error('Error importing matches', err)

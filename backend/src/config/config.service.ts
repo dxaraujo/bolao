@@ -20,7 +20,7 @@ export class AppConfigService implements OnModuleInit {
 		return this.model.findOne().exec()
 	}
 
-	setUpdatingScores(updatingScores: boolean) {
-		return this.model.updateOne({}, { updatingScores }, { upsert: true }).exec()
+	setLastUpdateResults(lastUpdateResults: Date) {
+		return this.model.updateOne({}, { lastUpdateResults }, { upsert: true }).exec()
 	}
 }

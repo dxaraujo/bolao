@@ -38,121 +38,115 @@ export class ResultService {
 
 	async updateResults() {
 
-		await this.appConfig.setUpdatingScores(true)
+		const blockedStages = await this.stageService.findBlockedStages()
 
-		try {
+		if (blockedStages.length === 0) return
 
-			const blockedStages = await this.stageService.findBlockedStages()
+		const [matches, activeUsers] = await Promise.all([
+			this.matchModel
+				.find({ stage: { $in: blockedStages } })
+				.sort({ utcDate: 1, footballDataId: 1 })
+				.exec(),
+			this.userModel
+				.find({ isActive: true })
+				.sort({ name: 1 })
+				.exec(),
+		])
 
-			if (blockedStages.length === 0) return
+		if (matches.length === 0 || activeUsers.length === 0) return
 
-			const [matches, activeUsers] = await Promise.all([
-				this.matchModel
-					.find({ stage: { $in: blockedStages } })
-					.sort({ utcDate: 1, footballDataId: 1 })
-					.exec(),
-				this.userModel
-					.find({ isActive: true })
-					.sort({ name: 1 })
-					.exec(),
-			])
+		const matchIds = matches.map((m) => m._id)
+		const userIds = activeUsers.map((u) => u._id)
 
-			if (matches.length === 0 || activeUsers.length === 0) return
+		const allBets = await this.betModel
+			.find({ match: { $in: matchIds }, user: { $in: userIds } })
+			.populate<{ match: MatchDocument }>('match')
+			.exec()
 
-			const matchIds = matches.map((m) => m._id)
-			const userIds = activeUsers.map((u) => u._id)
+		let users: UserAggregate[] = activeUsers.map((user) => ({
+			_id: user._id,
+			exactScore: 0,
+			winnerWithGoal: 0,
+			correctWinner: 0,
+			oneGoalCorrect: 0,
+			totalPoints: 0,
+			ranking: 0,
+			previousRanking: 0,
+			bets: allBets.filter((bet) => bet.user.equals(user._id)) as unknown as BetPopulated[],
+		}))
 
-			const allBets = await this.betModel
-				.find({ match: { $in: matchIds }, user: { $in: userIds } })
-				.populate<{ match: MatchDocument }>('match')
-				.exec()
+		for (let i = 0; i < matches.length; i++) {
 
-			let users: UserAggregate[] = activeUsers.map((user) => ({
-				_id: user._id,
-				exactScore: 0,
-				winnerWithGoal: 0,
-				correctWinner: 0,
-				oneGoalCorrect: 0,
-				totalPoints: 0,
-				ranking: 0,
-				previousRanking: 0,
-				bets: allBets.filter((bet) => bet.user.equals(user._id)) as unknown as BetPopulated[],
-			}))
+			const match = matches[i]
 
-			for (let i = 0; i < matches.length; i++) {
+			if (!isValidScore(match.homeTeamScore) || !isValidScore(match.awayTeamScore)) continue
 
-				const match = matches[i]
+			for (const user of users) {
 
-				if (!isValidScore(match.homeTeamScore) || !isValidScore(match.awayTeamScore)) continue
+				const bet = user.bets.find(bet => bet.match.footballDataId === match.footballDataId)
 
-				for (const user of users) {
+				if (bet == null) continue
 
-					const bet = user.bets.find(bet => bet.match.footballDataId === match.footballDataId)
+				calculateBetScore(bet, match)
 
-					if (bet == null) continue
-
-					calculateBetScore(bet, match)
-
-					user.totalPoints += bet.totalPointsEarned
-					user.exactScore += bet.exactScore ? 1 : 0
-					user.winnerWithGoal += bet.winnerWithGoal ? 1 : 0
-					user.correctWinner += bet.correctWinner ? 1 : 0
-					user.oneGoalCorrect += bet.oneGoalCorrect ? 1 : 0
-					// bet.totalPoints = user.totalPoints
-				}
-
-				users = rankUsers(users, i)
-
-				for (const user of users) {
-					const bet = user.bets.find(bet => bet.match.footballDataId === match.footballDataId)
-					if (bet == null) continue
-					// bet.ranking = user.ranking
-					// bet.previousRanking = user.previousRanking
-				}
+				user.totalPoints += bet.totalPointsEarned
+				user.exactScore += bet.exactScore ? 1 : 0
+				user.winnerWithGoal += bet.winnerWithGoal ? 1 : 0
+				user.correctWinner += bet.correctWinner ? 1 : 0
+				user.oneGoalCorrect += bet.oneGoalCorrect ? 1 : 0
+				// bet.totalPoints = user.totalPoints
 			}
 
-			await Promise.all(
-				users.flatMap((user) => {
-					const betUpdates = user.bets.map((bet) =>
-						this.betModel
-							.findByIdAndUpdate(
-								bet._id,
-								{
-									totalPointsEarned: bet.totalPointsEarned,
-									// totalPoints: bet.totalPoints,
-									// ranking: bet.ranking,
-									// previousRanking: bet.previousRanking,
-									exactScore: bet.exactScore,
-									winnerWithGoal: bet.winnerWithGoal,
-									correctWinner: bet.correctWinner,
-									oneGoalCorrect: bet.oneGoalCorrect,
-								},
-								{ new: true },
-							)
-							.exec(),
-					)
-					const userUpdate = this.userModel
+			users = rankUsers(users, i)
+
+			for (const user of users) {
+				const bet = user.bets.find(bet => bet.match.footballDataId === match.footballDataId)
+				if (bet == null) continue
+				// bet.ranking = user.ranking
+				// bet.previousRanking = user.previousRanking
+			}
+		}
+
+		await Promise.all(
+			users.flatMap((user) => {
+				const betUpdates = user.bets.map((bet) =>
+					this.betModel
 						.findByIdAndUpdate(
-							user._id,
+							bet._id,
 							{
-								totalPoints: user.totalPoints,
-								ranking: user.ranking,
-								previousRanking: user.previousRanking,
-								exactScore: user.exactScore,
-								winnerWithGoal: user.winnerWithGoal,
-								correctWinner: user.correctWinner,
-								oneGoalCorrect: user.oneGoalCorrect,
+								totalPointsEarned: bet.totalPointsEarned,
+								// totalPoints: bet.totalPoints,
+								// ranking: bet.ranking,
+								// previousRanking: bet.previousRanking,
+								exactScore: bet.exactScore,
+								winnerWithGoal: bet.winnerWithGoal,
+								correctWinner: bet.correctWinner,
+								oneGoalCorrect: bet.oneGoalCorrect,
 							},
 							{ new: true },
 						)
-						.exec()
-					return [...betUpdates, userUpdate]
-				}),
-			)
+						.exec(),
+				)
+				const userUpdate = this.userModel
+					.findByIdAndUpdate(
+						user._id,
+						{
+							totalPoints: user.totalPoints,
+							ranking: user.ranking,
+							previousRanking: user.previousRanking,
+							exactScore: user.exactScore,
+							winnerWithGoal: user.winnerWithGoal,
+							correctWinner: user.correctWinner,
+							oneGoalCorrect: user.oneGoalCorrect,
+						},
+						{ new: true },
+					)
+					.exec()
+				return [...betUpdates, userUpdate]
+			}),
+		)
 
-		} finally {
-			await this.appConfig.setUpdatingScores(false)
-		}
+		await this.appConfig.setLastUpdateResults(new Date())
 	}
 }
 

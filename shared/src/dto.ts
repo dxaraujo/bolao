@@ -26,7 +26,7 @@ export interface AuthenticatedUser {
 }
 
 export interface ConfigPayload {
-	updatingScores: boolean
+	lastUpdateResults: string | null
 	pointsExactScore: number
 	pointsWinnerWithGoal: number
 	pointsOneGoalCorrect: number

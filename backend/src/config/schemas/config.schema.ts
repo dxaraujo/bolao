@@ -6,8 +6,8 @@ export type ConfigDocument = HydratedDocument<Config>
 @Schema({ collection: 'config' })
 export class Config {
 
-	@Prop({ required: true, default: false })
-	updatingScores!: boolean
+	@Prop({ type: Date, default: null })
+	lastUpdateResults!: Date | null
 
 	@Prop({ required: true, default: 5 })
 	pointsExactScore!: number

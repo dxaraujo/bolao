@@ -30,6 +30,8 @@ export class ScoreService {
 
 	async updateScores() {
 
+		let updateResults = false
+
 		try {
 
 			this.logger.log(`Find matches to update results at: ${nowtoLocalISOString()}`)
@@ -78,13 +80,20 @@ export class ScoreService {
 
 				this.logger.log(`Updating match ${startedMatche.id}: ${registeredMatch.homeTeamScore ?? '-'} x ${registeredMatch.awayTeamScore ?? '-'} → ${homeTeamScore} x ${awayTeamScore}`,)
 				await this.matchService.updateMatch(registeredMatch.id, status, homeTeamScore, awayTeamScore)
+
+				updateResults = true
 			}
 
-			this.logger.log(`Updating results at: ${nowtoLocalISOString()}`)
-			await this.resultService.updateResults()
+		} catch (err) {
+			this.logger.error('Error updating results', err)
+		}
 
-			this.logger.log(`Finished updating results at: ${nowtoLocalISOString()}`)
-
+		try {
+			if (updateResults) {
+				this.logger.log(`Updating results at: ${nowtoLocalISOString()}`)
+				await this.resultService.updateResults()
+				this.logger.log(`Finished updating results at: ${nowtoLocalISOString()}`)
+			}
 		} catch (err) {
 			this.logger.error('Error updating results', err)
 		}

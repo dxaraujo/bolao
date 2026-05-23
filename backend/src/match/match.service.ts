@@ -110,7 +110,7 @@ export class MatchService {
 				}
 
 				if (registeredMatch.lastUpdated && registeredMatch.lastUpdated >= lastUpdated) {
-					this.logger.log(`Match ${externalMatch.id} already up to date`)
+					this.logger.debug(`Match ${externalMatch.id} already up to date`)
 					continue
 				}
 

@@ -70,12 +70,14 @@ export class ScoreService {
 				}
 
 				if (registeredMatch.status === MatchStatus.FINISHED) {
-					this.logger.log(`Match ${startedMatche.id} is already finished`)
+					this.logger.debug(`Match ${startedMatche.id} is already finished`)
 					continue
 				}
 
-				if (registeredMatch.homeTeamScore === homeTeamScore && registeredMatch.awayTeamScore === awayTeamScore) {
-					this.logger.log(`Match ${startedMatche.id} already has score: ${homeTeamScore} x ${awayTeamScore}`)
+				if (registeredMatch.homeTeamScore === homeTeamScore &&
+					registeredMatch.awayTeamScore === awayTeamScore &&
+					registeredMatch.status === status) {
+					this.logger.debug(`Match ${startedMatche.id} already has score: ${homeTeamScore} x ${awayTeamScore}`)
 					continue
 				}
 

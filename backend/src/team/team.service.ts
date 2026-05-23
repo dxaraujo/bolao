@@ -86,7 +86,7 @@ export class TeamService {
 				}
 
 				if (registeredTeam.lastUpdated && registeredTeam.lastUpdated >= lastUpdated) {
-					this.logger.log(`Team ${externalTeam.tla} already up to date`)
+					this.logger.debug(`Team ${externalTeam.tla} already up to date`)
 					continue
 				}
 

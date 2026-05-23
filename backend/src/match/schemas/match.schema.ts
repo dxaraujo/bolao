@@ -20,9 +20,6 @@ export class Match {
 	@Prop({ required: true, enum: Object.values(MatchStatus) })
 	status!: MatchStatus
 
-	@Prop({ required: true })
-	matchday!: number
-
 	@Prop({ required: true, enum: Object.values(MatchStage), index: true })
 	stage!: MatchStage
 

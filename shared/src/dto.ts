@@ -43,7 +43,6 @@ export interface MatchListItem {
 	footballDataId: number
 	utcDate: string
 	status: MatchStatus
-	matchday: number
 	stage: MatchStage
 	group: string
 	homeTeam: TeamPayload

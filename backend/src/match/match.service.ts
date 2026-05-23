@@ -13,7 +13,6 @@ interface FootballDataMatch {
 	id: number
 	utcDate: string
 	status: MatchStatus
-	matchday: number
 	stage: MatchStage
 	group: string
 	homeTeam: { id: number }
@@ -94,7 +93,6 @@ export class MatchService {
 					footballDataId: externalMatch.id,
 					utcDate: new Date(externalMatch.utcDate),
 					status: externalMatch.status,
-					matchday: externalMatch.matchday,
 					stage: externalMatch.stage,
 					group: externalMatch.group,
 					homeTeam: homeTeam ? homeTeam._id : null,

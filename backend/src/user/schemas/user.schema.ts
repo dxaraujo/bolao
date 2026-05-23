@@ -39,9 +39,6 @@ export class User {
 	@Prop({ required: true, default: 0 })
 	ranking!: number
 
-	@Prop({ required: true, default: 0 })
-	previousRanking!: number
-
 	@Prop({ required: true, default: false })
 	isAdmin!: boolean
 

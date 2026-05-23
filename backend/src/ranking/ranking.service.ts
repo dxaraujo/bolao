@@ -21,7 +21,6 @@ export class RankingService {
 			name: user.name,
 			picture: user.picture,
 			ranking: user.ranking,
-			previousRanking: user.previousRanking,
 			totalPointsEarned: user.totalPointsEarned,
 			exactScore: user.exactScore,
 			winnerWithGoal: user.winnerWithGoal,

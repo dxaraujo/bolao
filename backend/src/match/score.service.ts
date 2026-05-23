@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
+import { Types } from 'mongoose'
 
 import { MatchStatus, nowtoLocalISOString } from '@bolao/shared'
 import { MatchService } from './match.service'
@@ -30,7 +31,7 @@ export class ScoreService {
 
 	async updateScores() {
 
-		let updateResults = false
+		const changedMatchIds: Types.ObjectId[] = []
 
 		try {
 
@@ -81,7 +82,7 @@ export class ScoreService {
 				this.logger.log(`Updating match ${startedMatche.id}: ${registeredMatch.homeTeamScore ?? '-'} x ${registeredMatch.awayTeamScore ?? '-'} → ${homeTeamScore} x ${awayTeamScore}`,)
 				await this.matchService.updateMatch(registeredMatch.id, status, homeTeamScore, awayTeamScore)
 
-				updateResults = true
+				changedMatchIds.push(registeredMatch._id as Types.ObjectId)
 			}
 
 		} catch (err) {
@@ -89,9 +90,9 @@ export class ScoreService {
 		}
 
 		try {
-			if (updateResults) {
-				this.logger.log(`Updating results at: ${nowtoLocalISOString()}`)
-				await this.resultService.updateResults()
+			if (changedMatchIds.length > 0) {
+				this.logger.log(`Updating results at: ${nowtoLocalISOString()} (${changedMatchIds.length} match(es) changed)`)
+				await this.resultService.updateResults(changedMatchIds)
 				this.logger.log(`Finished updating results at: ${nowtoLocalISOString()}`)
 			}
 		} catch (err) {

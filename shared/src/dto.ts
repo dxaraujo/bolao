@@ -20,7 +20,6 @@ export interface AuthenticatedUser {
 	wrong: number
 	totalPointsEarned: number
 	ranking: number
-	previousRanking: number
 	isAdmin: boolean
 	isActive: boolean
 }
@@ -111,7 +110,6 @@ export interface RankingItem {
 	name: string
 	picture: string
 	ranking: number
-	previousRanking: number
 	totalPointsEarned: number
 	exactScore: number
 	winnerWithGoal: number

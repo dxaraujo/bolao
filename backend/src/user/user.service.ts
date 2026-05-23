@@ -7,6 +7,7 @@ import * as path from 'node:path'
 
 import { Bet } from '../bet/schemas/bet.schema'
 import { downloadImage } from '../common/download'
+import { resolveStaticDir } from '../common/static-dir'
 import { Match } from '../match/schemas/match.schema'
 import { Stage } from '../stage/schemas/stage.schema'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -32,7 +33,7 @@ export class UserService {
 		@InjectModel(Match.name) private readonly matchModel: Model<Match>,
 		config: ConfigService,
 	) {
-		this.staticDir = path.resolve(process.cwd(), config.get<string>('STATIC_DIR') ?? 'static')
+		this.staticDir = resolveStaticDir(config.get<string>('STATIC_DIR'))
 	}
 
 	findById(id: string) {

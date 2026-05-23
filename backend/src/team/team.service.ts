@@ -5,6 +5,7 @@ import * as path from 'node:path'
 
 import { ConfigService } from '@nestjs/config'
 import { downloadImage } from '../common/download'
+import { resolveStaticDir } from '../common/static-dir'
 import { UpdateTeamDto } from './dto/update-team.dto'
 import { Team } from './schemas/team.schema'
 import { nowtoLocalISOString } from '@bolao/shared'
@@ -30,7 +31,7 @@ export class TeamService {
 	constructor(@InjectModel(Team.name) private readonly model: Model<Team>, private readonly config: ConfigService) {
 		this.apiUrl = this.config.getOrThrow<string>('FOOTBALL_DATA_API_URL')
 		this.apiKey = this.config.getOrThrow<string>('FOOTBALL_DATA_API_KEY')
-		this.staticDir = path.resolve(process.cwd(), this.config.get<string>('STATIC_DIR') ?? 'static')
+		this.staticDir = resolveStaticDir(this.config.get<string>('STATIC_DIR'))
 	}
 
 	findAll() {

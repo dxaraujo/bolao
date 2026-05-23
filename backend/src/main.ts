@@ -4,10 +4,10 @@ import { ConfigService } from '@nestjs/config'
 import { Logger, ValidationPipe } from '@nestjs/common'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import helmet from 'helmet'
-import * as path from 'node:path'
 
 import { AppModule } from './app.module'
 import { AllExceptionsFilter } from './common/all-exceptions.filter'
+import { resolveStaticDir } from './common/static-dir'
 import { SWAGGER_BEARER_AUTH } from './common/swagger-auth.decorator'
 
 async function bootstrap() {
@@ -17,7 +17,7 @@ async function bootstrap() {
 
 	app.use(helmet())
 
-	const staticDir = path.resolve(process.cwd(), config.get<string>('STATIC_DIR') ?? 'static')
+	const staticDir = resolveStaticDir(config.get<string>('STATIC_DIR'))
 	app.useStaticAssets(staticDir, {
 		prefix: '/static/',
 		setHeaders: (res) => {

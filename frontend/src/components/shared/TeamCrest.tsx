@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { resolveAssetUrl } from '@/lib/assets'
 import { cn } from '@/lib/cn'
 
 interface TeamCrestProps {
@@ -24,9 +25,11 @@ export function TeamCrest({ src, alt, size = 32, className }: TeamCrestProps) {
 		)
 	}
 
+	const resolvedSrc = resolveAssetUrl(src)
+
 	return (
 		<img
-			src={src}
+			src={resolvedSrc}
 			alt={alt ?? ''}
 			width={size}
 			height={size}

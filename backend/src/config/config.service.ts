@@ -12,7 +12,7 @@ export class AppConfigService implements OnModuleInit {
 	async onModuleInit() {
 		const exists = await this.model.exists({})
 		if (!exists) {
-			await this.model.create({ })
+			await this.model.create({ lastUpdateResults: new Date() })
 		}
 	}
 

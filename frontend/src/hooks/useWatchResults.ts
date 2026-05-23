@@ -1,11 +1,13 @@
 import { useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import type { ConfigPayload } from '@bolao/shared'
 
 import { api } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 
 const INVALIDATE_KEYS = [['bets'], ['ranking'], ['stats']] as const
+const RESULTS_UPDATE_TOAST_ID = 'results-update'
 
 export function useWatchResults() {
 	const { authenticated } = useAuth()
@@ -34,6 +36,7 @@ export function useWatchResults() {
 		if (previousRef.current === current) return
 
 		previousRef.current = current
+		toast.success('Resultados atualizados', { id: RESULTS_UPDATE_TOAST_ID })
 		INVALIDATE_KEYS.forEach((key) =>
 			qc.invalidateQueries({ queryKey: key, refetchType: 'all' }),
 		)

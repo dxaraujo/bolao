@@ -72,6 +72,15 @@ export class StageService {
 			throw new BadRequestException(`Invalid transition: ${current.status} → ${dto.status}`)
 		}
 
+		if (dto.status === StageStatus.OPEN) {
+			const invalidCount = await this.matchModel.countDocuments({ stage: matchStage, valid: false }).exec()
+			if (invalidCount > 0) {
+				throw new BadRequestException(
+					`Não é possível abrir a fase ${matchStage}: ${invalidCount} partida(s) sem times definidos.`,
+				)
+			}
+		}
+
 		const updated = await this.model.findOneAndUpdate({ matchStage }, dto, { new: true }).exec()
 
 		this.logger.log(`Stage ${matchStage} updated to ${StageStatus[dto.status]}`)
@@ -88,7 +97,7 @@ export class StageService {
 	async seedBetsForStage(matchStage: string) {
 
 		const [matches, users] = await Promise.all([
-			this.matchModel.find({ stage: matchStage }, { _id: 1 }).exec(),
+			this.matchModel.find({ stage: matchStage, valid: true }, { _id: 1 }).exec(),
 			this.userModel.find({ isActive: true }, { _id: 1 }).exec(),
 		])
 

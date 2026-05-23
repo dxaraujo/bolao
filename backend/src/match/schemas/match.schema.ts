@@ -29,17 +29,20 @@ export class Match {
 	@Prop({ required: true })
 	group!: string
 
-	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Team.name, required: true, index: true })
-	homeTeam!: Types.ObjectId
+	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Team.name, required: false, default: null, index: true })
+	homeTeam?: Types.ObjectId | null
 
-	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Team.name, required: true, index: true })
-	awayTeam!: Types.ObjectId
+	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Team.name, required: false, default: null, index: true })
+	awayTeam?: Types.ObjectId | null
 
 	@Prop({ required: false })
 	homeTeamScore?: number
 
 	@Prop({ required: false })
 	awayTeamScore?: number
+
+	@Prop({ required: true, default: true, index: true })
+	valid!: boolean
 
 	@Prop({ required: true })
 	lastUpdated!: Date

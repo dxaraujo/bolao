@@ -41,12 +41,12 @@ export class MatchService {
 	async list() {
 		const visibleStages = await this.stageService.findVisibleStages()
 		const stageNames = visibleStages.map((s) => s.matchStage)
-		const matches = await this.model.find({ stage: { $in: stageNames } }).exec()
+		const matches = await this.model.find({ stage: { $in: stageNames }, valid: true }).exec()
 		return matches.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf() || a.footballDataId - b.footballDataId)
 	}
 
 	findIdsByStages(stageNames: string[]) {
-		return this.model.find({ stage: { $in: stageNames } }).distinct('_id').exec()
+		return this.model.find({ stage: { $in: stageNames }, valid: true }).distinct('_id').exec()
 	}
 
 	findByFootballDataMatchId(id: number) {
@@ -86,16 +86,7 @@ export class MatchService {
 				const lastUpdated = new Date(externalMatch.lastUpdated)
 				const homeTeam = await this.teamService.findByFootballDataTeamId(externalMatch.homeTeam.id)
 				const awayTeam = await this.teamService.findByFootballDataTeamId(externalMatch.awayTeam.id)
-
-				if (!homeTeam) {
-					this.logger.warn(`Home team ${externalMatch.homeTeam.id} not found for match ${externalMatch.id}`)
-					continue
-				}
-
-				if (!awayTeam) {
-					this.logger.warn(`Away team ${externalMatch.awayTeam.id} not found for match ${externalMatch.id}`)
-					continue
-				}
+				const valid = !!homeTeam && !!awayTeam
 
 				const registeredMatch = await this.model.findOne({ footballDataId: externalMatch.id }).exec()
 
@@ -106,14 +97,17 @@ export class MatchService {
 					matchday: externalMatch.matchday,
 					stage: externalMatch.stage,
 					group: externalMatch.group,
-					homeTeam: homeTeam!.id,
-					awayTeam: awayTeam!.id,
+					homeTeam: homeTeam ? homeTeam._id : null,
+					awayTeam: awayTeam ? awayTeam._id : null,
+					valid,
 					lastUpdated,
 				}
 
+				const label = `${homeTeam?.tla ?? 'TBD'} x ${awayTeam?.tla ?? 'TBD'}`
+
 				if (!registeredMatch) {
 					await this.model.create(matchData)
-					this.logger.log(`Created match ${externalMatch.id}: ${homeTeam?.tla ?? '-'} x ${awayTeam?.tla ?? '-'}`)
+					this.logger.log(`Created match ${externalMatch.id} [${valid ? 'valid' : 'INVALID'}]: ${label}`)
 					continue
 				}
 
@@ -123,7 +117,7 @@ export class MatchService {
 				}
 
 				await this.model.updateOne({ footballDataId: externalMatch.id }, { $set: matchData }).exec()
-				this.logger.log(`Updated match ${externalMatch.id}: ${homeTeam?.tla ?? '-'} x ${awayTeam?.tla ?? '-'}`)
+				this.logger.log(`Updated match ${externalMatch.id} [${valid ? 'valid' : 'INVALID'}]: ${label}`)
 			}
 
 			this.logger.log(`Finished importing matches at: ${nowtoLocalISOString()}`)

@@ -27,14 +27,14 @@ export function BetsScreen() {
 	const { data: config } = useConfig()
 	const updateBets = useUpdateBets()
 
-	const [tab, setTab] = useState<MatchStage | undefined>(undefined)
+	const [tab, setTab] = useState<MatchStage | null>(null)
 	const [draft, setDraft] = useState<Record<string, BetDraft>>({})
 
-	useEffect(() => {
-		if (!stages?.length) return
-		if (tab && stages.some((s) => s.matchStage === tab)) return
+	const activeTab = useMemo(() => {
+		if (!stages?.length) return null
+		if (tab && stages.some((s) => s.matchStage === tab)) return tab
 		const open = stages.find((s) => s.status === StageStatus.OPEN)
-		setTab((open ?? stages[0]).matchStage)
+		return (open ?? stages[0]).matchStage
 	}, [stages, tab])
 
 	useEffect(() => {
@@ -53,7 +53,7 @@ export function BetsScreen() {
 		})
 	}, [bets])
 
-	const currentStage = stages?.find((s) => s.matchStage === tab)
+	const currentStage = stages?.find((s) => s.matchStage === activeTab)
 	const isOpen = currentStage?.status === StageStatus.OPEN
 	const isBlocked = currentStage?.status === StageStatus.BLOCKED
 
@@ -130,23 +130,25 @@ export function BetsScreen() {
 	return (
 		<div className="flex flex-1 flex-col">
 			<div className="border-b border-border bg-gradient-to-b from-surface to-background px-4 pt-3">
-				<Tabs value={tab} onValueChange={(v) => setTab(v as MatchStage)}>
-					<TabsList className="pb-3">
-						{stages.map((s) => (
-							<TabsTrigger
-								key={s.matchStage}
-								value={s.matchStage}
-								disabled={s.status === StageStatus.DISABLED}
-								className="relative"
-							>
-								{STAGE_LABELS[s.matchStage]?.short ?? s.matchStage}
-								{s.status === StageStatus.OPEN && (
-									<span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-green" />
-								)}
-							</TabsTrigger>
-						))}
-					</TabsList>
-				</Tabs>
+				{activeTab && (
+					<Tabs value={activeTab} onValueChange={(v) => setTab(v as MatchStage)}>
+						<TabsList className="pb-3">
+							{stages.map((s) => (
+								<TabsTrigger
+									key={s.matchStage}
+									value={s.matchStage}
+									disabled={s.status === StageStatus.DISABLED}
+									className="relative"
+								>
+									{STAGE_LABELS[s.matchStage]?.short ?? s.matchStage}
+									{s.status === StageStatus.OPEN && (
+										<span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-green" />
+									)}
+								</TabsTrigger>
+							))}
+						</TabsList>
+					</Tabs>
+				)}
 			</div>
 
 			{currentStage && (

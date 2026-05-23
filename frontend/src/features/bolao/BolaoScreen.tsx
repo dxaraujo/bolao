@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
 import { MatchStage, StageStatus } from '@bolao/shared'
 
@@ -22,15 +22,15 @@ export function BolaoScreen() {
 		[stages],
 	)
 
-	const [tab, setTab] = useState<MatchStage | undefined>(undefined)
+	const [tab, setTab] = useState<MatchStage | null>(null)
 
-	useEffect(() => {
-		if (!blockedStages.length) return
-		if (tab && blockedStages.some((s) => s.matchStage === tab)) return
-		setTab(blockedStages[0].matchStage)
+	const activeTab = useMemo(() => {
+		if (!blockedStages.length) return null
+		if (tab && blockedStages.some((s) => s.matchStage === tab)) return tab
+		return blockedStages[0].matchStage
 	}, [blockedStages, tab])
 
-	const filtered = useMemo(() => (groups ?? []).filter((g) => g.stage === tab), [groups, tab])
+	const filtered = useMemo(() => (groups ?? []).filter((g) => g.stage === activeTab), [groups, activeTab])
 
 	const groupedMatches = useMemo(() => {
 		if (!filtered.length) return null
@@ -62,21 +62,23 @@ export function BolaoScreen() {
 		<div className="flex flex-col">
 			<div className="border-b border-border bg-gradient-to-b from-surface to-background px-4 pt-3">
 				<p className="mb-2 text-xs font-bold uppercase tracking-wider text-sub">Apostas encerradas</p>
-				<Tabs value={tab} onValueChange={(v) => setTab(v as MatchStage)}>
-					<TabsList className="pb-3">
-						{blockedStages.map((s) => {
-							const count = (groups ?? []).filter((g) => g.stage === s.matchStage).length
-							return (
-								<TabsTrigger key={s.matchStage} value={s.matchStage}>
-									{STAGE_LABELS[s.matchStage]?.short ?? s.matchStage}
-									<span className="ml-1 rounded bg-muted px-1 text-[11px] font-bold text-muted-foreground">
-										{count}
-									</span>
-								</TabsTrigger>
-							)
-						})}
-					</TabsList>
-				</Tabs>
+				{activeTab && (
+					<Tabs value={activeTab} onValueChange={(v) => setTab(v as MatchStage)}>
+						<TabsList className="pb-3">
+							{blockedStages.map((s) => {
+								const count = (groups ?? []).filter((g) => g.stage === s.matchStage).length
+								return (
+									<TabsTrigger key={s.matchStage} value={s.matchStage}>
+										{STAGE_LABELS[s.matchStage]?.short ?? s.matchStage}
+										<span className="ml-1 rounded bg-muted px-1 text-[11px] font-bold text-muted-foreground">
+											{count}
+										</span>
+									</TabsTrigger>
+								)
+							})}
+						</TabsList>
+					</Tabs>
+				)}
 			</div>
 
 		<div className="px-4 py-3">

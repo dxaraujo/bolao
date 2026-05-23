@@ -1,11 +1,14 @@
 import { Outlet } from 'react-router-dom'
 
+import { useWatchResults } from '@/hooks/useWatchResults'
+
 import { AppShell } from './AppShell'
 import { BottomNav } from './BottomNav'
 import { Header } from './Header'
 import { SideNav } from './SideNav'
 
 export function AuthenticatedLayout() {
+	useWatchResults()
 	return (
 		<AppShell>
 			<SideNav />

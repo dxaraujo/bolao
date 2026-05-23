@@ -7,6 +7,8 @@ export function useConfig() {
 	return useQuery({
 		queryKey: ['config'],
 		queryFn: ({ signal }) => api.get<ConfigPayload>('/api/config', signal),
-		staleTime: 5 * 60_000,
+		staleTime: 30_000,
+		refetchInterval: 30_000,
+		refetchIntervalInBackground: false,
 	})
 }

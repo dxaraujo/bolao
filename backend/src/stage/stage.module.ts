@@ -1,8 +1,8 @@
-import { forwardRef, Module } from '@nestjs/common'
+import { Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 
-import { BetModule } from '../bet/bet.module'
 import { Match, MatchSchema } from '../match/schemas/match.schema'
+import { UserModule } from '../user/user.module'
 import { Stage, StageSchema } from './schemas/stage.schema'
 import { StageController } from './stage.controller'
 import { StageService } from './stage.service'
@@ -13,7 +13,7 @@ import { StageService } from './stage.service'
 			{ name: Stage.name, schema: StageSchema },
 			{ name: Match.name, schema: MatchSchema },
 		]),
-		forwardRef(() => BetModule),
+		UserModule,
 	],
 	controllers: [StageController],
 	providers: [StageService],

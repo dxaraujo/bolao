@@ -1,11 +1,14 @@
-import { forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { StageStatus } from '@bolao/shared'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 import * as path from 'node:path'
 
-import { BetService } from '../bet/bet.service'
+import { Bet } from '../bet/schemas/bet.schema'
 import { downloadImage } from '../common/download'
+import { Match } from '../match/schemas/match.schema'
+import { Stage } from '../stage/schemas/stage.schema'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User } from './schemas/user.schema'
 
@@ -24,7 +27,9 @@ export class UserService {
 
 	constructor(
 		@InjectModel(User.name) private readonly userModel: Model<User>,
-		@Inject(forwardRef(() => BetService)) private readonly betService: BetService,
+		@InjectModel(Bet.name) private readonly betModel: Model<Bet>,
+		@InjectModel(Stage.name) private readonly stageModel: Model<Stage>,
+		@InjectModel(Match.name) private readonly matchModel: Model<Match>,
 		config: ConfigService,
 	) {
 		this.staticDir = path.resolve(process.cwd(), config.get<string>('STATIC_DIR') ?? 'static')
@@ -91,14 +96,58 @@ export class UserService {
 
 		const result = await this.userModel.updateOne({ _id: user._id }, input, { new: true }).exec()
 
+		const userIdStr = user._id.toString()
+
 		if (willActivate) {
-			this.logger.log(`User ${user.id} activated; seeding bets`)
-			await this.betService.seedBetsForUser(user.id)
+			this.logger.log(`User ${userIdStr} activated; seeding bets`)
+			await this.seedBetsForUser(userIdStr)
 		} else if (willDeactivate) {
-			this.logger.log(`User ${user.id} deactivated; removing bets`)
-			await this.betService.removeBetsForUser(user.id)
+			this.logger.log(`User ${userIdStr} deactivated; removing bets`)
+			await this.removeBetsForUser(userIdStr)
 		}
 
 		return result
+	}
+
+	async seedBetsForUser(userId: string) {
+
+		const stages = await this.findStageNamesByStatus([StageStatus.OPEN, StageStatus.BLOCKED])
+
+		if (stages.length === 0) {
+			this.logger.log(`Skipping seed for user ${userId}: no OPEN/BLOCKED stages`)
+			return
+		}
+
+		const matchIds = await this.findMatchIdsByStages(stages)
+
+		if (matchIds.length === 0) {
+			this.logger.log(`Skipping seed for user ${userId}: no valid matches in OPEN/BLOCKED stages`)
+			return
+		}
+
+		const result = await this.betModel.bulkWrite(
+			matchIds.map((matchId) => ({
+				updateOne: {
+					filter: { user: userId, match: matchId },
+					update: { $setOnInsert: { user: userId, match: matchId } },
+					upsert: true,
+				},
+			})),
+		)
+		this.logger.log(`Seed user ${userId}: ${result.upsertedCount} new bet(s) across ${matchIds.length} match(es)`)
+	}
+
+	async removeBetsForUser(userId: string) {
+		const result = await this.betModel.deleteMany({ user: userId }).exec()
+		this.logger.log(`Removed ${result.deletedCount} bet(s) for user ${userId}`)
+	}
+
+	private async findStageNamesByStatus(statuses: StageStatus[]): Promise<string[]> {
+		const stages = await this.stageModel.find({ status: { $in: statuses } }, { matchStage: 1 }).exec()
+		return stages.map((s) => s.matchStage)
+	}
+
+	private findMatchIdsByStages(stageNames: string[]) {
+		return this.matchModel.find({ stage: { $in: stageNames }, valid: true }).distinct('_id').exec()
 	}
 }

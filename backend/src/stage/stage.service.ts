@@ -1,10 +1,10 @@
 import { STAGE_DEADLINES, STAGE_ORDER, type StageVisibleItem } from '@bolao/shared'
-import { BadRequestException, forwardRef, Inject, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
-import { BetService } from '../bet/bet.service'
 import { Match, MatchStage } from '../match/schemas/match.schema'
+import { UserService } from '../user/user.service'
 import { UpdateStageDto } from './dto/update-stage.dto'
 import { Stage, StageStatus } from './schemas/stage.schema'
 
@@ -16,7 +16,7 @@ export class StageService implements OnModuleInit {
 	constructor(
 		@InjectModel(Stage.name) private readonly model: Model<Stage>,
 		@InjectModel(Match.name) private readonly matchModel: Model<Match>,
-		@Inject(forwardRef(() => BetService)) private readonly betService: BetService,
+		private readonly userService: UserService,
 	) { }
 
 	async onModuleInit() {
@@ -100,11 +100,26 @@ export class StageService implements OnModuleInit {
 
 		if (dto.status === StageStatus.OPEN) {
 			this.logger.log(`Seeding bets for stage ${matchStage}`)
-			await this.betService.seedBetsForStage(matchStage)
+			await this.seedBetsForStage(matchStage)
 			this.logger.log(`Bets seeded for stage ${matchStage}`)
 		}
 
 		return updated
+	}
+
+	async seedBetsForStage(matchStage: string) {
+
+		const users = await this.userService.findActiveUsers()
+
+		if (users.length === 0) {
+			this.logger.log(`Skipping seed for stage ${matchStage}: no active users`)
+			return
+		}
+
+		for (const user of users) {
+			await this.userService.seedBetsForUser(user._id.toString())
+		}
+		this.logger.log(`Seed stage ${matchStage}: processed ${users.length} active user(s)`)
 	}
 
 	async blockExpiredStages(now: Date = new Date()) {

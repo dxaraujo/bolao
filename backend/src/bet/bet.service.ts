@@ -1,11 +1,11 @@
-import { forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { StageStatus } from '@bolao/shared'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 
 import { TeamDocument } from 'src/team/schemas/team.schema'
-import { MatchService } from '../match/match.service'
-import { MatchDocument } from '../match/schemas/match.schema'
-import { StageService } from '../stage/stage.service'
+import { Match, MatchDocument } from '../match/schemas/match.schema'
+import { Stage } from '../stage/schemas/stage.schema'
 import { UserDocument } from '../user/schemas/user.schema'
 import { UserService } from '../user/user.service'
 import { UpdateBetsDto } from './dto/update-bets.dto'
@@ -47,9 +47,9 @@ export class BetService {
 
 	constructor(
 		@InjectModel(Bet.name) private readonly model: Model<Bet>,
-		@Inject(forwardRef(() => UserService)) private readonly userService: UserService,
-		@Inject(forwardRef(() => StageService)) private readonly stageService: StageService,
-		@Inject(forwardRef(() => MatchService)) private readonly matchService: MatchService,
+		@InjectModel(Stage.name) private readonly stageModel: Model<Stage>,
+		@InjectModel(Match.name) private readonly matchModel: Model<Match>,
+		private readonly userService: UserService,
 	) { }
 
 	async list(userId: string) {
@@ -103,8 +103,8 @@ export class BetService {
 			throw new NotFoundException(`User ${userId} not valid`)
 		}
 
-		const openStages = await this.stageService.findOpenStages()
-		const openMatchIds = await this.matchService.findIdsByStages(openStages)
+		const openStages = await this.findStageNamesByStatus([StageStatus.OPEN])
+		const openMatchIds = await this.findMatchIdsByStages(openStages)
 
 		await this.model.bulkWrite(
 			bets.map((bet) => ({
@@ -118,11 +118,11 @@ export class BetService {
 
 	async listAll() {
 
-		const blockedStages = await this.stageService.findBlockedStages()
+		const blockedStages = await this.findStageNamesByStatus([StageStatus.BLOCKED])
 
 		if (blockedStages.length === 0) return []
 
-		const matchIds = await this.matchService.findIdsByStages(blockedStages)
+		const matchIds = await this.findMatchIdsByStages(blockedStages)
 
 		if (matchIds.length === 0) return []
 
@@ -202,55 +202,12 @@ export class BetService {
 			.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf())
 	}
 
-	async seedBetsForUser(userId: string) {
-
-		const [openStages, blockedStages] = await Promise.all([
-			this.stageService.findOpenStages(),
-			this.stageService.findBlockedStages(),
-		])
-		const stages = [...openStages, ...blockedStages]
-
-		if (stages.length === 0) {
-			this.logger.log(`Skipping seed for user ${userId}: no OPEN/BLOCKED stages`)
-			return
-		}
-
-		const matchIds = await this.matchService.findIdsByStages(stages)
-
-		if (matchIds.length === 0) {
-			this.logger.log(`Skipping seed for user ${userId}: no valid matches in OPEN/BLOCKED stages`)
-			return
-		}
-
-		const result = await this.model.bulkWrite(
-			matchIds.map((matchId) => ({
-				updateOne: {
-					filter: { user: userId, match: matchId },
-					update: { $setOnInsert: { user: userId, match: matchId } },
-					upsert: true,
-				},
-			})),
-		)
-		this.logger.log(`Seed user ${userId}: ${result.upsertedCount} new bet(s) across ${matchIds.length} match(es)`)
+	private async findStageNamesByStatus(statuses: StageStatus[]): Promise<string[]> {
+		const stages = await this.stageModel.find({ status: { $in: statuses } }, { matchStage: 1 }).exec()
+		return stages.map((s) => s.matchStage)
 	}
 
-	async seedBetsForStage(matchStage: string) {
-
-		const users = await this.userService.findActiveUsers()
-
-		if (users.length === 0) {
-			this.logger.log(`Skipping seed for stage ${matchStage}: no active users`)
-			return
-		}
-
-		for (const user of users) {
-			await this.seedBetsForUser(user.id)
-		}
-		this.logger.log(`Seed stage ${matchStage}: processed ${users.length} active user(s)`)
-	}
-
-	async removeBetsForUser(userId: string) {
-		const result = await this.model.deleteMany({ user: userId }).exec()
-		this.logger.log(`Removed ${result.deletedCount} bet(s) for user ${userId}`)
+	private findMatchIdsByStages(stageNames: string[]) {
+		return this.matchModel.find({ stage: { $in: stageNames }, valid: true }).distinct('_id').exec()
 	}
 }

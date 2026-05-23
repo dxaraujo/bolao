@@ -18,6 +18,7 @@ export class RankingService {
 	async find() {
 		const activeUsers = await this.userModel.find({ isActive: true }).exec()
 		return activeUsers.map((user) => ({
+			_id: user.id,
 			name: user.name,
 			picture: user.picture,
 			ranking: user.ranking,

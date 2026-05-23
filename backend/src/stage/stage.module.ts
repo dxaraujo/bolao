@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 
+import { MatchModule } from '../match/match.module'
 import { Match, MatchSchema } from '../match/schemas/match.schema'
 import { UserModule } from '../user/user.module'
 import { Stage, StageSchema } from './schemas/stage.schema'
@@ -14,6 +15,7 @@ import { StageService } from './stage.service'
 			{ name: Match.name, schema: MatchSchema },
 		]),
 		UserModule,
+		MatchModule,
 	],
 	controllers: [StageController],
 	providers: [StageService],

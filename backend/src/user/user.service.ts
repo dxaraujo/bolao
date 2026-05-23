@@ -83,12 +83,12 @@ export class UserService {
 	async update(userId: string, input: UpdateUserDto) {
 
 		if (!Types.ObjectId.isValid(userId)) {
-			throw new NotFoundException(`User ${userId} not valid`)
+			throw new NotFoundException(`Usuário ${userId} inválido`)
 		}
 
 		const user = await this.findById(userId)
 		if (!user) {
-			throw new NotFoundException(`User ${userId} not found`)
+			throw new NotFoundException(`Usuário ${userId} não encontrado`)
 		}
 
 		const willActivate = input.isActive === true && user.isActive === false

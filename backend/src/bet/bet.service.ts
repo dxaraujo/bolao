@@ -55,7 +55,7 @@ export class BetService {
 	async list(userId: string) {
 
 		if (!Types.ObjectId.isValid(userId)) {
-			throw new NotFoundException(`User ${userId} not valid`)
+			throw new NotFoundException(`Usuário ${userId} inválido`)
 		}
 
 		const bets = await this.model
@@ -100,7 +100,7 @@ export class BetService {
 		if (bets.length === 0) return
 
 		if (!Types.ObjectId.isValid(userId)) {
-			throw new NotFoundException(`User ${userId} not valid`)
+			throw new NotFoundException(`Usuário ${userId} inválido`)
 		}
 
 		const openStages = await this.findStageNamesByStatus([StageStatus.OPEN])

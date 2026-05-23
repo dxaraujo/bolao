@@ -6,7 +6,7 @@ import type { JwtPayload } from '../auth/jwt.strategy'
 export class AdminGuard implements CanActivate {
 	canActivate(context: ExecutionContext): boolean {
 		const user = context.switchToHttp().getRequest<{ user: JwtPayload }>().user
-		if (!user?.isAdmin) throw new ForbiddenException()
+		if (!user?.isAdmin) throw new ForbiddenException('Acesso restrito a administradores')
 		return true
 	}
 }

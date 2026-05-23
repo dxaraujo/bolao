@@ -3,6 +3,7 @@ import { BadRequestException, Injectable, Logger, NotFoundException, OnModuleIni
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
+import { MatchService } from '../match/match.service'
 import { Match, MatchStage } from '../match/schemas/match.schema'
 import { UserService } from '../user/user.service'
 import { UpdateStageDto } from './dto/update-stage.dto'
@@ -17,6 +18,7 @@ export class StageService implements OnModuleInit {
 		@InjectModel(Stage.name) private readonly model: Model<Stage>,
 		@InjectModel(Match.name) private readonly matchModel: Model<Match>,
 		private readonly userService: UserService,
+		private readonly matchService: MatchService,
 	) { }
 
 	async onModuleInit() {
@@ -76,21 +78,32 @@ export class StageService implements OnModuleInit {
 
 		const current = await this.model.findOne({ matchStage }).exec()
 		if (!current) {
-			throw new NotFoundException(`Stage ${matchStage} not found`)
+			throw new NotFoundException(`Fase ${matchStage} não encontrada`)
 		}
 
 		const order: StageStatus[] = [StageStatus.DISABLED, StageStatus.OPEN, StageStatus.BLOCKED]
 		const expectedNext = order[order.indexOf(current.status) + 1]
 		if (!expectedNext || dto.status !== expectedNext) {
-			throw new BadRequestException(`Invalid transition: ${current.status} → ${dto.status}`)
+			throw new BadRequestException(`Mudança de status inválida: ${current.status} → ${dto.status}`)
 		}
 
 		if (dto.status === StageStatus.OPEN) {
+			this.logger.log(`Importing matches before opening stage ${matchStage}`)
+			await this.matchService.importMatches()
+
 			const invalidCount = await this.matchModel.countDocuments({ stage: matchStage, valid: false }).exec()
 			if (invalidCount > 0) {
-				throw new BadRequestException(
-					`Não é possível abrir a fase ${matchStage}: ${invalidCount} partida(s) sem times definidos.`,
-				)
+				throw new BadRequestException(`Não é possível abrir a fase ${matchStage}: ${invalidCount} partida(s) sem times definidos.`)
+			}
+
+			if (current.order > 1) {
+				const requiredPrevious = current.matchStage === MatchStage.FINAL ? MatchStage.SEMI_FINALS : undefined
+				const previous = requiredPrevious
+					? await this.model.findOne({ matchStage: requiredPrevious }).exec()
+					: await this.model.findOne({ order: current.order - 1 }).exec()
+				if (!previous || previous.status !== StageStatus.BLOCKED) {
+					throw new BadRequestException(`Não é possível abrir a fase ${matchStage}: a fase anterior (${previous?.matchStage ?? 'desconhecida'}) ainda não foi encerrada.`)
+				}
 			}
 		}
 

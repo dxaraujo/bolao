@@ -44,7 +44,7 @@ export class TeamService {
 	async update(id: string, dto: UpdateTeamDto) {
 		const updated = await this.model.findByIdAndUpdate(id, dto, { new: true }).exec()
 		if (!updated) {
-			throw new NotFoundException(`Team ${id} not found`)
+			throw new NotFoundException(`Time ${id} não encontrado`)
 		}
 		return updated
 	}

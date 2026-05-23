@@ -4,7 +4,7 @@ import { Model, Types } from 'mongoose'
 
 import { MatchStage, MatchStatus, nowtoLocalISOString } from '@bolao/shared'
 import { ConfigService } from '@nestjs/config'
-import { StageService } from 'src/stage/stage.service'
+import { Stage, StageStatus } from 'src/stage/schemas/stage.schema'
 import { TeamDocument } from 'src/team/schemas/team.schema'
 import { TeamService } from 'src/team/team.service'
 import { Match } from './schemas/match.schema'
@@ -29,7 +29,7 @@ export class MatchService {
 
 	constructor(
 		@InjectModel(Match.name) private readonly model: Model<Match>,
-		private readonly stageService: StageService,
+		@InjectModel(Stage.name) private readonly stageModel: Model<Stage>,
 		private readonly teamService: TeamService,
 		private readonly config: ConfigService
 	) {
@@ -38,7 +38,9 @@ export class MatchService {
 	}
 
 	async list() {
-		const visibleStages = await this.stageService.findVisibleStages()
+		const visibleStages = await this.stageModel
+			.find({ status: { $in: [StageStatus.OPEN, StageStatus.BLOCKED] } }, { matchStage: 1 })
+			.exec()
 		const stageNames = visibleStages.map((s) => s.matchStage)
 		const matches = await this.model.find({ stage: { $in: stageNames }, valid: true }).exec()
 		return matches.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf() || a.footballDataId - b.footballDataId)

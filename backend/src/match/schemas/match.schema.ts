@@ -23,8 +23,8 @@ export class Match {
 	@Prop({ required: true, enum: Object.values(MatchStage), index: true })
 	stage!: MatchStage
 
-	@Prop({ required: true })
-	group!: string
+	@Prop({ required: false })
+	group?: string
 
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: Team.name, required: false, default: null, index: true })
 	homeTeam?: Types.ObjectId | null

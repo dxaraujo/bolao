@@ -1,9 +1,8 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 
-import { Bet, BetSchema } from '../bet/schemas/bet.schema'
+import { BetModule } from '../bet/bet.module'
 import { Match, MatchSchema } from '../match/schemas/match.schema'
-import { User, UserSchema } from '../user/schemas/user.schema'
 import { Stage, StageSchema } from './schemas/stage.schema'
 import { StageController } from './stage.controller'
 import { StageService } from './stage.service'
@@ -13,9 +12,8 @@ import { StageService } from './stage.service'
 		MongooseModule.forFeature([
 			{ name: Stage.name, schema: StageSchema },
 			{ name: Match.name, schema: MatchSchema },
-			{ name: Bet.name, schema: BetSchema },
-			{ name: User.name, schema: UserSchema },
 		]),
+		forwardRef(() => BetModule),
 	],
 	controllers: [StageController],
 	providers: [StageService],

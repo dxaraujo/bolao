@@ -48,8 +48,8 @@ export class BetService {
 	constructor(
 		@InjectModel(Bet.name) private readonly model: Model<Bet>,
 		@Inject(forwardRef(() => UserService)) private readonly userService: UserService,
-		private readonly stageService: StageService,
-		private readonly matchService: MatchService
+		@Inject(forwardRef(() => StageService)) private readonly stageService: StageService,
+		@Inject(forwardRef(() => MatchService)) private readonly matchService: MatchService,
 	) { }
 
 	async list(userId: string) {
@@ -232,6 +232,21 @@ export class BetService {
 			})),
 		)
 		this.logger.log(`Seed user ${userId}: ${result.upsertedCount} new bet(s) across ${matchIds.length} match(es)`)
+	}
+
+	async seedBetsForStage(matchStage: string) {
+
+		const users = await this.userService.findActiveUsers()
+
+		if (users.length === 0) {
+			this.logger.log(`Skipping seed for stage ${matchStage}: no active users`)
+			return
+		}
+
+		for (const user of users) {
+			await this.seedBetsForUser(user.id)
+		}
+		this.logger.log(`Seed stage ${matchStage}: processed ${users.length} active user(s)`)
 	}
 
 	async removeBetsForUser(userId: string) {

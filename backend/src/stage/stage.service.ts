@@ -1,11 +1,10 @@
 import { STAGE_DEADLINES, STAGE_ORDER, type StageVisibleItem } from '@bolao/shared'
-import { BadRequestException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common'
+import { BadRequestException, forwardRef, Inject, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 
-import { Bet } from '../bet/schemas/bet.schema'
+import { BetService } from '../bet/bet.service'
 import { Match, MatchStage } from '../match/schemas/match.schema'
-import { User } from '../user/schemas/user.schema'
 import { UpdateStageDto } from './dto/update-stage.dto'
 import { Stage, StageStatus } from './schemas/stage.schema'
 
@@ -17,8 +16,7 @@ export class StageService implements OnModuleInit {
 	constructor(
 		@InjectModel(Stage.name) private readonly model: Model<Stage>,
 		@InjectModel(Match.name) private readonly matchModel: Model<Match>,
-		@InjectModel(Bet.name) private readonly betModel: Model<Bet>,
-		@InjectModel(User.name) private readonly userModel: Model<User>,
+		@Inject(forwardRef(() => BetService)) private readonly betService: BetService,
 	) { }
 
 	async onModuleInit() {
@@ -31,7 +29,7 @@ export class StageService implements OnModuleInit {
 		await this.model.insertMany(Object.entries(STAGE_ORDER).map(([matchStage, order]) => ({
 			matchStage: matchStage as MatchStage,
 			order,
-			status: matchStage === MatchStage.GROUP_STAGE ? StageStatus.OPEN : StageStatus.DISABLED,
+			status: (matchStage as MatchStage) === MatchStage.GROUP_STAGE ? StageStatus.OPEN : StageStatus.DISABLED,
 			deadline: new Date(STAGE_DEADLINES[matchStage as MatchStage]),
 		})))
 
@@ -102,7 +100,7 @@ export class StageService implements OnModuleInit {
 
 		if (dto.status === StageStatus.OPEN) {
 			this.logger.log(`Seeding bets for stage ${matchStage}`)
-			await this.seedBetsForStage(matchStage)
+			await this.betService.seedBetsForStage(matchStage)
 			this.logger.log(`Bets seeded for stage ${matchStage}`)
 		}
 
@@ -130,29 +128,4 @@ export class StageService implements OnModuleInit {
 		}
 	}
 
-	async seedBetsForStage(matchStage: string) {
-
-		const [matches, users] = await Promise.all([
-			this.matchModel.find({ stage: matchStage, valid: true }, { _id: 1 }).exec(),
-			this.userModel.find({ isActive: true }, { _id: 1 }).exec(),
-		])
-
-		if (matches.length === 0 || users.length === 0) {
-			this.logger.log(`Skipping seed for ${matchStage}: ${matches.length} match(es), ${users.length} active user(s)`)
-			return
-		}
-
-		const result = await this.betModel.bulkWrite(
-			matches.flatMap((match) =>
-				users.map((user) => ({
-					updateOne: {
-						filter: { user: user._id, match: match._id },
-						update: { $setOnInsert: { user: user._id, match: match._id } },
-						upsert: true,
-					},
-				})),
-			),
-		)
-		this.logger.log(`Seed ${matchStage}: ${result.upsertedCount} new bet(s) for ${users.length} user(s) × ${matches.length} match(es)`)
-	}
 }

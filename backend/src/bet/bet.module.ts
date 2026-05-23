@@ -11,8 +11,8 @@ import { Bet, BetSchema } from './schemas/bet.schema'
 @Module({
 	imports: [
 		MongooseModule.forFeature([{ name: Bet.name, schema: BetSchema }]),
-		StageModule,
-		MatchModule,
+		forwardRef(() => StageModule),
+		forwardRef(() => MatchModule),
 		forwardRef(() => UserModule),
 	],
 	controllers: [BetController],

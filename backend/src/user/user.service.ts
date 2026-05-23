@@ -91,14 +91,12 @@ export class UserService {
 
 		const result = await this.userModel.updateOne({ _id: user._id }, input, { new: true }).exec()
 
-		const userIdStr = (user._id as Types.ObjectId).toString()
-
 		if (willActivate) {
-			this.logger.log(`User ${userIdStr} activated; seeding bets`)
-			await this.betService.seedBetsForUser(userIdStr)
+			this.logger.log(`User ${user.id} activated; seeding bets`)
+			await this.betService.seedBetsForUser(user.id)
 		} else if (willDeactivate) {
-			this.logger.log(`User ${userIdStr} deactivated; removing bets`)
-			await this.betService.removeBetsForUser(userIdStr)
+			this.logger.log(`User ${user.id} deactivated; removing bets`)
+			await this.betService.removeBetsForUser(user.id)
 		}
 
 		return result

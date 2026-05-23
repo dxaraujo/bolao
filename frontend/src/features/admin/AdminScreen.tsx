@@ -284,26 +284,19 @@ function StageRow({ stage, allStages }: { stage: StageVisibleItem; allStages: St
 				<div className="mt-2 text-xs text-sub">Prazo: {formatDeadline(stage.deadline)}</div>
 			)}
 
-			{requiredPrevious && stage.status === StageStatus.DISABLED && (
+			{requiredPrevious && stage.status === StageStatus.DISABLED && !requirementSatisfied && (
 				<div className="mt-2 text-xs text-sub">
-					Requer:{' '}
-					<span className={cn('font-bold', requirementSatisfied ? 'text-green' : 'text-foreground')}>
-						{STAGE_LABELS[requiredPrevious].short}
-					</span>{' '}
-					encerrada{requirementSatisfied ? ' ✓' : ''}
+					Aguardando{' '}
+					<span className="font-bold text-foreground">{STAGE_LABELS[requiredPrevious].short}</span>{' '}
+					ser encerrada
 				</div>
 			)}
 
-			{next && (
+			{next && canAdvance && (
 				<div className="mt-3 flex flex-col gap-2">
-					{next === StageStatus.OPEN && !requirementSatisfied && (
-						<div className="text-[11px] text-red">
-							Encerre {STAGE_LABELS[requiredPrevious!].short} antes de abrir esta fase.
-						</div>
-					)}
 					<Button
 						size="sm"
-						disabled={advance.isPending || !canAdvance}
+						disabled={advance.isPending}
 						onClick={handleAdvance}
 						className="self-end"
 					>

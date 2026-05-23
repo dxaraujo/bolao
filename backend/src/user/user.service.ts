@@ -1,11 +1,11 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 import * as path from 'node:path'
 
+import { BetService } from '../bet/bet.service'
 import { downloadImage } from '../common/download'
-import { StageService } from '../stage/stage.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User } from './schemas/user.schema'
 
@@ -24,7 +24,7 @@ export class UserService {
 
 	constructor(
 		@InjectModel(User.name) private readonly userModel: Model<User>,
-		private readonly stageService: StageService,
+		@Inject(forwardRef(() => BetService)) private readonly betService: BetService,
 		config: ConfigService,
 	) {
 		this.staticDir = path.resolve(process.cwd(), config.get<string>('STATIC_DIR') ?? 'static')
@@ -87,12 +87,18 @@ export class UserService {
 		}
 
 		const willActivate = input.isActive === true && user.isActive === false
+		const willDeactivate = input.isActive === false && user.isActive === true
 
 		const result = await this.userModel.updateOne({ _id: user._id }, input, { new: true }).exec()
 
+		const userIdStr = (user._id as Types.ObjectId).toString()
+
 		if (willActivate) {
-			this.logger.log(`User ${user._id} activated; seeding bets`)
-			await this.stageService.seedBetsForUser((user._id as Types.ObjectId).toString())
+			this.logger.log(`User ${userIdStr} activated; seeding bets`)
+			await this.betService.seedBetsForUser(userIdStr)
+		} else if (willDeactivate) {
+			this.logger.log(`User ${userIdStr} deactivated; removing bets`)
+			await this.betService.removeBetsForUser(userIdStr)
 		}
 
 		return result

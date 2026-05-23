@@ -1,4 +1,4 @@
-import { Loader2, Download, RefreshCw, Users, Lock, Play, CheckCircle2, ChevronRight, UserCheck, UserX, Shield } from 'lucide-react'
+import { Loader2, Download, RefreshCw, Users, Lock, Play, CheckCircle2, ChevronRight, UserCheck, UserX, Shield, ShieldOff } from 'lucide-react'
 import { toast } from 'sonner'
 import { StageStatus, type AuthenticatedUser, type StageVisibleItem } from '@bolao/shared'
 
@@ -293,6 +293,16 @@ function UserRow({ user }: { user: AuthenticatedUser }) {
 		}
 	}
 
+	async function toggleAdmin() {
+		const next = !user.isAdmin
+		try {
+			await update.mutateAsync({ id: user._id, isAdmin: next })
+			toast.success(next ? `${user.name} agora é admin` : `${user.name} não é mais admin`)
+		} catch (err) {
+			toast.error(err instanceof Error ? err.message : 'Falha ao atualizar usuário')
+		}
+	}
+
 	const initials = user.name
 		.split(/\s+/)
 		.slice(0, 2)
@@ -319,24 +329,44 @@ function UserRow({ user }: { user: AuthenticatedUser }) {
 					</Badge>
 				</div>
 			</div>
-			<Button
-				size="sm"
-				variant="outline"
-				disabled={update.isPending}
-				onClick={toggleActive}
-			>
-				{update.isPending ? (
-					<Loader2 className="h-4 w-4 animate-spin" />
-				) : user.isActive ? (
-					<>
-						<UserX className="h-4 w-4" /> Desativar
-					</>
-				) : (
-					<>
-						<UserCheck className="h-4 w-4" /> Ativar
-					</>
-				)}
-			</Button>
+			<div className="flex shrink-0 flex-col gap-1.5">
+				<Button
+					size="sm"
+					variant="outline"
+					disabled={update.isPending}
+					onClick={toggleActive}
+				>
+					{update.isPending ? (
+						<Loader2 className="h-4 w-4 animate-spin" />
+					) : user.isActive ? (
+						<>
+							<UserX className="h-4 w-4" /> Desativar
+						</>
+					) : (
+						<>
+							<UserCheck className="h-4 w-4" /> Ativar
+						</>
+					)}
+				</Button>
+				<Button
+					size="sm"
+					variant="outline"
+					disabled={update.isPending}
+					onClick={toggleAdmin}
+				>
+					{update.isPending ? (
+						<Loader2 className="h-4 w-4 animate-spin" />
+					) : user.isAdmin ? (
+						<>
+							<ShieldOff className="h-4 w-4" /> Remover admin
+						</>
+					) : (
+						<>
+							<Shield className="h-4 w-4" /> Tornar admin
+						</>
+					)}
+				</Button>
+			</div>
 		</Card>
 	)
 }

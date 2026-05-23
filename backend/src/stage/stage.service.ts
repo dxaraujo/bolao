@@ -155,36 +155,4 @@ export class StageService implements OnModuleInit {
 		)
 		this.logger.log(`Seed ${matchStage}: ${result.upsertedCount} new bet(s) for ${users.length} user(s) × ${matches.length} match(es)`)
 	}
-
-	async seedBetsForUser(userId: string) {
-
-		const stages = await this.model
-			.find({ status: { $in: [StageStatus.OPEN, StageStatus.BLOCKED] } }, { matchStage: 1 })
-			.exec()
-
-		if (stages.length === 0) {
-			this.logger.log(`Skipping seed for user ${userId}: no OPEN/BLOCKED stages`)
-			return
-		}
-
-		const matches = await this.matchModel
-			.find({ stage: { $in: stages.map((s) => s.matchStage) }, valid: true }, { _id: 1 })
-			.exec()
-
-		if (matches.length === 0) {
-			this.logger.log(`Skipping seed for user ${userId}: no valid matches in OPEN/BLOCKED stages`)
-			return
-		}
-
-		const result = await this.betModel.bulkWrite(
-			matches.map((match) => ({
-				updateOne: {
-					filter: { user: userId, match: match._id },
-					update: { $setOnInsert: { user: userId, match: match._id } },
-					upsert: true,
-				},
-			})),
-		)
-		this.logger.log(`Seed user ${userId}: ${result.upsertedCount} new bet(s) across ${matches.length} match(es)`)
-	}
 }

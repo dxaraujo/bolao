@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common'
+import { forwardRef, Module } from '@nestjs/common'
 import { MongooseModule } from '@nestjs/mongoose'
 
-import { StageModule } from '../stage/stage.module'
+import { BetModule } from '../bet/bet.module'
 import { User, UserSchema } from './schemas/user.schema'
 import { UserController } from './user.controller'
 import { UserService } from './user.service'
@@ -11,7 +11,7 @@ import { UserService } from './user.service'
 		MongooseModule.forFeature([
 			{ name: User.name, schema: UserSchema }
 		]),
-		StageModule,
+		forwardRef(() => BetModule),
 	],
 	controllers: [UserController],
 	providers: [UserService],

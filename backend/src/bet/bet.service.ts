@@ -1,7 +1,8 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common'
+import { forwardRef, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 
+import { TeamDocument } from 'src/team/schemas/team.schema'
 import { MatchService } from '../match/match.service'
 import { MatchDocument } from '../match/schemas/match.schema'
 import { StageService } from '../stage/stage.service'
@@ -9,7 +10,6 @@ import { UserDocument } from '../user/schemas/user.schema'
 import { UserService } from '../user/user.service'
 import { UpdateBetsDto } from './dto/update-bets.dto'
 import { Bet } from './schemas/bet.schema'
-import { TeamDocument } from 'src/team/schemas/team.schema'
 
 export interface GroupedBetItem {
 	user: { _id: string; name: string; picture: string }
@@ -43,9 +43,11 @@ export interface GroupedBet {
 @Injectable()
 export class BetService {
 
+	private readonly logger = new Logger(BetService.name)
+
 	constructor(
 		@InjectModel(Bet.name) private readonly model: Model<Bet>,
-		private readonly userService: UserService,
+		@Inject(forwardRef(() => UserService)) private readonly userService: UserService,
 		private readonly stageService: StageService,
 		private readonly matchService: MatchService
 	) { }
@@ -198,5 +200,42 @@ export class BetService {
 				bets: group.bets.sort((a, b) => a.user.name.localeCompare(b.user.name, 'pt-BR')),
 			}))
 			.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf())
+	}
+
+	async seedBetsForUser(userId: string) {
+
+		const [openStages, blockedStages] = await Promise.all([
+			this.stageService.findOpenStages(),
+			this.stageService.findBlockedStages(),
+		])
+		const stages = [...openStages, ...blockedStages]
+
+		if (stages.length === 0) {
+			this.logger.log(`Skipping seed for user ${userId}: no OPEN/BLOCKED stages`)
+			return
+		}
+
+		const matchIds = await this.matchService.findIdsByStages(stages)
+
+		if (matchIds.length === 0) {
+			this.logger.log(`Skipping seed for user ${userId}: no valid matches in OPEN/BLOCKED stages`)
+			return
+		}
+
+		const result = await this.model.bulkWrite(
+			matchIds.map((matchId) => ({
+				updateOne: {
+					filter: { user: userId, match: matchId },
+					update: { $setOnInsert: { user: userId, match: matchId } },
+					upsert: true,
+				},
+			})),
+		)
+		this.logger.log(`Seed user ${userId}: ${result.upsertedCount} new bet(s) across ${matchIds.length} match(es)`)
+	}
+
+	async removeBetsForUser(userId: string) {
+		const result = await this.model.deleteMany({ user: userId }).exec()
+		this.logger.log(`Removed ${result.deletedCount} bet(s) for user ${userId}`)
 	}
 }

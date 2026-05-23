@@ -1,8 +1,10 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
+import * as path from 'node:path'
 
 import { ConfigService } from '@nestjs/config'
+import { downloadImage } from '../common/download'
 import { UpdateTeamDto } from './dto/update-team.dto'
 import { Team } from './schemas/team.schema'
 import { nowtoLocalISOString } from '@bolao/shared'
@@ -23,9 +25,12 @@ export class TeamService {
 	private readonly apiUrl: string
 	private readonly apiKey: string
 
+	private readonly staticDir: string
+
 	constructor(@InjectModel(Team.name) private readonly model: Model<Team>, private readonly config: ConfigService) {
 		this.apiUrl = this.config.getOrThrow<string>('FOOTBALL_DATA_API_URL')
 		this.apiKey = this.config.getOrThrow<string>('FOOTBALL_DATA_API_KEY')
+		this.staticDir = path.resolve(process.cwd(), this.config.get<string>('STATIC_DIR') ?? 'static')
 	}
 
 	findAll() {
@@ -67,12 +72,13 @@ export class TeamService {
 				const registeredTeam = await this.model.findOne({ footballDataId: externalTeam.id }).exec()
 
 				if (!registeredTeam) {
+					const crest = await this.downloadCrest(externalTeam.tla, externalTeam.crest)
 					await this.model.create({
 						footballDataId: externalTeam.id,
 						name: externalTeam.name,
 						shortName: externalTeam.shortName,
 						tla: externalTeam.tla,
-						crest: externalTeam.crest,
+						crest,
 						lastUpdated,
 					})
 					this.logger.log(`Created team ${externalTeam.tla} (${externalTeam.id})`)
@@ -84,12 +90,13 @@ export class TeamService {
 					continue
 				}
 
+				const crest = await this.downloadCrest(externalTeam.tla, externalTeam.crest)
 				await this.model.updateOne({ footballDataId: externalTeam.id }, {
 					$set: {
 						name: externalTeam.name,
 						shortName: externalTeam.shortName,
 						tla: externalTeam.tla,
-						crest: externalTeam.crest,
+						crest,
 						lastUpdated,
 					},
 				}).exec()
@@ -101,5 +108,10 @@ export class TeamService {
 		} catch (err) {
 			this.logger.error('Error importing teams', err)
 		}
+	}
+
+	private async downloadCrest(tla: string, url: string): Promise<string> {
+		const result = await downloadImage(url, path.join(this.staticDir, 'teams'), tla, '/static/teams')
+		return result?.relativePath ?? url
 	}
 }

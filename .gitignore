@@ -38,3 +38,6 @@ Thumbs.db
 
 .claude
 .github
+
+# Backend runtime-downloaded assets
+backend/static

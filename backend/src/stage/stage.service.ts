@@ -94,6 +94,27 @@ export class StageService {
 		return updated
 	}
 
+	async blockExpiredStages(now: Date = new Date()) {
+
+		const expired = await this.model
+			.find({ status: StageStatus.OPEN, deadline: { $ne: null, $lte: now } })
+			.exec()
+
+		if (expired.length === 0) return
+
+		const result = await this.model
+			.updateMany(
+				{ _id: { $in: expired.map((s) => s._id) }, status: StageStatus.OPEN },
+				{ $set: { status: StageStatus.BLOCKED } },
+			)
+			.exec()
+
+		if (result.modifiedCount > 0) {
+			const names = expired.map((s) => s.matchStage).join(', ')
+			this.logger.log(`Auto-blocked ${result.modifiedCount} stage(s) past deadline: ${names}`)
+		}
+	}
+
 	async seedBetsForStage(matchStage: string) {
 
 		const [matches, users] = await Promise.all([

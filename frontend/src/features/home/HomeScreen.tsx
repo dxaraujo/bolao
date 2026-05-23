@@ -28,7 +28,24 @@ export function HomeScreen() {
 		const sortedDesc = [...bets].sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
 
 		const live = sortedAsc.filter((b) => LIVE_STATUSES.has(b.status))
-		const upcoming = sortedAsc.filter((b) => UPCOMING_STATUSES.has(b.status)).slice(0, 6)
+
+		const upcomingAll = sortedAsc.filter((b) => UPCOMING_STATUSES.has(b.status))
+		let upcoming: BetListItem[] = []
+		if (upcomingAll.length > 0) {
+			// Janela: primeiro dia com jogo (hoje se houver, senão próximo) + dia seguinte.
+			const firstBetDay = new Date(upcomingAll[0].utcDate)
+			firstBetDay.setHours(0, 0, 0, 0)
+			const todayStart = new Date()
+			todayStart.setHours(0, 0, 0, 0)
+			const windowStart = firstBetDay.getTime() <= todayStart.getTime() ? todayStart : firstBetDay
+			const windowEnd = new Date(windowStart)
+			windowEnd.setDate(windowEnd.getDate() + 2)
+			upcoming = upcomingAll.filter((b) => {
+				const d = new Date(b.utcDate)
+				return d.getTime() >= windowStart.getTime() && d.getTime() < windowEnd.getTime()
+			})
+		}
+
 		const recent = sortedDesc.filter((b) => b.status === MatchStatus.FINISHED).slice(0, 4)
 		return { live, upcoming, recent }
 	}, [bets])
@@ -52,7 +69,7 @@ export function HomeScreen() {
 			{betsLoading ? (
 				<Skeleton className="h-24 w-full rounded-lg" />
 			) : upcoming.length === 0 ? (
-				<EmptyState icon={Goal} title="Nenhuma partida agendada" />
+				<EmptyState icon={Goal} title="Nenhum jogo futuro agendado" />
 			) : (
 				<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
 					{upcoming.map((b) => (

@@ -147,6 +147,8 @@ function StagesSection() {
 		MatchStage.LAST_16,
 		MatchStage.QUARTER_FINALS,
 		MatchStage.SEMI_FINALS,
+		MatchStage.THIRD_PLACE,
+		MatchStage.FINAL,
 	]
 
 	return (
@@ -168,15 +170,6 @@ function StagesSection() {
 							{i < workflowSteps.length - 1 && <ChevronRight className="h-3 w-3 text-sub" />}
 						</span>
 					))}
-					<ChevronRight className="h-3 w-3 text-sub" />
-					<span className="flex flex-col gap-0.5">
-						<span className="rounded bg-surface px-1.5 py-0.5 font-mono text-[10px]">
-							{STAGE_ORDER[MatchStage.THIRD_PLACE]}. {STAGE_LABELS[MatchStage.THIRD_PLACE].short}
-						</span>
-						<span className="rounded bg-surface px-1.5 py-0.5 font-mono text-[10px]">
-							{STAGE_ORDER[MatchStage.FINAL]}. {STAGE_LABELS[MatchStage.FINAL].short}
-						</span>
-					</span>
 				</div>
 				<div className="text-xs text-sub">
 					Cada fase só pode ser aberta quando a anterior estiver <span className="font-bold text-foreground">encerrada</span>.

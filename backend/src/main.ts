@@ -7,7 +7,7 @@ import helmet from 'helmet'
 
 import { AppModule } from './app.module'
 import { AllExceptionsFilter } from './common/all-exceptions.filter'
-import { resolveStaticDir } from './common/static-dir'
+import { ensureStaticDir, resolveStaticDir } from './common/static-dir'
 import { SWAGGER_BEARER_AUTH } from './common/swagger-auth.decorator'
 
 async function bootstrap() {
@@ -18,6 +18,7 @@ async function bootstrap() {
 	app.use(helmet())
 
 	const staticDir = resolveStaticDir(config.get<string>('STATIC_DIR'))
+	await ensureStaticDir(staticDir)
 	app.useStaticAssets(staticDir, {
 		prefix: '/static/',
 		setHeaders: (res) => {

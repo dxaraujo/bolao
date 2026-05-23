@@ -1,11 +1,11 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
 import * as path from 'node:path'
 
 import { ConfigService } from '@nestjs/config'
 import { downloadImage } from '../common/download'
-import { resolveStaticDir } from '../common/static-dir'
+import { isLocalStaticFileOnDisk, resolveStaticDir } from '../common/static-dir'
 import { UpdateTeamDto } from './dto/update-team.dto'
 import { Team } from './schemas/team.schema'
 import { nowtoLocalISOString } from '@bolao/shared'
@@ -20,7 +20,7 @@ interface FootballDataTeam {
 }
 
 @Injectable()
-export class TeamService {
+export class TeamService implements OnModuleInit {
 
 	private readonly logger = new Logger(TeamService.name)
 	private readonly apiUrl: string
@@ -32,6 +32,10 @@ export class TeamService {
 		this.apiUrl = this.config.getOrThrow<string>('FOOTBALL_DATA_API_URL')
 		this.apiKey = this.config.getOrThrow<string>('FOOTBALL_DATA_API_KEY')
 		this.staticDir = resolveStaticDir(this.config.get<string>('STATIC_DIR'))
+	}
+
+	async onModuleInit() {
+		await this.syncMissingCrests()
 	}
 
 	findAll() {
@@ -87,8 +91,11 @@ export class TeamService {
 				}
 
 				if (registeredTeam.lastUpdated && registeredTeam.lastUpdated >= lastUpdated) {
-					this.logger.debug(`Team ${externalTeam.tla} already up to date`)
-					continue
+					if (await isLocalStaticFileOnDisk(this.staticDir, registeredTeam.crest)) {
+						this.logger.debug(`Team ${externalTeam.tla} already up to date`)
+						continue
+					}
+					this.logger.warn(`Team ${externalTeam.tla} crest missing on disk, re-downloading`)
 				}
 
 				const crest = await this.downloadCrest(externalTeam.tla, externalTeam.crest)
@@ -114,5 +121,47 @@ export class TeamService {
 	private async downloadCrest(tla: string, url: string): Promise<string> {
 		const result = await downloadImage(url, path.join(this.staticDir, 'teams'), tla, '/static/teams')
 		return result?.relativePath ?? url
+	}
+
+	private async syncMissingCrests() {
+		const teams = await this.model.find({ crest: /^\/static\// }).exec()
+		const missing = []
+
+		for (const team of teams) {
+			if (!(await isLocalStaticFileOnDisk(this.staticDir, team.crest))) {
+				missing.push(team)
+			}
+		}
+
+		if (missing.length === 0) return
+
+		this.logger.warn(`Restoring ${missing.length} missing team crest(s) on disk`)
+
+		try {
+			const response = await fetch(this.apiUrl + '/competitions/WC/teams?season=2026', {
+				headers: { 'X-Auth-Token': this.apiKey },
+			})
+			if (!response.ok) {
+				this.logger.warn(`Could not restore crests: Football Data API returned ${response.status}`)
+				return
+			}
+
+			const data = await response.json()
+			const externalById = new Map(
+				(data.teams as FootballDataTeam[]).map((team) => [team.id, team]),
+			)
+
+			for (const team of missing) {
+				const external = externalById.get(team.footballDataId)
+				if (!external?.crest) continue
+
+				const crest = await this.downloadCrest(team.tla, external.crest)
+				if (crest !== team.crest) {
+					await this.model.updateOne({ _id: team._id }, { $set: { crest } }).exec()
+				}
+			}
+		} catch (err) {
+			this.logger.error('Failed to restore missing team crests', err)
+		}
 	}
 }

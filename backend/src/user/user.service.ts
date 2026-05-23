@@ -7,7 +7,7 @@ import * as path from 'node:path'
 
 import { Bet } from '../bet/schemas/bet.schema'
 import { downloadImage } from '../common/download'
-import { resolveStaticDir } from '../common/static-dir'
+import { isLocalStaticFileOnDisk, resolveStaticDir } from '../common/static-dir'
 import { Match } from '../match/schemas/match.schema'
 import { Stage } from '../stage/schemas/stage.schema'
 import { UpdateUserDto } from './dto/update-user.dto'
@@ -62,7 +62,10 @@ export class UserService {
 		const previousWasLocal = existing?.picture?.startsWith('/static/') ?? false
 		const externalChanged = !existing || existing.picture !== externalPicture
 
-		if (previousWasLocal && !externalChanged) return user
+		if (previousWasLocal && !externalChanged) {
+			if (await isLocalStaticFileOnDisk(this.staticDir, existing!.picture)) return user
+			this.logger.warn(`Local picture missing on disk for user ${user._id}, re-downloading`)
+		}
 
 		const localPicture = await this.downloadPicture((user._id as Types.ObjectId).toString(), externalPicture)
 		if (!localPicture || localPicture === user.picture) return user

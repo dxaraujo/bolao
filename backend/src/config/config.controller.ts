@@ -10,8 +10,7 @@ export class AppConfigController {
 	constructor(private readonly service: AppConfigService) { }
 
 	@Get()
-	@Public()
-	async getOne() {
+	async findOne() {
 		const data = await this.service.findOne()
 		return { data }
 	}

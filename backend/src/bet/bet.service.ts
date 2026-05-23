@@ -27,7 +27,7 @@ export interface GroupedBet {
 	matchId: string
 	utcDate: Date
 	stage: string
-	group: string
+	group?: string
 	homeTeam: { name: string; shortName: string; tla: string; crest: string }
 	homeTeamScore?: number
 	awayTeam: { name: string; shortName: string; tla: string; crest: string }

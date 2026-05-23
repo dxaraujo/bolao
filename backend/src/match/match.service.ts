@@ -14,7 +14,7 @@ interface FootballDataMatch {
 	utcDate: string
 	status: MatchStatus
 	stage: MatchStage
-	group: string
+	group?: string
 	homeTeam: { id: number }
 	awayTeam: { id: number }
 	lastUpdated: string

@@ -44,7 +44,7 @@ export interface MatchListItem {
 	utcDate: string
 	status: MatchStatus
 	stage: MatchStage
-	group: string
+	group?: string
 	homeTeam: TeamPayload
 	awayTeam: TeamPayload
 	homeTeamScore?: number
@@ -56,7 +56,7 @@ export interface BetListItem {
 	matchId: string
 	utcDate: string
 	stage: MatchStage
-	group: string
+	group?: string
 	status: MatchStatus
 	homeTeam: TeamPayload
 	awayTeam: TeamPayload
@@ -90,7 +90,7 @@ export interface GroupedBet {
 	matchId: string
 	utcDate: string
 	stage: MatchStage
-	group: string
+	group?: string
 	homeTeam: TeamPayload
 	homeTeamScore?: number
 	awayTeam: TeamPayload

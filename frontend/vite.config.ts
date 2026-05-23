@@ -7,7 +7,8 @@ export default defineConfig({
 	plugins: [
 		react(),
 		VitePWA({
-			registerType: 'autoUpdate',
+			registerType: 'prompt',
+			injectRegister: null,
 			manifest: {
 				name: 'Copabet 2026',
 				short_name: 'Copabet',

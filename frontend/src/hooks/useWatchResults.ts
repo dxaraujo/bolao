@@ -1,14 +1,26 @@
 import { useEffect, useRef } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import type { ConfigPayload } from '@bolao/shared'
 
-import { useConfig } from './useConfig'
+import { api } from '@/lib/api'
+import { useAuth } from '@/providers/AuthProvider'
 
 const INVALIDATE_KEYS = [['bets'], ['ranking'], ['stats']] as const
 
 export function useWatchResults() {
-
-	const { data } = useConfig()
+	const { authenticated } = useAuth()
 	const qc = useQueryClient()
+
+	const { data } = useQuery({
+		queryKey: ['config'],
+		queryFn: ({ signal }) => api.get<ConfigPayload>('/api/config', signal),
+		enabled: authenticated,
+		staleTime: 0,
+		refetchInterval: authenticated ? 30_000 : false,
+		refetchIntervalInBackground: true,
+		refetchOnWindowFocus: true,
+	})
+
 	const previousRef = useRef<string | null | undefined>(undefined)
 
 	useEffect(() => {
@@ -22,6 +34,8 @@ export function useWatchResults() {
 		if (previousRef.current === current) return
 
 		previousRef.current = current
-		INVALIDATE_KEYS.forEach((key) => qc.invalidateQueries({ queryKey: key }))
+		INVALIDATE_KEYS.forEach((key) =>
+			qc.invalidateQueries({ queryKey: key, refetchType: 'all' }),
+		)
 	}, [data?.lastUpdateResults, qc])
 }

@@ -1,6 +1,6 @@
 import { Loader2, Download, RefreshCw, Users, Lock, Play, CheckCircle2, ChevronRight, UserCheck, UserX, Shield, ShieldOff } from 'lucide-react'
 import { toast } from 'sonner'
-import { StageStatus, type AuthenticatedUser, type StageVisibleItem } from '@bolao/shared'
+import { MatchStage, STAGE_ORDER, StageStatus, type AuthenticatedUser, type StageVisibleItem } from '@bolao/shared'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
@@ -125,16 +125,66 @@ function ImportSection() {
 	)
 }
 
+const TOTAL_STAGES = Object.keys(STAGE_ORDER).length
+
+/** Fase imediatamente anterior por ordem; `FINAL` depende de `SEMI_FINALS` (exceção). */
+function getRequiredPreviousStage(matchStage: MatchStage): MatchStage | null {
+	if (matchStage === MatchStage.GROUP_STAGE) return null
+	if (matchStage === MatchStage.FINAL) return MatchStage.SEMI_FINALS
+	const order = STAGE_ORDER[matchStage]
+	const previous = (Object.entries(STAGE_ORDER) as [MatchStage, number][]).find(
+		([, o]) => o === order - 1,
+	)
+	return previous ? previous[0] : null
+}
+
 function StagesSection() {
 	const { data: stages, isLoading } = useAdminStages()
+
+	const workflowSteps: MatchStage[] = [
+		MatchStage.GROUP_STAGE,
+		MatchStage.LAST_32,
+		MatchStage.LAST_16,
+		MatchStage.QUARTER_FINALS,
+		MatchStage.SEMI_FINALS,
+	]
 
 	return (
 		<section className="flex flex-col gap-2">
 			<h2 className="text-xs font-bold uppercase tracking-wider text-sub">Gerenciar Fases</h2>
 			<p className="text-xs text-sub">
-				Avance pela ordem <span className="font-bold text-foreground">DISABLED → OPEN → BLOCKED</span>.
-				Abrir uma fase cria automaticamente apostas em branco para os usuários ativos.
+				Avance cada fase pela sequência <span className="font-bold text-foreground">Em breve → Aberto → Encerrado</span>.
+				Abrir uma fase importa as partidas e cria apostas em branco para os usuários ativos.
 			</p>
+
+			<Card className="flex flex-col gap-2 p-3 text-xs">
+				<div className="text-xs font-bold uppercase tracking-wider text-sub">Workflow de abertura</div>
+				<div className="flex flex-wrap items-center gap-1.5 text-xs">
+					{workflowSteps.map((s, i) => (
+						<span key={s} className="flex items-center gap-1.5">
+							<span className="rounded bg-surface px-1.5 py-0.5 font-mono text-[10px]">
+								{STAGE_ORDER[s]}. {STAGE_LABELS[s].short}
+							</span>
+							{i < workflowSteps.length - 1 && <ChevronRight className="h-3 w-3 text-sub" />}
+						</span>
+					))}
+					<ChevronRight className="h-3 w-3 text-sub" />
+					<span className="flex flex-col gap-0.5">
+						<span className="rounded bg-surface px-1.5 py-0.5 font-mono text-[10px]">
+							{STAGE_ORDER[MatchStage.THIRD_PLACE]}. {STAGE_LABELS[MatchStage.THIRD_PLACE].short}
+						</span>
+						<span className="rounded bg-surface px-1.5 py-0.5 font-mono text-[10px]">
+							{STAGE_ORDER[MatchStage.FINAL]}. {STAGE_LABELS[MatchStage.FINAL].short}
+						</span>
+					</span>
+				</div>
+				<div className="text-xs text-sub">
+					Cada fase só pode ser aberta quando a anterior estiver <span className="font-bold text-foreground">encerrada</span>.
+					Exceção: <span className="font-bold text-foreground">{STAGE_LABELS[MatchStage.THIRD_PLACE].short}</span> e{' '}
+					<span className="font-bold text-foreground">{STAGE_LABELS[MatchStage.FINAL].short}</span> dependem ambas de{' '}
+					<span className="font-bold text-foreground">{STAGE_LABELS[MatchStage.SEMI_FINALS].short}</span> e podem ficar abertas em paralelo.
+				</div>
+			</Card>
 
 			{isLoading || !stages ? (
 				<>
@@ -148,7 +198,7 @@ function StagesSection() {
 			) : (
 				<div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
 					{stages.map((stage) => (
-						<StageRow key={stage.matchStage} stage={stage} />
+						<StageRow key={stage.matchStage} stage={stage} allStages={stages} />
 					))}
 				</div>
 			)}
@@ -184,15 +234,25 @@ const STATUS_ICON: Record<StageStatus, typeof Lock> = {
 	[StageStatus.BLOCKED]: CheckCircle2,
 }
 
-function StageRow({ stage }: { stage: StageVisibleItem }) {
+function StageRow({ stage, allStages }: { stage: StageVisibleItem; allStages: StageVisibleItem[] }) {
 	const advance = useAdvanceStage()
 	const next = NEXT_STATUS[stage.status]
 
 	const StatusIcon = STATUS_ICON[stage.status]
-	const label = STAGE_LABELS[stage.matchStage as keyof typeof STAGE_LABELS]?.full ?? stage.matchStage
+	const matchStage = stage.matchStage as MatchStage
+	const label = STAGE_LABELS[matchStage]?.full ?? stage.matchStage
+
+	const requiredPrevious = getRequiredPreviousStage(matchStage)
+	const previousStage = requiredPrevious
+		? allStages.find((s) => s.matchStage === requiredPrevious)
+		: null
+	const requirementSatisfied = !requiredPrevious || previousStage?.status === StageStatus.BLOCKED
+	const isOpenable = next === StageStatus.OPEN && requirementSatisfied
+	const isClosable = next === StageStatus.BLOCKED
+	const canAdvance = isOpenable || isClosable
 
 	async function handleAdvance() {
-		if (!next) return
+		if (!next || !canAdvance) return
 		try {
 			await advance.mutateAsync({ matchStage: stage.matchStage, status: next })
 			toast.success(`${label}: ${STATUS_LABEL[next]}`)
@@ -205,10 +265,16 @@ function StageRow({ stage }: { stage: StageVisibleItem }) {
 		<Card className="animate-fade-up p-3">
 			<div className="flex items-center justify-between gap-2">
 				<div className="flex items-center gap-2">
+					<span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border bg-surface font-mono text-[11px] text-sub">
+						{stage.order}
+					</span>
 					<StatusIcon className="h-4 w-4 text-sub" />
 					<div>
 						<div className="text-sm font-bold">{label}</div>
-						<div className="mt-0.5 text-xs text-sub">{stage.matchStage}</div>
+						<div className="mt-0.5 text-xs text-sub">
+							{stage.matchStage}
+							<span className="ml-1 text-sub/70">· {stage.order}/{TOTAL_STAGES}</span>
+						</div>
 					</div>
 				</div>
 				<Badge tone={STATUS_TONE[stage.status]}>{STATUS_LABEL[stage.status]}</Badge>
@@ -218,11 +284,26 @@ function StageRow({ stage }: { stage: StageVisibleItem }) {
 				<div className="mt-2 text-xs text-sub">Prazo: {formatDeadline(stage.deadline)}</div>
 			)}
 
+			{requiredPrevious && stage.status === StageStatus.DISABLED && (
+				<div className="mt-2 text-xs text-sub">
+					Requer:{' '}
+					<span className={cn('font-bold', requirementSatisfied ? 'text-green' : 'text-foreground')}>
+						{STAGE_LABELS[requiredPrevious].short}
+					</span>{' '}
+					encerrada{requirementSatisfied ? ' ✓' : ''}
+				</div>
+			)}
+
 			{next && (
 				<div className="mt-3 flex flex-col gap-2">
+					{next === StageStatus.OPEN && !requirementSatisfied && (
+						<div className="text-[11px] text-red">
+							Encerre {STAGE_LABELS[requiredPrevious!].short} antes de abrir esta fase.
+						</div>
+					)}
 					<Button
 						size="sm"
-						disabled={advance.isPending}
+						disabled={advance.isPending || !canAdvance}
 						onClick={handleAdvance}
 						className="self-end"
 					>

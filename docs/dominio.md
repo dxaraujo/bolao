@@ -1,265 +1,219 @@
-# Domínio
+# Domínio (v2)
 
 Conceitos, entidades e regras de negócio do Bolão da Copa 2026.
 
 ## Glossário
 
-| Termo (PT-BR)     | Identificador técnico | Significado                                                          |
-|-------------------|-----------------------|----------------------------------------------------------------------|
-| Usuário           | `User`                | Pessoa autenticada via Google. Apenas usuários **ativos** participam |
-| Seleção           | `Team`                | Time/seleção da Copa do Mundo                                        |
-| Partida           | `Match`               | Jogo individual entre duas seleções, com data e fase                 |
-| Fase              | `Stage`               | Etapa da competição (fase de grupos, oitavas, quartas, …)            |
-| Palpite / Aposta  | `Bet`                 | Previsão de placar de um usuário para uma partida                    |
-| Pontuação         | `totalPointsEarned`   | Pontos somados pelo usuário ao longo da competição                   |
-| Ranking           | `ranking`             | Posição do usuário no ranking geral, calculada por critério ordenado |
-| Grupo             | `Match.group`         | Grupo da fase de grupos (ex.: `A`, `B`, …)                           |
-| Bolão             | —                     | Conjunto de palpites de **todos** os usuários ativos                 |
+| Termo (PT-BR) | Identificador técnico | Significado |
+|---|---|---|
+| Usuário | `User` | Pessoa autenticada via Google |
+| Participante | `User.isActive: true` | Usuário pagante. Apenas participantes palpitam e entram no ranking |
+| Espectador | `User.isActive: false` | Usuário que vê tudo mas não palpita nem aparece no leaderboard |
+| Seleção | `Team` | Time da Copa do Mundo |
+| Partida | `Match` | Jogo individual entre duas seleções |
+| Fase | `Stage` | Etapa da competição (grupos, oitavas, …) |
+| Palpite | `Bet` | Previsão de placar de um participante para uma partida |
+| Leaderboard | `Leaderboard` | View materializada do ranking + breakdown por participante |
+| Estado da fase | derivado | `LOCKED`/`OPEN`/`CLOSED` computado em tempo real |
+
+## Princípio norteador
+
+> **O palpite é a única coisa que o usuário cria; tudo o mais é derivável.**
+> `Match`/`Stage`/`Team` vêm do provedor externo, `Bet` é input do usuário, e ranking + estatísticas + estado da fase são views materializadas a partir desses três.
 
 ## Entidades
 
-### Usuário (`User`)
+### `User`
 
 `backend/src/user/schemas/user.schema.ts`
 
-| Campo                 | Tipo        | Default | Descrição                                                                 |
-|-----------------------|-------------|---------|---------------------------------------------------------------------------|
-| `googleSub`           | string      | —       | ID único do Google (`sub` do ID token). Indexado, único.                  |
-| `name`                | string      | —       | Nome completo retornado pelo Google                                       |
-| `email`               | string      | —       | E-mail retornado pelo Google                                              |
-| `picture`             | string      | `''`    | **Sempre** vazio ou caminho relativo local (`/static/users/<id>.<ext>`). Nunca contém URL externa.    |
-| `picture`     | string      | `''`    | **Sempre** vazio ou a URL externa mais recente vinda do Google. Usada para re-baixar `picture` quando o arquivo local some (ex.: volume estático recriado no deploy) e para detectar se o avatar mudou entre logins |
-| `exactScore`          | number      | `0`     | Quantidade de placares exatos                                             |
-| `winnerWithGoal`      | number      | `0`     | Quantidade de "vencedor + gol"                                            |
-| `correctWinner`       | number      | `0`     | Quantidade de "vencedor"                                                  |
-| `oneGoalCorrect`      | number      | `0`     | Quantidade de "acertou um gol"                                            |
-| `wrong`               | number      | `0`     | Quantidade de erros                                                       |
-| `totalPointsEarned`   | number      | `0`     | Pontos totais acumulados                                                  |
-| `ranking`             | number      | `0`     | Posição no ranking (1 = líder)                                            |
-| `isAdmin`             | boolean     | `false` | Acesso ao Painel Admin                                                    |
-| `isActive`            | boolean     | `false` | Participa do bolão. Inativo não recebe palpites em branco                 |
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `googleSub` | string unique | ID Google (`sub`) |
+| `name`, `email` | string | Vindos do Google |
+| `avatar` | string? | Path `/static/users/<id>.<ext>` ou ausente |
+| `isAdmin` | boolean | Acesso ao painel admin |
+| `isActive` | boolean | **Participante pagante** (gate de palpite e leaderboard) |
+| `participationChangedAt` | Date? | Última transição de `isActive` |
+| `createdAt`, `updatedAt` | Date | Mongoose timestamps |
 
-> **Important:** os contadores e o ranking são **materializados** no documento do usuário pelo `ResultService` cada vez que resultados mudam. Não há cálculo on-the-fly nas rotas de leitura — `GET /api/ranking` apenas lê.
+> Usuários novos começam com `isActive: false` (espectador). Admin ativa via `PATCH /api/user/:id`.
 
-### Seleção (`Team`)
+### `Team`
 
-`backend/src/team/schemas/team.schema.ts`
+| Campo | Descrição |
+|---|---|
+| `footballDataId` | ID externo (único) |
+| `name`, `shortName`, `tla` | Identificação |
+| `flagEmoji` | **Preferencial** — emoji de bandeira (🇧🇷, 🇦🇷, …) derivado do TLA |
+| `crest` | Fallback — URL `/static/teams/<TLA>.png` quando não há emoji |
+| `externalLastUpdated` | Última atualização do provedor |
 
-| Campo            | Descrição                                                  |
-|------------------|------------------------------------------------------------|
-| `footballDataId` | ID externo da Football Data API (único)                    |
-| `name`           | Nome completo (ex.: "Brazil")                              |
-| `shortName`      | Nome curto (ex.: "Brazil")                                 |
-| `tla`            | Sigla de 3 letras (ex.: "BRA")                             |
-| `crest`          | URL relativa local (`/static/teams/BRA.png`) ou URL externa |
-| `lastUpdated`    | Data da última atualização (vinda da API externa)          |
+### `Stage`
 
-### Partida (`Match`)
+| Campo | Descrição |
+|---|---|
+| `code` | `MatchStage` enum, único |
+| `order` | 1..7 |
+| `deadline` | Data de encerramento das apostas (mutável por admin via PATCH) |
+| `expectedMatchCount` | Quantidade esperada de partidas (informativo) |
 
-`backend/src/match/schemas/match.schema.ts`
-
-| Campo            | Tipo                       | Descrição                                                       |
-|------------------|----------------------------|-----------------------------------------------------------------|
-| `footballDataId` | number (único)             | ID externo da partida                                           |
-| `utcDate`        | Date                       | Data e hora em UTC                                              |
-| `status`         | `MatchStatus`              | TIMED, SCHEDULED, LIVE, IN_PLAY, PAUSED, FINISHED, POSTPONED, SUSPENDED, CANCELLED |
-| `stage`          | `MatchStage`               | Fase à qual a partida pertence                                  |
-| `group`          | string? (ex.: "A")         | Grupo, apenas para `GROUP_STAGE`                                |
-| `homeTeam`       | ObjectId → Team (nullable) | Time mandante                                                   |
-| `awayTeam`       | ObjectId → Team (nullable) | Time visitante                                                  |
-| `homeTeamScore`  | number?                    | Gols do mandante (definido quando IN_PLAY/PAUSED/FINISHED)      |
-| `awayTeamScore`  | number?                    | Gols do visitante                                               |
-| `valid`          | boolean                    | `true` se ambos os times existem na base. Inválidas são ocultas |
-| `lastUpdated`    | Date                       | Última atualização vinda da API externa                         |
-
-**Por que `valid`?** A Football Data API publica o calendário com slots "TBD" para fases eliminatórias antes dos times serem conhecidos. Essas partidas ficam `valid: false` e são ignoradas em listagens e seeds de palpites até que a importação encontre os times reais.
-
-### Fase (`Stage`)
-
-`backend/src/stage/schemas/stage.schema.ts`
-
-| Campo        | Tipo            | Descrição                                                            |
-|--------------|-----------------|----------------------------------------------------------------------|
-| `matchStage` | `MatchStage`    | Identificador da fase (único)                                        |
-| `order`      | number (1–7)    | Ordem canônica da fase                                               |
-| `status`     | `StageStatus`   | `DISABLED`, `OPEN` ou `BLOCKED`                                      |
-| `deadline`   | Date?           | Prazo fixo para fechamento automático das apostas                    |
-
-#### Ordem e prazos canônicos
-
-Definidos em `shared/src/enums.ts` (`STAGE_ORDER` e `STAGE_DEADLINES`):
-
-| Ordem | `MatchStage`       | Prazo de apostas (UTC)             |
-|-------|--------------------|------------------------------------|
-| 1     | `GROUP_STAGE`      | 2026-06-11 15:00:00 Z              |
-| 2     | `LAST_32`          | 2026-06-28 15:00:00 Z              |
-| 3     | `LAST_16`          | 2026-07-04 16:00:00 Z              |
-| 4     | `QUARTER_FINALS`   | 2026-07-09 17:00:00 Z              |
-| 5     | `SEMI_FINALS`      | 2026-07-14 16:00:00 Z              |
-| 6     | `THIRD_PLACE`      | 2026-07-18 17:00:00 Z              |
-| 7     | `FINAL`            | 2026-07-19 15:00:00 Z              |
-
-#### Seed inicial
-
-`StageService.onModuleInit` cria todas as 7 fases na primeira inicialização do backend, com:
-- `GROUP_STAGE`: `status: OPEN`
-- Demais: `status: DISABLED`
-- `deadline`: lido de `STAGE_DEADLINES`
-
-#### Ciclo de vida
+**Estado derivado** por `getStageState(stage, allStages, now)`:
 
 ```
-DISABLED ───[admin abre]───▶ OPEN ───[admin encerra]───▶ BLOCKED
-                              │
-                              │ ou
-                              └──[BlockStagesTask: deadline passou]──▶ BLOCKED
+LOCKED  → now < prev.deadline                    (anterior aberta ou prev=null)
+OPEN    → now >= prev.deadline AND now < deadline
+CLOSED  → now >= deadline
 ```
 
-Detalhes completos em [features/gestao-fases.md](./features/gestao-fases.md).
+Exceção: `FINAL` referencia `SEMI_FINALS` como predecessora. `THIRD_PLACE` e `FINAL` podem coexistir em `OPEN`.
 
-### Palpite (`Bet`)
+`expectedMatchCount` é **informativo** — não bloqueia a abertura. A UI mostra "X de Y partidas importadas" enquanto a importação não está completa.
 
-`backend/src/bet/schemas/bet.schema.ts`
+### `Match`
 
-| Campo                 | Tipo               | Descrição                                                  |
-|-----------------------|--------------------|------------------------------------------------------------|
-| `user`                | ObjectId → User    | Apostador                                                  |
-| `match`               | ObjectId → Match   | Partida                                                    |
-| `homeTeamScore`       | number?            | Palpite para gols do mandante                              |
-| `awayTeamScore`       | number?            | Palpite para gols do visitante                             |
-| `exactScore`          | boolean            | Acertou placar exato                                       |
-| `winnerWithGoal`      | boolean            | Acertou vencedor e o gol de um dos times                   |
-| `correctWinner`       | boolean            | Acertou apenas o vencedor                                  |
-| `oneGoalCorrect`      | boolean            | Acertou um dos gols mas errou o vencedor                   |
-| `wrong`               | boolean            | Errou totalmente                                           |
-| `totalPointsEarned`   | `PointsEarned`     | Pontos: `0 | 1 | 2 | 3 | 5`                                |
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `footballDataId` | number unique | ID externo |
+| `utcDate` | Date | Data/hora UTC |
+| `status` | `MatchStatus` | `SCHEDULED \| LIVE \| FINISHED \| CANCELLED` |
+| `stage` | ObjectId → Stage | **FK real** (não string) |
+| `group` | string? | Apenas para `GROUP_STAGE` (ex.: `GROUP_A`) |
+| `homeTeam`, `awayTeam` | ObjectId → Team | **Obrigatórios** (TBD não é importada) |
+| `score` | `{ home, away }?` | Subdocumento; só populado em LIVE/FINISHED |
+| `externalLastUpdated` | Date | Última atualização do provedor |
 
-Apenas **uma** das flags booleanas é `true` em cada palpite avaliado (ver tabela de pontuação abaixo). Palpites sem `homeTeamScore`/`awayTeamScore` definidos ficam todos `false` com `totalPointsEarned: 0`.
+`MatchStatus` interno tem 4 valores. O importador faz de-para via `mapExternalStatus`:
 
-### Configuração global (`Config`)
+```
+TIMED, SCHEDULED, POSTPONED  → SCHEDULED
+IN_PLAY, PAUSED              → LIVE
+FINISHED, AWARDED            → FINISHED
+CANCELLED, SUSPENDED         → CANCELLED
+```
 
-`backend/src/config/schemas/config.schema.ts` — collection `config`, um único documento.
+Transições não-canônicas (ex.: `FINISHED → LIVE`) geram **warning** no log mas são aceitas — provedor é fonte de verdade.
 
-| Campo                    | Default | Descrição                                       |
-|--------------------------|---------|-------------------------------------------------|
-| `lastUpdateResults`      | `null`  | Timestamp da última execução de pontuação       |
-| `pointsExactScore`       | `5`     | Pontos por placar exato                         |
-| `pointsWinnerWithGoal`   | `3`     | Pontos por vencedor + gol                       |
-| `pointsOneGoalCorrect`   | `2`     | Pontos por acertar um gol                       |
-| `pointsCorrectWinner`    | `1`     | Pontos por acertar apenas o vencedor            |
+### `Bet`
+
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `user` | ObjectId → User | Apostador |
+| `match` | ObjectId → Match | Partida |
+| `score` | `{ home, away }` | **Sempre presente** (ambos preenchidos, integers `0..20`) |
+| `createdAt`, `updatedAt` | Date | timestamps |
+
+**Sparse**: só existe quando o usuário palpitou. Index único `{user, match}`. Não há mais flags (`exactScore`, `winnerWithGoal`, …) nem `totalPointsEarned` — tudo derivado por `calculateBetScore`.
+
+### `Leaderboard` (singleton)
+
+View materializada recomputada quando há mudança de placar (ou ativação/desativação de usuário).
+
+```ts
+{
+  key: 'singleton',
+  generatedAt: Date,
+  rows: [{
+    user, points,
+    breakdown: { exactScore, winnerWithGoal, correctWinner, oneGoalCorrect, wrong },
+    rank
+  }]
+}
+```
+
+Somente participantes ativos entram. Critério de desempate: `points → exactScore → winnerWithGoal → correctWinner → oneGoalCorrect`.
+
+### `SystemState` (singleton)
+
+Timestamps de sincronização (sem boolean de progresso — derivado):
+
+```ts
+{
+  key: 'singleton',
+  scoreSyncStartedAt: Date | null,
+  scoreSyncCompletedAt: Date | null,
+  leaderboardRebuildAt: Date | null,
+  lastMatchImportAt: Date | null
+}
+```
+
+`scoringInProgress = scoreSyncStartedAt && (!scoreSyncCompletedAt || scoreSyncStartedAt > scoreSyncCompletedAt)`.
 
 ## Regras de pontuação
 
-> ⚠️ **Atenção à divergência:** a `Config` armazena os valores configuráveis (5/3/2/1), porém o motor de cálculo em `backend/src/match/result.service.ts` (`calculateBetScore`) utiliza valores **hardcoded** (`5`, `3`, `2`, `1`). A `Config` é lida apenas pela UI para exibir a tabela de pontos. Mudar os valores na `Config` **não** altera o cálculo até que o motor seja parametrizado.
+Função pura `calculateBetScore(bet.score, match.score)` em [`shared/src/scoring.ts`](../shared/src/scoring.ts):
 
-A função `calculateBetScore(bet, match)` em `backend/src/match/result.service.ts` é o único ponto que decide o resultado de um palpite. Pseudocódigo:
+| Situação | Flag | Pontos |
+|---|---|---|
+| Placar exato | `exactScore` | **5** |
+| Vencedor + um gol coincide | `winnerWithGoal` | **3** |
+| Apenas vencedor | `correctWinner` | **2** |
+| Errou vencedor, acertou um gol | `oneGoalCorrect` | **1** |
+| Errou totalmente | `wrong` | **0** |
+| Palpite ausente ou placar ausente | nenhuma | **0** |
 
-```
-se palpite ou placar real são inválidos → ZERO (todas flags false, 0 pontos)
+Constantes em `SCORING_RULES`. Frontend e backend importam da mesma fonte. **Não há override em runtime.**
 
-se placar do palpite == placar real
-    → exactScore = true, 5 pontos
-
-vencedorDoPalpite = winner(palpite)   // 'A' (casa), 'B' (visitante) ou 'E' (empate)
-vencedorReal      = winner(real)
-
-se vencedorDoPalpite == vencedorReal:
-    acertouUmGol = homeTeamScore coincide  OU  awayTeamScore coincide
-    se acertouUmGol → winnerWithGoal = true, 3 pontos
-    senão           → correctWinner  = true, 2 pontos
-
-senão (errou o vencedor):
-    acertouSoUmGol = homeTeamScore coincide  OU  awayTeamScore coincide
-    se acertouSoUmGol → oneGoalCorrect = true, 1 ponto
-    senão             → wrong          = true, 0 pontos
-```
-
-### Tabela resumida
-
-| Situação                                                   | Flag             | Pontos |
-|------------------------------------------------------------|------------------|--------|
-| Placar exato                                               | `exactScore`     | **5**  |
-| Acertou vencedor (ou empate) **e** um dos gols             | `winnerWithGoal` | **3**  |
-| Acertou apenas o vencedor (ou empate)                      | `correctWinner`  | **2**  |
-| Errou o vencedor mas acertou um dos gols                   | `oneGoalCorrect` | **1**  |
-| Errou totalmente                                           | `wrong`          | **0**  |
-| Palpite ou placar ausente                                  | nenhuma          | **0**  |
-
-### Critério de desempate no ranking
-
-Em `ResultService.compareRows`, usuários são ordenados por:
-
-1. `totalPointsEarned` — pontos totais (desc)
-2. `exactScore` — placares exatos (desc)
-3. `winnerWithGoal` — vencedores + gol (desc)
-4. `correctWinner` — vencedores (desc)
-5. `oneGoalCorrect` — um gol (desc)
-
-Empates de critério são tratados explicitamente: usuários empatados recebem o mesmo `ranking` numérico e o próximo posto pula tantas posições quantos forem os empatados (1, 2, 2, 4…).
+**LIVE pontua.** Ranking atualiza em tempo real conforme placares parciais chegam.
 
 ## Fluxos principais
 
 ### 1. Login
 
-1. Usuário clica em "Entrar com Google" → frontend obtém ID token via `@react-oauth/google`
-2. Frontend envia `POST /auth/google { credential }`
-3. Backend verifica o ID token com `google-auth-library` (audience = `GOOGLE_CLIENT_ID`)
-4. Usuário é encontrado ou criado (`upsert` por `googleSub`). Avatar é baixado para `/static/users/`
-5. Backend retorna `{ token: <JWT> }`
-6. Frontend persiste o JWT e decodifica para extrair `_id`, `name`, `email`, `picture`, `isAdmin`, `isActive`
+1. Frontend obtém ID token do Google
+2. `POST /auth/google { credential }`
+3. Backend verifica, upserta `User` por `googleSub`, baixa avatar
+4. Emite JWT `{ _id, name, email, avatar?, isAdmin, isActive }`
 
-> Novos usuários começam com `isActive: false` e **não recebem palpites**. Um admin precisa ativá-los.
+Novos usuários começam como espectadores.
 
-### 2. Importação inicial (admin)
+### 2. Apostar
 
-1. Admin executa `POST /api/team/import` → baixa todas as seleções e escudos
-2. Admin executa `POST /api/match/import` → baixa o calendário; partidas sem ambos os times definidos ficam `valid: false`
-3. As 7 fases já foram criadas no boot, com `GROUP_STAGE` em `OPEN`
+Apenas participantes ativos:
 
-### 3. Abertura de uma fase
+1. Frontend faz `PUT /api/bet { items: [...] }`
+2. `BetService.submit` valida cada item:
+   - Usuário existe e `isActive`
+   - Partida existe com homeTeam/awayTeam resolvidos
+   - `getStageState === 'OPEN'`
+   - `match.status === 'SCHEDULED'`
+   - Score `{home, away}` integers `0..20`
+3. `bulkWrite` ordenado: score → upsert; null → delete
+4. Falha em qualquer item → erro 400/403/404/409 (tudo-ou-nada)
 
-1. Admin chama `PUT /api/stage/:matchStage { status: OPEN }`
-2. `StageService.update` valida:
-   - Transição é apenas para o **próximo** status (DISABLED → OPEN → BLOCKED)
-   - Antes de abrir, reimporta partidas (`MatchService.importMatches`)
-   - Nenhuma partida `valid: false` pode existir na fase
-   - A fase anterior precisa estar `BLOCKED` (exceção: `FINAL` exige `SEMI_FINALS` bloqueada)
-3. Fase é atualizada para `OPEN`
-4. `seedBetsForStage` cria palpites em branco para todos os usuários ativos (upsert idempotente)
+### 3. Atualização de placares (cron)
 
-### 4. Apostar
+`MatchSyncTask` (`*/5 * * * *`, 24/7):
+1. Reimporta calendário, detecta mudanças
+2. Se houve mudança, `LeaderboardService.rebuild()` recalcula do zero
+3. Persiste timestamps em `SystemState`
 
-Enquanto a fase está `OPEN`:
-1. Frontend faz `PUT /api/bet/updateBets { bets: [...] }`
-2. `BetService.updateBets` aplica `bulkWrite` com **filtro de segurança**: só atualiza palpites cujo `match` pertença a uma fase ainda `OPEN` (palpites em fases `BLOCKED` são ignorados silenciosamente)
+### 4. Importação de partidas (cron)
 
-### 5. Encerramento de uma fase
+`MatchImportTask` (`*/15 * * * *`):
+- Reimporta calendário; partidas com algum time indefinido são **skipadas**
+- Captura partidas eliminatórias assim que o sorteio sai
 
-Acontece de duas formas:
-- **Manual:** admin envia `PUT /api/stage/:matchStage { status: BLOCKED }`
-- **Automático:** `BlockStagesTask` (cada minuto) bloqueia toda fase `OPEN` cujo `deadline` já passou
+### 5. Mudança de estado da fase
 
-A partir desse ponto, palpites da fase não podem mais ser editados, e o agrupamento aparece em `GET /api/bet/all` (consumido pela tela [Bolão](./features/bolao.md)).
+**Não há "abrir/fechar manual"** — estado é derivado em todo request. Admin pode ajustar `deadline` via `PATCH /api/stage/:code { deadline }`.
 
-### 6. Atualização de resultados
+### 6. Ativar/desativar usuário
 
-`UpdateScoresTask` (a cada 5 min entre 7h e 20h):
-1. `ScoreService.updateScores` consulta a Football Data API
-2. Para cada partida iniciada, compara placar/status com o registro local
-3. Quando houver mudança, atualiza a partida e empilha o `_id` em `changedMatchIds`
-4. `ResultService.updateResults(changedMatchIds)`:
-   - Recalcula `BetScore` para todos os palpites afetados (`bulkWrite`)
-   - Re-agrega contadores por usuário ativo (`aggregate $group`)
-   - Recalcula `ranking` aplicando o critério de desempate
-   - Persiste totais e ranking em `User` (`bulkWrite`)
-   - Marca `Config.lastUpdateResults` com `new Date()`
+`PATCH /api/user/:id { isActive }`:
+- Atualiza flag + `participationChangedAt`
+- **Nenhum side-effect em Bet** — bets antigos permanecem
+- Dispara `LeaderboardService.rebuild()` (entrada/saída do ranking)
 
-Detalhes em [features/sincronizacao-externa.md](./features/sincronizacao-externa.md) e [features/pontuacao.md](./features/pontuacao.md).
+## Espectadores
 
-### 7. Ativação de um novo usuário
+`isActive: false` = espectador.
 
-Quando um admin ativa um usuário (`PUT /api/user/:id { isActive: true }`):
-1. `UserService.update` detecta a transição `false → true`
-2. Chama `seedBetsForUser`, que cria palpites em branco para todas as partidas das fases `OPEN` ou `BLOCKED`
+| Recurso | Espectador | Participante |
+|---|---|---|
+| Ver home, ranking, bolão, stats | ✓ | ✓ |
+| Acessar `/apostas` | ✗ (redireciona) | ✓ |
+| Aparecer no leaderboard | ✗ | ✓ |
+| Aparecer no cross-table do bolão | ✗ | ✓ |
 
-Quando desativa (`true → false`), `removeBetsForUser` apaga todos os palpites do usuário.
+Header mostra badge **"Espectador"**. BottomNav esconde a aba "Apostas". Reativação reincorpora histórico de palpites no ranking.

@@ -68,6 +68,8 @@ export class AuthService {
 			email: user.email,
 			name: user.name,
 			avatar: user.avatar,
+			isAdmin: user.isAdmin,
+			isActive: user.isActive,
 		}
 		return this.jwtService.sign(claims)
 	}

@@ -1,19 +1,44 @@
-import { IsInt, IsMongoId, IsOptional, Max, Min } from 'class-validator'
+import { Type } from 'class-transformer'
+import {
+	ArrayMaxSize,
+	ArrayMinSize,
+	IsArray,
+	IsInt,
+	IsMongoId,
+	IsOptional,
+	Max,
+	Min,
+	ValidateNested,
+} from 'class-validator'
+import { MAX_GOALS } from '@bolao/shared'
 
-export class UpdateBetsDto {
+export class BetSubmitScoreDto {
+	@IsInt()
+	@Min(0)
+	@Max(MAX_GOALS)
+	home!: number
 
+	@IsInt()
+	@Min(0)
+	@Max(MAX_GOALS)
+	away!: number
+}
+
+export class BetSubmitItemDto {
 	@IsMongoId()
-	_id!: string
+	matchId!: string
 
 	@IsOptional()
-	@IsInt()
-	@Min(0)
-	@Max(99)
-	homeTeamScore?: number
+	@ValidateNested()
+	@Type(() => BetSubmitScoreDto)
+	score?: BetSubmitScoreDto | null
+}
 
-	@IsOptional()
-	@IsInt()
-	@Min(0)
-	@Max(99)
-	awayTeamScore?: number
+export class BetSubmitDto {
+	@IsArray()
+	@ArrayMinSize(1)
+	@ArrayMaxSize(200)
+	@ValidateNested({ each: true })
+	@Type(() => BetSubmitItemDto)
+	items!: BetSubmitItemDto[]
 }

@@ -1,8 +1,13 @@
-import { StageStatus } from '@bolao/shared'
-import { IsEnum } from 'class-validator'
+import { IsDateString, IsInt, IsOptional, Min } from 'class-validator'
 
 export class UpdateStageDto {
 
-	@IsEnum(StageStatus)
-	status!: StageStatus
+	@IsOptional()
+	@IsDateString()
+	deadline?: string
+
+	@IsOptional()
+	@IsInt()
+	@Min(1)
+	expectedMatchCount?: number
 }

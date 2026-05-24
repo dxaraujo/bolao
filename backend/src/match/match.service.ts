@@ -1,23 +1,36 @@
 import { Injectable, Logger } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 
-import { MatchStage, MatchStatus, nowtoLocalISOString } from '@bolao/shared'
-import { ConfigService } from '@nestjs/config'
-import { Stage, StageStatus } from 'src/stage/schemas/stage.schema'
-import { TeamDocument } from 'src/team/schemas/team.schema'
-import { TeamService } from 'src/team/team.service'
-import { Match } from './schemas/match.schema'
+import {
+	isCanonicalTransition,
+	mapExternalStatus,
+	MatchStatus,
+	nowtoLocalISOString,
+} from '@bolao/shared'
+
+import { Stage, StageDocument } from '../stage/schemas/stage.schema'
+import { Team } from '../team/schemas/team.schema'
+import { TeamService } from '../team/team.service'
+import { Match, MatchDocument } from './schemas/match.schema'
 
 interface FootballDataMatch {
 	id: number
 	utcDate: string
-	status: MatchStatus
-	stage: MatchStage
+	status: string
+	stage: string
 	group?: string
-	homeTeam: { id: number }
-	awayTeam: { id: number }
+	homeTeam: { id: number; tla?: string }
+	awayTeam: { id: number; tla?: string }
 	lastUpdated: string
+	score?: { fullTime?: { home: number | null; away: number | null } }
+}
+
+export interface MatchSyncResult {
+	changedIds: Types.ObjectId[]
+	imported: number
+	skipped: number
 }
 
 @Injectable()
@@ -31,27 +44,10 @@ export class MatchService {
 		@InjectModel(Match.name) private readonly model: Model<Match>,
 		@InjectModel(Stage.name) private readonly stageModel: Model<Stage>,
 		private readonly teamService: TeamService,
-		private readonly config: ConfigService
+		private readonly config: ConfigService,
 	) {
 		this.apiUrl = this.config.getOrThrow<string>('FOOTBALL_DATA_API_URL')
 		this.apiKey = this.config.getOrThrow<string>('FOOTBALL_DATA_API_KEY')
-	}
-
-	async list() {
-		const visibleStages = await this.stageModel
-			.find({ status: { $in: [StageStatus.OPEN, StageStatus.BLOCKED] } }, { matchStage: 1 })
-			.exec()
-		const stageNames = visibleStages.map((s) => s.matchStage)
-		const matches = await this.model.find({ stage: { $in: stageNames }, valid: true }).exec()
-		return matches.sort((a, b) => a.utcDate.valueOf() - b.utcDate.valueOf() || a.footballDataId - b.footballDataId)
-	}
-
-	findIdsByStages(stageNames: string[]) {
-		return this.model.find({ stage: { $in: stageNames }, valid: true }).distinct('_id').exec()
-	}
-
-	findByFootballDataMatchId(id: number) {
-		return this.model.findOne({ footballDataId: id }).exec()
 	}
 
 	findById(id: string) {
@@ -61,74 +57,125 @@ export class MatchService {
 	findByIds(ids: Types.ObjectId[]) {
 		return this.model
 			.find({ _id: { $in: ids } })
-			.populate<{ homeTeam: TeamDocument; awayTeam: TeamDocument }>(['homeTeam', 'awayTeam'])
+			.populate<{ homeTeam: Team; awayTeam: Team }>(['homeTeam', 'awayTeam'])
 			.exec()
 	}
 
-	async importMatches() {
+	listAll() {
+		return this.model
+			.find()
+			.sort({ utcDate: 1, footballDataId: 1 })
+			.populate<{ homeTeam: Team; awayTeam: Team }>(['homeTeam', 'awayTeam'])
+			.populate<{ stage: StageDocument }>('stage')
+			.exec()
+	}
 
+	async listByStages(stageIds: Types.ObjectId[]) {
+		return this.model
+			.find({ stage: { $in: stageIds } })
+			.sort({ utcDate: 1, footballDataId: 1 })
+			.populate<{ homeTeam: Team; awayTeam: Team }>(['homeTeam', 'awayTeam'])
+			.populate<{ stage: StageDocument }>('stage')
+			.exec()
+	}
+
+	/**
+	 * Importa o calendário. Partidas com algum team não-resolvido (TBD) são SKIPADAS.
+	 */
+	async importMatches(): Promise<MatchSyncResult> {
 		this.logger.log(`Import matches started at: ${nowtoLocalISOString()}`)
+		const result: MatchSyncResult = { changedIds: [], imported: 0, skipped: 0 }
 
 		try {
-
-			const response = await fetch(this.apiUrl + '/competitions/WC/matches?season=2026', { headers: { 'X-Auth-Token': this.apiKey } })
-
+			const response = await fetch(this.apiUrl + '/competitions/WC/matches?season=2026', {
+				headers: { 'X-Auth-Token': this.apiKey },
+			})
 			if (!response.ok) {
-				this.logger.warn(`Football Data API returned error: ${response.statusText}. Response: ${JSON.stringify(await response.json())}`)
-				return
+				this.logger.warn(`Football Data API error: ${response.statusText}`)
+				return result
 			}
 
 			const data = await response.json()
 			const matches = data.matches as FootballDataMatch[]
-			this.logger.log(`Found ${matches.length} matches`)
 
-			for (const externalMatch of matches) {
+			const stages = await this.stageModel.find().exec()
+			const stageIdByCode = new Map(stages.map((s) => [s.code, s._id]))
 
-				const lastUpdated = new Date(externalMatch.lastUpdated)
-				const homeTeam = await this.teamService.findByFootballDataTeamId(externalMatch.homeTeam.id)
-				const awayTeam = await this.teamService.findByFootballDataTeamId(externalMatch.awayTeam.id)
-				const valid = !!homeTeam && !!awayTeam
-
-				const registeredMatch = await this.model.findOne({ footballDataId: externalMatch.id }).exec()
-
-				const matchData = {
-					footballDataId: externalMatch.id,
-					utcDate: new Date(externalMatch.utcDate),
-					status: externalMatch.status,
-					stage: externalMatch.stage,
-					group: externalMatch.group,
-					homeTeam: homeTeam ? homeTeam._id : null,
-					awayTeam: awayTeam ? awayTeam._id : null,
-					valid,
-					lastUpdated,
-				}
-
-				const label = `${homeTeam?.tla ?? 'TBD'} x ${awayTeam?.tla ?? 'TBD'}`
-
-				if (!registeredMatch) {
-					await this.model.create(matchData)
-					this.logger.log(`Created match ${externalMatch.id} [${valid ? 'valid' : 'INVALID'}]: ${label}`)
+			for (const ext of matches) {
+				const stageId = stageIdByCode.get(ext.stage as never)
+				if (!stageId) {
+					result.skipped++
 					continue
 				}
 
-				if (registeredMatch.lastUpdated && registeredMatch.lastUpdated >= lastUpdated) {
-					this.logger.debug(`Match ${externalMatch.id} already up to date`)
+				const home = await this.teamService.findByFootballDataId(ext.homeTeam.id)
+				const away = await this.teamService.findByFootballDataId(ext.awayTeam.id)
+				if (!home || !away) {
+					result.skipped++
 					continue
 				}
 
-				await this.model.updateOne({ footballDataId: externalMatch.id }, { $set: matchData }).exec()
-				this.logger.log(`Updated match ${externalMatch.id} [${valid ? 'valid' : 'INVALID'}]: ${label}`)
+				const externalLastUpdated = new Date(ext.lastUpdated)
+				const status = mapExternalStatus(ext.status)
+				const score = extractScore(ext, status)
+
+				const existing = await this.model.findOne({ footballDataId: ext.id }).exec()
+
+				if (existing && isCanonicalTransition(existing.status, status) === false) {
+					this.logger.warn(
+						`Non-canonical status transition for match ${ext.id}: ${existing.status} → ${status} (external: ${ext.status})`,
+					)
+				}
+
+				const $set = {
+					footballDataId: ext.id,
+					utcDate: new Date(ext.utcDate),
+					status,
+					stage: stageId,
+					group: ext.group,
+					homeTeam: home._id,
+					awayTeam: away._id,
+					score,
+					externalLastUpdated,
+				}
+
+				if (!existing) {
+					const created = await this.model.create($set)
+					result.changedIds.push(created._id)
+					result.imported++
+				} else if (hasChanged(existing, $set)) {
+					await this.model.updateOne({ _id: existing._id }, { $set }).exec()
+					result.changedIds.push(existing._id)
+					result.imported++
+				}
 			}
 
-			this.logger.log(`Finished importing matches at: ${nowtoLocalISOString()}`)
-
+			this.logger.log(
+				`Import done: ${result.imported} imported/updated, ${result.skipped} skipped (TBD or unknown stage)`,
+			)
+			return result
 		} catch (err) {
-
 			this.logger.error('Error importing matches', err)
+			return result
 		}
 	}
+}
 
-	updateMatch(matchId: string, status: MatchStatus, homeTeamScore?: number, awayTeamScore?: number) {
-		return this.model.findByIdAndUpdate(matchId, { status, homeTeamScore, awayTeamScore }, { new: true }).exec()
-	}
+function extractScore(ext: FootballDataMatch, status: MatchStatus) {
+	if (status === MatchStatus.SCHEDULED || status === MatchStatus.CANCELLED) return undefined
+	const full = ext.score?.fullTime
+	if (!full || full.home == null || full.away == null) return undefined
+	if (full.home < 0 || full.away < 0) return undefined
+	return { home: full.home, away: full.away }
+}
+
+function hasChanged(existing: MatchDocument, $set: Record<string, any>): boolean {
+	const scoreDiff =
+		($set.score?.home ?? null) !== (existing.score?.home ?? null) ||
+		($set.score?.away ?? null) !== (existing.score?.away ?? null)
+	return (
+		existing.status !== $set.status ||
+		scoreDiff ||
+		existing.utcDate.getTime() !== $set.utcDate.getTime()
+	)
 }

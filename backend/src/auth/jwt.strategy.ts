@@ -7,9 +7,9 @@ export interface JwtPayload {
 	_id: string
 	email: string
 	name: string
-	picture?: string
-	isAdmin?: boolean
-	isActive?: boolean
+	avatar?: string
+	isAdmin: boolean
+	isActive: boolean
 }
 
 @Injectable()

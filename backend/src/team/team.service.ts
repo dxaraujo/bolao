@@ -1,14 +1,12 @@
-import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model } from 'mongoose'
-import * as path from 'node:path'
 
-import { ConfigService } from '@nestjs/config'
-import { downloadImage } from '../common/download'
-import { isLocalStaticFileOnDisk, resolveStaticDir } from '../common/static-dir'
+import { nowtoLocalISOString, tlaToFlagEmoji } from '@bolao/shared'
+import { MediaService } from '../media/media.service'
 import { UpdateTeamDto } from './dto/update-team.dto'
-import { Team } from './schemas/team.schema'
-import { nowtoLocalISOString } from '@bolao/shared'
+import { Team, TeamDocument } from './schemas/team.schema'
 
 interface FootballDataTeam {
 	id: number
@@ -20,148 +18,83 @@ interface FootballDataTeam {
 }
 
 @Injectable()
-export class TeamService implements OnModuleInit {
+export class TeamService {
 
 	private readonly logger = new Logger(TeamService.name)
 	private readonly apiUrl: string
 	private readonly apiKey: string
 
-	private readonly staticDir: string
-
-	constructor(@InjectModel(Team.name) private readonly model: Model<Team>, private readonly config: ConfigService) {
+	constructor(
+		@InjectModel(Team.name) private readonly model: Model<Team>,
+		private readonly config: ConfigService,
+		private readonly media: MediaService,
+	) {
 		this.apiUrl = this.config.getOrThrow<string>('FOOTBALL_DATA_API_URL')
 		this.apiKey = this.config.getOrThrow<string>('FOOTBALL_DATA_API_KEY')
-		this.staticDir = resolveStaticDir(this.config.get<string>('STATIC_DIR'))
-	}
-
-	async onModuleInit() {
-		await this.syncMissingCrests()
 	}
 
 	findAll() {
-		return this.model.find().exec()
+		return this.model.find().sort({ name: 1 }).exec()
 	}
 
-	findByFootballDataTeamId(id: number) {
+	findByFootballDataId(id: number) {
 		return this.model.findOne({ footballDataId: id }).exec()
 	}
 
-	async update(id: string, dto: UpdateTeamDto) {
+	async update(id: string, dto: UpdateTeamDto): Promise<TeamDocument> {
 		const updated = await this.model.findByIdAndUpdate(id, dto, { new: true }).exec()
-		if (!updated) {
-			throw new NotFoundException(`Time ${id} não encontrado`)
-		}
+		if (!updated) throw new NotFoundException(`Time ${id} não encontrado`)
 		return updated
 	}
 
 	async importTeams() {
-
 		this.logger.log(`Import teams started at: ${nowtoLocalISOString()}`)
-
-		try {
-
-			const response = await fetch(this.apiUrl + '/competitions/WC/teams?season=2026', { headers: { 'X-Auth-Token': this.apiKey } })
-
-			if (!response.ok) {
-				this.logger.warn(`Football Data API returned error: ${response.statusText}. Response: ${JSON.stringify(await response.json())}`)
-				return
-			}
-
-			const data = await response.json()
-			const teams = data.teams as FootballDataTeam[]
-			this.logger.log(`Found ${teams.length} teams`)
-
-			for (const externalTeam of teams) {
-
-				const lastUpdated = new Date(externalTeam.lastUpdated)
-				const registeredTeam = await this.model.findOne({ footballDataId: externalTeam.id }).exec()
-
-				if (!registeredTeam) {
-					const crest = await this.downloadCrest(externalTeam.tla, externalTeam.crest)
-					await this.model.create({
-						footballDataId: externalTeam.id,
-						name: externalTeam.name,
-						shortName: externalTeam.shortName,
-						tla: externalTeam.tla,
-						crest,
-						lastUpdated,
-					})
-					this.logger.log(`Created team ${externalTeam.tla} (${externalTeam.id})`)
-					continue
-				}
-
-				if (registeredTeam.lastUpdated && registeredTeam.lastUpdated >= lastUpdated) {
-					if (await isLocalStaticFileOnDisk(this.staticDir, registeredTeam.crest)) {
-						this.logger.debug(`Team ${externalTeam.tla} already up to date`)
-						continue
-					}
-					this.logger.warn(`Team ${externalTeam.tla} crest missing on disk, re-downloading`)
-				}
-
-				const crest = await this.downloadCrest(externalTeam.tla, externalTeam.crest)
-				await this.model.updateOne({ footballDataId: externalTeam.id }, {
-					$set: {
-						name: externalTeam.name,
-						shortName: externalTeam.shortName,
-						tla: externalTeam.tla,
-						crest,
-						lastUpdated,
-					},
-				}).exec()
-				this.logger.log(`Updated team ${externalTeam.tla} (${externalTeam.id})`)
-			}
-
-			this.logger.log(`Finished importing teams at: ${nowtoLocalISOString()}`)
-
-		} catch (err) {
-			this.logger.error('Error importing teams', err)
-		}
-	}
-
-	private async downloadCrest(tla: string, url: string): Promise<string> {
-		const result = await downloadImage(url, path.join(this.staticDir, 'teams'), tla, '/static/teams')
-		return result?.relativePath ?? url
-	}
-
-	private async syncMissingCrests() {
-		const teams = await this.model.find({ crest: /^\/static\// }).exec()
-		const missing = []
-
-		for (const team of teams) {
-			if (!(await isLocalStaticFileOnDisk(this.staticDir, team.crest))) {
-				missing.push(team)
-			}
-		}
-
-		if (missing.length === 0) return
-
-		this.logger.warn(`Restoring ${missing.length} missing team crest(s) on disk`)
-
 		try {
 			const response = await fetch(this.apiUrl + '/competitions/WC/teams?season=2026', {
 				headers: { 'X-Auth-Token': this.apiKey },
 			})
 			if (!response.ok) {
-				this.logger.warn(`Could not restore crests: Football Data API returned ${response.status}`)
+				this.logger.warn(`Football Data API error: ${response.statusText}`)
 				return
 			}
-
 			const data = await response.json()
-			const externalById = new Map(
-				(data.teams as FootballDataTeam[]).map((team) => [team.id, team]),
-			)
+			const teams = data.teams as FootballDataTeam[]
+			this.logger.log(`Found ${teams.length} teams`)
 
-			for (const team of missing) {
-				const external = externalById.get(team.footballDataId)
-				if (!external?.crest) continue
+			for (const ext of teams) {
+				const externalLastUpdated = new Date(ext.lastUpdated)
+				const flagEmoji = tlaToFlagEmoji(ext.tla) ?? undefined
 
-				const crest = await this.downloadCrest(team.tla, external.crest)
-				if (crest !== team.crest) {
-					await this.model.updateOne({ _id: team._id }, { $set: { crest } }).exec()
+				const existing = await this.model.findOne({ footballDataId: ext.id }).exec()
+
+				let crest: string | undefined = existing?.crest
+				const needsCrestDownload =
+					!flagEmoji && (!existing?.crest || !(await this.media.isLocalAvailable(existing.crest)))
+				if (needsCrestDownload && ext.crest) {
+					const downloaded = await this.media.downloadTeamCrest(ext.tla, ext.crest)
+					if (downloaded) crest = downloaded
+				}
+
+				const $set = {
+					footballDataId: ext.id,
+					name: ext.name,
+					shortName: ext.shortName,
+					tla: ext.tla,
+					flagEmoji,
+					crest,
+					externalLastUpdated,
+				}
+
+				if (!existing) {
+					await this.model.create($set)
+					this.logger.log(`Created team ${ext.tla} (${ext.id}) ${flagEmoji ?? ''}`)
+				} else {
+					await this.model.updateOne({ _id: existing._id }, { $set }).exec()
 				}
 			}
+			this.logger.log(`Finished importing teams at: ${nowtoLocalISOString()}`)
 		} catch (err) {
-			this.logger.error('Failed to restore missing team crests', err)
+			this.logger.error('Error importing teams', err)
 		}
 	}
 }

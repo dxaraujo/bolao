@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common'
 import { ScheduleModule as NestScheduleModule } from '@nestjs/schedule'
 
+import { LeaderboardModule } from '../leaderboard/leaderboard.module'
 import { MatchModule } from '../match/match.module'
-import { StageModule } from '../stage/stage.module'
-import { BlockStagesTask } from './block-stages.task'
-import { ImportMatchesTask } from './import-matches.task'
-import { UpdateScoresTask } from './update-scores.task'
+import { SystemStateModule } from '../system-state/system-state.module'
+import { MatchImportTask } from './match-import.task'
+import { MatchSyncTask } from './match-sync.task'
 
 @Module({
-	imports: [NestScheduleModule.forRoot(), MatchModule, StageModule],
-	providers: [UpdateScoresTask, ImportMatchesTask, BlockStagesTask],
+	imports: [NestScheduleModule.forRoot(), MatchModule, LeaderboardModule, SystemStateModule],
+	providers: [MatchSyncTask, MatchImportTask],
 })
 export class ScheduleModule {}

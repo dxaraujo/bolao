@@ -1,13 +1,21 @@
-import { STAGE_DEADLINES, STAGE_ORDER, type StageVisibleItem } from '@bolao/shared'
-import { BadRequestException, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common'
+import {
+	getStageState,
+	MatchStage,
+	STAGE_DEADLINES,
+	STAGE_EXPECTED_MATCHES,
+	STAGE_ORDER,
+	StageState,
+	type StagePayload,
+	type StageReadinessItem,
+	findPredecessor,
+} from '@bolao/shared'
+import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
-import { Model } from 'mongoose'
+import { Model, Types } from 'mongoose'
 
-import { MatchService } from '../match/match.service'
-import { Match, MatchStage } from '../match/schemas/match.schema'
-import { UserService } from '../user/user.service'
+import { Match } from '../match/schemas/match.schema'
 import { UpdateStageDto } from './dto/update-stage.dto'
-import { Stage, StageStatus } from './schemas/stage.schema'
+import { Stage, StageDocument } from './schemas/stage.schema'
 
 @Injectable()
 export class StageService implements OnModuleInit {
@@ -17,143 +25,102 @@ export class StageService implements OnModuleInit {
 	constructor(
 		@InjectModel(Stage.name) private readonly model: Model<Stage>,
 		@InjectModel(Match.name) private readonly matchModel: Model<Match>,
-		private readonly userService: UserService,
-		private readonly matchService: MatchService,
-	) { }
+	) {}
 
 	async onModuleInit() {
-
 		const count = await this.model.estimatedDocumentCount().exec()
-		if (count > 0) {
-			return
-		}
+		if (count > 0) return
 
-		await this.model.insertMany(Object.entries(STAGE_ORDER).map(([matchStage, order]) => ({
-			matchStage: matchStage as MatchStage,
+		await this.model.insertMany(Object.entries(STAGE_ORDER).map(([code, order]) => ({
+			code: code as MatchStage,
 			order,
-			status: (matchStage as MatchStage) === MatchStage.GROUP_STAGE ? StageStatus.OPEN : StageStatus.DISABLED,
-			deadline: new Date(STAGE_DEADLINES[matchStage as MatchStage]),
+			deadline: new Date(STAGE_DEADLINES[code as MatchStage]),
+			expectedMatchCount: STAGE_EXPECTED_MATCHES[code as MatchStage],
 		})))
-
-		this.logger.log(`Initialized stage collection with ${Object.entries(STAGE_ORDER).length} stages`)
+		this.logger.log(`Initialized stage collection with ${Object.keys(STAGE_ORDER).length} stages`)
 	}
 
 	findAll() {
 		return this.model.find().sort({ order: 1 }).exec()
 	}
 
-	async findVisibleStages(): Promise<StageVisibleItem[]> {
-		const stages = await this.model
-			.find({ status: { $in: [StageStatus.OPEN, StageStatus.BLOCKED] } })
-			.sort({ order: 1 })
-			.exec()
+	findByCode(code: MatchStage) {
+		return this.model.findOne({ code }).exec()
+	}
+
+	async list(): Promise<StagePayload[]> {
+		const stages = await this.findAll()
+		const now = new Date()
+		const all = stages.map((s) => ({ code: s.code, deadline: s.deadline }))
+		const importedCounts = await this.importedCounts(stages)
 		return stages.map((s) => ({
-			matchStage: s.matchStage,
+			_id: s._id.toString(),
+			code: s.code,
 			order: s.order,
-			status: s.status,
-			deadline: s.deadline ? s.deadline.toISOString() : undefined,
+			state: getStageState({ code: s.code, deadline: s.deadline }, all, now),
+			deadline: s.deadline.toISOString(),
+			expectedMatchCount: s.expectedMatchCount,
+			importedMatchCount: importedCounts.get(s._id.toString()) ?? 0,
 		}))
 	}
 
-	async findBlockedStages(): Promise<string[]> {
-		const stages = await this.model.find({ status: StageStatus.BLOCKED }).exec()
-		return stages.map(stage => stage.matchStage)
-	}
-
-	async findOpenStages(): Promise<string[]> {
-		const stages = await this.model.find({ status: StageStatus.OPEN }).exec()
-		return stages.map((s) => s.matchStage)
-	}
-
-	async isStageBlocked(matchStage: string): Promise<boolean> {
-		const stage = await this.model.findOne({ matchStage, status: StageStatus.BLOCKED }).exec()
-		return stage != null
-	}
-
-	async existsByMatchStage(matchStage: MatchStage) {
-		return await this.model.exists({ matchStage }).exec();
-	}
-
-	async update(matchStage: string, dto: UpdateStageDto) {
-
-		const current = await this.model.findOne({ matchStage }).exec()
-		if (!current) {
-			throw new NotFoundException(`Fase ${matchStage} não encontrada`)
-		}
-
-		const order: StageStatus[] = [StageStatus.DISABLED, StageStatus.OPEN, StageStatus.BLOCKED]
-		const expectedNext = order[order.indexOf(current.status) + 1]
-		if (!expectedNext || dto.status !== expectedNext) {
-			throw new BadRequestException(`Mudança de status inválida: ${current.status} → ${dto.status}`)
-		}
-
-		if (dto.status === StageStatus.OPEN) {
-			this.logger.log(`Importing matches before opening stage ${matchStage}`)
-			await this.matchService.importMatches()
-
-			const invalidCount = await this.matchModel.countDocuments({ stage: matchStage, valid: false }).exec()
-			if (invalidCount > 0) {
-				throw new BadRequestException(`Não é possível abrir a fase ${matchStage}: ${invalidCount} partida(s) sem times definidos.`)
+	async readiness(): Promise<StageReadinessItem[]> {
+		const stages = await this.findAll()
+		const now = new Date()
+		const all = stages.map((s) => ({ code: s.code, deadline: s.deadline }))
+		const importedCounts = await this.importedCounts(stages)
+		return stages.map((s) => {
+			const pred = findPredecessor(s.code, all)
+			return {
+				_id: s._id.toString(),
+				code: s.code,
+				order: s.order,
+				state: getStageState({ code: s.code, deadline: s.deadline }, all, now),
+				deadline: s.deadline.toISOString(),
+				expectedMatchCount: s.expectedMatchCount,
+				importedMatchCount: importedCounts.get(s._id.toString()) ?? 0,
+				predecessor: pred
+					? { code: pred.code, state: getStageState(pred, all, now) }
+					: undefined,
 			}
+		})
+	}
 
-			if (current.order > 1) {
-				const requiredPrevious = current.matchStage === MatchStage.FINAL ? MatchStage.SEMI_FINALS : undefined
-				const previous = requiredPrevious
-					? await this.model.findOne({ matchStage: requiredPrevious }).exec()
-					: await this.model.findOne({ order: current.order - 1 }).exec()
-				if (!previous || previous.status !== StageStatus.BLOCKED) {
-					throw new BadRequestException(`Não é possível abrir a fase ${matchStage}: a fase anterior (${previous?.matchStage ?? 'desconhecida'}) ainda não foi encerrada.`)
-				}
-			}
-		}
+	private async importedCounts(stages: StageDocument[]): Promise<Map<string, number>> {
+		const ids = stages.map((s) => s._id)
+		const counts = await this.matchModel.aggregate<{ _id: Types.ObjectId; count: number }>([
+			{ $match: { stage: { $in: ids } } },
+			{ $group: { _id: '$stage', count: { $sum: 1 } } },
+		])
+		return new Map(counts.map((c) => [c._id.toString(), c.count]))
+	}
 
-		const updated = await this.model.findOneAndUpdate({ matchStage }, dto, { new: true }).exec()
+	async getStateFor(stageId: Types.ObjectId | string, now: Date = new Date()): Promise<StageState> {
+		const stages = await this.findAll()
+		const target = stages.find((s) => s._id.toString() === stageId.toString())
+		if (!target) return StageState.LOCKED
+		const all = stages.map((s) => ({ code: s.code, deadline: s.deadline }))
+		return getStageState({ code: target.code, deadline: target.deadline }, all, now)
+	}
 
-		this.logger.log(`Stage ${matchStage} updated to ${StageStatus[dto.status]}`)
+	async findStagesByState(state: StageState, now: Date = new Date()): Promise<StageDocument[]> {
+		const stages = await this.findAll()
+		const all = stages.map((s) => ({ code: s.code, deadline: s.deadline }))
+		return stages.filter((s) => getStageState({ code: s.code, deadline: s.deadline }, all, now) === state)
+	}
 
-		if (dto.status === StageStatus.OPEN) {
-			this.logger.log(`Seeding bets for stage ${matchStage}`)
-			await this.seedBetsForStage(matchStage)
-			this.logger.log(`Bets seeded for stage ${matchStage}`)
-		}
+	async update(code: MatchStage, dto: UpdateStageDto): Promise<StageDocument> {
+		const current = await this.findByCode(code)
+		if (!current) throw new NotFoundException(`Fase ${code} não encontrada`)
 
+		const $set: Record<string, unknown> = {}
+		if (dto.deadline) $set.deadline = new Date(dto.deadline)
+		if (typeof dto.expectedMatchCount === 'number') $set.expectedMatchCount = dto.expectedMatchCount
+
+		const updated = await this.model.findOneAndUpdate({ code }, { $set }, { new: true }).exec()
+		if (!updated) throw new NotFoundException(`Fase ${code} não encontrada`)
+
+		this.logger.log(`Stage ${code} updated: ${JSON.stringify($set)}`)
 		return updated
 	}
-
-	async seedBetsForStage(matchStage: string) {
-
-		const users = await this.userService.findActiveUsers()
-
-		if (users.length === 0) {
-			this.logger.log(`Skipping seed for stage ${matchStage}: no active users`)
-			return
-		}
-
-		for (const user of users) {
-			await this.userService.seedBetsForUser(user._id.toString())
-		}
-		this.logger.log(`Seed stage ${matchStage}: processed ${users.length} active user(s)`)
-	}
-
-	async blockExpiredStages(now: Date = new Date()) {
-
-		const expired = await this.model
-			.find({ status: StageStatus.OPEN, deadline: { $ne: null, $lte: now } })
-			.exec()
-
-		if (expired.length === 0) return
-
-		const result = await this.model
-			.updateMany(
-				{ _id: { $in: expired.map((s) => s._id) }, status: StageStatus.OPEN },
-				{ $set: { status: StageStatus.BLOCKED } },
-			)
-			.exec()
-
-		if (result.modifiedCount > 0) {
-			const names = expired.map((s) => s.matchStage).join(', ')
-			this.logger.log(`Auto-blocked ${result.modifiedCount} stage(s) past deadline: ${names}`)
-		}
-	}
-
 }

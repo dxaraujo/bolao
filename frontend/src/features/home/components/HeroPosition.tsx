@@ -31,7 +31,6 @@ export function HeroPosition() {
 	}
 
 	const position = myRow.rank
-	const medal = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : `${position}°`
 
 	return (
 		<Card className="animate-fade-up relative overflow-hidden border-acc/30 bg-gradient-to-br from-acc/15 to-gold/10">
@@ -41,8 +40,8 @@ export function HeroPosition() {
 					<Trophy className="h-3 w-3" /> Sua posição atual
 				</div>
 				<div className="flex items-center justify-between mt-3 ml-2">
-					<div className="font-display text-5xl leading-none">{medal}</div>
-					<div className="flex flex-col items-center justify-center">
+					<div className="font-display text-5xl leading-none">{position}</div>
+					<div className="flex flex-col items-center justify-center ml-2">
 						<div className="text-xs text-sub">de {total} participantes</div>
 					</div>
 					<div className="flex font-display text-4xl leading-none text-acc ml-auto">

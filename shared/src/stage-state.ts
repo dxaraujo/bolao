@@ -13,15 +13,9 @@ const toDate = (d: Date | string): Date => (d instanceof Date ? d : new Date(d))
 
 /**
  * Identifica a fase predecessora (que precisa estar CLOSED para esta abrir).
- * Default: fase com `order - 1`. Exceções em `STAGE_PREDECESSOR`.
  */
 export const findPredecessor = (code: MatchStage, all: StageInput[]): StageInput | null => {
-	const explicit = STAGE_PREDECESSOR[code]
-	if (explicit) return all.find((s) => s.code === explicit) ?? null
-	const order = STAGE_ORDER[code]
-	if (order <= 1) return null
-	const prevCode = (Object.keys(STAGE_ORDER) as MatchStage[]).find((c) => STAGE_ORDER[c] === order - 1)
-	return prevCode ? all.find((s) => s.code === prevCode) ?? null : null
+	return all.find((s) => s.code === STAGE_PREDECESSOR[code]) ?? null
 }
 
 /**

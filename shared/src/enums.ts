@@ -62,7 +62,13 @@ export const STAGE_EXPECTED_MATCHES: Record<MatchStage, number> = {
 }
 
 /** Fase predecessora obrigatória (override do "anterior por ordem"). */
-export const STAGE_PREDECESSOR: Partial<Record<MatchStage, MatchStage>> = {
+export const STAGE_PREDECESSOR: Record<MatchStage, MatchStage | undefined> = {
+	[MatchStage.GROUP_STAGE]: undefined,
+	[MatchStage.LAST_32]: MatchStage.GROUP_STAGE,
+	[MatchStage.LAST_16]: MatchStage.LAST_32,
+	[MatchStage.QUARTER_FINALS]: MatchStage.LAST_16,
+	[MatchStage.SEMI_FINALS]: MatchStage.QUARTER_FINALS,
+	[MatchStage.THIRD_PLACE]: MatchStage.SEMI_FINALS,
 	[MatchStage.FINAL]: MatchStage.SEMI_FINALS,
 }
 

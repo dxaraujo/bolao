@@ -14,7 +14,7 @@ export function useUpdateUser() {
 	const qc = useQueryClient()
 	return useMutation({
 		mutationFn: ({ id, ...body }: { id: string; isActive?: boolean; isAdmin?: boolean }) =>
-			api.put<UserPayload>(`/api/user/${id}`, body),
+			api.patch<UserPayload>(`/api/user/${id}`, body),
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: ['admin', 'users'] })
 			qc.invalidateQueries({ queryKey: ['leaderboard'] })
@@ -34,7 +34,7 @@ export function useUpdateStage() {
 	const qc = useQueryClient()
 	return useMutation({
 		mutationFn: ({ code, ...body }: { code: MatchStage; deadline?: string; expectedMatchCount?: number }) =>
-			api.put<StagePayload>(`/api/stage/${code}`, body),
+			api.patch<StagePayload>(`/api/stage/${code}`, body),
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: ['stages'] })
 			qc.invalidateQueries({ queryKey: ['admin', 'stage-readiness'] })

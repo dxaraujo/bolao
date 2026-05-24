@@ -8,8 +8,6 @@ export interface JwtPayload {
 	email: string
 	name: string
 	avatar?: string
-	isAdmin: boolean
-	isActive: boolean
 }
 
 @Injectable()

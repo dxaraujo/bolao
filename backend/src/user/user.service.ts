@@ -1,5 +1,5 @@
 import { StageStatus } from '@bolao/shared'
-import { Injectable, Logger, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
@@ -11,17 +11,11 @@ import { isLocalStaticFileOnDisk, resolveStaticDir } from '../common/static-dir'
 import { Match } from '../match/schemas/match.schema'
 import { Stage } from '../stage/schemas/stage.schema'
 import { UpdateUserDto } from './dto/update-user.dto'
-import { User } from './schemas/user.schema'
-
-export interface CreateUserInput {
-	googleSub: string
-	name: string
-	email: string
-	picture?: string
-}
+import { User, UserDocument } from './schemas/user.schema'
+import { GoogleProfile } from 'src/auth/auth.service'
 
 @Injectable()
-export class UserService {
+export class UserService implements OnModuleInit {
 
 	private readonly logger = new Logger(UserService.name)
 	private readonly staticDir: string
@@ -36,6 +30,10 @@ export class UserService {
 		this.staticDir = resolveStaticDir(config.get<string>('STATIC_DIR'))
 	}
 
+	async onModuleInit() {
+		await this.syncMissingPictures()
+	}
+
 	findById(id: string) {
 		return this.userModel.findById(id).exec()
 	}
@@ -48,31 +46,30 @@ export class UserService {
 		return this.userModel.find().exec()
 	}
 
-	async upsert(input: CreateUserInput) {
+	async upsert(input: GoogleProfile) {
 
-		const existing = await this.userModel.findOne({ googleSub: input.googleSub }).exec()
-		const externalPicture = input.picture
+		// `picture` é zerado apenas na criação. `externalPicture` é sempre sobrescrito
+		// com a URL mais recente vinda do Google.
+		const user = await this.userModel.findOneAndUpdate(
+			{ googleSub: input.googleSub },
+			{
+				$set: { googleSub: input.googleSub, name: input.name, email: input.email, externalPicture: input.externalPicture },
+				$setOnInsert: { picture: '' },
+			},
+			{ new: true, upsert: true },
+		).exec()
 
-		// Primeiro upsert grava a URL externa para garantir _id; depois (se a URL mudou) baixamos
-		// localmente e sobrescrevemos o campo picture.
-		const user = await this.userModel.findOneAndUpdate({ googleSub: input.googleSub }, input, { new: true, upsert: true }).exec()
-
-		if (!externalPicture || !/^https?:\/\//i.test(externalPicture)) return user
-
-		const previousWasLocal = existing?.picture?.startsWith('/static/') ?? false
-		const externalChanged = !existing || existing.picture !== externalPicture
-
-		if (previousWasLocal && !externalChanged) {
-			if (await isLocalStaticFileOnDisk(this.staticDir, existing!.picture)) return user
-			this.logger.warn(`Local picture missing on disk for user ${user._id}, re-downloading`)
+		// URL externa ausente ou inválida: mantém `picture` como está.
+		if (!input.externalPicture || !/^https?:\/\//i.test(input.externalPicture)) {
+			return user
 		}
 
-		const localPicture = await this.downloadPicture((user._id as Types.ObjectId).toString(), externalPicture)
-		if (!localPicture || localPicture === user.picture) return user
+		const picture = await this.downloadPicture(user.id, input.externalPicture)
 
-		user.picture = localPicture
-		await this.userModel.updateOne({ _id: user._id }, { $set: { picture: localPicture } }).exec()
-		return user
+		// Download falhou: preserva o invariante de `picture` (vazio ou `/static/...`).
+		if (!picture) return user
+
+		return await this.userModel.findOneAndUpdate({ googleSub: input.googleSub }, { $set: { picture } }, { new: true }).exec()
 	}
 
 	private async downloadPicture(userId: string, url: string): Promise<string | null> {
@@ -82,6 +79,32 @@ export class UserService {
 			return null
 		}
 		return result.relativePath
+	}
+
+	private async syncMissingPictures() {
+		const users = await this.userModel.find({
+			picture: { $regex: /^\/static\// },
+			externalPicture: { $regex: /^https?:\/\//i },
+		}).exec()
+
+		const missing: UserDocument[] = []
+		for (const user of users) {
+			if (!(await isLocalStaticFileOnDisk(this.staticDir, user.picture))) {
+				missing.push(user)
+			}
+		}
+
+		if (missing.length === 0) return
+
+		this.logger.warn(`Restoring ${missing.length} missing user picture(s) on disk`)
+
+		for (const user of missing) {
+			const userId = (user._id as Types.ObjectId).toString()
+			const localPicture = await this.downloadPicture(userId, user.externalPicture)
+			if (localPicture && localPicture !== user.picture) {
+				await this.userModel.updateOne({ _id: user._id }, { $set: { picture: localPicture } }).exec()
+			}
+		}
 	}
 
 	async update(userId: string, input: UpdateUserDto) {

@@ -27,7 +27,8 @@ Conceitos, entidades e regras de negócio do Bolão da Copa 2026.
 | `googleSub`           | string      | —       | ID único do Google (`sub` do ID token). Indexado, único.                  |
 | `name`                | string      | —       | Nome completo retornado pelo Google                                       |
 | `email`               | string      | —       | E-mail retornado pelo Google                                              |
-| `picture`             | string      | `''`    | URL relativa local (`/static/users/<id>.<ext>`) ou URL externa fallback   |
+| `picture`             | string      | `''`    | **Sempre** vazio ou caminho relativo local (`/static/users/<id>.<ext>`). Nunca contém URL externa.    |
+| `externalPicture`     | string      | `''`    | **Sempre** vazio ou a URL externa mais recente vinda do Google. Usada para re-baixar `picture` quando o arquivo local some (ex.: volume estático recriado no deploy) e para detectar se o avatar mudou entre logins |
 | `exactScore`          | number      | `0`     | Quantidade de placares exatos                                             |
 | `winnerWithGoal`      | number      | `0`     | Quantidade de "vencedor + gol"                                            |
 | `correctWinner`       | number      | `0`     | Quantidade de "vencedor"                                                  |

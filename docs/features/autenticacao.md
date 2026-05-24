@@ -21,9 +21,11 @@ Login exclusivo via **Google Identity Services** com emissão de **JWT** própri
    - Recusa se faltar campo obrigatório → `401 Google token payload incompleto`
    - Recusa se `email` não for `@gmail.com` **e** não houver `hd` (Google Workspace) **e** `email_verified !== true` → `401 E-mail do Google não verificado`
 5. `UserService.upsert`:
-   - `findOneAndUpdate({ googleSub }, input, { upsert: true })`
-   - Se a URL do avatar mudou, baixa para `static/users/<userId>.<ext>` e atualiza `picture` para `/static/users/...`
-   - Mantém apenas a versão local; se o arquivo sumir no disco, re-baixa no próximo login
+   - Upsert por `googleSub` gravando `name`, `email` e `externalPicture` (a URL do payload). `picture` é inicializado vazio apenas no insert; em updates fica preservado.
+   - Se `externalPicture` é vazio ou não é `http(s)`: retorna sem mais nada (caso de payload sem foto).
+   - Caso contrário, tenta baixar a foto para `static/users/<userId>.<ext>`:
+     - **Download OK** → atualiza `picture` com o caminho local `/static/...`.
+     - **Download falhou** → retorna sem alterar `picture`, preservando o invariante (ver abaixo). A próxima tentativa acontece no próximo login, ou via `syncMissingPictures` no boot.
 6. Backend assina um JWT com `JwtService.sign(claims)` onde `claims: JwtPayload`:
    ```ts
    { _id, email, name, picture?, isAdmin, isActive }
@@ -124,9 +126,31 @@ O backend baixa o avatar do Google **uma vez** e serve a partir de `/static/user
 - Evita dependência da URL do Google em runtime (CDNs do Google podem mudar/expirar)
 - Cache `Cache-Control: public, max-age=31536000, immutable`
 
-Atualização do avatar:
-- Em todo login, se a URL externa (`picture` do payload Google) mudou em relação ao último valor armazenado, re-baixa
-- Se o arquivo local sumiu do disco mas o registro ainda aponta para `/static/`, re-baixa
+Dois campos no schema `User` colaboram. **Invariantes**:
+
+| Campo        | Conteúdo                                                                                              |
+|--------------|-------------------------------------------------------------------------------------------------------|
+| `picture`    | **Sempre** vazio ou um caminho `/static/users/<id>.<ext>`. **Nunca** uma URL externa. Usado pelo frontend para `<img src>`. |
+| `externalPicture` | **Sempre** vazio ou a URL externa mais recente do Google. Permite re-baixar a foto a qualquer momento sem precisar do usuário logar de novo. |
+
+### Atualização do avatar
+
+Em todo login, `UserService.upsert`:
+1. Persiste `externalPicture` com a URL do payload do Google (sobrescreve a anterior, se existia).
+2. Se `externalPicture` é vazio/inválido, encerra. `picture` fica como estava.
+3. Caso contrário, tenta baixar a foto:
+   - **OK**: grava `picture` com o caminho `/static/users/<userId>.<ext>`.
+   - **Falha**: não toca em `picture` — o invariante "vazio ou `/static/...`" continua válido. O usuário pode aparecer sem avatar (`picture: ''`) ou com o avatar antigo (`picture: /static/...` herdado de um login anterior) até a próxima tentativa.
+
+> O fluxo é deliberadamente simples: re-tenta o download em **todo login**. Isso significa uma chamada à CDN do Google por login bem-sucedido, mesmo quando nada mudou — aceitável para um app privado de poucos usuários.
+
+### Sincronização no boot — `syncMissingPictures`
+
+`UserService.onModuleInit` percorre todos os usuários cujo `picture` aponta para `/static/...` e cujo `externalPicture` é uma URL `http(s)`. Para cada um, se o arquivo não está no disco, **re-baixa usando `externalPicture`** e atualiza `picture` com o novo caminho local.
+
+Isso resolve um cenário crítico: quando o volume de `static/` é descartado num redeploy, os caminhos no Mongo continuam apontando para arquivos inexistentes. Sem `externalPicture`, a única forma de restaurar a foto era esperar o usuário relogar (e o avatar quebrado aparecia até lá). Com `externalPicture`, o boot resolve sozinho.
+
+> Note: usuários que existiam antes da introdução de `externalPicture` têm o campo vazio. Para eles, `syncMissingPictures` não consegue restaurar — eles precisam logar uma vez (o que popula `externalPicture`) e a partir daí entram no esquema de auto-restauração.
 
 ## Erros e como tratá-los
 

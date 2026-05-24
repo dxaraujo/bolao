@@ -8,11 +8,11 @@ import { UserService } from '../user/user.service'
 import type { UserDocument } from '../user/schemas/user.schema'
 import type { JwtPayload } from './jwt.strategy'
 
-interface GoogleProfile {
+export interface GoogleProfile {
 	googleSub: string
 	email: string
 	name: string
-	picture: string
+	externalPicture: string
 }
 
 @Injectable()
@@ -51,7 +51,7 @@ export class AuthService {
 				googleSub: sub,
 				email,
 				name,
-				picture: payload.picture ?? '',
+				externalPicture: payload.picture ?? '',
 			}
 		} catch (error) {
 			if (error instanceof UnauthorizedException) throw error

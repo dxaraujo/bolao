@@ -82,3 +82,42 @@ Variável obrigatória: `VITE_GOOGLE_CLIENT_ID`.
 - **Mudou contrato no `shared/`?** Rodar `pnpm build:shared` para que backend e frontend leiam o `dist/` atualizado.
 - **PRs pequenos por fase do refactor.** Não misturar troca de toolchain/UI com mudanças de feature. Cada PR auto-contido e revisável; app sempre funcionando entre fases.
 - **Não criar arquivos `.md` novos** (planos, notas, resumos) a menos que pedido explicitamente. Usar contexto da conversa.
+
+## Documentação de referência
+
+Tudo abaixo está em PT-BR e reflete o estado atual do código. Consulte antes de modificar a feature correspondente — economiza leitura de código e evita refazer raciocínio.
+
+### Visão geral
+
+- [`docs/README.md`](./docs/README.md) — índice e convenções
+- [`docs/arquitetura.md`](./docs/arquitetura.md) — monorepo, módulos backend, camadas frontend, bootstrap, diretório estático
+- [`docs/dominio.md`](./docs/dominio.md) — entidades (User/Team/Match/Stage/Bet/Config), regras de pontuação, critério de desempate, fluxos completos
+- [`docs/api.md`](./docs/api.md) — referência REST de todos os endpoints, autenticação, envelope `ApiResponse<T>`
+- [`docs/desenvolvimento.md`](./docs/desenvolvimento.md) — setup, scripts, env vars, debug, fluxo "do zero ao primeiro palpite"
+
+### Funcionalidades — [`docs/features/`](./docs/features/README.md)
+
+- [`autenticacao.md`](./docs/features/autenticacao.md) — Google OAuth + JWT, `JwtAuthGuard` global, `@Public()`, `AdminGuard`
+- [`home.md`](./docs/features/home.md) — `HomeScreen` (`/`): HeroPosition, OpenStageBanner, ao vivo, próximos (janela 2 dias), recentes
+- [`apostas.md`](./docs/features/apostas.md) — `BetsScreen` (`/apostas`): tabs por fase, BetCard, progress, salvar em lote
+- [`bolao.md`](./docs/features/bolao.md) — `BolaoScreen` (`/bolao`): agregado por partida, só fases `BLOCKED`
+- [`ranking.md`](./docs/features/ranking.md) — `RankingScreen` (`/ranking`): pódio, lista completa, gráfico, tabela de regras
+- [`estatisticas.md`](./docs/features/estatisticas.md) — `StatsScreen` (`/stats`): KPIs, accuracy por usuário, donut de distribuição
+- [`admin.md`](./docs/features/admin.md) — `AdminScreen` (`/admin`): importações, gestão de fases, gestão de usuários
+- [`gestao-fases.md`](./docs/features/gestao-fases.md) — lifecycle `DISABLED → OPEN → BLOCKED`, deadlines, `BlockStagesTask`, exceção `THIRD_PLACE`/`FINAL`
+- [`pontuacao.md`](./docs/features/pontuacao.md) — `calculateBetScore`, agregação, ranking com desempate, **divergência Config × valores hardcoded**
+- [`sincronizacao-externa.md`](./docs/features/sincronizacao-externa.md) — Football Data API, três crons, idempotência
+
+### Quando consultar o quê
+
+| Tarefa                                        | Comece por                              |
+|-----------------------------------------------|-----------------------------------------|
+| Entender o domínio antes de mexer no schema   | `docs/dominio.md`                       |
+| Adicionar/modificar endpoint REST             | `docs/api.md` + doc da feature          |
+| Trabalhar numa tela do frontend               | `docs/features/<tela>.md`               |
+| Mexer em pontuação ou ranking                 | `docs/features/pontuacao.md`            |
+| Mexer em cron, importação ou Football Data    | `docs/features/sincronizacao-externa.md`|
+| Mexer no ciclo de vida das fases              | `docs/features/gestao-fases.md`         |
+| Setup de ambiente local                       | `docs/desenvolvimento.md`               |
+
+> **Atualize a documentação ao mudar a feature.** Se você adicionou um endpoint, mudou o cálculo de pontos, ou alterou o lifecycle de uma fase, ajuste o doc correspondente no mesmo PR.

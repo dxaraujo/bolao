@@ -18,6 +18,9 @@ export class User {
 	@Prop({ default: '' })
 	picture!: string
 
+	@Prop({ default: '' })
+	externalPicture!: string
+
 	@Prop({ required: true, default: 0 })
 	exactScore!: number
 

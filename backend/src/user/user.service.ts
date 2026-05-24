@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 import * as path from 'node:path'
 
+import { GoogleProfile } from 'src/auth/auth.service'
 import { Bet } from '../bet/schemas/bet.schema'
 import { downloadImage } from '../common/download'
 import { isLocalStaticFileOnDisk, resolveStaticDir } from '../common/static-dir'
@@ -12,7 +13,6 @@ import { Match } from '../match/schemas/match.schema'
 import { Stage } from '../stage/schemas/stage.schema'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User, UserDocument } from './schemas/user.schema'
-import { GoogleProfile } from 'src/auth/auth.service'
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -69,7 +69,7 @@ export class UserService implements OnModuleInit {
 		// Download falhou: preserva o invariante de `picture` (vazio ou `/static/...`).
 		if (!picture) return user
 
-		return await this.userModel.findOneAndUpdate({ googleSub: input.googleSub }, { $set: { picture } }, { new: true }).exec()
+		return await this.userModel.findOneAndUpdate({ googleSub: input.googleSub }, { $set: { picture } }, { new: true, upsert: true }).exec()
 	}
 
 	private async downloadPicture(userId: string, url: string): Promise<string | null> {

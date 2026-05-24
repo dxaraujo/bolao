@@ -43,7 +43,7 @@ const LeaderboardRowSchema = SchemaFactory.createForClass(LeaderboardRowSub)
 @Schema({ timestamps: true })
 export class Leaderboard {
 	@Prop({ required: true, unique: true })
-	key!: string  // sempre 'singleton'
+	key!: string // sempre 'singleton'
 
 	@Prop({ required: true })
 	generatedAt!: Date

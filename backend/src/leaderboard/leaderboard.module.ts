@@ -9,12 +9,7 @@ import { LeaderboardService } from './leaderboard.service'
 import { Leaderboard, LeaderboardSchema } from './schemas/leaderboard.schema'
 
 @Module({
-	imports: [
-		MongooseModule.forFeature([{ name: Leaderboard.name, schema: LeaderboardSchema }]),
-		UserModule,
-		MatchModule,
-		BetModule,
-	],
+	imports: [MongooseModule.forFeature([{ name: Leaderboard.name, schema: LeaderboardSchema }]), UserModule, MatchModule, BetModule],
 	controllers: [LeaderboardController],
 	providers: [LeaderboardService],
 	exports: [LeaderboardService],

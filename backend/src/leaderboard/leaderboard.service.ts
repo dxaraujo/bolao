@@ -29,7 +29,6 @@ interface UserAggregate {
 
 @Injectable()
 export class LeaderboardService {
-
 	private readonly logger = new Logger(LeaderboardService.name)
 
 	constructor(
@@ -65,7 +64,7 @@ export class LeaderboardService {
 		if (!doc) return { generatedAt: new Date(0).toISOString(), rows: [] }
 		const userIds = doc.rows.map((r) => r.user)
 		const users = await this.userModel.find({ _id: { $in: userIds } }).exec()
-		const userById = new Map(users.map((u) => [(u._id).toString(), u]))
+		const userById = new Map(users.map((u) => [u._id.toString(), u]))
 		const rows: LeaderboardItem[] = doc.rows.map((r) => {
 			const u = userById.get(r.user.toString())
 			return {
@@ -103,18 +102,20 @@ export class LeaderboardService {
 		const activeUsers = await this.userModel.find({ isActive: true }).sort({ name: 1 }).exec()
 		const aggregates = await this.computeAggregates(activeUsers)
 		return aggregates
-			.map((a): UserAccuracy => ({
-				_id: (a.user._id).toString(),
-				name: a.user.name,
-				avatar: a.user.avatar,
-				totalBets: a.totalBets,
-				exactScore: a.breakdown.exactScore,
-				winnerWithGoal: a.breakdown.winnerWithGoal,
-				correctWinner: a.breakdown.correctWinner,
-				oneGoalCorrect: a.breakdown.oneGoalCorrect,
-				wrong: a.breakdown.wrong,
-				accuracyPct: a.totalBets > 0 ? Math.round((a.breakdown.exactScore / a.totalBets) * 100) : 0,
-			}))
+			.map(
+				(a): UserAccuracy => ({
+					_id: a.user._id.toString(),
+					name: a.user.name,
+					avatar: a.user.avatar,
+					totalBets: a.totalBets,
+					exactScore: a.breakdown.exactScore,
+					winnerWithGoal: a.breakdown.winnerWithGoal,
+					correctWinner: a.breakdown.correctWinner,
+					oneGoalCorrect: a.breakdown.oneGoalCorrect,
+					wrong: a.breakdown.wrong,
+					accuracyPct: a.totalBets > 0 ? Math.round((a.breakdown.exactScore / a.totalBets) * 100) : 0,
+				}),
+			)
 			.sort((a, b) => b.accuracyPct - a.accuracyPct || a.name.localeCompare(b.name, 'pt-BR'))
 	}
 
@@ -148,10 +149,8 @@ export class LeaderboardService {
 		const activeUserIds = activeUsers.map((u) => u._id)
 
 		// Scored matches: LIVE ou FINISHED com score presente
-		const scoredMatches = await this.matchModel
-			.find({ status: { $in: [MatchStatus.LIVE, MatchStatus.FINISHED] }, score: { $exists: true } })
-			.exec()
-		const matchById = new Map(scoredMatches.map((m) => [(m._id).toString(), m]))
+		const scoredMatches = await this.matchModel.find({ status: { $in: [MatchStatus.LIVE, MatchStatus.FINISHED] }, score: { $exists: true } }).exec()
+		const matchById = new Map(scoredMatches.map((m) => [m._id.toString(), m]))
 
 		if (scoredMatches.length === 0) {
 			return activeUsers.map((user) => ({
@@ -163,13 +162,11 @@ export class LeaderboardService {
 		}
 
 		const matchIds = scoredMatches.map((m) => m._id)
-		const bets = await this.betModel
-			.find({ user: { $in: activeUserIds }, match: { $in: matchIds } })
-			.exec()
+		const bets = await this.betModel.find({ user: { $in: activeUserIds }, match: { $in: matchIds } }).exec()
 
 		const byUser = new Map<string, UserAggregate>()
 		for (const user of activeUsers) {
-			byUser.set((user._id).toString(), {
+			byUser.set(user._id.toString(), {
 				user,
 				points: 0,
 				breakdown: { exactScore: 0, winnerWithGoal: 0, correctWinner: 0, oneGoalCorrect: 0, wrong: 0 },
@@ -224,17 +221,13 @@ export class LeaderboardService {
 			rank: r.rank,
 		}))
 		await this.leaderboardModel
-			.updateOne(
-				{ key: SINGLETON_KEY },
-				{ $set: { key: SINGLETON_KEY, generatedAt: now, rows: rowSubs } },
-				{ upsert: true },
-			)
+			.updateOne({ key: SINGLETON_KEY }, { $set: { key: SINGLETON_KEY, generatedAt: now, rows: rowSubs } }, { upsert: true })
 			.exec()
 		return {
 			generatedAt: now.toISOString(),
 			rows: rows.map((r) => ({
 				rank: r.rank,
-				user: { _id: (r.user._id).toString(), name: r.user.name, avatar: r.user.avatar },
+				user: { _id: r.user._id.toString(), name: r.user.name, avatar: r.user.avatar },
 				points: r.points,
 				breakdown: r.breakdown,
 			})),

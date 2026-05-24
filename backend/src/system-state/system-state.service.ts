@@ -9,7 +9,6 @@ const KEY = 'singleton'
 
 @Injectable()
 export class SystemStateService {
-
 	constructor(@InjectModel(SystemState.name) private readonly model: Model<SystemState>) {}
 
 	private async load(): Promise<SystemState> {
@@ -20,9 +19,7 @@ export class SystemStateService {
 
 	async getPayload(): Promise<SystemStatePayload> {
 		const s = await this.load()
-		const scoringInProgress =
-			!!s.scoreSyncStartedAt &&
-			(!s.scoreSyncCompletedAt || s.scoreSyncStartedAt > s.scoreSyncCompletedAt)
+		const scoringInProgress = !!s.scoreSyncStartedAt && (!s.scoreSyncCompletedAt || s.scoreSyncStartedAt > s.scoreSyncCompletedAt)
 		return {
 			scoreSyncStartedAt: s.scoreSyncStartedAt?.toISOString() ?? null,
 			scoreSyncCompletedAt: s.scoreSyncCompletedAt?.toISOString() ?? null,

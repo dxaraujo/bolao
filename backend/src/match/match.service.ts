@@ -3,12 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 
-import {
-	isCanonicalTransition,
-	mapExternalStatus,
-	MatchStatus,
-	nowtoLocalISOString,
-} from '@bolao/shared'
+import { isCanonicalTransition, mapExternalStatus, MatchStatus, nowtoLocalISOString } from '@bolao/shared'
 
 import { Stage, StageDocument } from '../stage/schemas/stage.schema'
 import { Team } from '../team/schemas/team.schema'
@@ -35,7 +30,6 @@ export interface MatchSyncResult {
 
 @Injectable()
 export class MatchService {
-
 	private readonly logger = new Logger(MatchService.name)
 	private readonly apiUrl: string
 	private readonly apiKey: string
@@ -122,9 +116,7 @@ export class MatchService {
 				const existing = await this.model.findOne({ footballDataId: ext.id }).exec()
 
 				if (existing && isCanonicalTransition(existing.status, status) === false) {
-					this.logger.warn(
-						`Non-canonical status transition for match ${ext.id}: ${existing.status} → ${status} (external: ${ext.status})`,
-					)
+					this.logger.warn(`Non-canonical status transition for match ${ext.id}: ${existing.status} → ${status} (external: ${ext.status})`)
 				}
 
 				const $set = {
@@ -150,9 +142,7 @@ export class MatchService {
 				}
 			}
 
-			this.logger.log(
-				`Import done: ${result.imported} imported/updated, ${result.skipped} skipped (TBD or unknown stage)`,
-			)
+			this.logger.log(`Import done: ${result.imported} imported/updated, ${result.skipped} skipped (TBD or unknown stage)`)
 			return result
 		} catch (err) {
 			this.logger.error('Error importing matches', err)
@@ -170,12 +160,6 @@ function extractScore(ext: FootballDataMatch, status: MatchStatus) {
 }
 
 function hasChanged(existing: MatchDocument, $set: Record<string, any>): boolean {
-	const scoreDiff =
-		($set.score?.home ?? null) !== (existing.score?.home ?? null) ||
-		($set.score?.away ?? null) !== (existing.score?.away ?? null)
-	return (
-		existing.status !== $set.status ||
-		scoreDiff ||
-		existing.utcDate.getTime() !== $set.utcDate.getTime()
-	)
+	const scoreDiff = ($set.score?.home ?? null) !== (existing.score?.home ?? null) || ($set.score?.away ?? null) !== (existing.score?.away ?? null)
+	return existing.status !== $set.status || scoreDiff || existing.utcDate.getTime() !== $set.utcDate.getTime()
 }

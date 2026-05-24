@@ -7,10 +7,7 @@ import { TeamController } from './team.controller'
 import { TeamService } from './team.service'
 
 @Module({
-	imports: [
-		MongooseModule.forFeature([{ name: Team.name, schema: TeamSchema }]),
-		MediaModule,
-	],
+	imports: [MongooseModule.forFeature([{ name: Team.name, schema: TeamSchema }]), MediaModule],
 	controllers: [TeamController],
 	providers: [TeamService],
 	exports: [TeamService, MongooseModule],

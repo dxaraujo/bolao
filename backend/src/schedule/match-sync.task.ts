@@ -11,7 +11,6 @@ import { SystemStateService } from '../system-state/system-state.service'
  */
 @Injectable()
 export class MatchSyncTask {
-
 	private readonly logger = new Logger(MatchSyncTask.name)
 
 	constructor(

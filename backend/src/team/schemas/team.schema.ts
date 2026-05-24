@@ -5,7 +5,6 @@ export type TeamDocument = HydratedDocument<Team>
 
 @Schema({ timestamps: true })
 export class Team {
-
 	@Prop({ required: true, unique: true })
 	footballDataId!: number
 

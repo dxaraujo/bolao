@@ -2,14 +2,13 @@ import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/com
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 
+import { GoogleProfile } from '../auth/auth.service'
 import { MediaService } from '../media/media.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User, UserDocument } from './schemas/user.schema'
-import { GoogleProfile } from '../auth/auth.service'
 
 @Injectable()
 export class UserService implements OnModuleInit {
-
 	private readonly logger = new Logger(UserService.name)
 
 	constructor(
@@ -34,19 +33,25 @@ export class UserService implements OnModuleInit {
 	}
 
 	async upsertFromGoogle(profile: GoogleProfile): Promise<UserDocument> {
-		const user = await this.userModel.findOneAndUpdate(
-			{ googleSub: profile.googleSub },
-			{ $set: { googleSub: profile.googleSub, name: profile.name, email: profile.email } },
-			{ new: true, upsert: true },
-		).exec()
-		if (!user) throw new NotFoundException(`Falha ao criar/atualizar usuário ${profile.googleSub}`)
+		// Atualiza ou cria o usuário com os dados do Google.
+		const user = await this.userModel
+			.findOneAndUpdate(
+				{ googleSub: profile.googleSub },
+				{ $set: { googleSub: profile.googleSub, name: profile.name, email: profile.email } },
+				{ new: true, upsert: true },
+			)
+			.exec()
 
-		if (profile.externalPicture && /^https?:\/\//i.test(profile.externalPicture)) {
-			const id = (user._id).toString()
-			const local = await this.media.downloadUserAvatar(id, profile.externalPicture)
-			if (local && local !== user.avatar) {
-				const updated = await this.userModel.findByIdAndUpdate(user._id, { $set: { avatar: local } }, { new: true }).exec()
-				if (updated) return updated
+		// Se o usuário não foi criado ou atualizado, lança um erro.
+		if (!user) {
+			throw new NotFoundException(`Falha ao criar/atualizar usuário ${profile.googleSub}`)
+		}
+
+		// Se o avatar do usuário é uma URL externa, baixa o avatar para o disco.
+		if (this.isValidExternalPicture(profile.externalPicture)) {
+			const local = await this.media.downloadUserAvatar(user.id, profile.externalPicture)
+			if (local) {
+				return await this.userModel.findOneAndUpdate({ googleSub: profile.googleSub }, { $set: { avatar: local } }, { new: true, upsert: true }).exec()
 			}
 		}
 
@@ -75,6 +80,10 @@ export class UserService implements OnModuleInit {
 		}
 
 		return updated
+	}
+
+	private isValidExternalPicture(externalPicture: string): boolean {
+		return !!externalPicture && /^https?:\/\//i.test(externalPicture)
 	}
 
 	private async syncMissingAvatars() {

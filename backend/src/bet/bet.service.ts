@@ -10,14 +10,7 @@ import {
 	type MyBetItem,
 	type TeamPayload,
 } from '@bolao/shared'
-import {
-	BadRequestException,
-	ConflictException,
-	ForbiddenException,
-	Injectable,
-	Logger,
-	NotFoundException,
-} from '@nestjs/common'
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 
@@ -31,7 +24,6 @@ import { Bet, BetDocument } from './schemas/bet.schema'
 
 @Injectable()
 export class BetService {
-
 	private readonly logger = new Logger(BetService.name)
 
 	constructor(
@@ -51,9 +43,7 @@ export class BetService {
 		const stages = await this.stageService.findAll()
 		const now = new Date()
 		const all = stages.map((s) => ({ code: s.code, deadline: s.deadline }))
-		const visibleStageIds = stages
-			.filter((s) => getStageState({ code: s.code, deadline: s.deadline }, all, now) !== StageState.LOCKED)
-			.map((s) => s._id)
+		const visibleStageIds = stages.filter((s) => getStageState({ code: s.code, deadline: s.deadline }, all, now) !== StageState.LOCKED).map((s) => s._id)
 
 		const matches = await this.matchModel
 			.find({ stage: { $in: visibleStageIds } })
@@ -147,16 +137,12 @@ export class BetService {
 		return { upserted, deleted }
 	}
 
-	private validateItem(
-		item: BetSubmitItemDto,
-		match: MatchDocument | undefined,
-		stateByStageId: Map<string, StageState>,
-	) {
+	private validateItem(item: BetSubmitItemDto, match: MatchDocument | undefined, stateByStageId: Map<string, StageState>) {
 		if (!match) throw new NotFoundException(`Partida ${item.matchId} não encontrada`)
 		if (!match.homeTeam || !match.awayTeam) {
 			throw new ConflictException(`Partida ${item.matchId} sem times resolvidos`)
 		}
-		const stageState = stateByStageId.get((match.stage).toString()) ?? StageState.LOCKED
+		const stageState = stateByStageId.get(match.stage.toString()) ?? StageState.LOCKED
 		if (stageState !== StageState.OPEN) {
 			throw new ConflictException(`Fase da partida ${item.matchId} não está aberta (${stageState})`)
 		}
@@ -177,9 +163,7 @@ export class BetService {
 		const stages = await this.stageService.findAll()
 		const now = new Date()
 		const all = stages.map((s) => ({ code: s.code, deadline: s.deadline }))
-		const closedStageIds = stages
-			.filter((s) => getStageState({ code: s.code, deadline: s.deadline }, all, now) === StageState.CLOSED)
-			.map((s) => s._id)
+		const closedStageIds = stages.filter((s) => getStageState({ code: s.code, deadline: s.deadline }, all, now) === StageState.CLOSED).map((s) => s._id)
 
 		if (closedStageIds.length === 0) return []
 
@@ -194,12 +178,8 @@ export class BetService {
 		const activeUsers = await this.userModel.find({ isActive: true }).sort({ name: 1 }).exec()
 		const activeUserIds = activeUsers.map((u) => u._id)
 
-		const bets = await this.model
-			.find({ match: { $in: matchIds }, user: { $in: activeUserIds } })
-			.exec()
-		const betByMatchUser = new Map<string, BetDocument>(
-			bets.map((b) => [`${b.match.toString()}:${b.user.toString()}`, b]),
-		)
+		const bets = await this.model.find({ match: { $in: matchIds }, user: { $in: activeUserIds } }).exec()
+		const betByMatchUser = new Map<string, BetDocument>(bets.map((b) => [`${b.match.toString()}:${b.user.toString()}`, b]))
 
 		return matches.map((m) => {
 			const stage = m.stage as unknown as StageDocument
@@ -219,11 +199,11 @@ export class BetService {
 			const totals = { exactScore: 0, winnerWithGoal: 0, correctWinner: 0, oneGoalCorrect: 0, wrong: 0, notBet: 0, total: 0 }
 			const participants: GroupedBetParticipant[] = activeUsers.map((u) => {
 				totals.total++
-				const bet = betByMatchUser.get(`${m._id.toString()}:${(u._id).toString()}`)
+				const bet = betByMatchUser.get(`${m._id.toString()}:${u._id.toString()}`)
 				if (!bet) {
 					totals.notBet++
 					return {
-						user: { _id: (u._id).toString(), name: u.name, avatar: u.avatar },
+						user: { _id: u._id.toString(), name: u.name, avatar: u.avatar },
 					}
 				}
 				const result = calculateBetScore(bet.score, matchScore)
@@ -233,7 +213,7 @@ export class BetService {
 				if (result.oneGoalCorrect) totals.oneGoalCorrect++
 				if (result.wrong) totals.wrong++
 				return {
-					user: { _id: (u._id).toString(), name: u.name, avatar: u.avatar },
+					user: { _id: u._id.toString(), name: u.name, avatar: u.avatar },
 					score: { home: bet.score.home, away: bet.score.away },
 					result,
 				}

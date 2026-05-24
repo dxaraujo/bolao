@@ -1,15 +1,5 @@
 import { Type } from 'class-transformer'
-import {
-	ArrayMaxSize,
-	ArrayMinSize,
-	IsArray,
-	IsInt,
-	IsMongoId,
-	IsOptional,
-	Max,
-	Min,
-	ValidateNested,
-} from 'class-validator'
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsInt, IsMongoId, IsOptional, Max, Min, ValidateNested } from 'class-validator'
 import { MAX_GOALS } from '@bolao/shared'
 
 export class BetSubmitScoreDto {

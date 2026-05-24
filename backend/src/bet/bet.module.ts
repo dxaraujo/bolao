@@ -9,12 +9,7 @@ import { BetService } from './bet.service'
 import { Bet, BetSchema } from './schemas/bet.schema'
 
 @Module({
-	imports: [
-		MongooseModule.forFeature([{ name: Bet.name, schema: BetSchema }]),
-		MatchModule,
-		StageModule,
-		UserModule,
-	],
+	imports: [MongooseModule.forFeature([{ name: Bet.name, schema: BetSchema }]), MatchModule, StageModule, UserModule],
 	controllers: [BetController],
 	providers: [BetService],
 	exports: [BetService, MongooseModule],

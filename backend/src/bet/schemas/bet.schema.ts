@@ -18,7 +18,6 @@ const BetScoreSchema = SchemaFactory.createForClass(BetScoreSub)
 
 @Schema({ timestamps: true })
 export class Bet {
-
 	@Prop({ type: MongooseSchema.Types.ObjectId, ref: User.name, required: true, index: true })
 	user!: Types.ObjectId
 

@@ -19,7 +19,6 @@ import { Stage, StageDocument } from './schemas/stage.schema'
 
 @Injectable()
 export class StageService implements OnModuleInit {
-
 	private readonly logger = new Logger(StageService.name)
 
 	constructor(
@@ -31,12 +30,14 @@ export class StageService implements OnModuleInit {
 		const count = await this.model.estimatedDocumentCount().exec()
 		if (count > 0) return
 
-		await this.model.insertMany(Object.entries(STAGE_ORDER).map(([code, order]) => ({
-			code: code as MatchStage,
-			order,
-			deadline: new Date(STAGE_DEADLINES[code as MatchStage]),
-			expectedMatchCount: STAGE_EXPECTED_MATCHES[code as MatchStage],
-		})))
+		await this.model.insertMany(
+			Object.entries(STAGE_ORDER).map(([code, order]) => ({
+				code: code as MatchStage,
+				order,
+				deadline: new Date(STAGE_DEADLINES[code as MatchStage]),
+				expectedMatchCount: STAGE_EXPECTED_MATCHES[code as MatchStage],
+			})),
+		)
 		this.logger.log(`Initialized stage collection with ${Object.keys(STAGE_ORDER).length} stages`)
 	}
 
@@ -79,9 +80,7 @@ export class StageService implements OnModuleInit {
 				deadline: s.deadline.toISOString(),
 				expectedMatchCount: s.expectedMatchCount,
 				importedMatchCount: importedCounts.get(s._id.toString()) ?? 0,
-				predecessor: pred
-					? { code: pred.code, state: getStageState(pred, all, now) }
-					: undefined,
+				predecessor: pred ? { code: pred.code, state: getStageState(pred, all, now) } : undefined,
 			}
 		})
 	}

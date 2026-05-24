@@ -22,13 +22,7 @@ export interface DownloadImageResult {
  * Baixa uma imagem da `url` para `dir/<basename><ext>`, onde `<ext>` vem do Content-Type.
  * Retorna `null` em qualquer falha — caller decide o fallback.
  */
-export async function downloadImage(
-	url: string,
-	dir: string,
-	basename: string,
-	publicPrefix: string,
-): Promise<DownloadImageResult | null> {
-
+export async function downloadImage(url: string, dir: string, basename: string, publicPrefix: string): Promise<DownloadImageResult | null> {
 	const absDir = path.resolve(dir)
 	logger.log(`Downloading image: url=${url} dir=${absDir} basename=${basename}`)
 
@@ -76,15 +70,12 @@ export async function downloadImage(
 		}
 
 		const relativePath = `${publicPrefix.replace(/\/$/, '')}/${fileName}`
-		logger.log(
-			`Image saved: path=${absPath} size=${writtenSize ?? '?'}B contentType=${contentType} relative=${relativePath}`,
-		)
+		logger.log(`Image saved: path=${absPath} size=${writtenSize ?? '?'}B contentType=${contentType} relative=${relativePath}`)
 
 		return {
 			relativePath,
 			contentType,
 		}
-
 	} catch (err) {
 		logger.error(`Download error for ${url}: ${(err as Error).message}`, (err as Error).stack)
 		return null

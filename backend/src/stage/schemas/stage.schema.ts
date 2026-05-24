@@ -6,7 +6,6 @@ export type StageDocument = HydratedDocument<Stage>
 
 @Schema({ timestamps: true })
 export class Stage {
-
 	@Prop({ required: true, unique: true, enum: Object.values(MatchStage), index: true })
 	code!: MatchStage
 

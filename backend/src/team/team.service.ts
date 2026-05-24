@@ -19,7 +19,6 @@ interface FootballDataTeam {
 
 @Injectable()
 export class TeamService {
-
 	private readonly logger = new Logger(TeamService.name)
 	private readonly apiUrl: string
 	private readonly apiKey: string
@@ -68,8 +67,7 @@ export class TeamService {
 				const existing = await this.model.findOne({ footballDataId: ext.id }).exec()
 
 				let crest: string | undefined = existing?.crest
-				const needsCrestDownload =
-					!flagEmoji && (!existing?.crest || !(await this.media.isLocalAvailable(existing.crest)))
+				const needsCrestDownload = !flagEmoji && (!existing?.crest || !(await this.media.isLocalAvailable(existing.crest)))
 				if (needsCrestDownload && ext.crest) {
 					const downloaded = await this.media.downloadTeamCrest(ext.tla, ext.crest)
 					if (downloaded) crest = downloaded

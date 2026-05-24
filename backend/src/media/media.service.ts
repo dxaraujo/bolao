@@ -10,7 +10,6 @@ import { isLocalStaticFileOnDisk, resolveStaticDir } from '../common/static-dir'
  */
 @Injectable()
 export class MediaService {
-
 	private readonly logger = new Logger(MediaService.name)
 	readonly staticDir: string
 

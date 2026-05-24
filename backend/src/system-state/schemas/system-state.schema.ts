@@ -6,7 +6,7 @@ export type SystemStateDocument = HydratedDocument<SystemState>
 @Schema({ timestamps: true })
 export class SystemState {
 	@Prop({ required: true, unique: true })
-	key!: string  // sempre 'singleton'
+	key!: string // sempre 'singleton'
 
 	@Prop({ type: Date, default: null })
 	scoreSyncStartedAt!: Date | null

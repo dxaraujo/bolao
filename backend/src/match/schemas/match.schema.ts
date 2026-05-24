@@ -19,7 +19,6 @@ const MatchScoreSchema = SchemaFactory.createForClass(MatchScore)
 
 @Schema({ timestamps: true })
 export class Match {
-
 	@Prop({ required: true, unique: true })
 	footballDataId!: number
 

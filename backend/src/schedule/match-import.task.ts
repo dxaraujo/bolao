@@ -10,7 +10,6 @@ import { SystemStateService } from '../system-state/system-state.service'
  */
 @Injectable()
 export class MatchImportTask {
-
 	private readonly logger = new Logger(MatchImportTask.name)
 
 	constructor(

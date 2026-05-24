@@ -6,7 +6,6 @@ import { MatchService } from './match.service'
 
 @Injectable()
 export class ScoreService {
-
 	private readonly logger = new Logger(ScoreService.name)
 
 	constructor(private readonly matchService: MatchService) {}

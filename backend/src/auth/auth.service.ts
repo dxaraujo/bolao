@@ -17,7 +17,6 @@ export interface GoogleProfile {
 
 @Injectable()
 export class AuthService {
-
 	private readonly client: OAuth2Client
 	private readonly googleClientId: string
 
@@ -63,7 +62,7 @@ export class AuthService {
 	}
 
 	private signToken(user: UserDocument): string {
-		const id = (user._id).toString()
+		const id = user._id.toString()
 		const claims: JwtPayload = {
 			_id: id,
 			email: user.email,

@@ -1,11 +1,11 @@
-import type { RankingItem } from '@bolao/shared'
+import type { LeaderboardItem } from '@bolao/shared'
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 import { Card } from '@/components/ui/card'
 import { getVisibleSlice } from '@/lib/ranking'
 
 interface PointsChartProps {
-	users: RankingItem[]
+	users: LeaderboardItem[]
 	currentUserId?: string
 }
 
@@ -13,9 +13,9 @@ export function PointsChart({ users, currentUserId }: PointsChartProps) {
 	const visible = getVisibleSlice(users, currentUserId)
 
 	const data = visible.map((u) => ({
-		name: u.name.split(' ')[0],
-		pontos: u.totalPointsEarned,
-		exatos: u.exactScore,
+		name: u.user.name.split(' ')[0],
+		pontos: u.points,
+		exatos: u.breakdown.exactScore,
 	}))
 
 	return (

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { MatchStatus, type BetListItem } from '@bolao/shared'
+import { MatchStatus, type MyBetItem } from '@bolao/shared'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -13,27 +13,27 @@ import { OpenStageBanner } from './components/OpenStageBanner'
 import { MatchCard } from './components/MatchCard'
 import { UpcomingMatchCard } from './components/UpcomingMatchCard'
 
-const LIVE_STATUSES = new Set<MatchStatus>([MatchStatus.LIVE, MatchStatus.IN_PLAY, MatchStatus.PAUSED])
-const UPCOMING_STATUSES = new Set<MatchStatus>([MatchStatus.TIMED, MatchStatus.SCHEDULED])
-
 export function HomeScreen() {
 	const { data: bets, isLoading: betsLoading } = useMyBets()
 	const { data: stages } = useStages()
 
 	const { live, upcoming, recent } = useMemo(() => {
-		const empty = { live: [] as BetListItem[], upcoming: [] as BetListItem[], recent: [] as BetListItem[] }
+		const empty = { live: [] as MyBetItem[], upcoming: [] as MyBetItem[], recent: [] as MyBetItem[] }
 		if (!bets) return empty
 
-		const sortedAsc = [...bets].sort((a, b) => new Date(a.utcDate).getTime() - new Date(b.utcDate).getTime())
-		const sortedDesc = [...bets].sort((a, b) => new Date(b.utcDate).getTime() - new Date(a.utcDate).getTime())
+		const sortedAsc = [...bets].sort(
+			(a, b) => new Date(a.match.utcDate).getTime() - new Date(b.match.utcDate).getTime(),
+		)
+		const sortedDesc = [...bets].sort(
+			(a, b) => new Date(b.match.utcDate).getTime() - new Date(a.match.utcDate).getTime(),
+		)
 
-		const live = sortedAsc.filter((b) => LIVE_STATUSES.has(b.status))
+		const live = sortedAsc.filter((b) => b.match.status === MatchStatus.LIVE)
 
-		const upcomingAll = sortedAsc.filter((b) => UPCOMING_STATUSES.has(b.status))
-		let upcoming: BetListItem[] = []
+		const upcomingAll = sortedAsc.filter((b) => b.match.status === MatchStatus.SCHEDULED)
+		let upcoming: MyBetItem[] = []
 		if (upcomingAll.length > 0) {
-			// Janela: primeiro dia com jogo (hoje se houver, senão próximo) + dia seguinte.
-			const firstBetDay = new Date(upcomingAll[0].utcDate)
+			const firstBetDay = new Date(upcomingAll[0].match.utcDate)
 			firstBetDay.setHours(0, 0, 0, 0)
 			const todayStart = new Date()
 			todayStart.setHours(0, 0, 0, 0)
@@ -41,12 +41,12 @@ export function HomeScreen() {
 			const windowEnd = new Date(windowStart)
 			windowEnd.setDate(windowEnd.getDate() + 2)
 			upcoming = upcomingAll.filter((b) => {
-				const d = new Date(b.utcDate)
+				const d = new Date(b.match.utcDate)
 				return d.getTime() >= windowStart.getTime() && d.getTime() < windowEnd.getTime()
 			})
 		}
 
-		const recent = sortedDesc.filter((b) => b.status === MatchStatus.FINISHED).slice(0, 4)
+		const recent = sortedDesc.filter((b) => b.match.status === MatchStatus.FINISHED).slice(0, 4)
 		return { live, upcoming, recent }
 	}, [bets])
 
@@ -55,39 +55,39 @@ export function HomeScreen() {
 			<HeroPosition />
 			{stages && bets && <OpenStageBanner stages={stages} bets={bets} />}
 
-		{live.length > 0 && (
-			<Section title="Ao vivo">
-				<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-					{live.map((b) => (
-						<MatchCard key={b._id} bet={b} />
-					))}
-				</div>
-			</Section>
-		)}
-
-		<Section title="Próximos jogos">
-			{betsLoading ? (
-				<Skeleton className="h-24 w-full rounded-lg" />
-			) : upcoming.length === 0 ? (
-				<EmptyState icon={Goal} title="Nenhum jogo futuro agendado" />
-			) : (
-				<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-					{upcoming.map((b) => (
-						<UpcomingMatchCard key={b._id} bet={b} />
-					))}
-				</div>
+			{live.length > 0 && (
+				<Section title="Ao vivo">
+					<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+						{live.map((b) => (
+							<MatchCard key={b.match._id} item={b} />
+						))}
+					</div>
+				</Section>
 			)}
-		</Section>
 
-		{recent.length > 0 && (
-			<Section title="Resultados recentes">
-				<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-					{recent.map((b) => (
-						<MatchCard key={b._id} bet={b} />
-					))}
-				</div>
+			<Section title="Próximos jogos">
+				{betsLoading ? (
+					<Skeleton className="h-24 w-full rounded-lg" />
+				) : upcoming.length === 0 ? (
+					<EmptyState icon={Goal} title="Nenhum jogo futuro agendado" />
+				) : (
+					<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+						{upcoming.map((b) => (
+							<UpcomingMatchCard key={b.match._id} item={b} />
+						))}
+					</div>
+				)}
 			</Section>
-		)}
+
+			{recent.length > 0 && (
+				<Section title="Resultados recentes">
+					<div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+						{recent.map((b) => (
+							<MatchCard key={b.match._id} item={b} />
+						))}
+					</div>
+				</Section>
+			)}
 		</div>
 	)
 }

@@ -6,7 +6,7 @@ import { useAuth } from '@/providers/AuthProvider'
 
 type TabDef = { to: string; icon: typeof Goal; label: string; end?: boolean }
 
-const TABS: TabDef[] = [
+const ALL_TABS: TabDef[] = [
 	{ to: '/', icon: Goal, label: 'Jogos', end: true },
 	{ to: '/ranking', icon: Trophy, label: 'Ranking' },
 	{ to: '/apostas', icon: Target, label: 'Apostas' },
@@ -18,7 +18,8 @@ const ADMIN_TAB: TabDef = { to: '/admin', icon: Settings, label: 'Admin' }
 
 export function BottomNav() {
 	const { user } = useAuth()
-	const tabs = user?.isAdmin ? [...TABS, ADMIN_TAB] : TABS
+	const visible = ALL_TABS.filter((t) => t.to !== '/apostas' || user?.isActive)
+	const tabs = user?.isAdmin ? [...visible, ADMIN_TAB] : visible
 	return (
 		<nav className="sticky bottom-0 z-50 flex border-t border-border bg-background/95 backdrop-blur md:hidden">
 			{tabs.map(({ to, icon: Icon, label, end }) => (

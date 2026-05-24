@@ -1,20 +1,33 @@
 import { useState } from 'react'
+import type { TeamPayload } from '@bolao/shared'
 
 import { resolveAssetUrl } from '@/lib/assets'
 import { cn } from '@/lib/cn'
 
 interface TeamCrestProps {
-	src?: string
-	alt?: string
+	team?: Pick<TeamPayload, 'flagEmoji' | 'crest' | 'tla' | 'name' | 'shortName'> | null
 	size?: number
 	className?: string
 }
 
-export function TeamCrest({ src, alt, size = 32, className }: TeamCrestProps) {
+export function TeamCrest({ team, size = 32, className }: TeamCrestProps) {
 	const [error, setError] = useState(false)
-	const label = (alt ?? '').slice(0, 3) || '?'
+	const label = (team?.tla ?? team?.shortName ?? team?.name ?? '?').slice(0, 3)
 
-	if (error || !src) {
+	if (team?.flagEmoji) {
+		return (
+			<span
+				className={cn('inline-grid place-items-center select-none', className)}
+				style={{ width: size, height: size, fontSize: Math.round(size * 0.9), lineHeight: 1 }}
+				aria-label={team.name ?? team.tla}
+			>
+				{team.flagEmoji}
+			</span>
+		)
+	}
+
+	const crest = team?.crest
+	if (error || !crest) {
 		return (
 			<div
 				className={cn('grid place-items-center rounded-full bg-muted text-xs font-bold uppercase text-sub', className)}
@@ -25,12 +38,10 @@ export function TeamCrest({ src, alt, size = 32, className }: TeamCrestProps) {
 		)
 	}
 
-	const resolvedSrc = resolveAssetUrl(src)
-
 	return (
 		<img
-			src={resolvedSrc}
-			alt={alt ?? ''}
+			src={resolveAssetUrl(crest)}
+			alt={team?.name ?? ''}
 			width={size}
 			height={size}
 			loading="lazy"

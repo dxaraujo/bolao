@@ -6,7 +6,7 @@ import { useAuth } from '@/providers/AuthProvider'
 
 type TabDef = { to: string; icon: typeof Goal; label: string; end?: boolean }
 
-const TABS: TabDef[] = [
+const ALL_TABS: TabDef[] = [
 	{ to: '/', icon: Goal, label: 'Jogos', end: true },
 	{ to: '/ranking', icon: Trophy, label: 'Ranking' },
 	{ to: '/apostas', icon: Target, label: 'Apostas' },
@@ -18,7 +18,8 @@ const ADMIN_TAB: TabDef = { to: '/admin', icon: Settings, label: 'Admin' }
 
 export function SideNav() {
 	const { user } = useAuth()
-	const tabs = user?.isAdmin ? [...TABS, ADMIN_TAB] : TABS
+	const visible = ALL_TABS.filter((t) => t.to !== '/apostas' || user?.isActive)
+	const tabs = user?.isAdmin ? [...visible, ADMIN_TAB] : visible
 	return (
 		<aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-border bg-gradient-to-b from-surface-2 to-background px-3 py-5 md:flex lg:w-64">
 			<div className="px-2 pb-6">
@@ -36,9 +37,7 @@ export function SideNav() {
 						className={({ isActive }) =>
 							cn(
 								'group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
-								isActive
-									? 'bg-acc/10 text-acc'
-									: 'text-sub hover:bg-surface hover:text-foreground',
+								isActive ? 'bg-acc/10 text-acc' : 'text-sub hover:bg-surface hover:text-foreground',
 							)
 						}
 					>

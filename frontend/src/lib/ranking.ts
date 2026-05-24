@@ -1,13 +1,12 @@
-import type { RankingItem } from '@bolao/shared'
+import type { LeaderboardItem } from '@bolao/shared'
 
 const WINDOW = 5
 
-export function getVisibleSlice(users: RankingItem[], currentUserId?: string): RankingItem[] {
+export function getVisibleSlice(users: LeaderboardItem[], currentUserId?: string): LeaderboardItem[] {
 	const total = users.length
-
 	if (total <= WINDOW) return users
 
-	const userIndex = currentUserId ? users.findIndex((u) => u._id === currentUserId) : -1
+	const userIndex = currentUserId ? users.findIndex((u) => u.user._id === currentUserId) : -1
 	const center = userIndex === -1 ? 0 : userIndex
 
 	const half = Math.floor(WINDOW / 2)

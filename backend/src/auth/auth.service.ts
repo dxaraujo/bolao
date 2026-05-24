@@ -12,7 +12,7 @@ export interface GoogleProfile {
 	googleSub: string
 	email: string
 	name: string
-	externalPicture: string
+	picture: string
 }
 
 @Injectable()
@@ -41,7 +41,7 @@ export class AuthService {
 			const payload = ticket.getPayload()
 			if (!payload) throw new UnauthorizedException('Google token payload incompleto')
 			const { sub, email, name } = this.assertGoogleProfile(payload)
-			return { googleSub: sub, email, name, externalPicture: payload.picture ?? '' }
+			return { googleSub: sub, email, name, picture: payload.picture ?? '' }
 		} catch (error) {
 			if (error instanceof UnauthorizedException) throw error
 			throw new UnauthorizedException('Falha ao verificar token do Google')

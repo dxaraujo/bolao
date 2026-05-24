@@ -15,6 +15,9 @@ export class User {
 	email!: string
 
 	@Prop({ required: false })
+	picture!: string
+
+	@Prop({ required: false })
 	avatar?: string
 
 	@Prop({ required: true, default: false })

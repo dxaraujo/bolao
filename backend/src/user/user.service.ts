@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
 
 import { GoogleProfile } from '../auth/auth.service'
+import { LeaderboardService } from '../leaderboard/leaderboard.service'
 import { MediaService } from '../media/media.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User, UserDocument } from './schemas/user.schema'
@@ -14,6 +15,7 @@ export class UserService implements OnModuleInit {
 	constructor(
 		@InjectModel(User.name) private readonly userModel: Model<User>,
 		private readonly media: MediaService,
+		private readonly leaderboardService: LeaderboardService,
 	) {}
 
 	async onModuleInit() {
@@ -90,6 +92,7 @@ export class UserService implements OnModuleInit {
 
 		if (willChangeActive) {
 			this.logger.log(`User ${userId} isActive=${input.isActive} (participationChangedAt updated)`)
+			await this.leaderboardService.rebuild()
 		}
 
 		return updated

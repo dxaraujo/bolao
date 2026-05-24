@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
+import { useQueryClient } from '@tanstack/react-query'
 import { jwtDecode } from 'jwt-decode'
 
 import { api, getToken, setToken } from '@/lib/api'
@@ -9,8 +10,6 @@ interface JwtPayload {
 	name: string
 	email: string
 	avatar?: string
-	isAdmin: boolean
-	isActive: boolean
 	exp: number
 }
 
@@ -35,6 +34,7 @@ function parseToken(token: string | null): JwtPayload | null {
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
+	const qc = useQueryClient()
 	const [user, setUser] = useState<JwtPayload | null>(() => parseToken(getToken()))
 
 	useEffect(() => {
@@ -52,12 +52,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
 	const logout = useCallback(() => {
 		setToken(null)
 		setUser(null)
-	}, [])
+		qc.clear()
+	}, [qc])
 
-	const value = useMemo<AuthContextValue>(
-		() => ({ authenticated: !!user, user, loginWithGoogle, logout }),
-		[user, loginWithGoogle, logout],
-	)
+	const value = useMemo<AuthContextValue>(() => ({ authenticated: !!user, user, loginWithGoogle, logout }), [user, loginWithGoogle, logout])
 
 	const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
 

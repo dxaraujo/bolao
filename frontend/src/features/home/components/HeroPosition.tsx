@@ -24,9 +24,7 @@ export function HeroPosition() {
 					<div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-acc">
 						<Trophy className="h-3 w-3" /> Modo espectador
 					</div>
-					<div className="text-sm text-sub">
-						Você está acompanhando como espectador. Fale com o admin para começar a participar.
-					</div>
+					<div className="text-sm text-sub">Você está acompanhando como espectador. Fale com o admin para começar a participar.</div>
 				</div>
 			</Card>
 		)

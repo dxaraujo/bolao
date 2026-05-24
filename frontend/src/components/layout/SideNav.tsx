@@ -2,7 +2,7 @@ import { BarChart3, Goal, Settings, Target, Trophy, Users } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 import { cn } from '@/lib/cn'
-import { useAuth } from '@/providers/AuthProvider'
+import { useMe } from '@/hooks/useMe'
 
 type TabDef = { to: string; icon: typeof Goal; label: string; end?: boolean }
 
@@ -17,9 +17,11 @@ const ALL_TABS: TabDef[] = [
 const ADMIN_TAB: TabDef = { to: '/admin', icon: Settings, label: 'Admin' }
 
 export function SideNav() {
-	const { user } = useAuth()
-	const visible = ALL_TABS.filter((t) => t.to !== '/apostas' || user?.isActive)
-	const tabs = user?.isAdmin ? [...visible, ADMIN_TAB] : visible
+	const { data: me } = useMe()
+	const isActive = me?.isActive
+	const isAdmin = me?.isAdmin
+	const visible = ALL_TABS.filter((t) => t.to !== '/apostas' || isActive)
+	const tabs = isAdmin ? [...visible, ADMIN_TAB] : visible
 	return (
 		<aside className="sticky top-0 hidden h-screen w-56 shrink-0 flex-col border-r border-border bg-gradient-to-b from-surface-2 to-background px-3 py-5 md:flex lg:w-64">
 			<div className="px-2 pb-6">

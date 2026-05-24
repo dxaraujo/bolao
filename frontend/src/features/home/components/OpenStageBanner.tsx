@@ -5,7 +5,7 @@ import { StageState, type MyBetItem, type StagePayload } from '@bolao/shared'
 import { STAGE_LABELS } from '@/lib/stage'
 import { formatDeadline } from '@/lib/format'
 import { cn } from '@/lib/cn'
-import { useAuth } from '@/providers/AuthProvider'
+import { useMe } from '@/hooks/useMe'
 
 interface OpenStageBannerProps {
 	stages: StagePayload[]
@@ -23,10 +23,10 @@ function getBannerVariant(deadline: string): BannerVariant {
 
 export function OpenStageBanner({ stages, bets }: OpenStageBannerProps) {
 	const navigate = useNavigate()
-	const { user } = useAuth()
+	const { data: me } = useMe()
 	const open = stages.find((s) => s.state === StageState.OPEN)
 	if (!open) return null
-	if (!user?.isActive) return null
+	if (!me?.isActive) return null
 
 	const stageBets = bets.filter((b) => b.match.stage === open.code)
 	const total = stageBets.length
@@ -59,17 +59,15 @@ export function OpenStageBanner({ stages, bets }: OpenStageBannerProps) {
 				<div className="mt-1 text-xs text-sub">
 					Prazo: {formatDeadline(open.deadline)} · {palpited}/{total} palpitado
 					{open.importedMatchCount < open.expectedMatchCount && (
-						<> · {open.importedMatchCount}/{open.expectedMatchCount} partidas importadas</>
+						<>
+							{' '}
+							· {open.importedMatchCount}/{open.expectedMatchCount} partidas importadas
+						</>
 					)}
 				</div>
 			</div>
 			<ChevronRight
-				className={cn(
-					'h-5 w-5',
-					variant === 'green' && 'text-green',
-					variant === 'warning' && 'text-gold',
-					variant === 'red' && 'text-red',
-				)}
+				className={cn('h-5 w-5', variant === 'green' && 'text-green', variant === 'warning' && 'text-gold', variant === 'red' && 'text-red')}
 			/>
 		</button>
 	)

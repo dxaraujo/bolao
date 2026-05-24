@@ -2,7 +2,7 @@ import { BarChart3, Goal, Settings, Target, Trophy, Users } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 
 import { cn } from '@/lib/cn'
-import { useAuth } from '@/providers/AuthProvider'
+import { useMe } from '@/hooks/useMe'
 
 type TabDef = { to: string; icon: typeof Goal; label: string; end?: boolean }
 
@@ -17,9 +17,11 @@ const ALL_TABS: TabDef[] = [
 const ADMIN_TAB: TabDef = { to: '/admin', icon: Settings, label: 'Admin' }
 
 export function BottomNav() {
-	const { user } = useAuth()
-	const visible = ALL_TABS.filter((t) => t.to !== '/apostas' || user?.isActive)
-	const tabs = user?.isAdmin ? [...visible, ADMIN_TAB] : visible
+	const { data: me } = useMe()
+	const isActive = me?.isActive
+	const isAdmin = me?.isAdmin
+	const visible = ALL_TABS.filter((t) => t.to !== '/apostas' || isActive)
+	const tabs = isAdmin ? [...visible, ADMIN_TAB] : visible
 	return (
 		<nav className="sticky bottom-0 z-50 flex border-t border-border bg-background/95 backdrop-blur md:hidden">
 			{tabs.map(({ to, icon: Icon, label, end }) => (

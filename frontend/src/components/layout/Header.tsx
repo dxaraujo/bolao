@@ -18,7 +18,7 @@ export function Header() {
 
 	const initial = me?.name?.charAt(0)?.toUpperCase() ?? '?'
 	const avatar = me?.avatar ?? user?.avatar
-	const isSpectator = user && !user.isActive
+	const isSpectator = me?.isActive
 
 	useEffect(() => {
 		if (!menuOpen) return
@@ -38,12 +38,10 @@ export function Header() {
 					COPA<span className="text-acc">BET</span>
 					<span className="ml-2 text-xs font-medium text-sub">2026</span>
 				</div>
-				<div className="hidden text-sm text-sub md:block">
-					Bem-vindo{me?.name ? `, ${me.name.split(' ')[0]}` : ''}
-				</div>
+				<div className="hidden text-sm text-sub md:block">Bem-vindo{me?.name ? `, ${me.name.split(' ')[0]}` : ''}</div>
 				<div className="flex items-center gap-2">
 					{isSpectator && <Badge tone="sub">Espectador</Badge>}
-					{user?.isAdmin && <Badge tone="gold">Admin</Badge>}
+					{me?.isAdmin && <Badge tone="gold">Admin</Badge>}
 					<Button size="icon" variant="outline" onClick={toggle} aria-label="Alternar tema">
 						{isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
 					</Button>

@@ -1,6 +1,7 @@
 import { type PropsWithChildren } from 'react'
 import { Navigate } from 'react-router-dom'
 
+import { useMe } from '@/hooks/useMe'
 import { useAuth } from '@/providers/AuthProvider'
 
 export function ProtectedRoute({ children }: PropsWithChildren) {
@@ -16,13 +17,19 @@ export function PublicOnlyRoute({ children }: PropsWithChildren) {
 }
 
 export function AdminRoute({ children }: PropsWithChildren) {
-	const { user } = useAuth()
-	if (!user?.isAdmin) return <Navigate to="/" replace />
+	const { data: me } = useMe()
+	if (!me?.isAdmin) return <Navigate to="/" replace />
 	return <>{children}</>
 }
 
 export function ActiveRoute({ children }: PropsWithChildren) {
-	const { user } = useAuth()
-	if (!user?.isActive) return <Navigate to="/" replace />
+	const { data: me, isLoading } = useMe()
+	const isActive = me?.isActive
+	if (isLoading) {
+		return null
+	}
+	if (!isActive) {
+		return <Navigate to="/" replace />
+	}
 	return <>{children}</>
 }

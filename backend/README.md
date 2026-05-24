@@ -1,19 +1,21 @@
 # Bolão Backend
 
-API NestJS + TypeScript + MongoDB para o bolão.
+API NestJS 10 + TypeScript + MongoDB para o bolão da Copa.
 
 ## Stack
 
 - **NestJS 10** + **TypeScript 5.7**
 - **Mongoose 8** via `@nestjs/mongoose`
-- **Auth:** Google OAuth + JWT (`@nestjs/jwt` + `passport-jwt`)
+- **Auth:** Google OAuth + JWT (`@nestjs/jwt` + `passport-jwt`); `JwtAuthGuard` global como `APP_GUARD`, com decorator `@Public()` para rotas abertas
 - **Validação:** `class-validator` + `class-transformer` via `ValidationPipe` global
-- **Cron:** `@nestjs/schedule` para sincronização de resultados
+- **Cron:** `@nestjs/schedule` para sincronização de resultados e bloqueio de fases
+- **Docs:** OpenAPI via `@nestjs/swagger` em `/api/docs`
+- **Segurança:** `helmet`, CORS configurável
 
 ## Pré-requisitos
 
 - Node.js >= 20.11
-- MongoDB rodando localmente ou via URI remota
+- MongoDB local ou via URI remota
 
 Na raiz do monorepo, suba o Mongo com Docker:
 
@@ -31,72 +33,97 @@ pnpm install
 pnpm start:dev
 ```
 
-A API sobe na porta definida em `PORT` (default 3000).
+A API sobe na porta definida em `PORT` (default `3000`).
 
 ## Scripts
 
-| Script             | O que faz                                      |
-|--------------------|------------------------------------------------|
-| `pnpm start`       | Roda em produção (após `build`)                |
-| `pnpm start:dev`   | Dev com watch + hot reload via `nest start`    |
-| `pnpm start:debug` | Dev com `--debug` para anexar debugger         |
-| `pnpm build`       | Compila TS para `dist/`                        |
-| `pnpm start:prod`  | Roda `node dist/main` (após `build`)           |
+| Script              | O que faz                                     |
+|---------------------|-----------------------------------------------|
+| `pnpm start:dev`    | Dev com hot reload via nodemon                |
+| `pnpm start:debug`  | Dev com `--debug` (debugger anexável)         |
+| `pnpm start`        | Roda Nest (sem watch)                         |
+| `pnpm start:prod`   | `node dist/main` (após `build`)               |
+| `pnpm build`        | Compila TS para `dist/`                       |
+| `pnpm typecheck`    | `tsc --noEmit`                                |
+| `pnpm lint`         | ESLint flat config, `--max-warnings=0`        |
+| `pnpm lint:fix`     | ESLint com `--fix`                            |
+| `pnpm format`       | Prettier nos arquivos `src/**/*.ts`           |
 
 ## Variáveis de ambiente
 
-| Variável             | Obrigatória | Default                          |
-|----------------------|-------------|----------------------------------|
-| `NODE_ENV`           | não         | `development`                    |
-| `PORT`               | não         | `3000`                           |
-| `MONGODB_URI`        | não         | `mongodb://localhost/bolao`      |
-| `AUTH_SECRET`        | **sim**     | —                                |
-| `GOOGLE_CLIENT_ID`   | **sim**     | —                                |
-| `JWT_EXPIRES_IN`     | não         | `30d`                            |
-| `FOOTBALL_DATA_API_URL` | **sim**     | —                                |
+| Variável                  | Obrigatória | Default                       |
+|---------------------------|-------------|-------------------------------|
+| `NODE_ENV`                | não         | `development`                 |
+| `PORT`                    | não         | `3000`                        |
+| `MONGODB_URI`             | não         | `mongodb://localhost/bolao`   |
+| `AUTH_SECRET`             | **sim**     | —                             |
+| `JWT_EXPIRES_IN`          | não         | `30d`                         |
+| `GOOGLE_CLIENT_ID`        | **sim**     | —                             |
+| `FOOTBALL_DATA_API_URL`   | **sim**     | —                             |
+| `FOOTBALL_DATA_API_KEY`   | **sim**     | —                             |
+| `CORS_ORIGINS`            | não         | `http://localhost:5173`       |
+| `STATIC_DIR`              | não         | `./static`                    |
+
+Validação acontece em `src/common/env.validation.ts` no bootstrap — a app falha em start se algo obrigatório faltar.
 
 ## Endpoints
 
-| Método | Path                                          | Auth     |
-|--------|-----------------------------------------------|----------|
-| GET    | `/healthcheck`                                | público  |
-| POST   | `/auth/google` `{ "credential": "…" }`        | público  |
-| GET    | `/api/user`, `/api/user/:id`, `/api/user/authenticated` | JWT |
-| PUT    | `/api/user/:id`                               | JWT      |
-| DELETE | `/api/user/:id`                               | JWT      |
-| GET    | `/api/time`, `/api/time/:id`                  | JWT      |
-| POST/PUT/DELETE | `/api/time[/:id]`                    | JWT      |
-| GET    | `/api/fase`, `/api/fase/:id`                  | JWT      |
-| POST/PUT/DELETE | `/api/fase[/:id]`                    | JWT      |
-| GET    | `/api/config`                                 | JWT      |
-| GET    | `/api/partida`, `/api/partida/resultado`, `/api/partida/:id` | JWT |
-| POST/PUT/DELETE | `/api/partida[/:id]`                 | JWT      |
-| PUT    | `/api/partida/:id/updateResultado`            | JWT      |
-| GET    | `/api/bet`, `/api/bet/:id`            | JWT      |
-| POST/PUT/DELETE | `/api/bet[/:id]`                 | JWT      |
-| PUT    | `/api/bet/:user/updateBets`           | JWT      |
-| GET    | `/api/bet/:user/:fase/montarbets`     | JWT      |
+Todas as rotas exigem `Authorization: Bearer <token>` (JWT) exceto as marcadas como públicas. O token é emitido por `POST /auth/google` após verificação do ID token do Google.
 
-JWT é exigido no header `Authorization: Bearer <token>`. O token é emitido por `POST /auth/google` após verificação do ID token do Google (`credential` no body).
+| Método | Path                                | Auth     | Descrição                              |
+|--------|-------------------------------------|----------|----------------------------------------|
+| GET    | `/healthcheck`                      | público  | Liveness                               |
+| POST   | `/auth/google`                      | público  | Body `{ credential }` → `{ token, user }` |
+| GET    | `/api/user/me`                      | JWT      | Usuário autenticado                    |
+| GET    | `/api/user/active`                  | JWT      | Usuários ativos                        |
+| GET    | `/api/user`                         | JWT      | Lista usuários                         |
+| PUT    | `/api/user/:id`                     | JWT      | Atualiza usuário                       |
+| POST   | `/api/team/import`                  | JWT      | Importa seleções                       |
+| GET    | `/api/stage`                        | JWT      | Lista fases                            |
+| GET    | `/api/stage/visible`                | JWT      | Fases visíveis para o usuário          |
+| PUT    | `/api/stage/:matchStage`            | JWT      | Atualiza status/deadline da fase       |
+| GET    | `/api/match`                        | JWT      | Lista partidas                         |
+| POST   | `/api/match/import`                 | JWT      | Importa partidas da Football Data API  |
+| POST   | `/api/match/update-scores`          | JWT      | Atualiza resultados manualmente        |
+| GET    | `/api/bet`                          | JWT      | Palpites do usuário autenticado        |
+| GET    | `/api/bet/all`                      | JWT      | Todos os palpites (para ranking/stats) |
+| PUT    | `/api/bet/updateBets`               | JWT      | Salva palpites em batch                |
+| GET    | `/api/config`                       | JWT      | Config global (flag `atualizandoPontuacoes` etc.) |
+| GET    | `/api/ranking`                      | JWT      | Ranking agregado                       |
+| GET    | `/api/stats/overview`               | JWT      | KPIs gerais                            |
+| GET    | `/api/stats/accuracy-by-user`       | JWT      | Acerto por usuário                     |
+| GET    | `/api/stats/distribution`           | JWT      | Distribuição de pontos                 |
+
+Schema OpenAPI completo: `http://localhost:3000/api/docs`.
 
 ## Estrutura
 
 ```
 src/
-├── main.ts              Bootstrap + ValidationPipe + ExceptionFilter + CORS
-├── app.module.ts        Composição raiz de módulos + APP_GUARD
-├── auth/                Google OAuth + JWT + JwtStrategy + JwtAuthGuard
-├── user/                CRUD de usuários
-├── time/                CRUD de seleções
-├── fase/                CRUD de fases
-├── config/              Config global (flag atualizandoPontuacoes)
-├── partida/             CRUD de partidas + ResultadoService (pontuação)
-├── bet/             CRUD de bets + montagem por fase
-├── schedule/            Cron job que sincroniza resultados externos
+├── main.ts              Bootstrap (Helmet, CORS, ValidationPipe, ExceptionFilter, Swagger)
+├── app.module.ts        Composição raiz + APP_GUARD (JwtAuthGuard global)
+├── auth/                Google OAuth + JWT + JwtStrategy + JwtAuthGuard + @Public()
+├── user/                Usuários
+├── team/                Seleções
+├── stage/               Fases (status/deadlines)
+├── match/               Partidas + ScoreService (importação + pontuação)
+├── bet/                 Palpites e montagem em batch
+├── ranking/             Ranking agregado
+├── stats/               Estatísticas (overview, accuracy, distribution)
+├── config/              Config global (flags)
+├── schedule/            Crons (update-scores, import-matches, block-stages)
 ├── health/              Healthcheck público
-└── common/              env validation, exception filter, decorators
+└── common/              env validation, exception filter, decorators (@Public, @CurrentUser)
 ```
 
-## Cron de resultados
+## Crons
 
-A task em [`src/schedule/resultados.task.ts`](src/schedule/resultados.task.ts) roda **a cada 5 min entre 7h e 20h**, consulta `FOOTBALL_DATA_API_URL`, identifica jogos com placar definido e dispara `ResultadoService.atualizarResultados()` apenas para partidas cujo placar mudou.
+Definidas em `src/schedule/`:
+
+| Task                          | Cron               | O que faz                                                                 |
+|-------------------------------|--------------------|---------------------------------------------------------------------------|
+| `UpdateScoresTask`            | `*/5 7-20 * * *`   | A cada 5 min, das 7h às 20h: consulta Football Data API e atualiza placares alterados |
+| `ImportMatchesTask`           | `0 0 * * *`        | Diariamente à 0h: importa o calendário de partidas                        |
+| `BlockStagesTask`             | `* * * * *`        | A cada minuto: bloqueia fases cujo deadline passou                        |
+
+A integração externa usa `FOOTBALL_DATA_API_URL` + `FOOTBALL_DATA_API_KEY`.

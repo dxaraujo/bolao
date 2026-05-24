@@ -20,3 +20,9 @@ export function AdminRoute({ children }: PropsWithChildren) {
 	if (!user?.isAdmin) return <Navigate to="/" replace />
 	return <>{children}</>
 }
+
+export function ActiveRoute({ children }: PropsWithChildren) {
+	const { user } = useAuth()
+	if (!user?.isActive) return <Navigate to="/" replace />
+	return <>{children}</>
+}

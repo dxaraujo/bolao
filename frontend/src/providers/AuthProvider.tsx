@@ -5,13 +5,12 @@ import { jwtDecode } from 'jwt-decode'
 import { api, getToken, setToken } from '@/lib/api'
 
 interface JwtPayload {
-	sub: string
+	_id: string
 	name: string
 	email: string
-	picture: string
+	avatar?: string
 	isAdmin: boolean
 	isActive: boolean
-	_id: string
 	exp: number
 }
 

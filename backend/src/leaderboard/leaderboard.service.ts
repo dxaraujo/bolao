@@ -2,6 +2,8 @@ import {
 	calculateBetScore,
 	compareLeaderboardRows,
 	MatchStatus,
+	SCORING_RULES,
+	STAGE_EXPECTED_MATCHES,
 	type BetResult,
 	type Distribution,
 	type LeaderboardItem,
@@ -9,6 +11,8 @@ import {
 	type StatsOverview,
 	type UserAccuracy,
 } from '@bolao/shared'
+
+const TOTAL_EXPECTED_MATCHES = Object.values(STAGE_EXPECTED_MATCHES).reduce((sum, n) => sum + n, 0)
 import { Injectable, Logger } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
@@ -78,23 +82,30 @@ export class LeaderboardService {
 	}
 
 	async statsOverview(): Promise<StatsOverview> {
-		const [totalMatches, finishedMatches] = await Promise.all([
-			this.matchModel.estimatedDocumentCount().exec(),
-			this.matchModel.countDocuments({ status: MatchStatus.FINISHED }).exec(),
-		])
+		const finishedMatches = await this.matchModel.countDocuments({ status: MatchStatus.FINISHED }).exec()
+		const totalMatches = TOTAL_EXPECTED_MATCHES
 		const lb = await this.getCurrent()
-		const leader = lb.rows[0] ?? null
-		const totalExact = lb.rows.reduce((acc, r) => acc + r.breakdown.exactScore, 0)
-		const totalCorrect = lb.rows.reduce(
-			(acc, r) => acc + r.breakdown.exactScore + r.breakdown.winnerWithGoal + r.breakdown.correctWinner + r.breakdown.oneGoalCorrect,
-			0,
+		const breakdownSum = lb.rows.reduce(
+			(acc, r) => {
+				acc.exact += r.breakdown.exactScore
+				acc.wg += r.breakdown.winnerWithGoal
+				acc.cw += r.breakdown.correctWinner
+				acc.ogc += r.breakdown.oneGoalCorrect
+				acc.wrong += r.breakdown.wrong
+				return acc
+			},
+			{ exact: 0, wg: 0, cw: 0, ogc: 0, wrong: 0 },
 		)
+		const correctCount = breakdownSum.exact + breakdownSum.wg + breakdownSum.cw + breakdownSum.ogc
+		const evaluated = correctCount + breakdownSum.wrong
+		const pointsInPlay = (totalMatches - finishedMatches) * SCORING_RULES.exactScore
+		const groupAccuracyPct = evaluated > 0 ? Math.round((correctCount / evaluated) * 100) : 0
 		return {
 			totalMatches,
 			finishedMatches,
-			totalExactBets: totalExact,
-			totalCorrectBets: totalCorrect,
-			leader: leader ? { _id: leader.user._id, name: leader.user.name, avatar: leader.user.avatar, points: leader.points } : null,
+			totalExactBets: breakdownSum.exact,
+			pointsInPlay,
+			groupAccuracyPct,
 		}
 	}
 

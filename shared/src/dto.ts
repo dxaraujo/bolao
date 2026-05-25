@@ -151,8 +151,8 @@ export interface StatsOverview {
 	totalMatches: number
 	finishedMatches: number
 	totalExactBets: number
-	totalCorrectBets: number
-	leader: { _id: string; name: string; avatar?: string; points: number } | null
+	pointsInPlay: number
+	groupAccuracyPct: number
 }
 
 export interface UserAccuracy {

@@ -1,5 +1,5 @@
 import type { StatsOverview } from '@bolao/shared'
-import { Crown, Goal, Sparkles, Target } from 'lucide-react'
+import { Goal, Percent, Target, Zap } from 'lucide-react'
 
 import { Card } from '@/components/ui/card'
 
@@ -10,9 +10,9 @@ interface KpiGridProps {
 export function KpiGrid({ overview }: KpiGridProps) {
 	const items: Array<{ icon: typeof Goal; label: string; value: string | number; tone: string }> = [
 		{ icon: Goal, label: 'Partidas finalizadas', value: `${overview.finishedMatches}/${overview.totalMatches}`, tone: 'text-acc' },
-		{ icon: Target, label: 'Total de placares exatos', value: overview.totalExactBets, tone: 'text-green' },
-		{ icon: Sparkles, label: 'Acertos totais', value: overview.totalCorrectBets, tone: 'text-gold' },
-		{ icon: Crown, label: 'Líder', value: overview.leader?.name ?? '—', tone: 'text-purple' },
+		{ icon: Target, label: 'Placares exatos', value: overview.totalExactBets, tone: 'text-green' },
+		{ icon: Zap, label: 'Pontos em jogo', value: overview.pointsInPlay, tone: 'text-gold' },
+		{ icon: Percent, label: 'Acerto do grupo', value: `${overview.groupAccuracyPct}%`, tone: 'text-purple' },
 	]
 	return (
 		<div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">

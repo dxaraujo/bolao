@@ -11,6 +11,9 @@ export class User {
 	@Prop({ required: true })
 	name!: string
 
+	@Prop({ required: false })
+	givenName?: string
+
 	@Prop({ required: true })
 	email!: string
 

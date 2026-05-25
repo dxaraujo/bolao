@@ -81,3 +81,18 @@ export function useRebuildLeaderboard() {
 		onSuccess: () => qc.invalidateQueries({ queryKey: ['leaderboard'] }),
 	})
 }
+
+export function useAdvanceNextMatch() {
+	const qc = useQueryClient()
+	return useMutation({
+		mutationFn: () =>
+			api.post<{ _id: string; footballDataId: number; score: { home: number; away: number }; status: string }>(
+				'/api/match/advance-next',
+			),
+		onSuccess: () => {
+			qc.invalidateQueries({ queryKey: ['matches'] })
+			qc.invalidateQueries({ queryKey: ['leaderboard'] })
+			qc.invalidateQueries({ queryKey: ['bets'] })
+		},
+	})
+}

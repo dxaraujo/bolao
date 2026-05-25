@@ -69,7 +69,7 @@ export class LeaderboardService {
 			const u = userById.get(r.user.toString())
 			return {
 				rank: r.rank,
-				user: { _id: r.user.toString(), name: u?.name ?? '?', avatar: u?.avatar },
+				user: { _id: r.user.toString(), name: u?.name ?? '?', givenName: u?.givenName, avatar: u?.avatar },
 				points: r.points,
 				breakdown: r.breakdown,
 			}
@@ -101,7 +101,8 @@ export class LeaderboardService {
 	async statsAccuracy(): Promise<UserAccuracy[]> {
 		const activeUsers = await this.userModel.find({ isActive: true }).sort({ name: 1 }).exec()
 		const aggregates = await this.computeAggregates(activeUsers)
-		return aggregates
+		return [...aggregates]
+			.sort((a, b) => compareLeaderboardRows(a, b) || a.user.name.localeCompare(b.user.name, 'pt-BR'))
 			.map(
 				(a): UserAccuracy => ({
 					_id: a.user._id.toString(),
@@ -116,7 +117,6 @@ export class LeaderboardService {
 					accuracyPct: a.totalBets > 0 ? Math.round((a.breakdown.exactScore / a.totalBets) * 100) : 0,
 				}),
 			)
-			.sort((a, b) => b.accuracyPct - a.accuracyPct || a.name.localeCompare(b.name, 'pt-BR'))
 	}
 
 	async statsDistribution(): Promise<Distribution> {
@@ -227,7 +227,7 @@ export class LeaderboardService {
 			generatedAt: now.toISOString(),
 			rows: rows.map((r) => ({
 				rank: r.rank,
-				user: { _id: r.user._id.toString(), name: r.user.name, avatar: r.user.avatar },
+				user: { _id: r.user._id.toString(), name: r.user.name, givenName: r.user.givenName, avatar: r.user.avatar },
 				points: r.points,
 				breakdown: r.breakdown,
 			})),

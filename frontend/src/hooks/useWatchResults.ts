@@ -6,7 +6,7 @@ import type { SystemStatePayload } from '@bolao/shared'
 import { api } from '@/lib/api'
 import { useAuth } from '@/providers/AuthProvider'
 
-const INVALIDATE_KEYS = [['bets'], ['leaderboard']] as const
+const INVALIDATE_KEYS = [['bets'], ['leaderboard'], ['matches'], ['stages']] as const
 const TOAST_ID = 'results-update'
 
 export function useWatchResults() {

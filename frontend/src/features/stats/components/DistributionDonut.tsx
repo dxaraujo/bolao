@@ -1,4 +1,5 @@
 import type { Distribution } from '@bolao/shared'
+import { CircleDot, Goal, Target, Trophy, X, type LucideIcon } from 'lucide-react'
 
 import { Card } from '@/components/ui/card'
 
@@ -6,7 +7,7 @@ interface DistributionDonutProps {
 	data: Distribution
 }
 
-type Segment = { label: string; pct: number; color: string }
+type Segment = { label: string; pct: number; color: string; icon: LucideIcon; tone: string }
 
 export function DistributionDonut({ data }: DistributionDonutProps) {
 	const accuracy =
@@ -19,11 +20,11 @@ export function DistributionDonut({ data }: DistributionDonutProps) {
 				)
 
 	const segments: Segment[] = [
-		{ label: 'Placar Exato', pct: data.exact.pct, color: 'rgb(var(--green))' },
-		{ label: 'Time vencedor + Gol', pct: data.winnerWithGoal.pct, color: 'rgb(var(--acc))' },
-		{ label: 'Somente o time vencedor', pct: data.correctWinner.pct, color: 'rgb(var(--gold))' },
-		{ label: 'Gol', pct: data.oneGoalCorrect.pct, color: 'rgb(var(--purple))' },
-		{ label: 'Errou', pct: data.wrong.pct, color: 'rgb(var(--red))' },
+		{ label: 'Placar Exato', pct: data.exact.pct, color: 'rgb(var(--green))', icon: Trophy, tone: 'text-green' },
+		{ label: 'Time vencedor + Gol', pct: data.winnerWithGoal.pct, color: 'rgb(var(--acc))', icon: Goal, tone: 'text-acc' },
+		{ label: 'Somente o time vencedor', pct: data.correctWinner.pct, color: 'rgb(var(--gold))', icon: Target, tone: 'text-gold' },
+		{ label: 'Gol', pct: data.oneGoalCorrect.pct, color: 'rgb(var(--purple))', icon: CircleDot, tone: 'text-purple' },
+		{ label: 'Errou', pct: data.wrong.pct, color: 'rgb(var(--red))', icon: X, tone: 'text-red' },
 	]
 
 	return (
@@ -34,11 +35,13 @@ export function DistributionDonut({ data }: DistributionDonutProps) {
 			<div className="flex items-center gap-3.5">
 				<Donut segments={segments} percent={accuracy} />
 				<div className="flex flex-1 flex-col gap-2.5">
-					{segments.map((s) => (
+					{segments.map((s) => {
+						const Icon = s.icon
+						return (
 						<div key={s.label}>
 							<div className="mb-1 flex items-center justify-between text-xs">
 								<span className="flex items-center gap-1.5 text-sub">
-									<span className="h-1.5 w-1.5 rounded-full" style={{ background: s.color }} />
+									<Icon className={`h-3 w-3 ${s.tone}`} />
 									{s.label}
 								</span>
 								<span className="font-bold" style={{ color: s.color }}>
@@ -52,7 +55,8 @@ export function DistributionDonut({ data }: DistributionDonutProps) {
 								/>
 							</div>
 						</div>
-					))}
+						)
+					})}
 				</div>
 			</div>
 		</Card>

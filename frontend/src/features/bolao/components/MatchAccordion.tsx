@@ -1,4 +1,5 @@
 import type { GroupedBetMatch } from '@bolao/shared'
+import { CircleDot, Goal, Target, Trophy, X } from 'lucide-react'
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
@@ -17,7 +18,6 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 	return (
 		<Accordion type="multiple" className="flex flex-col gap-2">
 			{groups.map((g) => {
-				const correctTotal = g.totals.winnerWithGoal + g.totals.correctWinner + g.totals.oneGoalCorrect
 				const { match } = g
 				return (
 					<AccordionItem key={match._id} value={match._id} className="animate-fade-up">
@@ -28,9 +28,31 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 										{formatMatchDate(match.utcDate)}
 									</span>
 									<div className="flex gap-1.5">
-										{g.totals.exactScore > 0 && <Badge tone="green">🎯 {g.totals.exactScore}</Badge>}
-										{correctTotal > 0 && <Badge tone="gold">✓ {correctTotal}</Badge>}
-										{g.totals.wrong > 0 && <Badge tone="red">✗ {g.totals.wrong}</Badge>}
+										{g.totals.exactScore > 0 && (
+											<Badge tone="green">
+												<Trophy className="h-3 w-3" /> {g.totals.exactScore}
+											</Badge>
+										)}
+										{g.totals.winnerWithGoal > 0 && (
+											<Badge tone="acc">
+												<Goal className="h-3 w-3" /> {g.totals.winnerWithGoal}
+											</Badge>
+										)}
+										{g.totals.correctWinner > 0 && (
+											<Badge tone="gold">
+												<Target className="h-3 w-3" /> {g.totals.correctWinner}
+											</Badge>
+										)}
+										{g.totals.oneGoalCorrect > 0 && (
+											<Badge tone="purple">
+												<CircleDot className="h-3 w-3" /> {g.totals.oneGoalCorrect}
+											</Badge>
+										)}
+										{g.totals.wrong > 0 && (
+											<Badge tone="red">
+												<X className="h-3 w-3" /> {g.totals.wrong}
+											</Badge>
+										)}
 									</div>
 								</div>
 								<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
@@ -73,10 +95,22 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 								<span className="font-bold text-sub">
 									{g.totals.total} participante{g.totals.total === 1 ? '' : 's'} · {g.totals.notBet} não palpitaram
 								</span>
-								<div className="flex gap-3 font-bold">
-									<span className="text-green">🎯 {g.totals.exactScore}</span>
-									<span className="text-gold">✓ {correctTotal}</span>
-									<span className="text-red">✗ {g.totals.wrong}</span>
+								<div className="flex gap-2 font-bold">
+									<span className="inline-flex items-center gap-1 text-green">
+										<Trophy className="h-3 w-3" /> {g.totals.exactScore}
+									</span>
+									<span className="inline-flex items-center gap-1 text-acc">
+										<Goal className="h-3 w-3" /> {g.totals.winnerWithGoal}
+									</span>
+									<span className="inline-flex items-center gap-1 text-gold">
+										<Target className="h-3 w-3" /> {g.totals.correctWinner}
+									</span>
+									<span className="inline-flex items-center gap-1 text-purple">
+										<CircleDot className="h-3 w-3" /> {g.totals.oneGoalCorrect}
+									</span>
+									<span className="inline-flex items-center gap-1 text-red">
+										<X className="h-3 w-3" /> {g.totals.wrong}
+									</span>
 								</div>
 							</div>
 						</AccordionContent>

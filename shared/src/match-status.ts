@@ -6,17 +6,7 @@
 import { MatchStatus } from './enums.js'
 
 /** Status reportados pela Football Data API. */
-export const EXTERNAL_STATUSES = [
-	'TIMED',
-	'SCHEDULED',
-	'POSTPONED',
-	'IN_PLAY',
-	'PAUSED',
-	'FINISHED',
-	'AWARDED',
-	'CANCELLED',
-	'SUSPENDED',
-] as const
+export const EXTERNAL_STATUSES = ['TIMED', 'SCHEDULED', 'POSTPONED', 'IN_PLAY', 'PAUSED', 'FINISHED', 'AWARDED', 'CANCELLED', 'SUSPENDED'] as const
 
 export type ExternalMatchStatus = (typeof EXTERNAL_STATUSES)[number]
 
@@ -55,5 +45,4 @@ export const CANONICAL_TRANSITIONS: Record<MatchStatus, MatchStatus[]> = {
 	[MatchStatus.CANCELLED]: [],
 }
 
-export const isCanonicalTransition = (from: MatchStatus, to: MatchStatus): boolean =>
-	from === to || CANONICAL_TRANSITIONS[from].includes(to)
+export const isCanonicalTransition = (from: MatchStatus, to: MatchStatus): boolean => from === to || CANONICAL_TRANSITIONS[from].includes(to)

@@ -18,6 +18,7 @@ export interface AuthenticatedUser {
 export interface UserPayload {
 	_id: string
 	name: string
+	givenName?: string
 	email: string
 	avatar?: string
 	isAdmin: boolean
@@ -135,7 +136,7 @@ export interface GroupedBetMatch {
 
 export interface LeaderboardItem {
 	rank: number
-	user: { _id: string; name: string; avatar?: string }
+	user: { _id: string; name: string; givenName?: string; avatar?: string }
 	points: number
 	breakdown: LeaderboardBreakdown
 }

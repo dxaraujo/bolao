@@ -39,7 +39,15 @@ export class UserService implements OnModuleInit {
 		const user = await this.userModel
 			.findOneAndUpdate(
 				{ googleSub: profile.googleSub },
-				{ $set: { googleSub: profile.googleSub, name: profile.name, email: profile.email, picture: profile.picture } },
+				{
+					$set: {
+						googleSub: profile.googleSub,
+						name: profile.name,
+						givenName: profile.givenName,
+						email: profile.email,
+						picture: profile.picture,
+					},
+				},
 				{ new: true, upsert: true },
 			)
 			.exec()

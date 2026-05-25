@@ -37,8 +37,7 @@ const ZERO: BetScoreResult = {
 	points: 0,
 }
 
-const isValid = (s?: Score | null): s is Score =>
-	!!s && Number.isInteger(s.home) && Number.isInteger(s.away) && s.home >= 0 && s.away >= 0
+const isValid = (s?: Score | null): s is Score => !!s && Number.isInteger(s.home) && Number.isInteger(s.away) && s.home >= 0 && s.away >= 0
 
 const winnerOf = (s: Score): 'H' | 'A' | 'D' => (s.home > s.away ? 'H' : s.away > s.home ? 'A' : 'D')
 
@@ -63,9 +62,7 @@ export const calculateBetScore = (bet?: Score | null, match?: Score | null): Bet
 			: { ...ZERO, correctWinner: true, points: SCORING_RULES.correctWinner }
 	}
 
-	return oneGoal
-		? { ...ZERO, oneGoalCorrect: true, points: SCORING_RULES.oneGoalCorrect }
-		: { ...ZERO, wrong: true, points: SCORING_RULES.wrong }
+	return oneGoal ? { ...ZERO, oneGoalCorrect: true, points: SCORING_RULES.oneGoalCorrect } : { ...ZERO, wrong: true, points: SCORING_RULES.wrong }
 }
 
 export interface LeaderboardBreakdown {
@@ -87,10 +84,7 @@ export interface LeaderboardRow {
  * Comparador para ordenação do leaderboard. Critério de desempate em ordem:
  * points → exactScore → winnerWithGoal → correctWinner → oneGoalCorrect.
  */
-export const compareLeaderboardRows = (
-	a: Pick<LeaderboardRow, 'points' | 'breakdown'>,
-	b: Pick<LeaderboardRow, 'points' | 'breakdown'>,
-): number =>
+export const compareLeaderboardRows = (a: Pick<LeaderboardRow, 'points' | 'breakdown'>, b: Pick<LeaderboardRow, 'points' | 'breakdown'>): number =>
 	b.points - a.points ||
 	b.breakdown.exactScore - a.breakdown.exactScore ||
 	b.breakdown.winnerWithGoal - a.breakdown.winnerWithGoal ||

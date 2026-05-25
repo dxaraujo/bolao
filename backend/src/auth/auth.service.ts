@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { OAuth2Client, type TokenPayload } from 'google-auth-library'
@@ -12,6 +12,7 @@ export interface GoogleProfile {
 	googleSub: string
 	email: string
 	name: string
+	givenName?: string
 	picture: string
 }
 
@@ -19,6 +20,7 @@ export interface GoogleProfile {
 export class AuthService {
 	private readonly client: OAuth2Client
 	private readonly googleClientId: string
+	private readonly logger = new Logger(AuthService.name)
 
 	constructor(
 		config: ConfigService,
@@ -41,7 +43,7 @@ export class AuthService {
 			const payload = ticket.getPayload()
 			if (!payload) throw new UnauthorizedException('Google token payload incompleto')
 			const { sub, email, name } = this.assertGoogleProfile(payload)
-			return { googleSub: sub, email, name, picture: payload.picture ?? '' }
+			return { googleSub: sub, email, name, givenName: payload.given_name, picture: payload.picture ?? '' }
 		} catch (error) {
 			if (error instanceof UnauthorizedException) throw error
 			throw new UnauthorizedException('Falha ao verificar token do Google')

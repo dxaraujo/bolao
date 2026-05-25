@@ -25,7 +25,7 @@ export function RankingScreen() {
 
 	return (
 		<div className="flex flex-col gap-4 px-4 py-4">
-			<Podium leaders={rows.slice(0, 3)} />
+			<Podium leaders={rows} />
 			{me && !me.isActive && (
 				<div className="rounded-lg border border-acc/30 bg-acc/10 px-4 py-3 text-sm text-acc">
 					Você está acompanhando como espectador — não aparece no ranking.

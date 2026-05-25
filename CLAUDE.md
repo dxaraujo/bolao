@@ -47,11 +47,11 @@ Módulos:
 - `media/` — download de avatares/escudos
 - `team/` — import + `flagEmoji` preferencial sobre `crest`
 - `stage/` — config + estado derivado (`LOCKED/OPEN/CLOSED`), sem `BlockStagesTask`
-- `match/` — import (TBD são skipadas), `score.service` (sync), workflow de status com warnings
+- `match/` — import (TBD são skipadas), workflow de status com warnings, endpoints `@Public()` de simulação (`advance-next`, `advance-next/:code`)
 - `bet/` — esparso, validado, `ActiveParticipantGuard`, semântica tudo-ou-nada
 - `leaderboard/` — singleton + stats derivadas (substitui antigos `ranking/` e `stats/`)
 - `system-state/` — timestamps de sync (substitui antigo `config/`)
-- `schedule/` — 2 crons: `MatchSyncTask` (5min 24/7) + `MatchImportTask` (15min)
+- `schedule/` — 1 cron: `MatchSyncTask` (`*/5 * * * *`) + `OnApplicationBootstrap` (rebaixa times + matches na subida). Faz import + rebuild de leaderboard quando há mudanças.
 - `health/`, `common/`
 
 Rotas: `/auth/google`, `/healthcheck`, `/api/{user,team,stage,match,bet,leaderboard,system}`.
@@ -77,7 +77,7 @@ Var obrigatória: `VITE_GOOGLE_CLIENT_ID`.
 
 ## Modelos v2 (resumo)
 
-- `User { googleSub, name, email, avatar?, isAdmin, isActive, participationChangedAt? }`
+- `User { googleSub, name, givenName?, email, picture?, avatar?, isAdmin, isActive, participationChangedAt? }`
 - `Team { footballDataId, name, shortName, tla, flagEmoji?, crest?, externalLastUpdated }`
 - `Stage { code, order, deadline, expectedMatchCount }`  — estado derivado
 - `Match { footballDataId, utcDate, status, stage(FK), group?, homeTeam(FK), awayTeam(FK), score?, externalLastUpdated }`

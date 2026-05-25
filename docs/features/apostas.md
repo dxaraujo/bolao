@@ -30,21 +30,21 @@ Tela onde o usuário registra seus palpites para as partidas das fases abertas.
 
 ### Tabs por fase
 
-- Construídas a partir de `useStages()` (`GET /api/stage/visible`)
+- Construídas a partir de `useStages()` (`GET /api/stage`)
 - A aba ativa default é a primeira fase em `OPEN`; se nenhuma estiver aberta, a primeira da lista
-- Fases `DISABLED` aparecem como abas **desabilitadas** (cinzas, sem clique)
+- Fases `LOCKED` aparecem como abas **desabilitadas** (cinzas, sem clique)
 - Fases `OPEN` recebem um indicador verde de bolinha
 - Estado da aba é mantido em React state local; ao trocar de aba, o usuário não perde o que digitou (`draft` persiste no escopo da tela)
 
 ### Cabeçalho de status
 
-Renderizado conforme `currentStage.status`:
+Renderizado conforme `currentStage.state`:
 
 | Status     | Aparência                                                          | Texto                                                                  |
 |------------|--------------------------------------------------------------------|------------------------------------------------------------------------|
 | `OPEN`     | Card verde com ícone `CalendarClock`                               | `Apostas abertas` + `Prazo: <deadline formatado>` (se houver deadline)<br>ou `+5 placar exato · +1 resultado` (resumo da regra) |
-| `BLOCKED`  | Card neutro com ícone `Lock`                                       | `Fase encerrada` + `Veja seus resultados abaixo`                       |
-| `DISABLED` | Card opaco                                                         | `Fase não disponível`                                                  |
+| `CLOSED`   | Card neutro com ícone `Lock`                                       | `Fase encerrada` + `Veja seus resultados abaixo`                       |
+| `LOCKED`   | Card opaco                                                         | `Fase não disponível`                                                  |
 
 ### BetCard
 
@@ -53,7 +53,7 @@ Renderizado conforme `currentStage.status`:
 - Dois inputs numéricos para `homeTeamScore` e `awayTeamScore`
 - Escudo + TLA do visitante
 
-Quando `disabled === true` (fase `BLOCKED` ou `DISABLED`), os inputs ficam read-only e o card exibe o placar real e o palpite gravado lado a lado, indicando o resultado (acertou / errou / pendente).
+Quando `disabled === true` (fase `CLOSED` ou `LOCKED`), os inputs ficam read-only e o card exibe o placar real e o palpite gravado lado a lado, indicando o resultado (acertou / errou / pendente).
 
 ### Ordenação dos palpites
 
@@ -68,7 +68,7 @@ Na fase de grupos, palpites são adicionalmente **agrupados por `group`** com um
 
 ### Progress bar e salvar
 
-No rodapé sticky (apenas se `currentStage.status === OPEN` e há palpites na fase):
+No rodapé sticky (apenas se `currentStage.state === OPEN` e há palpites na fase):
 
 - Conta `filled = palpites do draft com ambos os campos preenchidos`
 - `Progress` mostra `filled / stageBets.length`
@@ -88,9 +88,8 @@ No rodapé sticky (apenas se `currentStage.status === OPEN` e há palpites na fa
 
 | Hook            | Endpoint                  | Uso                                    |
 |-----------------|---------------------------|----------------------------------------|
-| `useStages`     | `GET /api/stage/visible`  | Tabs                                   |
+| `useStages`     | `GET /api/stage`  | Tabs                                   |
 | `useMyBets`     | `GET /api/bet`            | Lista de palpites do usuário          |
-| `useConfig`     | `GET /api/config`         | Pontos por categoria (na barra status) |
 | `useUpdateBets` | `PUT /api/bet/updateBets` | Mutação de salvar                      |
 
 ## Garantias do backend
@@ -108,5 +107,5 @@ Isso garante que:
 
 - **Aba ativa sumiu:** se a aba selecionada não está mais na lista de stages (ex.: refetch reduziu visibilidade), cai no default (primeira `OPEN` ou primeira da lista).
 - **Toast de plural:** `SALVAR 1 APOSTA` / `SALVAR 2 APOSTAS`. Confirmação usa `"X aposta salva"` ou `"X apostas salvos"` (note a inconsistência atual em `"X apostas salvos"` — ver `BetsScreen.tsx:114`).
-- **Apostando sem fase aberta:** se nenhuma fase estiver `OPEN`, a aba ativa vai para alguma `BLOCKED` ou `DISABLED`, todos os inputs ficam desabilitados, e o rodapé sticky não aparece.
+- **Apostando sem fase aberta:** se nenhuma fase estiver `OPEN`, a aba ativa vai para alguma `CLOSED` ou `LOCKED`, todos os inputs ficam desabilitados, e o rodapé sticky não aparece.
 - **`draft` em memória:** se o usuário recarregar a página antes de salvar, perde o digitado.

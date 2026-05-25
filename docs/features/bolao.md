@@ -1,14 +1,14 @@
 # Bolão — apostas do grupo (BolaoScreen)
 
-Visualização de **todos os palpites de todos os usuários ativos** para as partidas das fases já encerradas (`BLOCKED`).
+Visualização de **todos os palpites de todos os usuários ativos** para as partidas das fases já encerradas (`CLOSED`).
 
 - **Rota:** `/bolao`
 - **Componente:** `frontend/src/features/bolao/BolaoScreen.tsx`
 - **Subcomponentes:** `MatchAccordion`, `BetRow`
 
-## Por que só fases `BLOCKED`?
+## Por que só fases `CLOSED`?
 
-Para preservar o suspense — enquanto a fase está `OPEN`, ninguém vê os palpites dos outros. A partir do momento em que a fase é bloqueada (manual ou por `deadline`), todos podem ver tudo.
+Para preservar o suspense — enquanto a fase está `OPEN`, ninguém vê os palpites dos outros. A partir do momento em que o `deadline` é ultrapassado (estado derivado vira `CLOSED`), todos podem ver tudo.
 
 ## Comportamento
 
@@ -32,13 +32,13 @@ Para preservar o suspense — enquanto a fase está `OPEN`, ninguém vê os palp
 ### Estado inicial
 
 - Carrega `useStages()` e `useAllBets()` (`GET /api/bet/all`) em paralelo
-- Filtra as fases para apenas as `BLOCKED`
-- Se não houver nenhuma `BLOCKED`, mostra `EmptyState`: *"Nenhuma fase encerrada — As apostas do grupo aparecem aqui após cada fase ser bloqueada."*
+- Filtra as fases pelo `state === CLOSED` (state derivado por `getStageState`)
+- Se não houver nenhuma `CLOSED`, mostra `EmptyState`: *"Nenhuma fase encerrada — As apostas do grupo aparecem aqui após cada fase ser encerrada."*
 
 ### Tabs por fase
 
-- Mostram **apenas** fases `BLOCKED`
-- Cada aba traz um **contador** com a quantidade de partidas nessa fase (`groups.filter(g => g.stage === s.matchStage).length`)
+- Mostram **apenas** fases `CLOSED`
+- Cada aba traz um **contador** com a quantidade de partidas nessa fase
 - Aba ativa default é a primeira da lista; pode ser trocada (estado local)
 
 ### Lista de partidas
@@ -50,49 +50,55 @@ Para a fase ativa:
 
 ### MatchAccordion
 
-`frontend/src/features/bolao/components/MatchAccordion.tsx` — cabeçalho com escudos, TLA, placar real e indicadores agregados (quantidade de placares exatos, vencedor+gol, etc., vindo de `GroupedBet`). Ao expandir, lista cada usuário em um `BetRow`.
+`frontend/src/features/bolao/components/MatchAccordion.tsx` — cabeçalho com escudos, TLA, placar real e badges com ícones lucide por categoria de acerto (Trophy/Goal/Target/CircleDot/X), vindo dos `totals` de `GroupedBetMatch`. Ao expandir, lista cada usuário em um `BetRow`.
 
 ### BetRow
 
 `frontend/src/features/bolao/components/BetRow.tsx` — uma linha por usuário com:
 - Avatar (com fallback de iniciais)
-- Nome
-- Placar previsto
-- Badge do resultado: **Exato**, **Vencedor + gol**, **Acertou um gol**, **Vencedor**, **Errou**, **—** (pendente)
+- Nome (badge "Você" se for o usuário autenticado)
+- Placar previsto (colorido pelo tom do resultado)
+- Badge do resultado com ícone: **Exato** (Trophy), **Vencedor + gol** (Goal), **Vencedor** (Target), **Acertou um gol** (CircleDot), **Errou** (X), **—** (pendente)
+- Pontos ganhos
 
-O usuário autenticado (`me?._id`) é destacado visualmente nas linhas onde aparece.
+O usuário autenticado (`me?._id`) recebe destaque visual (`bg-acc/[0.06]`).
 
 ## Dados consumidos
 
 | Hook         | Endpoint                  | Uso                                |
 |--------------|---------------------------|------------------------------------|
-| `useStages`  | `GET /api/stage/visible`  | Tabs (filtradas por `BLOCKED`)     |
+| `useStages`  | `GET /api/stage`          | Tabs (filtradas por `state === CLOSED`) |
 | `useAllBets` | `GET /api/bet/all`        | Agregado de palpites por partida   |
 | `useMe`      | `GET /api/user/me`        | Destacar o usuário atual           |
 
 ## Como o backend monta o agregado
 
-`BetService.listAll` (`backend/src/bet/bet.service.ts`):
+`BetService.listGrouped` (`backend/src/bet/bet.service.ts`):
 
-1. Acha todas as fases com status `BLOCKED`. Se não houver, retorna `[]`.
-2. Acha todos os `match._id` válidos dessas fases.
-3. Acha todos os `user._id` ativos.
-4. Lê todos os palpites desses pares (`{ match: { $in }, user: { $in } }`), populando `match` (com `homeTeam`/`awayTeam`) e `user`.
-5. Reduz num mapa `matchId → GroupedBet`:
-   - Cada chave acumula contadores `exactScore`, `winnerWithGoal`, `correctWinner`, `oneGoalCorrect`, `wrong`, `total`
-   - `bets[]` é populado com `{ user, homeTeamScore, awayTeamScore, flags, totalPointsEarned }`
-6. Ordena `bets[]` por `user.name` (`pt-BR`) e a lista final por `utcDate`.
+1. Acha todas as fases cujo `getStageState` retorna `CLOSED`. Se não houver, retorna `[]`.
+2. Acha todos os matches dessas fases (populando `homeTeam`, `awayTeam`, `stage`).
+3. Acha todos os usuários ativos (`isActive: true`).
+4. Lê todos os bets `{ match: { $in }, user: { $in } }`.
+5. Para cada match, monta `GroupedBetMatch`:
+   - `match`: `MatchPayload` com `score?: {home, away}`
+   - `totals`: contadores por categoria (`exactScore`, `winnerWithGoal`, `correctWinner`, `oneGoalCorrect`, `wrong`, `notBet`, `total`)
+   - `participants`: `GroupedBetParticipant[]` — um por usuário ativo, com seu `score`/`result` ou ausente se não palpitou.
+6. Retorna ordenado por `utcDate, footballDataId`.
 
-Resposta: `GroupedBet[]` (em `@bolao/shared/dto.ts`).
+Resposta: `GroupedBetMatch[]` (em `@bolao/shared/dto.ts`).
+
+## Reatividade
+
+Quando a cron `MatchSyncTask` rebuilda o leaderboard, atualiza `systemState.leaderboardRebuildAt`. Frontend (`useWatchResults`) detecta a mudança e invalida `['bets']` (cascata para `['bets', 'all']`) — o agregado é refetchado e a tela atualiza.
 
 ## Estados
 
 - **Carregando:** três `Skeleton` enquanto `stagesLoading || groupsLoading`.
 - **Sem fases encerradas:** `EmptyState` com ícone Search e mensagem específica.
-- **Fase ativa sem partidas:** sub-EmptyState *"Nenhuma partida encerrada nesta fase"*. Cenário raro (fase BLOCKED quase sempre terá partidas) mas previsto.
+- **Fase ativa sem partidas:** sub-EmptyState *"Nenhuma partida encerrada nesta fase"*.
 
 ## Casos de borda
 
-- A lista mostra **apenas usuários ativos**. Se um usuário foi desativado depois da fase, seus palpites são apagados (`removeBetsForUser`) e ele desaparece daqui.
-- Partidas `valid: false` não entram em `findMatchIdsByStages` e portanto não aparecem nem no agregado.
-- Se uma fase tem partidas mas nenhum palpite registrado ainda (caso extremo), `Object.values(groupedBets)` retorna vazio para a fase, caindo em `EmptyState`.
+- A lista mostra **apenas usuários ativos**. Espectadores não aparecem nem palpitam.
+- Bets esparsos: usuários que não palpitaram aparecem com `score: undefined` e `result: undefined` (rotulados como **—** / "Não palpitou").
+- `notBet` em `totals` conta esses usuários ausentes — útil para o cabeçalho do accordion.

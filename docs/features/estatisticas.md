@@ -112,4 +112,4 @@ userModel.findOne({ isActive: true }).sort({ totalPointsEarned: -1, name: 1 })
 - **`totalCorrectBets`** soma três flags exclusivas (apenas uma é `true` por palpite avaliado), então o número equivale ao total de palpites com qualquer acerto **menos** os exatos.
 - **`accuracyPct === 0`** para usuários ativos sem nenhum palpite avaliado — eles ainda aparecem na lista, em zero (ordenados depois dos com acerto positivo).
 - **`%` arredondado** — a soma das fatias do donut pode dar 99% ou 101% por arredondamento.
-- Os contadores no documento `User` (`exactScore`, `winnerWithGoal`, etc.) são valores materializados pelo `ResultService` e **não** são usados em `StatsService` — este recalcula a partir dos `Bet`s, garantindo consistência mesmo se o ranking estiver dessincronizado.
+- Não há mais contadores materializados no `User` (na v1 existiam, agora foram removidos). Tudo é recomputado por `LeaderboardService.computeAggregates` lendo bets × matches em cada chamada de stats, garantindo consistência.

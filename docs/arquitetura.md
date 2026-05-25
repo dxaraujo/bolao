@@ -53,20 +53,20 @@ O frontend é um **single-page application** mobile-first (PWA) que conversa com
 
 ### Módulos
 
-| Módulo        | Responsabilidade                                                                                  |
-|---------------|---------------------------------------------------------------------------------------------------|
-| `auth`        | Login com Google, emissão de JWT, `JwtStrategy`, decorator `@Public()`                            |
-| `user`        | CRUD de usuários, perfil, ativação/desativação, sincronização de avatar local                     |
-| `team`        | Importação e armazenamento dos times (escudos baixados localmente)                                |
-| `stage`       | Ciclo de vida das fases (DISABLED → OPEN → BLOCKED), seed inicial e bloqueio automático            |
-| `match`       | CRUD de partidas + importação a partir da Football Data API                                       |
-| `bet`         | Palpites do usuário, atualização em lote, agregação para visualização do grupo                    |
-| `ranking`     | Leitura agregada do ranking (já materializado em `User`)                                          |
-| `stats`       | Estatísticas: KPIs, acerto por usuário, distribuição de resultados                                |
-| `config`      | Flag global e configuração de pontuação                                                           |
-| `schedule`    | Crons (`UpdateScoresTask`, `ImportMatchesTask`, `BlockStagesTask`)                                |
-| `health`      | Healthcheck público                                                                               |
-| `common`      | Decorators (`@Public`, `@CurrentUser`), `AdminGuard`, exception filter, validação de env, utilidades de download e diretório estático |
+| Módulo          | Responsabilidade                                                                                  |
+|-----------------|---------------------------------------------------------------------------------------------------|
+| `auth`          | Login com Google (extrai `name`, `givenName`, `email`, `picture`), emissão de JWT, `JwtStrategy`, decorator `@Public()` |
+| `user`          | CRUD de usuários, perfil, ativação/desativação, sincronização de avatar local                     |
+| `team`          | Importação e armazenamento dos times (escudos baixados localmente)                                |
+| `stage`         | Estado derivado (`LOCKED`/`OPEN`/`CLOSED`) via `getStageState`, seed inicial via enum, endpoint público `advance-next/:code` para simulação |
+| `match`         | CRUD de partidas + importação Football Data, endpoints públicos `advance-next[/:code]` de simulação |
+| `bet`           | Palpites esparsos do usuário, atualização em lote (tudo-ou-nada), agregação para visualização do grupo |
+| `leaderboard`   | Singleton recomputado por `LeaderboardService.rebuild()` + stats derivadas (substitui v1 `ranking/` e `stats/`) |
+| `system-state`  | Singleton com timestamps de sync (`scoreSyncStartedAt`, `leaderboardRebuildAt`, etc) — substitui v1 `config/` |
+| `schedule`      | Cron unificada `MatchSyncTask` (`*/5 * * * *` + `OnApplicationBootstrap`)                         |
+| `media`         | Download de avatares e escudos para `/static/`                                                    |
+| `health`        | Healthcheck público                                                                               |
+| `common`        | Decorators (`@Public`, `@CurrentUser`), `AdminGuard`, `ActiveParticipantGuard`, exception filter, validação de env |
 
 ### Camadas dentro de cada módulo
 
@@ -98,21 +98,20 @@ MongoDB acessado via Mongoose. Cada entidade tem schema com índices explícitos
 
 - `User.googleSub` único
 - `Team.footballDataId` único
-- `Match.footballDataId` único; índices em `utcDate`, `stage`, `homeTeam`, `awayTeam`, `valid`
-- `Bet` indexado por `user`, `match` e composto `{ user, match }`
-- `Stage.matchStage` e `Stage.order` ambos únicos
+- `Match.footballDataId` único; índices em `utcDate`, `stage`, `homeTeam`, `awayTeam`, `status` e composto `{ stage, utcDate }`
+- `Bet` indexado por `user`, `match` e composto único `{ user, match }`
+- `Stage.code` e `Stage.order` ambos únicos
+- `Leaderboard` singleton por `key: 'singleton'`; `SystemState` idem
 
 ### Crons
 
-Três tarefas em `src/schedule/`:
+Uma única task em `src/schedule/match-sync.task.ts`:
 
-| Task                  | Cron               | Função                                                                |
-|-----------------------|--------------------|-----------------------------------------------------------------------|
-| `UpdateScoresTask`    | `*/5 7-20 * * *`   | Busca placares e dispara recálculo de pontuação para partidas alteradas |
-| `ImportMatchesTask`   | `0 0 * * *`        | Reimporta o calendário de partidas                                    |
-| `BlockStagesTask`     | `* * * * *`        | Bloqueia fases cujo `deadline` foi ultrapassado                       |
+| Task             | Trigger                                       | Função                                                                                  |
+|------------------|-----------------------------------------------|-----------------------------------------------------------------------------------------|
+| `MatchSyncTask`  | `OnApplicationBootstrap` + `*/5 * * * *`      | Importa times+matches da Football Data, atualiza placares, rebuilda leaderboard se mudou |
 
-Detalhes em [features/sincronizacao-externa.md](./features/sincronizacao-externa.md) e [features/gestao-fases.md](./features/gestao-fases.md).
+Não há mais `BlockStagesTask`/`ImportMatchesTask`/`UpdateScoresTask` da v1 — estado de fase é derivado do `deadline` a cada request e o sync unifica calendário, placares e pontuação. Detalhes em [features/sincronizacao-externa.md](./features/sincronizacao-externa.md).
 
 ## Frontend (`frontend/`)
 

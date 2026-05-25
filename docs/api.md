@@ -21,6 +21,8 @@ API NestJS exposta pelo backend. Documentação OpenAPI navegável em `http://lo
 
 JWT claims: `{ _id, email, name, avatar?, isAdmin, isActive }`.
 
+`UserPayload` inclui `givenName?` (primeiro nome do Google, usado em UIs compactas como Pódio).
+
 ### Usuário
 
 | Método | Path | Auth | Notas |
@@ -41,9 +43,10 @@ JWT claims: `{ _id, email, name, avatar?, isAdmin, isActive }`.
 
 | Método | Path | Auth | Notas |
 |---|---|---|---|
-| GET | `/api/stage` | JWT | `StagePayload[]` com estado derivado (`LOCKED`/`OPEN`/`CLOSED`) + `importedMatchCount` |
+| GET | `/api/stage` | JWT | `StagePayload[]` com estado derivado (`LOCKED`/`OPEN`/`CLOSED`) + `importedMatchCount` + `finishedMatchCount` |
 | GET | `/api/stage/readiness` | admin | `StageReadinessItem[]` para diagnóstico |
-| PATCH | `/api/stage/:code` | admin | `{ deadline?, expectedMatchCount? }` |
+| PATCH | `/api/stage/:code` | admin | `{ deadline? }` — `expectedMatchCount` é fixo via `STAGE_EXPECTED_MATCHES` |
+| GET | `/api/stage/advance-next/:code` | **público (simulação)** | Fecha a fase: seta `deadline = now − 1s` (próxima vira `OPEN` por derivação) |
 
 Sem `PUT` para "abrir/fechar" — estado é derivado.
 
@@ -52,8 +55,9 @@ Sem `PUT` para "abrir/fechar" — estado é derivado.
 | Método | Path | Auth | Notas |
 |---|---|---|---|
 | GET | `/api/match` | JWT | `MatchPayload[]` com `stageState` embutido |
-| POST | `/api/match/import` | admin | Reimporta calendário (TBD skipadas) |
-| POST | `/api/match/sync-scores` | admin | Atualiza placares + rebuild leaderboard |
+| POST | `/api/match/import` | admin | Reimporta calendário + placares; rebuilda leaderboard se houver mudanças |
+| GET | `/api/match/advance-next` | **público (simulação)** | Avança próxima `SCHEDULED` da primeira fase `OPEN`. Sorteia placar + status `LIVE`/`FINISHED` (50/50). Rebuilda leaderboard. `404` se nenhuma fase `OPEN` ou sem `SCHEDULED`. |
+| GET | `/api/match/advance-next/:code` | **público (simulação)** | Como acima, restrito à fase informada. |
 
 ### Palpites
 

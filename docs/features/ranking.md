@@ -45,53 +45,53 @@ Layout responsivo. Em desktop, duas colunas; em mobile, empilhado:
 
 ### Tabela de pontuação
 
-`frontend/src/features/ranking/components/ScoringTable.tsx` — exibe as regras configuradas em `Config`:
+`frontend/src/features/ranking/components/ScoringTable.tsx` — exibe as regras de pontuação (constantes em `@bolao/shared`):
 
 | Categoria              | Pontos                    |
 |------------------------|---------------------------|
-| Placar exato           | `config.pointsExactScore`     |
-| Vencedor + gol         | `config.pointsWinnerWithGoal` |
-| Acertou um gol         | `config.pointsOneGoalCorrect` |
-| Apenas vencedor        | `config.pointsCorrectWinner`  |
+| Placar exato           | `SCORING_RULES.exactScore` (5)     |
+| Vencedor + gol         | `SCORING_RULES.winnerWithGoal` (3) |
+| Acertou um gol         | `SCORING_RULES.oneGoalCorrect` (1) |
+| Apenas vencedor        | `SCORING_RULES.correctWinner` (2)  |
 
-> ⚠️ A `ScoringTable` lê os valores da `Config`, mas o motor de cálculo em `result.service.ts` usa valores **hardcoded** (5/3/2/1). Mudar `Config` no banco altera o que aparece na tabela mas **não** altera o cálculo. Ver [pontuacao.md](./pontuacao.md).
+A `ScoringTable` lê constantes do `@bolao/shared` (`SCORING_RULES`) — a mesma fonte usada pelo backend em `calculateBetScore`. Não há mais coleção `Config`.
 
 ## Dados consumidos
 
-| Hook         | Endpoint           | Uso                              |
-|--------------|--------------------|----------------------------------|
-| `useRanking` | `GET /api/ranking` | Lista de usuários classificados  |
-| `useConfig`  | `GET /api/config`  | Pontos por categoria (tabela)    |
-| `useMe`      | `GET /api/user/me` | Destacar o usuário atual         |
+| Hook            | Endpoint                 | Uso                              |
+|-----------------|--------------------------|----------------------------------|
+| `useLeaderboard`| `GET /api/leaderboard`   | Lista de usuários classificados  |
+| `useMe`         | `GET /api/user/me`       | Destacar o usuário atual         |
 
 ## Como o ranking é calculado
 
-A leitura de `/api/ranking` é **só leitura** — `RankingService.find()` apenas faz `User.find({ isActive: true })` e ordena.
+`GET /api/leaderboard` lê o **singleton** persistido em `Leaderboard` (recomputado por `LeaderboardService.rebuild()`).
 
-O cálculo real acontece em `ResultService.updateResults` (`backend/src/match/result.service.ts`), executado:
-- A cada execução bem-sucedida da cron `UpdateScoresTask` (se houve mudança de placar)
-- Após `POST /api/match/update-scores` (acionamento manual via Admin)
+O rebuild acontece:
+- Pela cron unificada `MatchSyncTask` (quando há mudanças de placar — `changedIds.length > 0`)
+- Manualmente via `POST /api/leaderboard/rebuild` no Admin
+- Quando um usuário muda `isActive` (entrada/saída do ranking) — em `UserService.update`
 
-Algoritmo do ranking:
+Algoritmo (`LeaderboardService.rebuild`):
 
 ```
 1. activeUsers = User.find({ isActive: true }).sort({ name: 1 })
-2. agg = Bet.aggregate por user → { totalPointsEarned, exactScore, winnerWithGoal, correctWinner, oneGoalCorrect, wrong }
-3. rows = mapeia cada user com seus totais (zerado se não há bets)
-4. rows.sort(compareRows)
-5. atribui ranking sequencial:
-   - se rows[i] empata com rows[i-1] em todos os critérios → mesmo ranking, tiedCount++
-   - senão → currentRank += tiedCount, tiedCount = 1
-6. bulkWrite atualiza cada User com seus totais + ranking
+2. scoredMatches = Match.find({ status: { $in: [LIVE, FINISHED] }, score: { $exists: true } })
+3. bets = Bet.find({ user: { $in }, match: { $in } })
+4. agg por user: percorre cada bet, chama calculateBetScore(bet.score, match.score),
+   acumula points + breakdown (exactScore, winnerWithGoal, correctWinner, oneGoalCorrect, wrong) + totalBets
+5. sort por compareLeaderboardRows
+6. assigna rank de competição (empates compartilham rank, próximo distinto pula)
+7. persist no singleton via upsert
 ```
 
-`compareRows`:
+`compareLeaderboardRows` (em `@bolao/shared`):
 ```
-b.totalPointsEarned - a.totalPointsEarned
-|| b.exactScore - a.exactScore
-|| b.winnerWithGoal - a.winnerWithGoal
-|| b.correctWinner - a.correctWinner
-|| b.oneGoalCorrect - a.oneGoalCorrect
+b.points - a.points
+|| b.breakdown.exactScore - a.breakdown.exactScore
+|| b.breakdown.winnerWithGoal - a.breakdown.winnerWithGoal
+|| b.breakdown.correctWinner - a.breakdown.correctWinner
+|| b.breakdown.oneGoalCorrect - a.breakdown.oneGoalCorrect
 ```
 
 Detalhes completos em [pontuacao.md](./pontuacao.md).

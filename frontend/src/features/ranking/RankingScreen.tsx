@@ -25,12 +25,12 @@ export function RankingScreen() {
 
 	return (
 		<div className="flex flex-col gap-4 px-4 py-4">
-			<Podium leaders={rows} />
 			{me && !me.isActive && (
 				<div className="rounded-lg border border-acc/30 bg-acc/10 px-4 py-3 text-sm text-acc">
 					Você está acompanhando como espectador — não aparece no ranking.
 				</div>
 			)}
+			<Podium leaders={rows} />
 			<div className="grid gap-4 lg:grid-cols-2">
 				<section className="flex flex-col gap-2">
 					<h2 className="text-xs font-bold uppercase tracking-wider text-sub">Classificação completa</h2>

@@ -8,7 +8,7 @@ Integração com a [Football Data API](https://www.football-data.org/) (`/compet
   - `GET {API_URL}/competitions/WC/teams?season=2026`
   - `GET {API_URL}/competitions/WC/matches?season=2026`
 
-Três operações principais usam essa API: **importar times**, **importar partidas** e **atualizar placares**. As duas últimas têm cron, e todas as três têm acionamento manual via Admin.
+Toda a sincronização é orquestrada por uma única cron (`MatchSyncTask`). A v2 não tem mais `ImportMatchesTask`, `UpdateScoresTask` nem `BlockStagesTask` separadas.
 
 ---
 
@@ -16,115 +16,96 @@ Três operações principais usam essa API: **importar times**, **importar parti
 
 - **Serviço:** `TeamService.importTeams` (`backend/src/team/team.service.ts`)
 - **Endpoint admin:** `POST /api/team/import`
-- **Cron:** não há — disparado manualmente, geralmente uma única vez no setup
+- **Trigger automático:** `MatchSyncTask.onApplicationBootstrap` (sobe junto com o backend).
+- **Trigger manual:** botão "Importar Times" no Admin.
 
 ### Fluxo
 
 1. `GET {API}/competitions/WC/teams?season=2026`
 2. Para cada time externo:
-   - Se não existe localmente: cria com `name`, `shortName`, `tla`, `crest`, `lastUpdated`. Baixa o escudo para `static/teams/<TLA>.png` e armazena o caminho local em `crest`.
-   - Se existe e `lastUpdated` externo é mais recente: atualiza tudo e re-baixa escudo.
-   - Se existe e está em dia mas o arquivo local sumiu do disco: re-baixa.
+   - Resolve `flagEmoji` via `tlaToFlagEmoji(tla)` (tabela alpha-3 → alpha-2 em `shared/src/flag-emoji.ts`).
+   - Se `flagEmoji` existir, usa-o; senão baixa o escudo para `static/teams/<TLA>.png` em `crest` (fallback).
+   - Upsert por `footballDataId`.
 
 ### Auto-correção no boot
 
-`TeamService.onModuleInit` → `syncMissingCrests()`:
-- Procura times com `crest` apontando para `/static/...`
-- Para cada um, verifica se o arquivo existe em disco
-- Se sumiu, busca novamente a API externa e re-baixa apenas os que faltam
-
-Útil para deploys onde o volume foi recriado mas o Mongo persistiu o estado.
+`UserService.onModuleInit` → `syncMissingAvatars()` faz a mesma ideia para avatares de usuários (re-baixa se o arquivo sumiu do disco).
 
 ---
 
-## 2. Importar partidas
+## 2. Importar partidas + placares (unificado)
 
 - **Serviço:** `MatchService.importMatches` (`backend/src/match/match.service.ts`)
-- **Endpoint admin:** `POST /api/match/import`
-- **Cron:** `ImportMatchesTask` em `backend/src/schedule/import-matches.task.ts`, expressão `0 0 * * *` (diariamente à 00:00)
+- **Endpoint admin:** `POST /api/match/import` — também rebuilda leaderboard quando há mudanças.
+- **Trigger automático:** `MatchSyncTask` (bootstrap + cron `*/5 * * * *`).
 
 ### Fluxo
 
 1. `GET {API}/competitions/WC/matches?season=2026`
 2. Para cada `externalMatch`:
-   - Resolve `homeTeam` e `awayTeam` localmente por `footballDataId` (pode ser `null` se ainda é TBD)
-   - `valid = !!homeTeam && !!awayTeam`
-   - Monta `matchData` com `utcDate`, `status`, `stage`, `group`, refs aos times, `valid`, `lastUpdated`
-   - Se a partida não existe no banco: cria
-   - Se existe e `lastUpdated` externo é mais recente: atualiza
-   - Se existe e está em dia: ignora
+   - Skipa se a `stage` externa não está no enum local (`MatchStage`).
+   - Skipa se algum time é TBD (não resolve por `footballDataId`).
+   - Mapeia status externo via `mapExternalStatus()`:
+     ```
+     TIMED, SCHEDULED, POSTPONED  → SCHEDULED
+     IN_PLAY, PAUSED              → LIVE
+     FINISHED, AWARDED            → FINISHED
+     CANCELLED, SUSPENDED         → CANCELLED
+     ```
+   - Extrai `score` via `extractScore()` (apenas para LIVE/FINISHED com `fullTime.home/away` válidos).
+   - `isCanonicalTransition(existing.status, status)` — transições não-canônicas (ex.: `FINISHED → SCHEDULED`) geram **warning** mas são aceitas (provedor é fonte de verdade).
+   - Upsert via `updateOne`:
+     - `$set` com todos os campos. Se `score` é `undefined`, **não** entra no `$set` (Mongoose ignora `undefined`).
+     - Se a partida tinha score mas o externo não, adiciona `$unset: { score: 1 }` — caso contrário o campo nunca seria removido.
+   - Empilha `_id` em `changedIds` quando há mudança real (status, score ou utcDate diferente).
 
-### Por que rodar diariamente?
+### Resilência ao "score fantasma"
 
-Em fases eliminatórias, os times de cada partida só são definidos depois das fases anteriores. A Football Data API atualiza esses slots TBD à medida que os classificados são definidos. Rodar diariamente garante que slots TBD virem partidas válidas o quanto antes — sem isso, o admin não consegue **abrir** a fase eliminatória (a validação rejeita partidas `valid: false`).
-
-### Acionamento extra no fluxo de abrir fase
-
-Antes de mudar `status: DISABLED → OPEN`, `StageService.update` chama `MatchService.importMatches` na hora. Garante que os times estejam atualizados no instante em que a fase é aberta, mesmo se a cron diária ainda não rodou desde a última definição.
+Bug histórico: se uma partida fosse manualmente marcada FINISHED+score e o cron rodasse depois trazendo SCHEDULED, Mongoose silenciosamente ignorava `score: undefined` em `$set` deixando o doc inconsistente (status=SCHEDULED + score do passado). O fix usa `$unset` explícito quando o externo deixou de ter score.
 
 ---
 
-## 3. Atualizar placares (e disparar pontuação)
+## 3. Rebuild de leaderboard + SystemState
 
-- **Serviço:** `ScoreService.updateScores` (`backend/src/match/score.service.ts`)
-- **Endpoint admin:** `POST /api/match/update-scores`
-- **Cron:** `UpdateScoresTask` em `backend/src/schedule/update-scores.task.ts`, expressão `*/5 7-20 * * *` (a cada 5 min, das 7h às 20h)
+Quando `importMatches` devolve `changedIds.length > 0`, `MatchSyncTask` dispara:
 
-### Por que janela 7h–20h?
+1. `LeaderboardService.rebuild()` — query matches `{ status: { $in: [LIVE, FINISHED] }, score: { $exists: true } }` × bets × users ativos, recomputa pontos via `calculateBetScore` e persiste no singleton.
+2. `systemState.leaderboardRebuilt()` — atualiza `leaderboardRebuildAt`.
 
-Os jogos da Copa 2026 acontecem em janelas previsíveis. Restringir a cron à janela do dia evita gastar requisições da Football Data API (a key tem cotas) fora de horário útil. Em emergências, o admin pode acionar manualmente a qualquer hora.
+Frontend (`useWatchResults`) consulta `/api/system/state` a cada 30s. Quando `leaderboardRebuildAt` muda, invalida `['bets', 'leaderboard', 'matches', 'stages']` em todas as abas/sessões.
 
-### Fluxo
+---
 
-1. `GET {API}/competitions/WC/matches?season=2026`
-2. Filtra apenas partidas com `utcDate <= now` ("startedMatches")
-3. Para cada partida iniciada:
-   - Pula se `score.fullTime.home/away` é nulo ou negativo
-   - Pula se a partida não existe localmente (warning)
-   - Pula se a partida local está em `FINISHED` (não há mais o que atualizar)
-   - Pula se o placar e status externos são iguais aos locais
-   - Caso contrário: chama `MatchService.updateMatch(_id, status, homeScore, awayScore)` e empilha o `_id` em `changedMatchIds`
-4. Se `changedMatchIds.length > 0`:
-   - Chama `ResultService.updateResults(changedMatchIds)` — recalcula palpites, agrega contadores, recalcula ranking, persiste em `User`, atualiza `Config.lastUpdateResults`
-   - Detalhes em [pontuacao.md](./pontuacao.md)
+## 4. Endpoints públicos de simulação
 
-### Idempotência
+Habilitam testar o fluxo sem esperar a Copa de fato acontecer:
 
-Múltiplas execuções com os mesmos placares externos têm efeito apenas na **primeira** rodada (depois, o filtro "placar igual" sai cedo). O `ResultService.updateResults` também é idempotente — recalcular tudo de novo produz o mesmo resultado.
+| Método | Path | Efeito |
+|---|---|---|
+| `GET` | `/api/stage/advance-next/:code` | Fecha a fase (`deadline = now − 1s`). A próxima vira `OPEN` por derivação. |
+| `GET` | `/api/match/advance-next` | Pega a primeira fase `OPEN` + próxima `SCHEDULED` por `utcDate`. Sorteia placar enviesado (mais 0/1/2) e status `LIVE` ou `FINISHED` (50/50). Rebuilda leaderboard. |
+| `GET` | `/api/match/advance-next/:code` | Como acima, restrito à fase informada. |
 
-### Resiliência a erros
-
-- Erro de rede ou status HTTP não-OK: warning no log, sem mudar nada.
-- Exceção dentro do loop: capturada em `try/catch`. Mesmo assim, os `changedMatchIds` acumulados antes do erro vão ser processados na chamada de `updateResults` (segundo `try/catch` separado).
-- Falha em `updateResults`: logada como erro. Próxima execução tentará de novo (os palpites afetados serão lidos de novo na agregação).
+Acompanhe `backend/scripts/simulate.sh` para um workflow automatizado (1 partida/min + 5 min entre fases).
 
 ---
 
 ## Resumo das crons
 
-| Task                  | Cron               | Endpoint externo                                      | Efeito                                                |
-|-----------------------|--------------------|-------------------------------------------------------|-------------------------------------------------------|
-| `ImportMatchesTask`   | `0 0 * * *`        | `GET /competitions/WC/matches?season=2026`            | Upsert de partidas; resolve slots TBD                 |
-| `UpdateScoresTask`    | `*/5 7-20 * * *`   | `GET /competitions/WC/matches?season=2026`            | Atualiza placares e dispara pontuação                 |
-| `BlockStagesTask`     | `* * * * *`        | (interno, sem API externa)                            | Bloqueia fases com `deadline` expirado                |
+| Task            | Trigger                                       | Endpoint externo                                   | Efeito                                              |
+|-----------------|-----------------------------------------------|----------------------------------------------------|-----------------------------------------------------|
+| `MatchSyncTask` | `OnApplicationBootstrap` + `*/5 * * * *`      | `GET /competitions/WC/teams` + `/matches`          | Upsert teams + matches; rebuild leaderboard se mudou; atualiza `SystemState` |
 
-Definições em `backend/src/schedule/schedule.module.ts`. Habilitadas via `ScheduleModule.forRoot()`.
+Definição em `backend/src/schedule/schedule.module.ts`. Habilitada via `ScheduleModule.forRoot()`.
 
-## Tabela `lastUpdated`
+## Idempotência
 
-Tanto `Team` quanto `Match` guardam o `lastUpdated` retornado pela Football Data. Esse campo é a chave da idempotência das duas importações:
-
-- Se o externo é **mais recente** → atualiza
-- Se está **em dia** → ignora (a menos que o arquivo local esteja faltando, no caso de escudos)
-
-Isso reduz drasticamente as escritas no Mongo nas rodadas em que nada mudou no provedor.
+- `importTeams` e `importMatches` comparam o externo com o local; só escrevem quando há diferença real.
+- `LeaderboardService.rebuild()` recomputa do zero — múltiplas chamadas produzem o mesmo resultado.
 
 ## Limites e cotas
 
-A Football Data API tem rate limits específicos por plano. As crons foram dimensionadas para ficar bem abaixo do limite gratuito:
-- 1 request/dia para `ImportMatchesTask`
-- ~13 × N requests para `UpdateScoresTask` durante a janela 7h–20h (cada execução faz 1 request à API externa)
-- 0 requests para `BlockStagesTask`
+A Football Data API tem rate limits específicos por plano. A cron unificada faz ~1 request a cada 5 minutos (cobertura 24/7), o que dá ~288 requests/dia — dentro do limite gratuito da maioria dos planos.
 
 A chave (`FOOTBALL_DATA_API_KEY`) é lida via `ConfigService.getOrThrow` — boot falha se ausente.
 
@@ -132,5 +113,6 @@ A chave (`FOOTBALL_DATA_API_KEY`) é lida via `ConfigService.getOrThrow` — boo
 
 - **API externa fora do ar:** logs de warning; estado local não muda; próxima execução tenta de novo.
 - **Resposta com schema diferente do esperado:** o cast `data.matches as FootballDataMatch[]` confia no contrato. Mudanças no provedor podem causar `TypeError` em runtime — capturado pelo `try/catch` externo, logado como erro.
-- **Partida `POSTPONED` ou `CANCELLED`:** a sincronização propaga o status, mas o `ScoreService` só **atualiza** se algo mudou. Palpites na partida ficam com flag `wrong` se foram avaliados antes do cancelamento; podem ficar pendentes (todas flags `false`) se nunca houve placar.
-- **Reabertura de cota:** se o admin desabilita um usuário e o reativa, `seedBetsForUser` cria palpites em branco para todas as partidas das fases `OPEN`/`BLOCKED` — o `ResultService` na próxima rodada vai avaliá-los como `wrong` (já que estão sem placar) ou `pending` (em fases ainda não jogadas).
+- **Partida `POSTPONED`:** mapeia para `SCHEDULED` (sem score). Palpites continuam válidos.
+- **Partida `CANCELLED`:** status `CANCELLED` no schema; `extractScore` retorna `undefined`. Palpites avaliados como `wrong` na próxima rebuild (sem placar válido).
+- **Time TBD em partida eliminatória:** `importMatches` skipa essa partida até que ambos os times sejam resolvidos pelo provedor.

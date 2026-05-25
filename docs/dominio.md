@@ -31,7 +31,9 @@ Conceitos, entidades e regras de negócio do Bolão da Copa 2026.
 |---|---|---|
 | `googleSub` | string unique | ID Google (`sub`) |
 | `name`, `email` | string | Vindos do Google |
-| `avatar` | string? | Path `/static/users/<id>.<ext>` ou ausente |
+| `givenName` | string? | Primeiro nome do Google (`given_name`). Usado em UIs compactas (Pódio etc) |
+| `picture` | string? | URL original do avatar Google (pré-download) |
+| `avatar` | string? | Path local `/static/users/<id>.<ext>` (download via `MediaService`) |
 | `isAdmin` | boolean | Acesso ao painel admin |
 | `isActive` | boolean | **Participante pagante** (gate de palpite e leaderboard) |
 | `participationChangedAt` | Date? | Última transição de `isActive` |
@@ -55,8 +57,15 @@ Conceitos, entidades e regras de negócio do Bolão da Copa 2026.
 |---|---|
 | `code` | `MatchStage` enum, único |
 | `order` | 1..7 |
-| `deadline` | Data de encerramento das apostas (mutável por admin via PATCH) |
-| `expectedMatchCount` | Quantidade esperada de partidas (informativo) |
+| `deadline` | Data de encerramento das apostas (mutável por admin via `PATCH /api/stage/:code`) |
+| `expectedMatchCount` | Quantidade esperada de partidas — **fixo** via enum `STAGE_EXPECTED_MATCHES` (não editável) |
+
+`StagePayload` (resposta API) inclui dois contadores derivados, calculados via aggregate no Mongo:
+
+| Campo | Descrição |
+|---|---|
+| `importedMatchCount` | Total de matches importados nessa fase |
+| `finishedMatchCount` | Total de matches com `status: FINISHED` na fase (usado pra progress bar) |
 
 **Estado derivado** por `getStageState(stage, allStages, now)`:
 
@@ -67,8 +76,6 @@ CLOSED  → now >= deadline
 ```
 
 Exceção: `FINAL` referencia `SEMI_FINALS` como predecessora. `THIRD_PLACE` e `FINAL` podem coexistir em `OPEN`.
-
-`expectedMatchCount` é **informativo** — não bloqueia a abertura. A UI mostra "X de Y partidas importadas" enquanto a importação não está completa.
 
 ### `Match`
 
@@ -181,18 +188,21 @@ Apenas participantes ativos:
 3. `bulkWrite` ordenado: score → upsert; null → delete
 4. Falha em qualquer item → erro 400/403/404/409 (tudo-ou-nada)
 
-### 3. Atualização de placares (cron)
+### 3. Sincronização externa (cron + bootstrap)
 
-`MatchSyncTask` (`*/5 * * * *`, 24/7):
-1. Reimporta calendário, detecta mudanças
-2. Se houve mudança, `LeaderboardService.rebuild()` recalcula do zero
-3. Persiste timestamps em `SystemState`
+`MatchSyncTask` é único responsável (`backend/src/schedule/match-sync.task.ts`):
 
-### 4. Importação de partidas (cron)
+- **`OnApplicationBootstrap`** na subida do backend: roda `teamService.importTeams()` + `runSync()`.
+- **Cron `*/5 * * * *`** invoca `runSync()`.
 
-`MatchImportTask` (`*/15 * * * *`):
-- Reimporta calendário; partidas com algum time indefinido são **skipadas**
-- Captura partidas eliminatórias assim que o sorteio sai
+`runSync()`:
+1. `systemState.scoreSyncStarted()` — marca timestamp.
+2. `matchService.importMatches()` — reimporta calendário+placares; TBDs são skipadas; transições não-canônicas geram warning.
+3. `systemState.matchImported()`.
+4. Se `changedIds.length > 0`: `leaderboardService.rebuild()` + `systemState.leaderboardRebuilt()`.
+5. `finally`: `systemState.scoreSyncCompleted()`.
+
+Frontend (`useWatchResults`) consulta `leaderboardRebuildAt` a cada 30s; quando muda, invalida `['bets', 'leaderboard', 'matches', 'stages']`.
 
 ### 5. Mudança de estado da fase
 

@@ -17,11 +17,12 @@ Login exclusivo via **Google Identity Services** com emissão de **JWT** própri
 3. Frontend envia `POST /auth/google { credential: <id-token> }`.
 4. Backend (`AuthService.loginWithGoogle`):
    - Cria `OAuth2Client(GOOGLE_CLIENT_ID)` e chama `verifyIdToken({ idToken, audience })`
-   - Extrai `sub`, `email`, `name`, `picture` do payload
-   - Recusa se faltar campo obrigatório → `401 Google token payload incompleto`
+   - Extrai `sub`, `email`, `name`, `given_name`, `picture` do payload
+   - Recusa se faltar campo obrigatório (`sub`/`email`/`name`) → `401 Google token payload incompleto`
    - Recusa se `email` não for `@gmail.com` **e** não houver `hd` (Google Workspace) **e** `email_verified !== true` → `401 E-mail do Google não verificado`
-5. `UserService.upsert`:
-   - Upsert por `googleSub` gravando `name`, `email` e `picture` (a URL do payload). `picture` é inicializado vazio apenas no insert; em updates fica preservado.
+5. `UserService.upsertFromGoogle`:
+   - Upsert por `googleSub` gravando `name`, `givenName`, `email` e `picture` (a URL do payload).
+   - `givenName` (primeiro nome do Google) é persistido no schema `User` para uso em UIs compactas (Pódio, etc.).
    - Se `picture` é vazio ou não é `http(s)`: retorna sem mais nada (caso de payload sem foto).
    - Caso contrário, tenta baixar a foto para `static/users/<userId>.<ext>`:
      - **Download OK** → atualiza `picture` com o caminho local `/static/...`.
@@ -108,9 +109,10 @@ Se for `@gmail.com` ou tiver `hd` (Google Workspace), o Google é tido como auto
 ## Primeiro login
 
 Um novo usuário aparece com `isActive: false` e `isAdmin: false`. Sem ativação manual via Admin:
-- Ele consegue navegar (vê o ranking, stats, etc.)
-- **Não recebe palpites** em branco — `seedBetsForStage` e `seedBetsForUser` filtram por `isActive: true`
-- O `BetsScreen` mostrará estado vazio até que um admin o ative
+- Ele consegue navegar (vê home, ranking, bolão, stats — como espectador)
+- **Não consegue palpitar** — `ActiveParticipantGuard` bloqueia `PUT /api/bet` com `403`
+- A aba "Apostas" some do BottomNav (`isActive` é checado no `BottomNav` e na rota via `ActiveRoute`)
+- Bets v2 são **esparsos**: só existem quando o usuário cria — não há mais `seedBetsForUser` / `seedBetsForStage` da v1
 
 Para tornar-se admin manualmente (boot do projeto):
 ```js

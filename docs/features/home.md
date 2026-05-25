@@ -50,7 +50,7 @@ Até 4 partidas mais recentes com `status === FINISHED`, ordenadas por `utcDate`
 | Hook         | Endpoint          | Uso                                  |
 |--------------|-------------------|--------------------------------------|
 | `useMyBets`  | `GET /api/bet`    | Lista de palpites + dados da partida |
-| `useStages`  | `GET /api/stage/visible` | Lista de fases visíveis        |
+| `useStages`  | `GET /api/stage`  | Lista de fases (filtra `LOCKED` no client) |
 
 Tipos consumidos de `@bolao/shared`:
 - `BetListItem` (com `homeTeam`, `awayTeam`, `matchHomeTeamScore`, `matchAwayTeamScore`, `homeTeamScore`, `awayTeamScore`, `status`, `utcDate`, `stage`, `group`)

@@ -36,7 +36,8 @@ Documentação oficial do **Bolão da Copa 2026**, app privado para amigos e fam
 - **Emoji de bandeira:** `Team.flagEmoji` preferencial sobre `crest`
 - **Score subdoc:** `Match.score` e `Bet.score` como `{home, away}`
 - **`MatchStatus` reduzido:** 4 valores internos, `mapExternalStatus` faz de-para
-- **2 crons:** `MatchSyncTask` (24/7, 5min) + `MatchImportTask` (15min)
+- **1 cron unificada:** `MatchSyncTask` (`*/5 * * * *`) + bootstrap na subida — import de times+partidas, sync de placares e rebuild de leaderboard no mesmo fluxo
+- **Endpoints `@Public` de simulação:** `GET /api/match/advance-next[/:code]` e `GET /api/stage/advance-next/:code` para testes locais
 
 ## Convenções
 

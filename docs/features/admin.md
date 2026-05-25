@@ -4,110 +4,66 @@ Tela administrativa para operadores do bolão.
 
 - **Rota:** `/admin`
 - **Componente:** `frontend/src/features/admin/AdminScreen.tsx`
-- **Acesso:** requer `isAdmin: true` no JWT (guarda `AdminRoute` no frontend + `AdminGuard` em cada endpoint)
+- **Acesso:** requer `isAdmin: true` no JWT (guarda `AdminRoute` no frontend + `AdminGuard` em cada endpoint backend)
 
-A tela é dividida em três seções: **Importações**, **Gerenciar Fases** e **Gerenciar Usuários**.
+A tela é dividida em três seções: **Ações**, **Fases & Deadlines** (read-only) e **Usuários**.
 
 ---
 
-## 1. Importações
+## 1. Ações
 
-Três ações que disparam endpoints administrativos. Cada uma exibe um Card com ícone, título, descrição e botão **Executar** que vira `Loader2` durante a chamada. Toasts (`sonner`) confirmam sucesso ou falha.
+Três tiles num único card (mobile 1 coluna, desktop 3 colunas) — cada tile dispara um endpoint admin com loading state no ícone e toast (`sonner`) de sucesso/erro.
 
 ### Importar Times
 
 - **Endpoint:** `POST /api/team/import`
-- **Backend:** `TeamService.importTeams` — busca `/competitions/WC/teams?season=2026` na Football Data API
-- **Efeitos:**
-  - Cria times ausentes
-  - Atualiza times com `lastUpdated` mais recente
-  - Baixa o escudo para `/static/teams/<TLA>.png` quando muda
-  - Re-baixa escudos cujos arquivos sumiram do disco
-- **Pré-requisito:** primeira execução, antes de importar partidas
+- **Backend:** `TeamService.importTeams` — busca `/competitions/WC/teams?season=2026`.
+- **Efeitos:** cria/atualiza times; baixa escudos faltando para `static/teams/`. Usa `tlaToFlagEmoji` para preferir emoji a crest.
+- **Pré-requisito:** primeira execução, antes de importar partidas.
 
-### Importar Partidas
+### Importar Partidas & Placares
 
 - **Endpoint:** `POST /api/match/import`
-- **Backend:** `MatchService.importMatches` — busca `/competitions/WC/matches?season=2026`
+- **Backend:** `MatchService.importMatches` — busca `/competitions/WC/matches?season=2026`.
 - **Efeitos:**
-  - Cria ou atualiza cada partida por `footballDataId`
-  - Marca `valid: true` se ambos os times existem localmente; `false` se algum é TBD
-  - Ignora partidas com `lastUpdated` não mais recente que o local
-- **Pré-requisito:** Times já importados (fica `valid: false` para todos enquanto os times estão ausentes)
+  - Upsert por `footballDataId`; partidas com algum time TBD são skipadas.
+  - Mapeia status externo via `mapExternalStatus` (LIVE/FINISHED/SCHEDULED/CANCELLED).
+  - Persiste `score` quando há, faz `$unset` quando o externo voltou a estado sem score.
+  - Quando `changedIds.length > 0`: chama `LeaderboardService.rebuild()` + `systemState.leaderboardRebuilt()` + `systemState.matchImported()`.
+- **Equivalente manual da cron `MatchSyncTask`.**
 
-### Atualizar Resultados
+### Reconstruir Leaderboard
 
-- **Endpoint:** `POST /api/match/update-scores`
-- **Backend:** `ScoreService.updateScores` (mesmo fluxo da cron `UpdateScoresTask`)
-- **Efeitos:**
-  - Para cada partida com `utcDate` no passado: compara placar/status com o registro local
-  - Atualiza partidas com mudança
-  - Empilha `_id`s alterados e chama `ResultService.updateResults`, que recalcula palpites + ranking
-  - Marca `Config.lastUpdateResults` com `new Date()`
+- **Endpoint:** `POST /api/leaderboard/rebuild`
+- **Backend:** `LeaderboardService.rebuild()` — recomputa o singleton do zero a partir de bets × matches.
+- **Quando usar:** suspeita de drift entre matches e leaderboard (ex.: após edição manual no banco).
 
 ---
 
-## 2. Gerenciar Fases
+## 2. Fases & Deadlines
 
-Lista todas as 7 fases com seu status, deadline e botão de transição.
+**Read-only**. Timeline vertical com 7 nodes (um por fase), conectados por linha vertical, em um único card.
 
-### Workflow exibido
+Cada linha (`StageRow`):
 
-A tela mostra de cara o caminho canônico:
+- **Node circular numerado** (1–7) à esquerda, cor pelo estado:
+  - Verde (`OPEN`)
+  - Acc (`CLOSED`)
+  - Cinza (`LOCKED`)
+- **Conteúdo direito:**
+  - Nome amigável da fase (`STAGE_LABELS[code].full`) + badge de estado (`Aberta` / `Apostas Encerrada` / `Bloqueada`)
+  - Linha de meta: ícone calendário + `formatDeadline(deadline)` à esquerda · contador `finishedMatchCount / expectedMatchCount` à direita
+  - Barra de progresso com `width = (finishedMatchCount / expectedMatchCount) * 100%`, colorida pelo estado
 
-```
-1. Grupos → 2. 32-avos → 3. Oitavas → 4. Quartas → 5. Semis → 6. 3º lugar → 7. Final
-```
+Estado da fase é **derivado** por `getStageState({code, deadline}, all, now)` a cada request — não há "status" salvo no schema.
 
-Com a nota:
-> Cada fase só pode ser aberta quando a anterior estiver **encerrada**.
-> Exceção: 3º lugar e Final dependem ambas de Semis e podem ficar abertas em paralelo.
+`expectedMatchCount` vem fixo do enum `STAGE_EXPECTED_MATCHES`; não é editável. `finishedMatchCount` vem do aggregate `MatchStatus.FINISHED` por stage.
 
-### Cada linha (`StageRow`)
-
-Cabeçalho com:
-- Número da ordem (`1`–`7`)
-- Ícone do status (`Lock` para `DISABLED`, `Play` para `OPEN`, `CheckCircle2` para `BLOCKED`)
-- Nome amigável da fase (PT-BR, via `STAGE_LABELS`)
-- Subtítulo: identificador técnico + posição `X/7`
-- Badge de status: **Em breve** / **Aberto** / **Encerrado** (tom cinza/verde/vermelho)
-
-Se `deadline` existe, exibe `Prazo: DD/MM HH:mm` formatado em PT-BR.
-
-Se a fase é `DISABLED` e ainda aguarda a anterior:
-> *Aguardando <fase anterior> ser encerrada*
-
-### Botão de avanço
-
-Mostrado apenas quando há transição possível:
-
-| Status atual | Próximo status | Texto do botão     | Pré-requisito                                       |
-|--------------|----------------|--------------------|-----------------------------------------------------|
-| `DISABLED`   | `OPEN`         | **Abrir apostas**  | Fase anterior `BLOCKED` (ou `SEMI_FINALS` para `FINAL`) |
-| `OPEN`       | `BLOCKED`      | **Encerrar fase**  | —                                                   |
-| `BLOCKED`    | —              | (botão oculto)     | —                                                   |
-
-O botão fica desabilitado se o pré-requisito não está satisfeito (linha de "Aguardando…" aparece).
-
-### O que acontece ao clicar
-
-`useAdvanceStage` → `PUT /api/stage/:matchStage { status }`. Backend (`StageService.update`):
-
-1. Valida transição sequencial (qualquer outra transição → `400`)
-2. Para `→ OPEN`:
-   - Reimporta partidas para garantir times TBD resolvidos
-   - Aborta com `400` se a fase ainda tem partidas `valid: false`
-   - Aborta com `400` se o requisito da fase anterior não está satisfeito
-3. Persiste o novo `status`
-4. Para `→ OPEN`, dispara `seedBetsForStage` → cria palpites em branco para todos os usuários ativos (idempotente via upsert)
-
-### Bloqueio automático paralelo
-
-Mesmo enquanto o admin não toca em nada, a cron `BlockStagesTask` (cada minuto) varre fases `OPEN` cujo `deadline` já passou e as move para `BLOCKED`. Detalhes em [gestao-fases.md](./gestao-fases.md).
+**Não há botões nesta seção** (UI v2 é puramente informativa). Para forçar fechamento de fase em ambiente de simulação, há o endpoint público `GET /api/stage/advance-next/:code` — ver [sincronizacao-externa.md](./sincronizacao-externa.md).
 
 ---
 
-## 3. Gerenciar Usuários
+## 3. Usuários
 
 Lista todos os usuários cadastrados (ativos e inativos), ordenados por:
 
@@ -117,56 +73,52 @@ Lista todos os usuários cadastrados (ativos e inativos), ordenados por:
 ### Cada cartão (`UserRow`)
 
 - Avatar (foto do Google ou iniciais)
-- Nome + escudo dourado (`Shield` icon) se `isAdmin: true`
+- Nome + ícone `Shield` dourado se `isAdmin: true`
 - E-mail
-- Badge: **Ativo** (verde) / **Inativo** (cinza)
+- Badge: **Ativo** (verde) / **Espectador** (cinza)
 - Dois botões:
   - **Ativar** / **Desativar** (`UserCheck` / `UserX`)
   - **Tornar admin** / **Remover admin** (`Shield` / `ShieldOff`)
 
-### Endpoints
+### Endpoint
 
-Ambos usam `useUpdateUser` → `PUT /api/user/:id`.
+Ambas as ações usam `useUpdateUser` → `PATCH /api/user/:id`.
 
 #### Ativar / Desativar
 
 `{ isActive: true }` ou `{ isActive: false }`.
 
-Efeitos colaterais no backend (`UserService.update`):
-- `false → true`: chama `seedBetsForUser`, criando palpites em branco para todas as partidas das fases já `OPEN` ou `BLOCKED`
-- `true → false`: chama `removeBetsForUser`, apagando todos os palpites do usuário
+Efeito colateral no backend (`UserService.update`):
+- Quando `isActive` muda, atualiza `participationChangedAt` e dispara `LeaderboardService.rebuild()` (entrada/saída do ranking).
+- **Não cria nem apaga bets** — bets são esparsos na v2.
 
 #### Tornar admin / Remover admin
 
 `{ isAdmin: true }` ou `{ isAdmin: false }`.
 
-> Note: o flag `isAdmin` é carregado no JWT no momento do **login**. Se você promover um usuário, ele só verá o Painel Admin **após relogar**. O backend, porém, valida o `AdminGuard` a partir do JWT atual — se o admin for rebaixado, o token antigo dele continua válido para rotas admin até expirar (não há blocklist).
+> O flag `isAdmin` é carregado no JWT no momento do **login**. Promoção só toma efeito após relogar. O backend valida via `AdminGuard` lendo do JWT — rebaixar admin não invalida tokens existentes até expirar.
 
 ---
 
-## Dados consumidos
+## Hooks consumidos
 
-| Hook              | Endpoint                            | Uso                       |
-|-------------------|-------------------------------------|---------------------------|
-| `useAdminStages`  | `GET /api/stage` (admin)            | Listar todas as fases     |
-| `useAdminUsers`   | `GET /api/user` (admin)             | Listar todos os usuários  |
-| `useAdvanceStage` | `PUT /api/stage/:matchStage`        | Avançar status            |
-| `useUpdateUser`   | `PUT /api/user/:id`                 | Ativar/desativar/admin    |
-| `useImportTeams`  | `POST /api/team/import`             | Botão Importar Times      |
-| `useImportMatches`| `POST /api/match/import`            | Botão Importar Partidas   |
-| `useUpdateScores` | `POST /api/match/update-scores`     | Botão Atualizar Resultados|
+| Hook                    | Endpoint                            | Uso                                  |
+|-------------------------|-------------------------------------|--------------------------------------|
+| `useAllStages`          | `GET /api/stage`                    | Listar todas as fases (timeline)     |
+| `useAdminUsers`         | `GET /api/user`                     | Listar todos os usuários             |
+| `useUpdateUser`         | `PATCH /api/user/:id`               | Ativar/desativar/promover            |
+| `useImportTeams`        | `POST /api/team/import`             | Tile "Importar Times"                |
+| `useImportMatches`      | `POST /api/match/import`            | Tile "Importar Partidas & Placares"  |
+| `useRebuildLeaderboard` | `POST /api/leaderboard/rebuild`     | Tile "Reconstruir Leaderboard"       |
 
-Todos os hooks estão em `frontend/src/hooks/useAdmin.ts`.
+Todos em `frontend/src/hooks/useAdmin.ts`. O hook `useUpdateStage` ainda existe no código (`PATCH /api/stage/:code { deadline? }`) mas não é mais usado pela UI.
 
 ## Estados
 
-- **Carregando:** `Skeleton`s para cada seção enquanto suas queries não retornaram.
-- **Sem fases:** card vazio com mensagem *"Nenhuma fase cadastrada. Rode 'Importar Partidas' primeiro."* (cenário raro — o seed inicial roda no boot).
+- **Carregando:** `Skeleton` para a timeline de fases e cards de usuários.
 - **Sem usuários:** card vazio *"Nenhum usuário cadastrado."*.
 
 ## Casos de borda
 
-- **Tentativa de pular fase:** `400 Mudança de status inválida: X → Y`.
-- **Tentativa de abrir fase com partidas inválidas:** `400 Não é possível abrir a fase X: N partida(s) sem times definidos.`
-- **Tentativa de abrir fase com a anterior ainda não encerrada:** `400 Não é possível abrir a fase X: a fase anterior (Y) ainda não foi encerrada.`
-- **Bloquear uma fase que já foi auto-bloqueada pela cron:** retorna `400` (já está em `BLOCKED`, a transição `BLOCKED → BLOCKED` não é válida).
+- **Tile "Importar Partidas" enquanto outro deploy roda o cron:** sem corrida — `importMatches` é idempotente e usa `findOneAndUpdate`.
+- **Auto-bloqueio sem ação humana:** quando o `deadline` da fase atual passa, ela vira `CLOSED` na próxima request (estado derivado). Não há job dedicado.

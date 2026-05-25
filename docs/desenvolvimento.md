@@ -170,16 +170,25 @@ Logs são via `Logger` do Nest e o nível pode ser controlado pela env `LOG_LEVE
 Para popular o ambiente local pela primeira vez:
 
 1. Subir Mongo + backend + frontend (`docker compose up -d mongo && pnpm dev`)
-2. Logar com sua conta Google → cria seu `User` (`isActive: false`)
-3. Tornar-se admin manualmente no Mongo:
+2. `OnApplicationBootstrap` da cron `MatchSyncTask` já roda automaticamente:
+   - Cria as 7 stages a partir de `STAGE_ORDER` / `STAGE_DEADLINES` / `STAGE_EXPECTED_MATCHES` (via `StageService.onModuleInit`)
+   - Importa times e partidas da Football Data
+3. Logar com sua conta Google → cria seu `User` (`isActive: false`, sem `isAdmin`)
+4. Tornar-se admin/ativar manualmente no Mongo:
    ```js
    db.users.updateOne({ email: 'seu@email' }, { $set: { isAdmin: true, isActive: true } })
    ```
-4. No frontend, ir para `/admin`:
-   - Clicar **Importar Times** → popula seleções e escudos
-   - Clicar **Importar Partidas** → cria o calendário (e cria as 7 fases via seed no boot, se ainda não criadas)
-5. A fase `GROUP_STAGE` já vem `OPEN` no seed. Em `/apostas`, palpites em branco aparecem para você
-6. Para forçar atualização de resultados de jogos já iniciados: **Atualizar Resultados** no Admin
+5. Bets são **esparsos** — não há palpite em branco; vá em `/apostas` para criar.
+
+### Scripts auxiliares
+
+- `pnpm seed` (root) — popula 20 usuários fake + palpites aleatórios + leaderboard. Útil para testar UI sem login manual em múltiplas contas.
+- `backend/scripts/simulate.sh` — orquestra simulação ponta-a-ponta: avança 1 partida/min e fecha cada fase ao esgotar. `INTERVAL`/`BREAK`/`BASE`/`START_FROM` configuráveis via env.
+
+### Endpoints de simulação (públicos, ambiente local)
+
+- `GET /api/match/advance-next` / `:code` — sorteia placar LIVE ou FINISHED para a próxima SCHEDULED.
+- `GET /api/stage/advance-next/:code` — força fechamento da fase (deadline = now − 1s).
 
 ## Atualizando o contrato compartilhado
 

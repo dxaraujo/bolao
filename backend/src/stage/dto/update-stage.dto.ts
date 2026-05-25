@@ -1,12 +1,7 @@
-import { IsDateString, IsInt, IsOptional, Min } from 'class-validator'
+import { IsDateString, IsOptional } from 'class-validator'
 
 export class UpdateStageDto {
 	@IsOptional()
 	@IsDateString()
 	deadline?: string
-
-	@IsOptional()
-	@IsInt()
-	@Min(1)
-	expectedMatchCount?: number
 }

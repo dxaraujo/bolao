@@ -114,7 +114,6 @@ export class StageService implements OnModuleInit {
 
 		const $set: Record<string, unknown> = {}
 		if (dto.deadline) $set.deadline = new Date(dto.deadline)
-		if (typeof dto.expectedMatchCount === 'number') $set.expectedMatchCount = dto.expectedMatchCount
 
 		const updated = await this.model.findOneAndUpdate({ code }, { $set }, { new: true }).exec()
 		if (!updated) throw new NotFoundException(`Fase ${code} não encontrada`)

@@ -54,7 +54,10 @@ export function LoginScreen() {
 			<div className="relative flex w-full max-w-[440px] flex-col gap-10 px-6 py-10">
 				{/* Logo + título — sem card, sem borda, ícone grande */}
 				<header className="flex flex-col items-center gap-4">
-					<img src="/favicon-192x192.png" alt="" className="h-32 w-32 drop-shadow-[0_8px_30px_rgba(0,229,255,0.25)]" />
+					<div className="relative flex h-32 w-32 items-center justify-center">
+						<div className="pointer-events-none absolute inset-2 rounded-full bg-acc/25 blur-2xl" aria-hidden />
+						<img src="/favicon-512x512.png" alt="" className="relative h-32 w-32" />
+					</div>
 					{/* <div className="flex flex-col items-center">
 						<h1 className="font-display text-5xl tracking-widest leading-none">
 							COPA<span className="text-acc">BET</span>

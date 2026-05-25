@@ -27,7 +27,7 @@ export function BolaoScreen() {
 	const activeTab = useMemo(() => {
 		if (!closedStages.length) return null
 		if (tab && closedStages.some((s) => s.code === tab)) return tab
-		return closedStages[0].code
+		return closedStages[closedStages.length - 1].code
 	}, [closedStages, tab])
 
 	const filtered = useMemo(() => (groups ?? []).filter((g) => g.match.stage === activeTab), [groups, activeTab])

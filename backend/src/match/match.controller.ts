@@ -1,14 +1,16 @@
 import { Controller, Get, Post, UseGuards } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { getStageState, MatchStage, type MatchPayload, type TeamPayload } from '@bolao/shared'
+import { getStageState, type MatchPayload, type TeamPayload } from '@bolao/shared'
 
 import { AdminGuard } from '../common/admin.guard'
 import { ApiProtectedInDocs } from '../common/swagger-auth.decorator'
+import { LeaderboardService } from '../leaderboard/leaderboard.service'
 import { StageService } from '../stage/stage.service'
+import { SystemStateService } from '../system-state/system-state.service'
 import { Team } from '../team/schemas/team.schema'
 import { MatchService } from './match.service'
-import { ScoreService } from './score.service'
 import type { StageDocument } from '../stage/schemas/stage.schema'
+import { Public } from 'src/common/public.decorator'
 
 @ApiTags('match')
 @Controller('api/match')
@@ -16,8 +18,9 @@ import type { StageDocument } from '../stage/schemas/stage.schema'
 export class MatchController {
 	constructor(
 		private readonly service: MatchService,
-		private readonly scoreService: ScoreService,
 		private readonly stageService: StageService,
+		private readonly leaderboardService: LeaderboardService,
+		private readonly systemState: SystemStateService,
 	) {}
 
 	@Get()
@@ -50,14 +53,12 @@ export class MatchController {
 	@UseGuards(AdminGuard)
 	async import() {
 		const result = await this.service.importMatches()
+		if (result.changedIds.length > 0) {
+			await this.leaderboardService.rebuild()
+			await this.systemState.leaderboardRebuilt()
+		}
+		await this.systemState.matchImported()
 		return { data: result }
-	}
-
-	@Post('sync-scores')
-	@UseGuards(AdminGuard)
-	async syncScores() {
-		const result = await this.scoreService.syncScores()
-		return { data: { changed: result.changedIds.length } }
 	}
 }
 

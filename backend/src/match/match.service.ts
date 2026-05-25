@@ -119,7 +119,7 @@ export class MatchService {
 					this.logger.warn(`Non-canonical status transition for match ${ext.id}: ${existing.status} → ${status} (external: ${ext.status})`)
 				}
 
-				const $set = {
+				const $set: Record<string, unknown> = {
 					footballDataId: ext.id,
 					utcDate: new Date(ext.utcDate),
 					status,
@@ -127,16 +127,19 @@ export class MatchService {
 					group: ext.group,
 					homeTeam: home._id,
 					awayTeam: away._id,
-					score,
 					externalLastUpdated,
 				}
 
+				if (score) $set.score = score
+
 				if (!existing) {
-					const created = await this.model.create($set)
+					const created = await this.model.create({ ...$set, score })
 					result.changedIds.push(created._id)
 					result.imported++
-				} else if (hasChanged(existing, $set)) {
-					await this.model.updateOne({ _id: existing._id }, { $set }).exec()
+				} else if (hasChanged(existing, { ...$set, score })) {
+					const update: Record<string, unknown> = { $set }
+					if (!score && existing.score) update.$unset = { score: 1 }
+					await this.model.updateOne({ _id: existing._id }, update).exec()
 					result.changedIds.push(existing._id)
 					result.imported++
 				}

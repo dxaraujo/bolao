@@ -1,6 +1,7 @@
 import {
 	getStageState,
 	MatchStage,
+	MatchStatus,
 	STAGE_DEADLINES,
 	STAGE_EXPECTED_MATCHES,
 	STAGE_ORDER,
@@ -54,6 +55,7 @@ export class StageService implements OnModuleInit {
 		const now = new Date()
 		const all = stages.map((s) => ({ code: s.code, deadline: s.deadline }))
 		const importedCounts = await this.importedCounts(stages)
+		const finishedCounts = await this.finishedCounts(stages)
 		return stages.map((s) => ({
 			_id: s._id.toString(),
 			code: s.code,
@@ -62,6 +64,7 @@ export class StageService implements OnModuleInit {
 			deadline: s.deadline.toISOString(),
 			expectedMatchCount: s.expectedMatchCount,
 			importedMatchCount: importedCounts.get(s._id.toString()) ?? 0,
+			finishedMatchCount: finishedCounts.get(s._id.toString()) ?? 0,
 		}))
 	}
 
@@ -70,6 +73,7 @@ export class StageService implements OnModuleInit {
 		const now = new Date()
 		const all = stages.map((s) => ({ code: s.code, deadline: s.deadline }))
 		const importedCounts = await this.importedCounts(stages)
+		const finishedCounts = await this.finishedCounts(stages)
 		return stages.map((s) => {
 			const pred = findPredecessor(s.code, all)
 			return {
@@ -80,6 +84,7 @@ export class StageService implements OnModuleInit {
 				deadline: s.deadline.toISOString(),
 				expectedMatchCount: s.expectedMatchCount,
 				importedMatchCount: importedCounts.get(s._id.toString()) ?? 0,
+				finishedMatchCount: finishedCounts.get(s._id.toString()) ?? 0,
 				predecessor: pred ? { code: pred.code, state: getStageState(pred, all, now) } : undefined,
 			}
 		})
@@ -89,6 +94,15 @@ export class StageService implements OnModuleInit {
 		const ids = stages.map((s) => s._id)
 		const counts = await this.matchModel.aggregate<{ _id: Types.ObjectId; count: number }>([
 			{ $match: { stage: { $in: ids } } },
+			{ $group: { _id: '$stage', count: { $sum: 1 } } },
+		])
+		return new Map(counts.map((c) => [c._id.toString(), c.count]))
+	}
+
+	private async finishedCounts(stages: StageDocument[]): Promise<Map<string, number>> {
+		const ids = stages.map((s) => s._id)
+		const counts = await this.matchModel.aggregate<{ _id: Types.ObjectId; count: number }>([
+			{ $match: { stage: { $in: ids }, status: MatchStatus.FINISHED } },
 			{ $group: { _id: '$stage', count: { $sum: 1 } } },
 		])
 		return new Map(counts.map((c) => [c._id.toString(), c.count]))

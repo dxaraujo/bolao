@@ -52,6 +52,7 @@ export interface StagePayload {
 	deadline: string
 	expectedMatchCount: number
 	importedMatchCount: number
+	finishedMatchCount: number
 }
 
 export interface StageReadinessItem extends StagePayload {

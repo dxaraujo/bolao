@@ -33,11 +33,14 @@ export function useStageReadiness() {
 export function useUpdateStage() {
 	const qc = useQueryClient()
 	return useMutation({
-		mutationFn: ({ code, ...body }: { code: MatchStage; deadline?: string; expectedMatchCount?: number }) =>
+		mutationFn: ({ code, ...body }: { code: MatchStage; deadline?: string }) =>
 			api.patch<StagePayload>(`/api/stage/${code}`, body),
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: ['stages'] })
 			qc.invalidateQueries({ queryKey: ['admin', 'stage-readiness'] })
+			qc.invalidateQueries({ queryKey: ['matches'] })
+			qc.invalidateQueries({ queryKey: ['bets'] })
+			qc.invalidateQueries({ queryKey: ['leaderboard'] })
 		},
 	})
 }
@@ -58,18 +61,7 @@ export function useImportMatches() {
 			qc.invalidateQueries({ queryKey: ['matches'] })
 			qc.invalidateQueries({ queryKey: ['stages'] })
 			qc.invalidateQueries({ queryKey: ['bets'] })
-		},
-	})
-}
-
-export function useSyncScores() {
-	const qc = useQueryClient()
-	return useMutation({
-		mutationFn: () => api.post<{ changed: number }>('/api/match/sync-scores'),
-		onSuccess: () => {
-			qc.invalidateQueries({ queryKey: ['matches'] })
 			qc.invalidateQueries({ queryKey: ['leaderboard'] })
-			qc.invalidateQueries({ queryKey: ['bets'] })
 		},
 	})
 }

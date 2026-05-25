@@ -1,26 +1,16 @@
-import { useState } from 'react'
 import { Loader2, Download, RefreshCw, Users, UserCheck, UserX, Shield, ShieldOff, Calendar } from 'lucide-react'
 import { toast } from 'sonner'
-import { MatchStage, STAGE_ORDER, StageState, type StagePayload, type StageReadinessItem, type UserPayload } from '@bolao/shared'
+import { MatchStage, StageState, type StagePayload, type UserPayload } from '@bolao/shared'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
-import {
-	useAdminUsers,
-	useImportMatches,
-	useImportTeams,
-	useRebuildLeaderboard,
-	useStageReadiness,
-	useSyncScores,
-	useUpdateStage,
-	useUpdateUser,
-} from '@/hooks/useAdmin'
+import { useAdminUsers, useImportMatches, useImportTeams, useRebuildLeaderboard, useUpdateUser } from '@/hooks/useAdmin'
 import { useAllStages } from '@/hooks/useStages'
 import { STAGE_LABELS } from '@/lib/stage'
+import { formatDeadline } from '@/lib/format'
 import { resolveAssetUrl } from '@/lib/assets'
 import { cn } from '@/lib/cn'
 
@@ -41,7 +31,6 @@ export function AdminScreen() {
 function ImportSection() {
 	const importTeams = useImportTeams()
 	const importMatches = useImportMatches()
-	const syncScores = useSyncScores()
 	const rebuild = useRebuildLeaderboard()
 
 	const actions: Array<{
@@ -49,22 +38,34 @@ function ImportSection() {
 		title: string
 		description: string
 		icon: typeof Users
-		tone: 'acc' | 'gold' | 'green' | 'purple'
 		run: () => Promise<unknown>
 		isPending: boolean
 	}> = [
-		{ key: 'teams', title: 'Importar Times', description: 'Sincroniza seleções da Football Data.', icon: Users, tone: 'acc', run: () => importTeams.mutateAsync(), isPending: importTeams.isPending },
-		{ key: 'matches', title: 'Importar Partidas', description: 'Reimporta calendário (TBD são skipadas).', icon: Download, tone: 'gold', run: () => importMatches.mutateAsync(), isPending: importMatches.isPending },
-		{ key: 'scores', title: 'Sincronizar Placares', description: 'Busca placares e recalcula leaderboard.', icon: RefreshCw, tone: 'green', run: () => syncScores.mutateAsync(), isPending: syncScores.isPending },
-		{ key: 'rebuild', title: 'Reconstruir Leaderboard', description: 'Recalcula ranking do zero.', icon: RefreshCw, tone: 'purple', run: () => rebuild.mutateAsync(), isPending: rebuild.isPending },
+		{
+			key: 'teams',
+			title: 'Importar Times',
+			description: 'Sincroniza seleções da Football Data.',
+			icon: Users,
+			run: () => importTeams.mutateAsync(),
+			isPending: importTeams.isPending,
+		},
+		{
+			key: 'matches',
+			title: 'Importar Partidas & Placares',
+			description: 'Reimporta calendário e placares; recalcula leaderboard se houver mudanças.',
+			icon: Download,
+			run: () => importMatches.mutateAsync(),
+			isPending: importMatches.isPending,
+		},
+		{
+			key: 'rebuild',
+			title: 'Reconstruir Leaderboard',
+			description: 'Recalcula ranking do zero.',
+			icon: RefreshCw,
+			run: () => rebuild.mutateAsync(),
+			isPending: rebuild.isPending,
+		},
 	]
-
-	const toneClasses: Record<'acc' | 'gold' | 'green' | 'purple', { card: string; icon: string }> = {
-		acc: { card: 'border-acc/30 bg-acc/[0.06]', icon: 'text-acc' },
-		gold: { card: 'border-gold/30 bg-gold/[0.06]', icon: 'text-gold' },
-		green: { card: 'border-green/30 bg-green/[0.06]', icon: 'text-green' },
-		purple: { card: 'border-purple/30 bg-purple/[0.06]', icon: 'text-purple' },
-	}
 
 	async function handle(run: () => Promise<unknown>, title: string) {
 		try {
@@ -78,145 +79,115 @@ function ImportSection() {
 	return (
 		<section className="flex flex-col gap-2">
 			<h2 className="text-xs font-bold uppercase tracking-wider text-sub">Ações</h2>
-			<div className="grid gap-2 md:grid-cols-2 xl:grid-cols-4">
-				{actions.map(({ key, title, description, icon: Icon, tone, run, isPending }) => {
-					const t = toneClasses[tone]
-					return (
-						<Card key={key} className={cn('animate-fade-up flex items-center gap-3 p-3', t.card)}>
-							<div className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-surface', t.icon)}>
-								<Icon className="h-5 w-5" />
-							</div>
-							<div className="flex-1 min-w-0">
-								<div className="text-sm font-bold">{title}</div>
-								<div className="text-xs text-sub">{description}</div>
-							</div>
-							<Button size="sm" variant="outline" disabled={isPending} onClick={() => handle(run, title)}>
-								{isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Executar'}
-							</Button>
-						</Card>
-					)
-				})}
-			</div>
+			<Card className="animate-fade-up grid grid-cols-2 divide-x divide-y divide-border md:grid-cols-4 md:divide-y-0">
+				{actions.map(({ key, title, description, icon: Icon, run, isPending }) => (
+					<button
+						key={key}
+						type="button"
+						disabled={isPending}
+						onClick={() => handle(run, title)}
+						title={description}
+						className="group flex flex-col items-center gap-2 p-4 transition-colors hover:bg-acc/[0.06] focus:bg-acc/[0.06] focus:outline-none disabled:cursor-not-allowed disabled:opacity-60"
+					>
+						<div className="flex h-12 w-12 items-center justify-center rounded-full bg-acc/10 text-acc transition-transform group-hover:scale-110">
+							{isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Icon className="h-5 w-5" />}
+						</div>
+						<div className="text-xs font-bold uppercase tracking-wide text-center">{title}</div>
+						<div className="text-[11px] leading-tight text-sub text-center line-clamp-2">{description}</div>
+					</button>
+				))}
+			</Card>
 		</section>
 	)
 }
 
-const STATE_TONE: Record<StageState, 'green' | 'red' | 'sub'> = {
+const STATE_TONE: Record<StageState, 'green' | 'acc' | 'sub'> = {
 	[StageState.OPEN]: 'green',
-	[StageState.CLOSED]: 'red',
+	[StageState.CLOSED]: 'acc',
 	[StageState.LOCKED]: 'sub',
 }
 
 const STATE_LABEL: Record<StageState, string> = {
 	[StageState.OPEN]: 'Aberta',
-	[StageState.CLOSED]: 'Encerrada',
+	[StageState.CLOSED]: 'Apostas Encerrada',
 	[StageState.LOCKED]: 'Bloqueada',
 }
 
 function StagesSection() {
 	const { data: stages, isLoading } = useAllStages()
-	const { data: readiness } = useStageReadiness()
-
-	const byCode = new Map<MatchStage, StageReadinessItem>((readiness ?? []).map((r) => [r.code as MatchStage, r]))
 
 	return (
 		<section className="flex flex-col gap-2">
 			<h2 className="text-xs font-bold uppercase tracking-wider text-sub">Fases & Deadlines</h2>
-			<p className="text-xs text-sub">
-				Estado é derivado em tempo real. Edite o deadline para reabrir/encerrar uma fase ou ajustar o cronograma.
-			</p>
+			<p className="text-xs text-sub">Estado é derivado do deadline (read-only).</p>
 
 			{isLoading || !stages ? (
-				<>
-					<Skeleton className="h-20 w-full" />
-					<Skeleton className="h-20 w-full" />
-				</>
+				<Skeleton className="h-64 w-full" />
 			) : (
-				<div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
-					{stages.map((s) => (
-						<StageRow key={s.code} stage={s} readiness={byCode.get(s.code as MatchStage)} />
-					))}
-				</div>
+				<Card className="animate-fade-up p-4">
+					<ol className="relative flex flex-col">
+						{stages.map((s, i) => (
+							<StageRow key={s.code} stage={s} isLast={i === stages.length - 1} />
+						))}
+					</ol>
+				</Card>
 			)}
 		</section>
 	)
 }
 
-function StageRow({ stage, readiness }: { stage: StagePayload; readiness?: StageReadinessItem }) {
-	const update = useUpdateStage()
-	const [deadline, setDeadline] = useState(stage.deadline.slice(0, 16))
-	const [expected, setExpected] = useState(String(stage.expectedMatchCount))
-
-	const label = STAGE_LABELS[stage.code as MatchStage]?.full ?? stage.code
-
-	async function save() {
-		try {
-			await update.mutateAsync({
-				code: stage.code as MatchStage,
-				deadline: new Date(deadline).toISOString(),
-				expectedMatchCount: Number(expected),
-			})
-			toast.success(`${label} atualizada`)
-		} catch (err) {
-			toast.error(err instanceof Error ? err.message : 'Falha ao atualizar fase')
-		}
-	}
-
-	return (
-		<Card className="animate-fade-up p-3">
-			<div className="flex items-center justify-between gap-2">
-				<div>
-					<div className="text-sm font-bold">{label}</div>
-					<div className="text-xs text-sub">
-						{stage.code} · {stage.order}/{Object.keys(STAGE_ORDER).length}
-					</div>
-				</div>
-				<Badge tone={STATE_TONE[stage.state]}>{STATE_LABEL[stage.state]}</Badge>
-			</div>
-
-			<div className="mt-3 flex items-center gap-2 text-xs text-sub">
-				<Calendar className="h-3.5 w-3.5" />
-				<span>
-					{stage.importedMatchCount}/{stage.expectedMatchCount} partidas
-					{readiness?.predecessor && (
-						<>
-							{' '}
-							· anterior: <span className="font-bold">{STAGE_LABEL_OR(readiness.predecessor.code)}</span> ({STATE_LABEL[readiness.predecessor.state]})
-						</>
-					)}
-				</span>
-			</div>
-
-			<div className="mt-3 flex flex-col gap-2 text-xs">
-				<label className="flex flex-col gap-1">
-					<span className="text-sub">Deadline</span>
-					<Input
-						type="datetime-local"
-						value={deadline}
-						onChange={(e) => setDeadline(e.target.value)}
-						className="h-9"
-					/>
-				</label>
-				<label className="flex flex-col gap-1">
-					<span className="text-sub">Partidas esperadas</span>
-					<Input
-						type="number"
-						min={1}
-						value={expected}
-						onChange={(e) => setExpected(e.target.value)}
-						className="h-9"
-					/>
-				</label>
-				<Button size="sm" disabled={update.isPending} onClick={save} className="self-end">
-					{update.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Salvar'}
-				</Button>
-			</div>
-		</Card>
-	)
+const STATE_BAR: Record<StageState, string> = {
+	[StageState.OPEN]: 'bg-green',
+	[StageState.CLOSED]: 'bg-acc/60',
+	[StageState.LOCKED]: 'bg-border',
 }
 
-function STAGE_LABEL_OR(code: MatchStage): string {
-	return STAGE_LABELS[code]?.short ?? code
+const STATE_DOT: Record<StageState, string> = {
+	[StageState.OPEN]: 'bg-green text-background ring-green/30',
+	[StageState.CLOSED]: 'bg-acc/70 text-background ring-acc/30',
+	[StageState.LOCKED]: 'bg-muted text-sub ring-border',
+}
+
+function StageRow({ stage, isLast }: { stage: StagePayload; isLast: boolean }) {
+	const label = STAGE_LABELS[stage.code as MatchStage]?.full ?? stage.code
+	const progress = stage.expectedMatchCount === 0 ? 0 : (stage.finishedMatchCount / stage.expectedMatchCount) * 100
+
+	return (
+		<li className={cn('relative flex gap-3', !isLast && 'pb-4')}>
+			{!isLast && <div className="absolute left-[11px] top-7 h-full w-px bg-border" aria-hidden />}
+
+			<div
+				className={cn(
+					'relative z-10 mt-0.5 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full font-display text-[11px] ring-4',
+					STATE_DOT[stage.state],
+				)}
+			>
+				{stage.order}
+			</div>
+
+			<div className="min-w-0 flex-1">
+				<div className="flex items-center justify-between gap-2">
+					<div className="truncate text-sm font-bold">{label}</div>
+					<Badge tone={STATE_TONE[stage.state]}>{STATE_LABEL[stage.state]}</Badge>
+				</div>
+				<div className="mt-0.5 flex items-center justify-between gap-2 text-[11px] text-sub">
+					<span className="inline-flex items-center gap-1 tabular-nums">
+						<Calendar className="h-3 w-3" />
+						{formatDeadline(stage.deadline)}
+					</span>
+					<span className="tabular-nums font-bold">
+						{stage.finishedMatchCount}/{stage.expectedMatchCount}
+					</span>
+				</div>
+				<div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted">
+					<div
+						className={cn('h-full rounded-full transition-[width] duration-700 ease-out', STATE_BAR[stage.state])}
+						style={{ width: `${progress}%` }}
+					/>
+				</div>
+			</div>
+		</li>
+	)
 }
 
 function UsersSection() {
@@ -276,7 +247,11 @@ function UserRow({ user }: { user: UserPayload }) {
 		}
 	}
 
-	const initials = user.name.split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase() ?? '').join('')
+	const initials = user.name
+		.split(/\s+/)
+		.slice(0, 2)
+		.map((p) => p[0]?.toUpperCase() ?? '')
+		.join('')
 
 	return (
 		<Card className="animate-fade-up flex items-center gap-3 p-3">
@@ -296,7 +271,9 @@ function UserRow({ user }: { user: UserPayload }) {
 			</div>
 			<div className="flex shrink-0 flex-col gap-1.5">
 				<Button size="sm" variant="outline" disabled={update.isPending} onClick={toggleActive}>
-					{update.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : user.isActive ? (
+					{update.isPending ? (
+						<Loader2 className="h-4 w-4 animate-spin" />
+					) : user.isActive ? (
 						<>
 							<UserX className="h-4 w-4" /> Desativar
 						</>
@@ -307,7 +284,9 @@ function UserRow({ user }: { user: UserPayload }) {
 					)}
 				</Button>
 				<Button size="sm" variant="outline" disabled={update.isPending} onClick={toggleAdmin}>
-					{update.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : user.isAdmin ? (
+					{update.isPending ? (
+						<Loader2 className="h-4 w-4 animate-spin" />
+					) : user.isAdmin ? (
 						<>
 							<ShieldOff className="h-4 w-4" /> Remover admin
 						</>

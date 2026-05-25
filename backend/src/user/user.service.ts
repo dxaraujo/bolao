@@ -1,37 +1,25 @@
-import { StageStatus } from '@bolao/shared'
 import { Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { InjectModel } from '@nestjs/mongoose'
 import { Model, Types } from 'mongoose'
-import * as path from 'node:path'
 
-import { GoogleProfile } from 'src/auth/auth.service'
-import { Bet } from '../bet/schemas/bet.schema'
-import { downloadImage } from '../common/download'
-import { isLocalStaticFileOnDisk, resolveStaticDir } from '../common/static-dir'
-import { Match } from '../match/schemas/match.schema'
-import { Stage } from '../stage/schemas/stage.schema'
+import { GoogleProfile } from '../auth/auth.service'
+import { LeaderboardService } from '../leaderboard/leaderboard.service'
+import { MediaService } from '../media/media.service'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { User, UserDocument } from './schemas/user.schema'
 
 @Injectable()
 export class UserService implements OnModuleInit {
-
 	private readonly logger = new Logger(UserService.name)
-	private readonly staticDir: string
 
 	constructor(
 		@InjectModel(User.name) private readonly userModel: Model<User>,
-		@InjectModel(Bet.name) private readonly betModel: Model<Bet>,
-		@InjectModel(Stage.name) private readonly stageModel: Model<Stage>,
-		@InjectModel(Match.name) private readonly matchModel: Model<Match>,
-		config: ConfigService,
-	) {
-		this.staticDir = resolveStaticDir(config.get<string>('STATIC_DIR'))
-	}
+		private readonly media: MediaService,
+		private readonly leaderboardService: LeaderboardService,
+	) {}
 
 	async onModuleInit() {
-		await this.syncMissingPictures()
+		await this.syncMissingAvatars()
 	}
 
 	findById(id: string) {
@@ -39,142 +27,124 @@ export class UserService implements OnModuleInit {
 	}
 
 	findActiveUsers() {
-		return this.userModel.find({ isActive: true }).exec()
+		return this.userModel.find({ isActive: true }).sort({ name: 1 }).exec()
 	}
 
 	findAll() {
-		return this.userModel.find().exec()
+		return this.userModel.find().sort({ name: 1 }).exec()
 	}
 
-	async upsert(input: GoogleProfile) {
+	async upsertFromGoogle(profile: GoogleProfile): Promise<UserDocument> {
+		// Atualiza ou cria o usuário com os dados do Google.
+		const user = await this.userModel
+			.findOneAndUpdate(
+				{ googleSub: profile.googleSub },
+				{
+					$set: {
+						googleSub: profile.googleSub,
+						name: profile.name,
+						givenName: profile.givenName,
+						email: profile.email,
+						picture: profile.picture,
+					},
+				},
+				{ new: true, upsert: true },
+			)
+			.exec()
 
-		// `picture` é zerado apenas na criação. `externalPicture` é sempre sobrescrito
-		// com a URL mais recente vinda do Google.
-		const user = await this.userModel.findOneAndUpdate(
-			{ googleSub: input.googleSub },
-			{
-				$set: { googleSub: input.googleSub, name: input.name, email: input.email, externalPicture: input.externalPicture },
-				$setOnInsert: { picture: '' },
-			},
-			{ new: true, upsert: true },
-		).exec()
-
-		// URL externa ausente ou inválida: mantém `picture` como está.
-		if (!input.externalPicture || !/^https?:\/\//i.test(input.externalPicture)) {
-			return user
+		// Se o usuário não foi criado ou atualizado, lança um erro.
+		if (!user) {
+			throw new NotFoundException(`Falha ao criar/atualizar usuário ${profile.googleSub}`)
 		}
 
-		const picture = await this.downloadPicture(user.id, input.externalPicture)
-
-		// Download falhou: preserva o invariante de `picture` (vazio ou `/static/...`).
-		if (!picture) return user
-
-		return await this.userModel.findOneAndUpdate({ googleSub: input.googleSub }, { $set: { picture } }, { new: true, upsert: true }).exec()
-	}
-
-	private async downloadPicture(userId: string, url: string): Promise<string | null> {
-		const result = await downloadImage(url, path.join(this.staticDir, 'users'), userId, '/static/users')
-		if (!result) {
-			this.logger.warn(`Falling back to external picture URL for user ${userId}`)
-			return null
-		}
-		return result.relativePath
-	}
-
-	private async syncMissingPictures() {
-		const users = await this.userModel.find({
-			picture: { $regex: /^\/static\// },
-			externalPicture: { $regex: /^https?:\/\//i },
-		}).exec()
-
-		const missing: UserDocument[] = []
-		for (const user of users) {
-			if (!(await isLocalStaticFileOnDisk(this.staticDir, user.picture))) {
-				missing.push(user)
+		// Se o avatar do usuário é uma URL externa, baixa o avatar para o disco.
+		if (this.isValidPicture(profile.picture)) {
+			const local = await this.media.downloadUserAvatar(user.id, profile.picture)
+			if (local) {
+				return await this.userModel.findOneAndUpdate({ googleSub: profile.googleSub }, { $set: { avatar: local } }, { new: true, upsert: true }).exec()
 			}
 		}
 
-		if (missing.length === 0) return
-
-		this.logger.warn(`Restoring ${missing.length} missing user picture(s) on disk`)
-
-		for (const user of missing) {
-			const userId = (user._id as Types.ObjectId).toString()
-			const localPicture = await this.downloadPicture(userId, user.externalPicture)
-			if (localPicture && localPicture !== user.picture) {
-				await this.userModel.updateOne({ _id: user._id }, { $set: { picture: localPicture } }).exec()
-			}
-		}
+		return user
 	}
 
-	async update(userId: string, input: UpdateUserDto) {
-
+	async update(userId: string, input: UpdateUserDto): Promise<UserDocument> {
 		if (!Types.ObjectId.isValid(userId)) {
 			throw new NotFoundException(`Usuário ${userId} inválido`)
 		}
 
-		const user = await this.findById(userId)
+		const user = await this.userModel.findById(userId).exec()
 		if (!user) {
 			throw new NotFoundException(`Usuário ${userId} não encontrado`)
 		}
 
-		const willActivate = input.isActive === true && user.isActive === false
-		const willDeactivate = input.isActive === false && user.isActive === true
+		const willChangeActive = typeof input.isActive === 'boolean' && input.isActive !== user.isActive
 
-		const result = await this.userModel.updateOne({ _id: user._id }, input, { new: true }).exec()
+		const $set: Record<string, unknown> = {}
 
-		const userIdStr = user._id.toString()
-
-		if (willActivate) {
-			this.logger.log(`User ${userIdStr} activated; seeding bets`)
-			await this.seedBetsForUser(userIdStr)
-		} else if (willDeactivate) {
-			this.logger.log(`User ${userIdStr} deactivated; removing bets`)
-			await this.removeBetsForUser(userIdStr)
+		if (typeof input.isAdmin === 'boolean') {
+			$set.isAdmin = input.isAdmin
 		}
 
-		return result
+		if (typeof input.isActive === 'boolean') {
+			$set.isActive = input.isActive
+			if (willChangeActive) {
+				$set.participationChangedAt = new Date()
+			}
+		}
+
+		const updated = await this.userModel.findByIdAndUpdate(user._id, { $set }, { new: true }).exec()
+		if (!updated) {
+			throw new NotFoundException(`Usuário ${userId} não encontrado`)
+		}
+
+		if (willChangeActive) {
+			this.logger.log(`User ${userId} isActive=${input.isActive} (participationChangedAt updated)`)
+			await this.leaderboardService.rebuild()
+		}
+
+		return updated
 	}
 
-	async seedBetsForUser(userId: string) {
+	private isValidPicture(picture: string): boolean {
+		return !!picture && /^https?:\/\//i.test(picture)
+	}
 
-		const stages = await this.findStageNamesByStatus([StageStatus.OPEN, StageStatus.BLOCKED])
+	// private async syncMissingAvatars() {
+	// 	const users = await this.userModel.find({ avatar: { $regex: /^\/static\// } }).exec()
+	// 	const missing: UserDocument[] = []
+	// 	for (const u of users) {
+	// 		if (!(await this.media.isLocalAvailable(u.avatar))) missing.push(u)
+	// 	}
+	// 	if (missing.length === 0) return
+	// 	this.logger.warn(`Avatars missing on disk for ${missing.length} user(s); will be re-downloaded on next login.`)
+	// }
 
-		if (stages.length === 0) {
-			this.logger.log(`Skipping seed for user ${userId}: no OPEN/BLOCKED stages`)
+	private async syncMissingAvatars() {
+		// Consulta todos os usuários
+		const users = await this.userModel.find({}).exec()
+
+		// Encontra os usuários que não têm a foto localizada
+		const missing: UserDocument[] = []
+		for (const user of users) {
+			if (!(await this.media.isLocalAvailable(user.avatar))) {
+				missing.push(user)
+			}
+		}
+
+		// Todas as fotos estão atualizadas no disco
+		if (missing.length === 0) {
 			return
 		}
 
-		const matchIds = await this.findMatchIdsByStages(stages)
+		this.logger.warn(`Restoring ${missing.length} missing user picture(s) on disk`)
 
-		if (matchIds.length === 0) {
-			this.logger.log(`Skipping seed for user ${userId}: no valid matches in OPEN/BLOCKED stages`)
-			return
+		// Baixa as fotos que estão faltando no disco
+		for (const user of missing) {
+			const localPicture = await this.media.downloadUserAvatar(user.id, user.picture)
+			if (localPicture) {
+				await this.userModel.updateOne({ googleSub: user.googleSub }, { $set: { avatar: localPicture } }).exec()
+			}
 		}
-
-		const result = await this.betModel.bulkWrite(
-			matchIds.map((matchId) => ({
-				updateOne: {
-					filter: { user: userId, match: matchId },
-					update: { $setOnInsert: { user: userId, match: matchId } },
-					upsert: true,
-				},
-			})),
-		)
-		this.logger.log(`Seed user ${userId}: ${result.upsertedCount} new bet(s) across ${matchIds.length} match(es)`)
-	}
-
-	async removeBetsForUser(userId: string) {
-		const result = await this.betModel.deleteMany({ user: userId }).exec()
-		this.logger.log(`Removed ${result.deletedCount} bet(s) for user ${userId}`)
-	}
-
-	private async findStageNamesByStatus(statuses: StageStatus[]): Promise<string[]> {
-		const stages = await this.stageModel.find({ status: { $in: statuses } }, { matchStage: 1 }).exec()
-		return stages.map((s) => s.matchStage)
-	}
-
-	private findMatchIdsByStages(stageNames: string[]) {
-		return this.matchModel.find({ stage: { $in: stageNames }, valid: true }).distinct('_id').exec()
 	}
 }

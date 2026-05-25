@@ -1,13 +1,15 @@
-import type { GroupedBetItem, ConfigPayload } from '@bolao/shared'
+import { SCORING_RULES, type BetResult } from '@bolao/shared'
+import { CircleDot, Clock, Goal, Target, Trophy, X, type LucideIcon } from 'lucide-react'
 
 export type ResultKind = 'exact' | 'winnerWithGoal' | 'oneGoalCorrect' | 'correctWinner' | 'wrong' | 'pending'
 
-export function resultOf(bet: GroupedBetItem): ResultKind {
-	if (bet.exactScore) return 'exact'
-	if (bet.winnerWithGoal) return 'winnerWithGoal'
-	if (bet.oneGoalCorrect) return 'oneGoalCorrect'
-	if (bet.correctWinner) return 'correctWinner'
-	if (bet.wrong) return 'wrong'
+export function resultKindOf(result?: BetResult | null): ResultKind {
+	if (!result) return 'pending'
+	if (result.exactScore) return 'exact'
+	if (result.winnerWithGoal) return 'winnerWithGoal'
+	if (result.oneGoalCorrect) return 'oneGoalCorrect'
+	if (result.correctWinner) return 'correctWinner'
+	if (result.wrong) return 'wrong'
 	return 'pending'
 }
 
@@ -29,17 +31,25 @@ export const RESULT_TONE: Record<ResultKind, 'green' | 'gold' | 'acc' | 'purple'
 	pending: 'sub',
 }
 
-export function pointsFor(kind: ResultKind, config: ConfigPayload | undefined): number {
-	if (!config) return 0
+export const RESULT_ICON: Record<ResultKind, LucideIcon> = {
+	exact: Trophy,
+	winnerWithGoal: Goal,
+	oneGoalCorrect: CircleDot,
+	correctWinner: Target,
+	wrong: X,
+	pending: Clock,
+}
+
+export function pointsFor(kind: ResultKind): number {
 	switch (kind) {
 		case 'exact':
-			return config.pointsExactScore
+			return SCORING_RULES.exactScore
 		case 'winnerWithGoal':
-			return config.pointsWinnerWithGoal
+			return SCORING_RULES.winnerWithGoal
 		case 'oneGoalCorrect':
-			return config.pointsOneGoalCorrect
+			return SCORING_RULES.oneGoalCorrect
 		case 'correctWinner':
-			return config.pointsCorrectWinner
+			return SCORING_RULES.correctWinner
 		default:
 			return 0
 	}

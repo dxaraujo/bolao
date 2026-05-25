@@ -15,9 +15,11 @@ async function bootstrap() {
 	const config = app.get(ConfigService)
 	const logger = new Logger('Bootstrap')
 
-	app.use(helmet({
-		crossOriginResourcePolicy: { policy: 'cross-origin' },
-	}))
+	app.use(
+		helmet({
+			crossOriginResourcePolicy: { policy: 'cross-origin' },
+		}),
+	)
 
 	const staticDir = resolveStaticDir(config.get<string>('STATIC_DIR'))
 	await ensureStaticDir(staticDir)
@@ -49,10 +51,7 @@ async function bootstrap() {
 			.setTitle('Bolão API')
 			.setDescription('API do bolão da Copa do Mundo')
 			.setVersion('1.0')
-			.addBearerAuth(
-				{ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
-				SWAGGER_BEARER_AUTH,
-			)
+			.addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, SWAGGER_BEARER_AUTH)
 			.build()
 		const document = SwaggerModule.createDocument(app, swaggerConfig)
 		SwaggerModule.setup('api/docs', app, document, {

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Search } from 'lucide-react'
-import { MatchStage, StageStatus } from '@bolao/shared'
+import { MatchStage, StageState } from '@bolao/shared'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -17,29 +17,29 @@ export function BolaoScreen() {
 	const { data: groups, isLoading: groupsLoading } = useAllBets()
 	const { data: me } = useMe()
 
-	const blockedStages = useMemo(
-		() => (stages ?? []).filter((s) => s.status === StageStatus.BLOCKED),
+	const closedStages = useMemo(
+		() => (stages ?? []).filter((s) => s.state === StageState.CLOSED),
 		[stages],
 	)
 
 	const [tab, setTab] = useState<MatchStage | null>(null)
 
 	const activeTab = useMemo(() => {
-		if (!blockedStages.length) return null
-		if (tab && blockedStages.some((s) => s.matchStage === tab)) return tab
-		return blockedStages[0].matchStage
-	}, [blockedStages, tab])
+		if (!closedStages.length) return null
+		if (tab && closedStages.some((s) => s.code === tab)) return tab
+		return closedStages[0].code
+	}, [closedStages, tab])
 
-	const filtered = useMemo(() => (groups ?? []).filter((g) => g.stage === activeTab), [groups, activeTab])
+	const filtered = useMemo(() => (groups ?? []).filter((g) => g.match.stage === activeTab), [groups, activeTab])
 
 	const groupedMatches = useMemo(() => {
 		if (!filtered.length) return null
-		if (!filtered.some((m) => m.group)) return null
+		if (!filtered.some((m) => m.match.group)) return null
 		const map = new Map<string, typeof filtered>()
-		for (const match of filtered) {
-			const key = match.group ?? ''
+		for (const m of filtered) {
+			const key = m.match.group ?? ''
 			if (!map.has(key)) map.set(key, [])
-			map.get(key)!.push(match)
+			map.get(key)!.push(m)
 		}
 		return map
 	}, [filtered])
@@ -54,8 +54,14 @@ export function BolaoScreen() {
 		)
 	}
 
-	if (blockedStages.length === 0) {
-		return <EmptyState icon={Search} title="Nenhuma fase encerrada" description="As apostas do grupo aparecem aqui após cada fase ser bloqueada." />
+	if (closedStages.length === 0) {
+		return (
+			<EmptyState
+				icon={Search}
+				title="Nenhuma fase encerrada"
+				description="As apostas do grupo aparecem aqui após cada fase ser encerrada."
+			/>
+		)
 	}
 
 	return (
@@ -65,11 +71,11 @@ export function BolaoScreen() {
 				{activeTab && (
 					<Tabs value={activeTab} onValueChange={(v) => setTab(v as MatchStage)}>
 						<TabsList className="pb-3">
-							{blockedStages.map((s) => {
-								const count = (groups ?? []).filter((g) => g.stage === s.matchStage).length
+							{closedStages.map((s) => {
+								const count = (groups ?? []).filter((g) => g.match.stage === s.code).length
 								return (
-									<TabsTrigger key={s.matchStage} value={s.matchStage}>
-										{STAGE_LABELS[s.matchStage]?.short ?? s.matchStage}
+									<TabsTrigger key={s.code} value={s.code}>
+										{STAGE_LABELS[s.code]?.short ?? s.code}
 										<span className="ml-1 rounded bg-muted px-1 text-[11px] font-bold text-muted-foreground">
 											{count}
 										</span>
@@ -81,22 +87,22 @@ export function BolaoScreen() {
 				)}
 			</div>
 
-		<div className="px-4 py-3">
-			{filtered.length === 0 ? (
-				<EmptyState icon={Search} title="Nenhuma partida encerrada nesta fase" />
-			) : groupedMatches ? (
-				Array.from(groupedMatches.entries()).map(([group, matches]) => (
-					<div key={group}>
-						<p className="mb-2 mt-4 text-xs font-bold uppercase tracking-widest text-sub first:mt-0">
-							{groupLabel(group)}
-						</p>
-						<MatchAccordion groups={matches} currentUserId={me?._id} />
-					</div>
-				))
-			) : (
-				<MatchAccordion groups={filtered} currentUserId={me?._id} />
-			)}
-		</div>
+			<div className="px-4 py-3">
+				{filtered.length === 0 ? (
+					<EmptyState icon={Search} title="Nenhuma partida encerrada nesta fase" />
+				) : groupedMatches ? (
+					Array.from(groupedMatches.entries()).map(([group, matches]) => (
+						<div key={group}>
+							<p className="mb-2 mt-4 text-xs font-bold uppercase tracking-widest text-sub first:mt-0">
+								{groupLabel(group)}
+							</p>
+							<MatchAccordion groups={matches} currentUserId={me?._id} />
+						</div>
+					))
+				) : (
+					<MatchAccordion groups={filtered} currentUserId={me?._id} />
+				)}
+			</div>
 		</div>
 	)
 }

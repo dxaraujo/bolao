@@ -6,13 +6,13 @@ import { MongooseModule } from '@nestjs/mongoose'
 import { AuthModule } from './auth/auth.module'
 import { JwtAuthGuard } from './auth/jwt-auth.guard'
 import { BetModule } from './bet/bet.module'
-import { AppConfigModule } from './config/config.module'
 import { HealthModule } from './health/health.module'
+import { LeaderboardModule } from './leaderboard/leaderboard.module'
 import { MatchModule } from './match/match.module'
-import { RankingModule } from './ranking/ranking.module'
+import { MediaModule } from './media/media.module'
 import { ScheduleModule } from './schedule/schedule.module'
 import { StageModule } from './stage/stage.module'
-import { StatsModule } from './stats/stats.module'
+import { SystemStateModule } from './system-state/system-state.module'
 import { TeamModule } from './team/team.module'
 import { UserModule } from './user/user.module'
 
@@ -29,16 +29,16 @@ import { UserModule } from './user/user.module'
 		}),
 		AuthModule,
 		UserModule,
+		MediaModule,
 		TeamModule,
 		StageModule,
-		RankingModule,
-		StatsModule,
-		AppConfigModule,
 		MatchModule,
 		BetModule,
+		LeaderboardModule,
+		SystemStateModule,
 		ScheduleModule,
 		HealthModule,
 	],
 	providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
 })
-export class AppModule { }
+export class AppModule {}

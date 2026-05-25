@@ -3,50 +3,34 @@ import { HydratedDocument } from 'mongoose'
 
 export type UserDocument = HydratedDocument<User>
 
-@Schema({ strict: false })
+@Schema({ timestamps: true })
 export class User {
-
 	@Prop({ required: true, unique: true, index: true })
 	googleSub!: string
 
 	@Prop({ required: true })
 	name!: string
 
+	@Prop({ required: false })
+	givenName?: string
+
 	@Prop({ required: true })
 	email!: string
 
-	@Prop({ default: '' })
+	@Prop({ required: false })
 	picture!: string
 
-	@Prop({ default: '' })
-	externalPicture!: string
-
-	@Prop({ required: true, default: 0 })
-	exactScore!: number
-
-	@Prop({ required: true, default: 0 })
-	winnerWithGoal!: number
-
-	@Prop({ required: true, default: 0 })
-	correctWinner!: number
-
-	@Prop({ required: true, default: 0 })
-	oneGoalCorrect!: number
-
-	@Prop({ required: true, default: 0 })
-	wrong!: number
-
-	@Prop({ required: true, default: 0 })
-	totalPointsEarned!: number
-
-	@Prop({ required: true, default: 0 })
-	ranking!: number
+	@Prop({ required: false })
+	avatar?: string
 
 	@Prop({ required: true, default: false })
 	isAdmin!: boolean
 
 	@Prop({ required: true, default: false })
 	isActive!: boolean
+
+	@Prop({ required: false })
+	participationChangedAt?: Date
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)

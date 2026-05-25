@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Put, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
 
 import type { JwtPayload } from '../auth/jwt.strategy'
@@ -12,14 +12,14 @@ import { UserService } from './user.service'
 @ApiProtectedInDocs()
 @Controller('api/user')
 export class UserController {
-	constructor(private readonly userService: UserService) { }
+	constructor(private readonly userService: UserService) {}
 
 	@Get('me')
 	async me(@CurrentUser() user: JwtPayload) {
 		const data = await this.userService.findById(user._id)
 		return { data }
 	}
-	
+
 	@Get('active')
 	async findActiveUsers() {
 		const data = await this.userService.findActiveUsers()
@@ -33,7 +33,7 @@ export class UserController {
 		return { data }
 	}
 
-	@Put(':id')
+	@Patch(':id')
 	@UseGuards(AdminGuard)
 	async update(@Param('id') id: string, @Body() body: UpdateUserDto) {
 		const data = await this.userService.update(id, body)

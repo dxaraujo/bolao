@@ -1,34 +1,35 @@
-import { Body, Controller, Get, Put } from '@nestjs/common'
-import { ApiBody, ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Get, Put, UseGuards } from '@nestjs/common'
+import { ApiTags } from '@nestjs/swagger'
 
 import { JwtPayload } from '../auth/jwt.strategy'
+import { ActiveParticipantGuard } from '../common/active-participant.guard'
 import { CurrentUser } from '../common/current-user.decorator'
 import { ApiProtectedInDocs } from '../common/swagger-auth.decorator'
 import { BetService } from './bet.service'
-import { UpdateBetsDto } from './dto/update-bets.dto'
+import { BetSubmitDto } from './dto/update-bets.dto'
 
 @ApiTags('bet')
 @Controller('api/bet')
 @ApiProtectedInDocs()
 export class BetController {
-
-	constructor(private readonly service: BetService) { }
+	constructor(private readonly service: BetService) {}
 
 	@Get()
 	async list(@CurrentUser() user: JwtPayload) {
-		const data = await this.service.list(user._id)
+		const data = await this.service.listMine(user._id)
 		return { data }
 	}
 
 	@Get('all')
-	async listAll() {
-		const data = await this.service.listAll()
+	async listGrouped() {
+		const data = await this.service.listGrouped()
 		return { data }
 	}
 
-	@Put('/updateBets')
-	@ApiBody({ type: [UpdateBetsDto] })
-	async updateBets(@CurrentUser() user: JwtPayload, @Body() body: { bets: UpdateBetsDto[] }) {
-		return await this.service.updateBets(user._id, body.bets)
+	@Put()
+	@UseGuards(ActiveParticipantGuard)
+	async submit(@CurrentUser() user: JwtPayload, @Body() body: BetSubmitDto) {
+		const data = await this.service.submit(user._id, body)
+		return { data }
 	}
 }

@@ -4,18 +4,14 @@ import type { Request, Response } from 'express'
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
-
 	private readonly logger = new Logger(AllExceptionsFilter.name)
 
 	catch(exception: unknown, host: ArgumentsHost) {
-
 		const ctx = host.switchToHttp()
 		const res = ctx.getResponse<Response>()
 		const req = ctx.getRequest<Request>()
 
-		const status = exception instanceof HttpException
-			? exception.getStatus()
-			: HttpStatus.INTERNAL_SERVER_ERROR
+		const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR
 
 		if (status >= 500) {
 			this.logger.error(`${req.method} ${req.url} → ${status}`, exception instanceof Error ? exception.stack : exception)

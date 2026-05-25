@@ -1,43 +1,38 @@
 import { ChevronRight, Calendar } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { StageStatus, type BetListItem, type StageVisibleItem } from '@bolao/shared'
+import { StageState, type MyBetItem, type StagePayload } from '@bolao/shared'
 
 import { STAGE_LABELS } from '@/lib/stage'
 import { formatDeadline } from '@/lib/format'
 import { cn } from '@/lib/cn'
+import { useMe } from '@/hooks/useMe'
 
 interface OpenStageBannerProps {
-	stages: StageVisibleItem[]
-	bets: BetListItem[]
+	stages: StagePayload[]
+	bets: MyBetItem[]
 }
 
 type BannerVariant = 'green' | 'warning' | 'red'
 
-function getBannerVariant(deadline: string | undefined, stageBets: BetListItem[]): BannerVariant {
-	const hasInvalidBet = stageBets.some(
-		(b) => (b.homeTeamScore != null) !== (b.awayTeamScore != null),
-	)
-
-	if (deadline) {
-		const hoursLeft = (new Date(deadline).getTime() - Date.now()) / (1000 * 60 * 60)
-		if (hoursLeft <= 1) return 'red'
-		if (hoursLeft <= 12 || hasInvalidBet) return 'warning'
-	} else if (hasInvalidBet) {
-		return 'warning'
-	}
-
+function getBannerVariant(deadline: string): BannerVariant {
+	const hoursLeft = (new Date(deadline).getTime() - Date.now()) / (1000 * 60 * 60)
+	if (hoursLeft <= 1) return 'red'
+	if (hoursLeft <= 12) return 'warning'
 	return 'green'
 }
 
 export function OpenStageBanner({ stages, bets }: OpenStageBannerProps) {
 	const navigate = useNavigate()
-	const open = stages.find((s) => s.status === StageStatus.OPEN)
+	const { data: me } = useMe()
+	const open = stages.find((s) => s.state === StageState.OPEN)
 	if (!open) return null
+	if (!me?.isActive) return null
 
-	const stageBets = bets.filter((b) => b.stage === open.matchStage)
-	const count = stageBets.length
-	const stageLabel = STAGE_LABELS[open.matchStage]?.full ?? open.matchStage
-	const variant = getBannerVariant(open.deadline, stageBets)
+	const stageBets = bets.filter((b) => b.match.stage === open.code)
+	const total = stageBets.length
+	const palpited = stageBets.filter((b) => !!b.bet).length
+	const stageLabel = STAGE_LABELS[open.code]?.full ?? open.code
+	const variant = getBannerVariant(open.deadline)
 
 	return (
 		<button
@@ -62,17 +57,17 @@ export function OpenStageBanner({ stages, bets }: OpenStageBannerProps) {
 					<Calendar className="h-3.5 w-3.5" /> Apostas das {stageLabel} abertas
 				</div>
 				<div className="mt-1 text-xs text-sub">
-					{open.deadline ? `Prazo: ${formatDeadline(open.deadline)} · ` : ''}
-					{count} jogo{count === 1 ? '' : 's'}
+					Prazo: {formatDeadline(open.deadline)} · {palpited}/{total} palpitado
+					{open.importedMatchCount < open.expectedMatchCount && (
+						<>
+							{' '}
+							· {open.importedMatchCount}/{open.expectedMatchCount} partidas importadas
+						</>
+					)}
 				</div>
 			</div>
 			<ChevronRight
-				className={cn(
-					'h-5 w-5',
-					variant === 'green' && 'text-green',
-					variant === 'warning' && 'text-gold',
-					variant === 'red' && 'text-red',
-				)}
+				className={cn('h-5 w-5', variant === 'green' && 'text-green', variant === 'warning' && 'text-gold', variant === 'red' && 'text-red')}
 			/>
 		</button>
 	)

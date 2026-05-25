@@ -25,6 +25,8 @@ const config: Config = {
 				'muted-foreground': 'rgb(var(--muted-fg) / <alpha-value>)',
 				acc: 'rgb(var(--acc) / <alpha-value>)',
 				gold: 'rgb(var(--gold) / <alpha-value>)',
+				silver: 'rgb(var(--silver) / <alpha-value>)',
+				bronze: 'rgb(var(--bronze) / <alpha-value>)',
 				green: 'rgb(var(--green) / <alpha-value>)',
 				red: 'rgb(var(--red) / <alpha-value>)',
 				purple: 'rgb(var(--purple) / <alpha-value>)',

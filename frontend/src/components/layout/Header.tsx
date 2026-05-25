@@ -2,19 +2,24 @@ import { useEffect, useRef, useState } from 'react'
 import { Moon, Sun, LogOut } from 'lucide-react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { useTheme } from '@/providers/ThemeProvider'
 import { useMe } from '@/hooks/useMe'
 import { useAuth } from '@/providers/AuthProvider'
+import { resolveAssetUrl } from '@/lib/assets'
 
 export function Header() {
 	const { isDark, toggle } = useTheme()
 	const { data: me } = useMe()
-	const { logout } = useAuth()
+	const { logout, user } = useAuth()
 	const [menuOpen, setMenuOpen] = useState(false)
 	const menuRef = useRef<HTMLDivElement>(null)
 
 	const initial = me?.name?.charAt(0)?.toUpperCase() ?? '?'
+	const avatar = me?.avatar ?? user?.avatar
+	const isSpectator = !me?.isActive
+	const isAdmin = me?.isAdmin
 
 	useEffect(() => {
 		if (!menuOpen) return
@@ -34,10 +39,10 @@ export function Header() {
 					COPA<span className="text-acc">BET</span>
 					<span className="ml-2 text-xs font-medium text-sub">2026</span>
 				</div>
-				<div className="hidden text-sm text-sub md:block">
-					Bem-vindo{me?.name ? `, ${me.name.split(' ')[0]}` : ''}
-				</div>
+				<div className="hidden text-sm text-sub md:block">Bem-vindo{me?.name ? `, ${me.name.split(' ')[0]}` : ''}</div>
 				<div className="flex items-center gap-2">
+					{isSpectator && <Badge tone="sub">Espectador</Badge>}
+					{isAdmin && <Badge tone="gold">Admin</Badge>}
 					<Button size="icon" variant="outline" onClick={toggle} aria-label="Alternar tema">
 						{isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
 					</Button>
@@ -48,7 +53,7 @@ export function Header() {
 							aria-label="Menu do usuário"
 						>
 							<Avatar className="h-10 w-10">
-								<AvatarImage src={me?.picture} alt={me?.name} />
+								<AvatarImage src={avatar ? resolveAssetUrl(avatar) : undefined} alt={me?.name} />
 								<AvatarFallback className="text-xs">{initial}</AvatarFallback>
 							</Avatar>
 						</button>
@@ -61,7 +66,10 @@ export function Header() {
 									</div>
 								)}
 								<button
-									onClick={() => { setMenuOpen(false); logout() }}
+									onClick={() => {
+										setMenuOpen(false)
+										logout()
+									}}
 									className="flex w-full items-center gap-2 px-3 py-2.5 text-sm text-red hover:bg-surface-2"
 								>
 									<LogOut className="h-4 w-4" />

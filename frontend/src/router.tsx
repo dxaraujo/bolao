@@ -1,7 +1,7 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 
 import { AuthenticatedLayout } from '@/components/layout/AuthenticatedLayout'
-import { AdminRoute, ProtectedRoute, PublicOnlyRoute } from '@/components/guards/ProtectedRoute'
+import { ActiveRoute, AdminRoute, ProtectedRoute, PublicOnlyRoute } from '@/components/guards/ProtectedRoute'
 import { LoginScreen } from '@/features/auth/LoginScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
 import { BetsScreen } from '@/features/bets/BetsScreen'
@@ -28,7 +28,14 @@ export const router = createBrowserRouter([
 		),
 		children: [
 			{ index: true, element: <HomeScreen /> },
-			{ path: 'apostas', element: <BetsScreen /> },
+			{
+				path: 'apostas',
+				element: (
+					<ActiveRoute>
+						<BetsScreen />
+					</ActiveRoute>
+				),
+			},
 			{ path: 'bolao', element: <BolaoScreen /> },
 			{ path: 'ranking', element: <RankingScreen /> },
 			{ path: 'stats', element: <StatsScreen /> },

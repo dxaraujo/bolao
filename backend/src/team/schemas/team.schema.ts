@@ -3,9 +3,8 @@ import { HydratedDocument } from 'mongoose'
 
 export type TeamDocument = HydratedDocument<Team>
 
-@Schema()
+@Schema({ timestamps: true })
 export class Team {
-
 	@Prop({ required: true, unique: true })
 	footballDataId!: number
 
@@ -18,13 +17,17 @@ export class Team {
 	@Prop({ required: true })
 	tla!: string
 
-	@Prop({ required: true })
-	crest!: string
+	/** Emoji de bandeira nacional (preferencial). */
+	@Prop({ required: false })
+	flagEmoji?: string
+
+	/** URL local do escudo (fallback quando não houver bandeira). */
+	@Prop({ required: false })
+	crest?: string
 
 	@Prop({ required: true })
-	lastUpdated!: Date
+	externalLastUpdated!: Date
 }
 
 export const TeamSchema = SchemaFactory.createForClass(Team)
-
 TeamSchema.index({ footballDataId: 1 }, { unique: true })

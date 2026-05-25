@@ -37,32 +37,32 @@ A API sobe na porta definida em `PORT` (default `3000`).
 
 ## Scripts
 
-| Script              | O que faz                                     |
-|---------------------|-----------------------------------------------|
-| `pnpm start:dev`    | Dev com hot reload via nodemon                |
-| `pnpm start:debug`  | Dev com `--debug` (debugger anexável)         |
-| `pnpm start`        | Roda Nest (sem watch)                         |
-| `pnpm start:prod`   | `node dist/main` (após `build`)               |
-| `pnpm build`        | Compila TS para `dist/`                       |
-| `pnpm typecheck`    | `tsc --noEmit`                                |
-| `pnpm lint`         | ESLint flat config, `--max-warnings=0`        |
-| `pnpm lint:fix`     | ESLint com `--fix`                            |
-| `pnpm format`       | Prettier nos arquivos `src/**/*.ts`           |
+| Script             | O que faz                              |
+| ------------------ | -------------------------------------- |
+| `pnpm start:dev`   | Dev com hot reload via nodemon         |
+| `pnpm start:debug` | Dev com `--debug` (debugger anexável)  |
+| `pnpm start`       | Roda Nest (sem watch)                  |
+| `pnpm start:prod`  | `node dist/main` (após `build`)        |
+| `pnpm build`       | Compila TS para `dist/`                |
+| `pnpm typecheck`   | `tsc --noEmit`                         |
+| `pnpm lint`        | ESLint flat config, `--max-warnings=0` |
+| `pnpm lint:fix`    | ESLint com `--fix`                     |
+| `pnpm format`      | Prettier nos arquivos `src/**/*.ts`    |
 
 ## Variáveis de ambiente
 
-| Variável                  | Obrigatória | Default                       |
-|---------------------------|-------------|-------------------------------|
-| `NODE_ENV`                | não         | `development`                 |
-| `PORT`                    | não         | `3000`                        |
-| `MONGODB_URI`             | não         | `mongodb://localhost/bolao`   |
-| `AUTH_SECRET`             | **sim**     | —                             |
-| `JWT_EXPIRES_IN`          | não         | `30d`                         |
-| `GOOGLE_CLIENT_ID`        | **sim**     | —                             |
-| `FOOTBALL_DATA_API_URL`   | **sim**     | —                             |
-| `FOOTBALL_DATA_API_KEY`   | **sim**     | —                             |
-| `CORS_ORIGINS`            | não         | `http://localhost:5173`       |
-| `STATIC_DIR`              | não         | `./static`                    |
+| Variável                | Obrigatória | Default                     |
+| ----------------------- | ----------- | --------------------------- |
+| `NODE_ENV`              | não         | `development`               |
+| `PORT`                  | não         | `3000`                      |
+| `MONGODB_URI`           | não         | `mongodb://localhost/bolao` |
+| `AUTH_SECRET`           | **sim**     | —                           |
+| `JWT_EXPIRES_IN`        | não         | `30d`                       |
+| `GOOGLE_CLIENT_ID`      | **sim**     | —                           |
+| `FOOTBALL_DATA_API_URL` | **sim**     | —                           |
+| `FOOTBALL_DATA_API_KEY` | **sim**     | —                           |
+| `CORS_ORIGINS`          | não         | `http://localhost:5173`     |
+| `STATIC_DIR`            | não         | `./static`                  |
 
 Validação acontece em `src/common/env.validation.ts` no bootstrap — a app falha em start se algo obrigatório faltar.
 
@@ -70,29 +70,29 @@ Validação acontece em `src/common/env.validation.ts` no bootstrap — a app fa
 
 Todas as rotas exigem `Authorization: Bearer <token>` (JWT) exceto as marcadas como públicas. O token é emitido por `POST /auth/google` após verificação do ID token do Google.
 
-| Método | Path                                | Auth     | Descrição                              |
-|--------|-------------------------------------|----------|----------------------------------------|
-| GET    | `/healthcheck`                      | público  | Liveness                               |
-| POST   | `/auth/google`                      | público  | Body `{ credential }` → `{ token, user }` |
-| GET    | `/api/user/me`                      | JWT      | Usuário autenticado                    |
-| GET    | `/api/user/active`                  | JWT      | Usuários ativos                        |
-| GET    | `/api/user`                         | JWT      | Lista usuários                         |
-| PUT    | `/api/user/:id`                     | JWT      | Atualiza usuário                       |
-| POST   | `/api/team/import`                  | JWT      | Importa seleções                       |
-| GET    | `/api/stage`                        | JWT      | Lista fases                            |
-| GET    | `/api/stage/visible`                | JWT      | Fases visíveis para o usuário          |
-| PUT    | `/api/stage/:matchStage`            | JWT      | Atualiza status/deadline da fase       |
-| GET    | `/api/match`                        | JWT      | Lista partidas                         |
-| POST   | `/api/match/import`                 | JWT      | Importa partidas da Football Data API  |
-| POST   | `/api/match/update-scores`          | JWT      | Atualiza resultados manualmente        |
-| GET    | `/api/bet`                          | JWT      | Palpites do usuário autenticado        |
-| GET    | `/api/bet/all`                      | JWT      | Todos os palpites (para ranking/stats) |
-| PUT    | `/api/bet/updateBets`               | JWT      | Salva palpites em batch                |
-| GET    | `/api/config`                       | JWT      | Config global (flag `atualizandoPontuacoes` etc.) |
-| GET    | `/api/ranking`                      | JWT      | Ranking agregado                       |
-| GET    | `/api/stats/overview`               | JWT      | KPIs gerais                            |
-| GET    | `/api/stats/accuracy-by-user`       | JWT      | Acerto por usuário                     |
-| GET    | `/api/stats/distribution`           | JWT      | Distribuição de pontos                 |
+| Método | Path                          | Auth    | Descrição                                         |
+| ------ | ----------------------------- | ------- | ------------------------------------------------- |
+| GET    | `/healthcheck`                | público | Liveness                                          |
+| POST   | `/auth/google`                | público | Body `{ credential }` → `{ token, user }`         |
+| GET    | `/api/user/me`                | JWT     | Usuário autenticado                               |
+| GET    | `/api/user/active`            | JWT     | Usuários ativos                                   |
+| GET    | `/api/user`                   | JWT     | Lista usuários                                    |
+| PUT    | `/api/user/:id`               | JWT     | Atualiza usuário                                  |
+| POST   | `/api/team/import`            | JWT     | Importa seleções                                  |
+| GET    | `/api/stage`                  | JWT     | Lista fases                                       |
+| GET    | `/api/stage/visible`          | JWT     | Fases visíveis para o usuário                     |
+| PUT    | `/api/stage/:matchStage`      | JWT     | Atualiza status/deadline da fase                  |
+| GET    | `/api/match`                  | JWT     | Lista partidas                                    |
+| POST   | `/api/match/import`           | JWT     | Importa partidas da Football Data API             |
+| POST   | `/api/match/update-scores`    | JWT     | Atualiza resultados manualmente                   |
+| GET    | `/api/bet`                    | JWT     | Palpites do usuário autenticado                   |
+| GET    | `/api/bet/all`                | JWT     | Todos os palpites (para ranking/stats)            |
+| PUT    | `/api/bet/updateBets`         | JWT     | Salva palpites em batch                           |
+| GET    | `/api/config`                 | JWT     | Config global (flag `atualizandoPontuacoes` etc.) |
+| GET    | `/api/ranking`                | JWT     | Ranking agregado                                  |
+| GET    | `/api/stats/overview`         | JWT     | KPIs gerais                                       |
+| GET    | `/api/stats/accuracy-by-user` | JWT     | Acerto por usuário                                |
+| GET    | `/api/stats/distribution`     | JWT     | Distribuição de pontos                            |
 
 Schema OpenAPI completo: `http://localhost:3000/api/docs`.
 
@@ -120,10 +120,10 @@ src/
 
 Definidas em `src/schedule/`:
 
-| Task                          | Cron               | O que faz                                                                 |
-|-------------------------------|--------------------|---------------------------------------------------------------------------|
-| `UpdateScoresTask`            | `*/5 7-20 * * *`   | A cada 5 min, das 7h às 20h: consulta Football Data API e atualiza placares alterados |
-| `ImportMatchesTask`           | `0 0 * * *`        | Diariamente à 0h: importa o calendário de partidas                        |
-| `BlockStagesTask`             | `* * * * *`        | A cada minuto: bloqueia fases cujo deadline passou                        |
+| Task                | Cron             | O que faz                                                                             |
+| ------------------- | ---------------- | ------------------------------------------------------------------------------------- |
+| `UpdateScoresTask`  | `*/5 7-20 * * *` | A cada 5 min, das 7h às 20h: consulta Football Data API e atualiza placares alterados |
+| `ImportMatchesTask` | `0 0 * * *`      | Diariamente à 0h: importa o calendário de partidas                                    |
+| `BlockStagesTask`   | `* * * * *`      | A cada minuto: bloqueia fases cujo deadline passou                                    |
 
 A integração externa usa `FOOTBALL_DATA_API_URL` + `FOOTBALL_DATA_API_KEY`.

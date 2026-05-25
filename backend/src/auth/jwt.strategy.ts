@@ -7,14 +7,13 @@ export interface JwtPayload {
 	_id: string
 	email: string
 	name: string
-	picture?: string
-	isAdmin?: boolean
-	isActive?: boolean
+	avatar?: string
+	isAdmin: boolean
+	isActive: boolean
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-
 	constructor(config: ConfigService) {
 		super({
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

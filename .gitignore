@@ -38,6 +38,7 @@ Thumbs.db
 
 .claude
 .github
+.pnpm-store
 
 # Backend runtime-downloaded assets
 backend/static

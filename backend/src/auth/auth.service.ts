@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { OAuth2Client, type TokenPayload } from 'google-auth-library'
@@ -12,14 +12,15 @@ export interface GoogleProfile {
 	googleSub: string
 	email: string
 	name: string
-	externalPicture: string
+	givenName?: string
+	picture: string
 }
 
 @Injectable()
 export class AuthService {
-
 	private readonly client: OAuth2Client
 	private readonly googleClientId: string
+	private readonly logger = new Logger(AuthService.name)
 
 	constructor(
 		config: ConfigService,
@@ -32,27 +33,17 @@ export class AuthService {
 
 	async loginWithGoogle(idToken: string) {
 		const profile = await this.verifyGoogleToken(idToken)
-		const user = await this.userService.upsert(profile)
+		const user = await this.userService.upsertFromGoogle(profile)
 		return { token: this.signToken(user) }
 	}
 
 	private async verifyGoogleToken(idToken: string): Promise<GoogleProfile> {
 		try {
-			const ticket = await this.client.verifyIdToken({
-				idToken,
-				audience: this.googleClientId,
-			})
+			const ticket = await this.client.verifyIdToken({ idToken, audience: this.googleClientId })
 			const payload = ticket.getPayload()
-			if (!payload) {
-				throw new UnauthorizedException('Google token payload incompleto')
-			}
+			if (!payload) throw new UnauthorizedException('Google token payload incompleto')
 			const { sub, email, name } = this.assertGoogleProfile(payload)
-			return {
-				googleSub: sub,
-				email,
-				name,
-				externalPicture: payload.picture ?? '',
-			}
+			return { googleSub: sub, email, name, givenName: payload.given_name, picture: payload.picture ?? '' }
 		} catch (error) {
 			if (error instanceof UnauthorizedException) throw error
 			throw new UnauthorizedException('Falha ao verificar token do Google')
@@ -61,9 +52,7 @@ export class AuthService {
 
 	private assertGoogleProfile(payload: TokenPayload) {
 		const { sub, email, name } = payload
-		if (!sub || !email || !name) {
-			throw new UnauthorizedException('Google token payload incompleto')
-		}
+		if (!sub || !email || !name) throw new UnauthorizedException('Google token payload incompleto')
 		if (!this.isEmailAuthoritative(email, payload.hd) && !payload.email_verified) {
 			throw new UnauthorizedException('E-mail do Google não verificado')
 		}
@@ -75,12 +64,12 @@ export class AuthService {
 	}
 
 	private signToken(user: UserDocument): string {
-		const id = (user._id as Types.ObjectId).toString()
+		const id = user._id.toString()
 		const claims: JwtPayload = {
 			_id: id,
 			email: user.email,
 			name: user.name,
-			picture: user.picture || undefined,
+			avatar: user.avatar,
 			isAdmin: user.isAdmin,
 			isActive: user.isActive,
 		}

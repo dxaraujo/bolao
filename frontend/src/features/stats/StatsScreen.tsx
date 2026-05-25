@@ -1,10 +1,6 @@
 import { Skeleton } from '@/components/ui/skeleton'
 
-import {
-	useStatsAccuracyByUser,
-	useStatsDistribution,
-	useStatsOverview,
-} from '@/hooks/useStats'
+import { useStatsAccuracy, useStatsDistribution, useStatsOverview } from '@/hooks/useLeaderboard'
 
 import { AccuracyByUser } from './components/AccuracyByUser'
 import { DistributionDonut } from './components/DistributionDonut'
@@ -12,7 +8,7 @@ import { KpiGrid } from './components/KpiGrid'
 
 export function StatsScreen() {
 	const { data: overview } = useStatsOverview()
-	const { data: byUser } = useStatsAccuracyByUser()
+	const { data: byUser } = useStatsAccuracy()
 	const { data: distribution } = useStatsDistribution()
 
 	return (

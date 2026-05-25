@@ -1,65 +1,63 @@
-import { MatchStatus, type BetListItem } from '@bolao/shared'
+import { MatchStatus, type MyBetItem } from '@bolao/shared'
 
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { TeamCrest } from '@/components/shared/TeamCrest'
 import { formatMatchDate } from '@/lib/format'
+import { teamShortName } from '@/lib/team-names'
 import { cn } from '@/lib/cn'
 
-export type BetDraft = { homeTeamScore: string; awayTeamScore: string }
+export type BetDraft = { home: string; away: string }
 
 interface BetCardProps {
-	bet: BetListItem
+	item: MyBetItem
 	draft: BetDraft
 	disabled: boolean
 	onChange: (draft: BetDraft) => void
 }
 
-const FINISHED_STATUSES: MatchStatus[] = [MatchStatus.FINISHED, MatchStatus.LIVE, MatchStatus.IN_PLAY, MatchStatus.PAUSED]
+const HAS_SCORE_STATUSES: MatchStatus[] = [MatchStatus.FINISHED, MatchStatus.LIVE]
 
-export function BetCard({ bet, draft, disabled, onChange }: BetCardProps) {
-	const hasMatchScore = FINISHED_STATUSES.includes(bet.status) && bet.matchHomeTeamScore != null
-	const filled = draft.homeTeamScore !== '' && draft.awayTeamScore !== ''
+export function BetCard({ item, draft, disabled, onChange }: BetCardProps) {
+	const { match, bet } = item
+	const hasMatchScore = HAS_SCORE_STATUSES.includes(match.status) && match.score != null
+	const filled = draft.home !== '' && draft.away !== ''
 
 	return (
 		<Card className={cn('relative animate-fade-up overflow-hidden', filled && !disabled && 'border-acc/40')}>
 			{filled && !disabled && <div className="absolute left-0 top-0 h-full w-0.5 bg-acc" />}
 
 			<div className="flex items-center justify-between px-4 pt-3">
-				<span className="text-xs font-semibold text-sub">{formatMatchDate(bet.utcDate)}</span>
+				<span className="text-xs font-semibold text-sub">{formatMatchDate(match.utcDate)}</span>
 				{hasMatchScore && (
 					<span className="font-display text-xs tracking-widest text-sub">
-						{bet.matchHomeTeamScore} – {bet.matchAwayTeamScore}
+						{match.score!.home} – {match.score!.away}
 					</span>
 				)}
 			</div>
 
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3">
 				<div className="flex flex-col items-center gap-1 text-center">
-					<TeamCrest src={bet.homeTeam.crest} alt={bet.homeTeam.tla} size={40} />
-					<span className="text-sm font-bold">{bet.homeTeam.shortName ?? bet.homeTeam.name}</span>
+					<TeamCrest team={match.homeTeam} size={40} />
+					<span className="text-sm font-bold">{teamShortName(match.homeTeam)}</span>
 				</div>
 
 				<div className="flex flex-col items-center gap-1">
 					{disabled ? (
 						<>
 							<div className="flex items-center gap-2 rounded-md border border-acc/40 bg-acc/10 px-3 py-1.5">
-								<span className="font-display text-2xl font-bold text-foreground">
-									{bet.homeTeamScore ?? '-'}
-								</span>
+								<span className="font-display text-2xl font-bold text-foreground">{bet?.score.home ?? '-'}</span>
 								<span className="font-bold text-sub">×</span>
-								<span className="font-display text-2xl font-bold text-foreground">
-									{bet.awayTeamScore ?? '-'}
-								</span>
+								<span className="font-display text-2xl font-bold text-foreground">{bet?.score.away ?? '-'}</span>
 							</div>
-							<span className="text-[11px] uppercase tracking-wide text-acc">sua aposta</span>
+							<span className="text-[11px] uppercase tracking-wide text-acc">seu palpite</span>
 						</>
 					) : (
 						<>
 							<div className="flex items-center gap-1">
 								<Input
-									value={draft.homeTeamScore}
-									onChange={(e) => onChange({ ...draft, homeTeamScore: sanitize(e.target.value) })}
+									value={draft.home}
+									onChange={(e) => onChange({ ...draft, home: sanitize(e.target.value) })}
 									type="number"
 									min={0}
 									max={20}
@@ -68,8 +66,8 @@ export function BetCard({ bet, draft, disabled, onChange }: BetCardProps) {
 								/>
 								<span className="font-bold text-sub">×</span>
 								<Input
-									value={draft.awayTeamScore}
-									onChange={(e) => onChange({ ...draft, awayTeamScore: sanitize(e.target.value) })}
+									value={draft.away}
+									onChange={(e) => onChange({ ...draft, away: sanitize(e.target.value) })}
 									type="number"
 									min={0}
 									max={20}
@@ -77,14 +75,14 @@ export function BetCard({ bet, draft, disabled, onChange }: BetCardProps) {
 									className="h-10 w-10 text-center font-display text-xl"
 								/>
 							</div>
-							<span className="text-[11px] uppercase tracking-wide text-muted-foreground">aposta</span>
+							<span className="text-[11px] uppercase tracking-wide text-muted-foreground">palpite</span>
 						</>
 					)}
 				</div>
 
 				<div className="flex flex-col items-center gap-1 text-center">
-					<TeamCrest src={bet.awayTeam.crest} alt={bet.awayTeam.tla} size={40} />
-					<span className="text-sm font-bold">{bet.awayTeam.shortName ?? bet.awayTeam.name}</span>
+					<TeamCrest team={match.awayTeam} size={40} />
+					<span className="text-sm font-bold">{teamShortName(match.awayTeam)}</span>
 				</div>
 			</div>
 		</Card>

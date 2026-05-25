@@ -1,13 +1,12 @@
 import { useState } from 'react'
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'
 import { toast } from 'sonner'
+import { SCORING_RULES } from '@bolao/shared'
 
 import { useAuth } from '@/providers/AuthProvider'
-import { useConfig } from '@/hooks/useConfig'
 
 export function LoginScreen() {
 	const { loginWithGoogle } = useAuth()
-	const { data: config } = useConfig()
 	const [loading, setLoading] = useState(false)
 
 	async function handleCredential(response: CredentialResponse) {
@@ -27,11 +26,7 @@ export function LoginScreen() {
 			<div className="relative flex w-full max-w-[430px] flex-col items-center justify-center gap-8 p-8">
 				<div className="absolute inset-0 flex items-center justify-center" aria-hidden>
 					{[300, 220, 140].map((s) => (
-						<div
-							key={s}
-							className="absolute rounded-full border border-acc/5"
-							style={{ width: s, height: s }}
-						/>
+						<div key={s} className="absolute rounded-full border border-acc/5" style={{ width: s, height: s }} />
 					))}
 				</div>
 
@@ -48,10 +43,10 @@ export function LoginScreen() {
 					<div className="mt-4 space-y-2 text-sm text-sub">
 						<p className="font-semibold text-foreground">Pontuação por jogo:</p>
 						<ul className="space-y-1.5">
-							<li>🎯 +{config?.pointsExactScore ?? 5} pts — Placar exato</li>
-							<li>⚽ +{config?.pointsWinnerWithGoal ?? 3} pts — Vencedor + saldo de gols</li>
-							<li>✅ +{config?.pointsCorrectWinner ?? 2} pts — Só o vencedor</li>
-							<li>🔢 +{config?.pointsOneGoalCorrect ?? 1} pts — Acertou um gol</li>
+							<li>🎯 +{SCORING_RULES.exactScore} pts — Placar exato</li>
+							<li>⚽ +{SCORING_RULES.winnerWithGoal} pts — Vencedor + um gol</li>
+							<li>✅ +{SCORING_RULES.correctWinner} pts — Só o vencedor</li>
+							<li>🔢 +{SCORING_RULES.oneGoalCorrect} pts — Acertou um gol</li>
 							<li>❌ 0 pts — Errou tudo</li>
 						</ul>
 						<p className="mt-3 text-xs text-muted-foreground">

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { GoogleLogin, type CredentialResponse } from '@react-oauth/google'
 import { toast } from 'sonner'
-import { Clock, CircleDot, Goal, Target, Trophy, X, type LucideIcon } from 'lucide-react'
+import { Clock, CircleDot, FileText, Goal, Target, Trophy, X, type LucideIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { MatchStage, SCORING_RULES, STAGE_DEADLINES, STAGE_ORDER } from '@bolao/shared'
@@ -123,6 +123,14 @@ export function LoginScreen() {
 						onError={() => toast.error('Falha no login do Google')}
 					/>
 					{loading && <p className="text-xs text-sub">Entrando…</p>}
+					<a
+						href="/regulamento.pdf"
+						target="_blank"
+						rel="noreferrer"
+						className="mt-1 inline-flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-sub underline-offset-4 hover:text-foreground hover:underline"
+					>
+						<FileText className="h-3 w-3" /> Regulamento completo
+					</a>
 				</section>
 			</div>
 		</div>

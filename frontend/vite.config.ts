@@ -9,6 +9,9 @@ export default defineConfig({
 		VitePWA({
 			registerType: 'prompt',
 			injectRegister: null,
+			workbox: {
+				navigateFallbackDenylist: [/\.pdf$/],
+			},
 			manifest: {
 				name: 'Copabet 2026',
 				short_name: 'Copabet',

@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card'
 import { TeamCrest } from '@/components/shared/TeamCrest'
 import { STAGE_LABELS } from '@/lib/stage'
 import { formatMatchDate } from '@/lib/format'
+import { teamShortName } from '@/lib/team-names'
 
 interface UpcomingMatchCardProps {
 	item: MyBetItem
@@ -18,7 +19,7 @@ export function UpcomingMatchCard({ item }: UpcomingMatchCardProps) {
 			<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-3 py-3">
 				<div className="flex min-w-0 items-center gap-2">
 					<TeamCrest team={match.homeTeam} size={28} />
-					<span className="min-w-0 truncate text-sm font-bold">{match.homeTeam.shortName ?? match.homeTeam.name}</span>
+					<span className="min-w-0 truncate text-sm font-bold">{teamShortName(match.homeTeam)}</span>
 				</div>
 
 				<div className="flex shrink-0 flex-col items-center gap-0.5 px-2 text-center">
@@ -34,7 +35,7 @@ export function UpcomingMatchCard({ item }: UpcomingMatchCardProps) {
 				</div>
 
 				<div className="flex min-w-0 items-center justify-end gap-2">
-					<span className="min-w-0 truncate text-right text-sm font-bold">{match.awayTeam.shortName ?? match.awayTeam.name}</span>
+					<span className="min-w-0 truncate text-right text-sm font-bold">{teamShortName(match.awayTeam)}</span>
 					<TeamCrest team={match.awayTeam} size={28} />
 				</div>
 			</div>

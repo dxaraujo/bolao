@@ -4,6 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Badge } from '@/components/ui/badge'
 import { TeamCrest } from '@/components/shared/TeamCrest'
 import { formatMatchDate } from '@/lib/format'
+import { teamShortName } from '@/lib/team-names'
 
 import { BetRow } from './BetRow'
 
@@ -35,7 +36,7 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 								<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
 									<div className="flex flex-col items-center gap-1 text-center">
 										<TeamCrest team={match.homeTeam} size={40} />
-										<span className="text-sm font-bold">{match.homeTeam.shortName ?? match.homeTeam.name}</span>
+										<span className="text-sm font-bold">{teamShortName(match.homeTeam)}</span>
 									</div>
 									<div className="text-center">
 										<div className="text-xs uppercase tracking-wider text-sub">Resultado</div>
@@ -45,7 +46,7 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 									</div>
 									<div className="flex flex-col items-center gap-1 text-center">
 										<TeamCrest team={match.awayTeam} size={40} />
-										<span className="text-sm font-bold">{match.awayTeam.shortName ?? match.awayTeam.name}</span>
+										<span className="text-sm font-bold">{teamShortName(match.awayTeam)}</span>
 									</div>
 								</div>
 							</div>

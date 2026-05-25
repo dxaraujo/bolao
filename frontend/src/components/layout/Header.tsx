@@ -18,7 +18,8 @@ export function Header() {
 
 	const initial = me?.name?.charAt(0)?.toUpperCase() ?? '?'
 	const avatar = me?.avatar ?? user?.avatar
-	const isSpectator = me?.isActive
+	const isSpectator = !me?.isActive
+	const isAdmin = me?.isAdmin
 
 	useEffect(() => {
 		if (!menuOpen) return
@@ -41,7 +42,7 @@ export function Header() {
 				<div className="hidden text-sm text-sub md:block">Bem-vindo{me?.name ? `, ${me.name.split(' ')[0]}` : ''}</div>
 				<div className="flex items-center gap-2">
 					{isSpectator && <Badge tone="sub">Espectador</Badge>}
-					{me?.isAdmin && <Badge tone="gold">Admin</Badge>}
+					{isAdmin && <Badge tone="gold">Admin</Badge>}
 					<Button size="icon" variant="outline" onClick={toggle} aria-label="Alternar tema">
 						{isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
 					</Button>

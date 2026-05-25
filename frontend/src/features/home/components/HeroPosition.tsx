@@ -50,7 +50,7 @@ export function HeroPosition() {
 					</div>
 				</div>
 			</div>
-			<div className="flex justify-between border-t border-acc/15 px-4 py-3">
+			<div className="grid grid-cols-5 border-t border-acc/15 py-3 gap-2">
 				<HeroStat value={myRow.breakdown.exactScore} label="Exato" tone="text-green" />
 				<HeroStat value={myRow.breakdown.winnerWithGoal} label="Venc+Gol" tone="text-acc" />
 				<HeroStat value={myRow.breakdown.correctWinner} label="Vencedor" tone="text-gold" />

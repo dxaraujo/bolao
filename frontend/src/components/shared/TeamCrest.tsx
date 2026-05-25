@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { TeamPayload } from '@bolao/shared'
 
 import { resolveAssetUrl } from '@/lib/assets'
+import { teamName } from '@/lib/team-names'
 import { cn } from '@/lib/cn'
 
 interface TeamCrestProps {
@@ -13,13 +14,14 @@ interface TeamCrestProps {
 export function TeamCrest({ team, size = 32, className }: TeamCrestProps) {
 	const [error, setError] = useState(false)
 	const label = (team?.tla ?? team?.shortName ?? team?.name ?? '?').slice(0, 3)
+	const ariaName = team ? teamName(team) : ''
 
 	if (team?.flagEmoji) {
 		return (
 			<span
 				className={cn('inline-grid place-items-center select-none', className)}
 				style={{ width: size, height: size, fontSize: Math.round(size * 0.9), lineHeight: 1 }}
-				aria-label={team.name ?? team.tla}
+				aria-label={ariaName || team.tla}
 			>
 				{team.flagEmoji}
 			</span>
@@ -41,7 +43,7 @@ export function TeamCrest({ team, size = 32, className }: TeamCrestProps) {
 	return (
 		<img
 			src={resolveAssetUrl(crest)}
-			alt={team?.name ?? ''}
+			alt={ariaName}
 			width={size}
 			height={size}
 			loading="lazy"

@@ -1,26 +1,43 @@
 import { SCORING_RULES } from '@bolao/shared'
+import { CircleDot, Goal, Target, Trophy, X, type LucideIcon } from 'lucide-react'
 
 import { Card } from '@/components/ui/card'
+import { cn } from '@/lib/cn'
+
+type Row = {
+	label: string
+	points: number
+	icon: LucideIcon
+	value: string
+}
+
+const ROWS: Row[] = [
+	{ label: 'Placar exato', points: SCORING_RULES.exactScore, icon: Trophy, value: 'text-green' },
+	{ label: 'Vencedor + um gol', points: SCORING_RULES.winnerWithGoal, icon: Goal, value: 'text-acc' },
+	{ label: 'Somente o vencedor', points: SCORING_RULES.correctWinner, icon: Target, value: 'text-gold' },
+	{ label: 'Acertou um gol', points: SCORING_RULES.oneGoalCorrect, icon: CircleDot, value: 'text-purple' },
+	{ label: 'Errou tudo', points: SCORING_RULES.wrong, icon: X, value: 'text-red' },
+]
 
 export function ScoringTable() {
-	const items: Array<{ label: string; points: number; tone: string }> = [
-		{ label: 'Placar Exato', points: SCORING_RULES.exactScore, tone: 'text-green border-green/30 bg-green/10' },
-		{ label: 'Time vencedor + Gol', points: SCORING_RULES.winnerWithGoal, tone: 'text-acc border-acc/30 bg-acc/10' },
-		{ label: 'Somente o time vencedor', points: SCORING_RULES.correctWinner, tone: 'text-gold border-gold/30 bg-gold/10' },
-		{ label: 'Gol', points: SCORING_RULES.oneGoalCorrect, tone: 'text-purple border-purple/30 bg-purple/10' },
-	]
-
 	return (
-		<Card className="animate-fade-up p-3">
-			<div className="mb-3 text-xs font-bold uppercase tracking-wider text-sub">Tabela de pontuação</div>
-			<div className="grid grid-cols-2 gap-2">
-				{items.map((i) => (
-					<div key={i.label} className={`rounded-md border px-3 py-2 text-center ${i.tone}`}>
-						<div className="font-display text-xl leading-none">+{i.points}</div>
-						<div className="mt-1 text-xs font-semibold">{i.label}</div>
-					</div>
-				))}
-			</div>
+		<Card className="animate-fade-up overflow-hidden p-0">
+			<div className="px-4 pt-4 pb-2 text-xs font-bold uppercase tracking-wider text-sub">Tabela de pontuação</div>
+			<ul className="divide-y divide-border/60">
+				{ROWS.map((row) => {
+					const Icon = row.icon
+					return (
+					<li key={row.label} className="flex items-center gap-3 px-4 py-2.5">
+						<Icon className={cn('h-4 w-4 shrink-0', row.value)} aria-hidden />
+						<span className="flex-1 text-sm font-medium">{row.label}</span>
+						<span className={cn('font-display text-lg leading-none tabular-nums', row.value)}>
+							{row.points > 0 ? `+${row.points}` : row.points}
+							<span className="ml-1 text-[11px] uppercase tracking-wide text-sub">{row.points === 1 ? 'pt' : 'pts'}</span>
+						</span>
+					</li>
+					)
+				})}
+			</ul>
 		</Card>
 	)
 }

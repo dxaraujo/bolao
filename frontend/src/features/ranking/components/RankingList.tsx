@@ -11,8 +11,8 @@ interface RankingListProps {
 }
 
 const MEDALS = ['🥇', '🥈', '🥉']
-const BAR_COLORS = ['bg-gold', 'bg-sub', 'bg-acc']
-const TEXT_COLORS = ['text-gold', 'text-foreground', 'text-foreground']
+const BAR_COLORS = ['bg-gold', 'bg-silver', 'bg-bronze']
+const TEXT_COLORS = ['text-gold', 'text-silver', 'text-bronze']
 
 export function RankingList({ users, currentUserId }: RankingListProps) {
 	const max = Math.max(1, ...users.map((u) => u.points))
@@ -30,9 +30,7 @@ export function RankingList({ users, currentUserId }: RankingListProps) {
 							isMe && 'border-acc/40 bg-gradient-to-br from-acc/10 to-transparent',
 						)}
 					>
-						<div className={cn('w-7 text-center font-bold', i < 3 ? 'text-2xl' : 'text-sub')}>
-							{i < 3 ? MEDALS[i] : `${row.rank}°`}
-						</div>
+						<div className={cn('w-7 text-center font-bold', i < 3 ? 'text-2xl' : 'text-sub')}>{i < 3 ? MEDALS[i] : `${row.rank}°`}</div>
 						<Avatar className="h-14 w-14">
 							<AvatarImage src={row.user.avatar ? resolveAssetUrl(row.user.avatar) : undefined} alt={row.user.name} />
 							<AvatarFallback>{row.user.name.charAt(0)}</AvatarFallback>

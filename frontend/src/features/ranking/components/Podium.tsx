@@ -11,17 +11,17 @@ interface PodiumProps {
 const PODIUM_ORDER = [1, 0, 2]
 const HEIGHTS = ['h-14', 'h-20', 'h-12']
 const MEDALS = ['🥈', '🥇', '🥉']
-const TONES = ['text-sub', 'text-gold', 'text-acc']
-const RING = ['ring-sub/60', 'ring-gold', 'ring-acc']
+const TONES = ['text-silver', 'text-gold', 'text-bronze']
+const RING = ['ring-silver', 'ring-gold', 'ring-bronze']
 const BARS = [
-	'bg-gradient-to-t from-sub/5 to-sub/30 border-t-2 border-sub/60',
+	'bg-gradient-to-t from-silver/5 to-silver/30 border-t-2 border-silver',
 	'bg-gradient-to-t from-gold/5 to-gold/30 border-t-2 border-gold',
-	'bg-gradient-to-t from-acc/5 to-acc/30 border-t-2 border-acc',
+	'bg-gradient-to-t from-bronze/5 to-bronze/30 border-t-2 border-bronze',
 ]
 
 export function Podium({ leaders }: PodiumProps) {
 	return (
-		<Card className="animate-fade-up overflow-hidden border-acc/20 bg-gradient-to-br from-acc/10 to-gold/10">
+		<Card className="animate-fade-up overflow-hidden border-acc/20">
 			<div className="px-4 pt-4 pb-2 text-xs font-bold uppercase tracking-wider text-sub">Pódio</div>
 			<div className="flex items-end justify-center gap-2 px-4 pb-2">
 				{PODIUM_ORDER.map((idx, slot) => {

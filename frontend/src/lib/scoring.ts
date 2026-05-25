@@ -1,4 +1,5 @@
 import { SCORING_RULES, type BetResult } from '@bolao/shared'
+import { CircleDot, Clock, Goal, Target, Trophy, X, type LucideIcon } from 'lucide-react'
 
 export type ResultKind = 'exact' | 'winnerWithGoal' | 'oneGoalCorrect' | 'correctWinner' | 'wrong' | 'pending'
 
@@ -28,6 +29,15 @@ export const RESULT_TONE: Record<ResultKind, 'green' | 'gold' | 'acc' | 'purple'
 	correctWinner: 'gold',
 	wrong: 'red',
 	pending: 'sub',
+}
+
+export const RESULT_ICON: Record<ResultKind, LucideIcon> = {
+	exact: Trophy,
+	winnerWithGoal: Goal,
+	oneGoalCorrect: CircleDot,
+	correctWinner: Target,
+	wrong: X,
+	pending: Clock,
 }
 
 export function pointsFor(kind: ResultKind): number {

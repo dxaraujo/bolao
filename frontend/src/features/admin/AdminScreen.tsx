@@ -79,7 +79,7 @@ function ImportSection() {
 	return (
 		<section className="flex flex-col gap-2">
 			<h2 className="text-xs font-bold uppercase tracking-wider text-sub">Ações</h2>
-			<Card className="animate-fade-up grid grid-cols-2 divide-x divide-y divide-border md:grid-cols-4 md:divide-y-0">
+			<Card className="animate-fade-up grid grid-cols-1 divide-x divide-y divide-border md:grid-cols-3 md:divide-y-0">
 				{actions.map(({ key, title, description, icon: Icon, run, isPending }) => (
 					<button
 						key={key}

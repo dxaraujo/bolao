@@ -18,8 +18,10 @@ export function PwaInstallBanner() {
 				<div className="min-w-0 flex-1">
 					<p className="text-sm font-semibold text-foreground">Instale o Copabet</p>
 					<p className="mt-0.5 text-xs text-sub">
-						{iosInstall && !canInstall
-							? 'Toque em Compartilhar e depois em Adicionar à Tela de Início.'
+						{iosInstall
+							? canInstall
+								? 'Toque em Instalar e escolha Adicionar à Tela de Início no menu Compartilhar.'
+								: 'Toque em Compartilhar e depois em Adicionar à Tela de Início.'
 							: 'Acesse mais rápido com o app na tela inicial.'}
 					</p>
 

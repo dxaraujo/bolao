@@ -15,7 +15,14 @@ function isStandalone(): boolean {
 }
 
 function isIos(): boolean {
-	return /iphone|ipad|ipod/i.test(navigator.userAgent)
+	return (
+		/iphone|ipad|ipod/i.test(navigator.userAgent) ||
+		(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+	)
+}
+
+function canUseWebShare(): boolean {
+	return typeof navigator.share === 'function'
 }
 
 function isDismissed(): boolean {
@@ -62,23 +69,35 @@ export function usePwaInstall() {
 	}, [])
 
 	const install = useCallback(async () => {
-		if (!installEvent) return
+		if (installEvent) {
+			await installEvent.prompt()
+			const { outcome } = await installEvent.userChoice
 
-		await installEvent.prompt()
-		const { outcome } = await installEvent.userChoice
+			setInstallEvent(null)
+			if (outcome === 'accepted') {
+				setVisible(false)
+				return
+			}
 
-		setInstallEvent(null)
-		if (outcome === 'accepted') {
-			setVisible(false)
+			dismiss()
 			return
 		}
 
-		dismiss()
-	}, [dismiss, installEvent])
+		if (iosInstall && canUseWebShare()) {
+			try {
+				await navigator.share({
+					title: document.title,
+					url: window.location.href,
+				})
+			} catch (error) {
+				if (error instanceof Error && error.name === 'AbortError') return
+			}
+		}
+	}, [dismiss, installEvent, iosInstall])
 
 	return {
 		visible,
-		canInstall: installEvent != null,
+		canInstall: installEvent != null || (iosInstall && canUseWebShare()),
 		iosInstall,
 		install,
 		dismiss,

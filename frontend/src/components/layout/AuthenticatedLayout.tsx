@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom'
 
+import { PwaInstallBanner } from '@/components/shared/PwaInstallBanner'
 import { useWatchResults } from '@/hooks/useWatchResults'
 
 import { AppShell } from './AppShell'
@@ -19,6 +20,7 @@ export function AuthenticatedLayout() {
 						<Outlet />
 					</div>
 				</main>
+				<PwaInstallBanner />
 				<BottomNav />
 			</div>
 		</AppShell>

@@ -8,21 +8,7 @@ interface BeforeInstallPromptEvent extends Event {
 }
 
 function isStandalone(): boolean {
-	return (
-		window.matchMedia('(display-mode: standalone)').matches ||
-		(window.navigator as Navigator & { standalone?: boolean }).standalone === true
-	)
-}
-
-function isIos(): boolean {
-	return (
-		/iphone|ipad|ipod/i.test(navigator.userAgent) ||
-		(navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-	)
-}
-
-function canUseWebShare(): boolean {
-	return typeof navigator.share === 'function'
+	return window.matchMedia('(display-mode: standalone)').matches
 }
 
 function isDismissed(): boolean {
@@ -32,15 +18,9 @@ function isDismissed(): boolean {
 export function usePwaInstall() {
 	const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null)
 	const [visible, setVisible] = useState(false)
-	const [iosInstall, setIosInstall] = useState(false)
 
 	useEffect(() => {
 		if (isStandalone() || isDismissed()) return
-
-		if (isIos()) {
-			setIosInstall(true)
-			setVisible(true)
-		}
 
 		function onBeforeInstallPrompt(event: Event) {
 			event.preventDefault()
@@ -69,37 +49,19 @@ export function usePwaInstall() {
 	}, [])
 
 	const install = useCallback(async () => {
-		if (installEvent) {
-			await installEvent.prompt()
-			const { outcome } = await installEvent.userChoice
+		if (!installEvent) return
 
-			setInstallEvent(null)
-			if (outcome === 'accepted') {
-				setVisible(false)
-				return
-			}
+		await installEvent.prompt()
+		const { outcome } = await installEvent.userChoice
 
-			dismiss()
+		setInstallEvent(null)
+		if (outcome === 'accepted') {
+			setVisible(false)
 			return
 		}
 
-		if (iosInstall && canUseWebShare()) {
-			try {
-				await navigator.share({
-					title: document.title,
-					url: window.location.href,
-				})
-			} catch (error) {
-				if (error instanceof Error && error.name === 'AbortError') return
-			}
-		}
-	}, [dismiss, installEvent, iosInstall])
+		dismiss()
+	}, [dismiss, installEvent])
 
-	return {
-		visible,
-		canInstall: installEvent != null || (iosInstall && canUseWebShare()),
-		iosInstall,
-		install,
-		dismiss,
-	}
+	return { visible, install, dismiss }
 }

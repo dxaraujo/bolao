@@ -26,6 +26,31 @@ cp backend/.env.example backend/.env
 cp frontend/.env.example frontend/.env
 ```
 
+## Variáveis de ambiente
+
+### Backend (`backend/.env`)
+
+| Variável | Obrigatória | Default (`.env.example`) | Descrição |
+|---|---|---|---|
+| `NODE_ENV` | não | `development` | `development` ou `production`. Em produção, Swagger é desligado. |
+| `PORT` | não | `3000` | Porta HTTP do Nest |
+| `MONGODB_URI` | **sim** | `mongodb://localhost/bolao_v2` | URI do MongoDB (lida via `getOrThrow`) |
+| `AUTH_SECRET` | **sim** | — | Segredo HMAC para assinar JWTs |
+| `JWT_EXPIRES_IN` | não | `30d` | Validade do JWT |
+| `GOOGLE_CLIENT_ID` | **sim** | — | Client ID do Google OAuth (`audience` do `verifyIdToken`) |
+| `FOOTBALL_DATA_API_URL` | **sim** | — | Ex.: `https://api.football-data.org/v4` |
+| `FOOTBALL_DATA_API_KEY` | **sim** | — | Header `X-Auth-Token` |
+| `CORS_ORIGINS` | não | `http://localhost:5173` | Origens permitidas (CSV) |
+| `STATIC_DIR` | não | `./static` | Diretório onde escudos e avatares são gravados |
+
+Validação no boot via `backend/src/common/env.validation.ts` — a app **falha no start** se faltar obrigatória.
+
+### Frontend (`frontend/.env`)
+
+| Variável | Obrigatória | Descrição |
+|---|---|---|
+| `VITE_GOOGLE_CLIENT_ID` | **sim** | Client ID do Google OAuth (só vars `VITE_*` entram no bundle) |
+
 ## Rodar em desenvolvimento
 
 ```bash
@@ -76,10 +101,26 @@ docker compose down              # mantém os dados
 docker compose down -v           # apaga o volume do Mongo também
 ```
 
-> Backend e frontend ainda não estão no compose — em transição de UI/toolchain. Serão adicionados quando a reescrita estabilizar.
+> Apenas o Mongo está no compose; backend e frontend rodam via `pnpm dev`.
 
-## Documentação por pacote
+## Do zero ao primeiro palpite
 
+1. `docker compose up -d mongo && pnpm dev`
+2. No boot, o `MatchSyncTask` (`OnApplicationBootstrap`) já:
+   - cria as 7 fases a partir de `STAGE_ORDER`/`STAGE_DEADLINES`/`STAGE_EXPECTED_MATCHES` (`StageService.onModuleInit`);
+   - importa times e partidas da Football Data.
+3. Logar com sua conta Google → cria seu `User` (`isActive: false`, sem `isAdmin`).
+4. Virar admin/participante manualmente no Mongo:
+   ```js
+   db.users.updateOne({ email: 'seu@email' }, { $set: { isAdmin: true, isActive: true } })
+   ```
+5. Palpites são **esparsos** — vá em `/apostas` para criar.
+
+> Para exercitar placares/ranking sem esperar a Copa, ajuste o `deadline` das fases (`PATCH /api/stage/:code`) e os documentos de `Match` (status/score) direto no Mongo — o ranking recomputa no próximo sync ou via `POST /api/leaderboard/rebuild`.
+
+## Documentação
+
+- **[`.spec/`](.spec/README.md)** — especificação formal por módulo (visão geral do sistema, requisitos, contratos, casos de borda)
 - [frontend/README.md](frontend/README.md) — stack do app, variáveis `VITE_*`, estrutura de pastas
 - [backend/README.md](backend/README.md) — endpoints da API, variáveis de ambiente, crons, OpenAPI em `/api/docs`
 
@@ -106,5 +147,7 @@ Depois `import { MatchStage } from '@bolao/shared'`.
 ## Convenções gerais
 
 - Tipos cruzando frontend↔backend vêm de `@bolao/shared`. Não duplicar; não usar `any` na fronteira.
-- Terminologia do domínio na UI segue PT-BR (palpites, partidas, fases, grupos, pontuação). Módulos e rotas do backend foram padronizados em inglês (`match`, `stage`, `team`, `bet`).
-- PRs pequenos por fase do refactor — app sempre funcionando entre fases.
+- Terminologia técnica em inglês (módulos, classes, rotas: `match`, `stage`, `team`, `bet`); terminologia de domínio na UI em PT-BR (palpite, partida, fase, ranking).
+- Indentação com **tabs**.
+- Backend: regras de negócio nos services; controllers só mapeiam HTTP ↔ DTO. ESLint + Prettier.
+- Frontend: hooks de `src/hooks/` são a única forma de chamar a API a partir de componentes.

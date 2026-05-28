@@ -3,7 +3,7 @@
 - **ID:** SPEC-TEAM
 - **Backend:** `backend/src/team/` (`team.controller.ts`, `team.service.ts`, `schemas/team.schema.ts`)
 - **Shared:** `TeamPayload` (`dto.ts`), `tlaToFlagEmoji` (`flag-emoji.ts`)
-- **Doc narrativa:** [`docs/arquitetura.md`](../docs/arquitetura.md) (diretório estático, download)
+- **Visão geral:** [`README.md`](./README.md) (estáticos, download)
 
 ## 1. Objetivo
 

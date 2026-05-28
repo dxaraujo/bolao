@@ -3,7 +3,7 @@
 - **ID:** SPEC-STAGE
 - **Backend:** `backend/src/stage/` (`stage.controller.ts`, `stage.service.ts`, `schemas/stage.schema.ts`, `dto/update-stage.dto.ts`)
 - **Shared:** `MatchStage`, `StageState`, `STAGE_ORDER`, `STAGE_DEADLINES`, `STAGE_EXPECTED_MATCHES`, `STAGE_PREDECESSOR` (`enums.ts`); `getStageState`, `findPredecessor`, `StageInput` (`stage-state.ts`); `StagePayload`, `StageReadinessItem` (`dto.ts`)
-- **Doc narrativa:** [`docs/dominio.md`](../docs/dominio.md) (fluxo "Mudança de estado da fase")
+- **Visão geral:** [`README.md`](./README.md) (fluxo "Mudança de estado da fase")
 
 ## 1. Objetivo
 

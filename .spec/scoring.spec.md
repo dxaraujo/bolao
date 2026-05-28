@@ -2,7 +2,7 @@
 
 - **ID:** SPEC-SCORING
 - **Shared:** `shared/src/scoring.ts` — `calculateBetScore`, `compareLeaderboardRows`, `SCORING_RULES`, tipos `Score`, `BetScoreResult`, `LeaderboardRow`, `LeaderboardBreakdown`
-- **Doc narrativa:** [`docs/dominio.md`](../docs/dominio.md) (princípio norteador)
+- **Visão geral:** [`README.md`](./README.md) (princípio norteador)
 
 ## 1. Objetivo
 

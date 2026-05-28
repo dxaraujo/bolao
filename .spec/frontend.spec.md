@@ -3,7 +3,7 @@
 - **ID:** SPEC-FRONTEND
 - **Frontend:** `frontend/src/` (`router.tsx`, `components/guards/ProtectedRoute.tsx`, `components/layout/`, `features/`, `hooks/`, `lib/`, `providers/`)
 - **Shared:** todos os DTOs de `@bolao/shared`
-- **Doc narrativa:** [`docs/arquitetura.md`](../docs/arquitetura.md) (frontend, roteamento)
+- **Visão geral:** [`README.md`](./README.md) (arquitetura, frontend)
 
 ## 1. Objetivo
 

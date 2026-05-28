@@ -3,7 +3,7 @@
 - **ID:** SPEC-AUTH
 - **Backend:** `backend/src/auth/` (`auth.controller.ts`, `auth.service.ts`, `jwt.strategy.ts`), `backend/src/common/` (`public.decorator.ts`, `admin.guard.ts`, `active-participant.guard.ts`, `current-user.decorator.ts`)
 - **Shared:** `AuthenticatedUser` (`dto.ts`)
-- **Doc narrativa:** [`docs/dominio.md`](../docs/dominio.md) (fluxo "Login")
+- **Visão geral:** [`README.md`](./README.md) (fluxo "Login")
 
 ## 1. Objetivo
 

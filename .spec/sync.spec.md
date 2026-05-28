@@ -3,11 +3,11 @@
 - **ID:** SPEC-SYNC
 - **Backend:** `backend/src/schedule/` (`match-sync.task.ts`, `schedule.module.ts`), `backend/src/system-state/` (`system-state.controller.ts`, `system-state.service.ts`, `schemas/system-state.schema.ts`)
 - **Shared:** `SystemStatePayload` (`dto.ts`)
-- **Doc narrativa:** [`docs/dominio.md`](../docs/dominio.md) (fluxo de sincronização), [`docs/arquitetura.md`](../docs/arquitetura.md) (crons)
+- **Visão geral:** [`README.md`](./README.md) (fluxo de sincronização)
 
 ## 1. Objetivo
 
-Manter calendário, placares e ranking em dia via uma **única** cron (substitui as tasks separadas da v1) e expor timestamps de sincronização para o frontend reagir a novos resultados.
+Manter calendário, placares e ranking em dia via uma **única** cron e expor timestamps de sincronização para o frontend reagir a novos resultados.
 
 ## 2. Atores e permissões
 
@@ -44,7 +44,7 @@ Manter calendário, placares e ranking em dia via uma **única** cron (substitui
 
 ## 6. Regras de negócio
 
-- **RN-SYNC-1** — Cron única `MatchSyncTask` é a **única** responsável por import + rebuild automáticos. Não há `BlockStagesTask`/`ImportMatchesTask`/`UpdateScoresTask`.
+- **RN-SYNC-1** — A cron `MatchSyncTask` é a **única** responsável por import + rebuild automáticos (não há tasks separadas por etapa).
 - **RN-SYNC-2** — Idempotência: import só escreve no diff; `rebuild()` recomputa do zero.
 - **RN-SYNC-3** — `scoreSyncCompletedAt` é marcado no `finally` — mesmo com erro no import, o ciclo "fecha".
 - **RN-SYNC-4** — Falhas (bootstrap ou tick) são capturadas e logadas; nunca derrubam o processo.

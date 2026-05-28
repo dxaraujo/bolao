@@ -3,7 +3,7 @@
 - **ID:** SPEC-MATCH
 - **Backend:** `backend/src/match/` (`match.controller.ts`, `match.service.ts`, `schemas/match.schema.ts`)
 - **Shared:** `MatchStatus` (`enums.ts`); `mapExternalStatus`, `isCanonicalTransition`, `CANONICAL_TRANSITIONS`, `EXTERNAL_STATUSES` (`match-status.ts`); `MatchPayload`, `Score` (`dto.ts`/`scoring.ts`)
-- **Doc narrativa:** [`docs/dominio.md`](../docs/dominio.md), [`docs/arquitetura.md`](../docs/arquitetura.md)
+- **Visão geral:** [`README.md`](./README.md) (fluxo de sincronização)
 
 ## 1. Objetivo
 

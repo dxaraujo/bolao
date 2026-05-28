@@ -3,11 +3,11 @@
 - **ID:** SPEC-LEADERBOARD
 - **Backend:** `backend/src/leaderboard/` (`leaderboard.controller.ts`, `leaderboard.service.ts`, `schemas/leaderboard.schema.ts`)
 - **Shared:** `LeaderboardPayload`, `LeaderboardItem`, `StatsOverview`, `UserAccuracy`, `Distribution` (`dto.ts`); `compareLeaderboardRows`, `LeaderboardBreakdown` (`scoring.ts`)
-- **Doc narrativa:** [`docs/dominio.md`](../docs/dominio.md) (princípio norteador, fluxos)
+- **Visão geral:** [`README.md`](./README.md) (princípio norteador, fluxos)
 
 ## 1. Objetivo
 
-Materializar o ranking como singleton recomputado sob demanda e derivar estatísticas agregadas. Substitui os antigos módulos `ranking/` e `stats/` da v1.
+Materializar o ranking como singleton recomputado sob demanda e derivar estatísticas agregadas (ranking + stats no mesmo módulo).
 
 ## 2. Atores e permissões
 

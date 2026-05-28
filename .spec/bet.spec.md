@@ -3,7 +3,7 @@
 - **ID:** SPEC-BET
 - **Backend:** `backend/src/bet/` (`bet.controller.ts`, `bet.service.ts`, `schemas/bet.schema.ts`, `dto/update-bets.dto.ts`)
 - **Shared:** `MyBetItem`, `BetSubmitItem`, `BetSubmitPayload`, `GroupedBetMatch`, `GroupedBetParticipant`, `BetResult` (`dto.ts`); `calculateBetScore` (`scoring.ts`)
-- **Doc narrativa:** [`docs/dominio.md`](../docs/dominio.md) (fluxo "Apostar", espectadores)
+- **Visão geral:** [`README.md`](./README.md) (fluxo "Apostar", espectadores)
 
 ## 1. Objetivo
 

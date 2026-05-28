@@ -2,7 +2,7 @@
 
 Guia para agentes (Claude Code) trabalhando neste repositório.
 
-> **Antes de mexer num módulo, leia a spec dele em [`.spec/`](./.spec/README.md)** (contrato formal: requisitos, modelo de dados, regras, casos de borda). Documentação narrativa (arquitetura, setup, decisões) em [`docs/`](./docs/README.md). Este CLAUDE.md cobre só o necessário para se orientar.
+> **Antes de mexer num módulo, leia a spec dele em [`.spec/`](./.spec/README.md)** — visão geral do sistema + contrato formal por módulo (requisitos, modelo de dados, regras, casos de borda). Setup no [`README.md`](./README.md) raiz. Este CLAUDE.md cobre só o necessário para se orientar.
 
 ## Visão geral
 
@@ -49,8 +49,8 @@ Módulos:
 - `stage/` — config + estado derivado (`LOCKED/OPEN/CLOSED`), sem `BlockStagesTask`
 - `match/` — import (TBD são skipadas), workflow de status com warnings (`isCanonicalTransition`)
 - `bet/` — esparso, validado, `ActiveParticipantGuard`, semântica tudo-ou-nada
-- `leaderboard/` — singleton + stats derivadas (substitui antigos `ranking/` e `stats/`)
-- `system-state/` — timestamps de sync (substitui antigo `config/`)
+- `leaderboard/` — singleton + stats derivadas
+- `system-state/` — timestamps de sync
 - `schedule/` — 1 cron: `MatchSyncTask` (`*/5 * * * *`) + `OnApplicationBootstrap` (rebaixa times + matches na subida). Faz import + rebuild de leaderboard quando há mudanças.
 - `health/`, `common/`
 
@@ -75,7 +75,7 @@ providers/    ThemeProvider, AuthProvider, QueryProvider
 
 Var obrigatória: `VITE_GOOGLE_CLIENT_ID`.
 
-## Modelos v2 (resumo)
+## Modelos (resumo)
 
 - `User { googleSub, name, givenName?, email, picture?, avatar?, isAdmin, isActive, participationChangedAt? }`
 - `Team { footballDataId, name, shortName, tla, flagEmoji?, crest?, externalLastUpdated }`
@@ -101,12 +101,6 @@ Contrato por módulo (requisitos RF/RN, modelo de dados, endpoints, casos de bor
 
 - `auth` · `user` · `team` · `stage` · `match` · `bet` · `scoring` · `leaderboard` · `sync` · `frontend`
 
-### Documentação narrativa (`docs/`)
-
-- [`docs/README.md`](./docs/README.md) — índice
-- [`docs/arquitetura.md`](./docs/arquitetura.md) — monorepo, camadas, fluxo de dados
-- [`docs/dominio.md`](./docs/dominio.md) — glossário, princípio norteador, fluxos transversais, espectadores
-- [`docs/desenvolvimento.md`](./docs/desenvolvimento.md) — setup local
-- [`docs/v2-plan.md`](./docs/v2-plan.md) — plano e decisões do refactor
+A visão geral do sistema (glossário, arquitetura, fluxos transversais, espectadores) está no topo de [`.spec/README.md`](./.spec/README.md). Setup e variáveis de ambiente no [`README.md`](./README.md) raiz.
 
 > Endpoints: a referência viva é o Swagger em `/api/docs`; o contrato por módulo está nas specs.

@@ -3,7 +3,7 @@
 - **ID:** SPEC-USER
 - **Backend:** `backend/src/user/` (`user.controller.ts`, `user.service.ts`, `schemas/user.schema.ts`, `dto/update-user.dto.ts`)
 - **Shared:** `UserPayload`, `AuthenticatedUser` (`dto.ts`)
-- **Doc narrativa:** [`docs/dominio.md`](../docs/dominio.md)
+- **Visão geral:** [`README.md`](./README.md) (espectadores, fluxo "Ativar/desativar")
 
 ## 1. Objetivo
 

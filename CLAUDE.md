@@ -2,7 +2,7 @@
 
 Guia para agentes (Claude Code) trabalhando neste repositório.
 
-> **Documentação detalhada em [`docs/`](./docs/README.md).** Antes de mexer numa feature, leia o doc dela em [`docs/features/`](./docs/features/README.md) — este CLAUDE.md cobre só o necessário para se orientar.
+> **Antes de mexer num módulo, leia a spec dele em [`.spec/`](./.spec/README.md)** (contrato formal: requisitos, modelo de dados, regras, casos de borda). Documentação narrativa (arquitetura, setup, decisões) em [`docs/`](./docs/README.md). Este CLAUDE.md cobre só o necessário para se orientar.
 
 ## Visão geral
 
@@ -47,7 +47,7 @@ Módulos:
 - `media/` — download de avatares/escudos
 - `team/` — import + `flagEmoji` preferencial sobre `crest`
 - `stage/` — config + estado derivado (`LOCKED/OPEN/CLOSED`), sem `BlockStagesTask`
-- `match/` — import (TBD são skipadas), workflow de status com warnings, endpoints `@Public()` de simulação (`advance-next`, `advance-next/:code`)
+- `match/` — import (TBD são skipadas), workflow de status com warnings (`isCanonicalTransition`)
 - `bet/` — esparso, validado, `ActiveParticipantGuard`, semântica tudo-ou-nada
 - `leaderboard/` — singleton + stats derivadas (substitui antigos `ranking/` e `stats/`)
 - `system-state/` — timestamps de sync (substitui antigo `config/`)
@@ -95,23 +95,18 @@ Var obrigatória: `VITE_GOOGLE_CLIENT_ID`.
 - **`isActive` = pagante.** Espectadores logam, veem tudo, mas não palpitam nem entram no leaderboard.
 - **LIVE pontua** — leaderboard atualiza em tempo real.
 
-## Documentação de referência
+### Especificações formais (`.spec/`)
+
+Contrato por módulo (requisitos RF/RN, modelo de dados, endpoints, casos de borda). Índice em [`.spec/README.md`](./.spec/README.md):
+
+- `auth` · `user` · `team` · `stage` · `match` · `bet` · `scoring` · `leaderboard` · `sync` · `frontend`
+
+### Documentação narrativa (`docs/`)
 
 - [`docs/README.md`](./docs/README.md) — índice
-- [`docs/arquitetura.md`](./docs/arquitetura.md) — arquitetura geral
-- [`docs/dominio.md`](./docs/dominio.md) — entidades v2, estado derivado, fluxos
-- [`docs/api.md`](./docs/api.md) — endpoints v2
+- [`docs/arquitetura.md`](./docs/arquitetura.md) — monorepo, camadas, fluxo de dados
+- [`docs/dominio.md`](./docs/dominio.md) — glossário, princípio norteador, fluxos transversais, espectadores
 - [`docs/desenvolvimento.md`](./docs/desenvolvimento.md) — setup local
 - [`docs/v2-plan.md`](./docs/v2-plan.md) — plano e decisões do refactor
 
-### Features
-
-- [`autenticacao.md`](./docs/features/autenticacao.md) — Google OAuth + JWT, `JwtAuthGuard`, `ActiveParticipantGuard`
-- [`home.md`](./docs/features/home.md) — HomeScreen
-- [`apostas.md`](./docs/features/apostas.md) — BetsScreen (rota `ActiveRoute`)
-- [`bolao.md`](./docs/features/bolao.md) — BolaoScreen (fases CLOSED)
-- [`ranking.md`](./docs/features/ranking.md) — RankingScreen
-- [`estatisticas.md`](./docs/features/estatisticas.md) — StatsScreen
-- [`admin.md`](./docs/features/admin.md) — AdminScreen (PATCH stages + rebuild)
-- [`pontuacao.md`](./docs/features/pontuacao.md) — `calculateBetScore`, `LeaderboardService.rebuild`
-- [`sincronizacao-externa.md`](./docs/features/sincronizacao-externa.md) — crons + Football Data
+> Endpoints: a referência viva é o Swagger em `/api/docs`; o contrato por módulo está nas specs.

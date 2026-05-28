@@ -58,8 +58,8 @@ O frontend é um **single-page application** mobile-first (PWA) que conversa com
 | `auth`          | Login com Google (extrai `name`, `givenName`, `email`, `picture`), emissão de JWT, `JwtStrategy`, decorator `@Public()` |
 | `user`          | CRUD de usuários, perfil, ativação/desativação, sincronização de avatar local                     |
 | `team`          | Importação e armazenamento dos times (escudos baixados localmente)                                |
-| `stage`         | Estado derivado (`LOCKED`/`OPEN`/`CLOSED`) via `getStageState`, seed inicial via enum, endpoint público `advance-next/:code` para simulação |
-| `match`         | CRUD de partidas + importação Football Data, endpoints públicos `advance-next[/:code]` de simulação |
+| `stage`         | Estado derivado (`LOCKED`/`OPEN`/`CLOSED`) via `getStageState`, seed inicial via enum (`StageService.onModuleInit`) |
+| `match`         | CRUD de partidas + importação Football Data (TBD são skipadas, transições não-canônicas geram warning) |
 | `bet`           | Palpites esparsos do usuário, atualização em lote (tudo-ou-nada), agregação para visualização do grupo |
 | `leaderboard`   | Singleton recomputado por `LeaderboardService.rebuild()` + stats derivadas (substitui v1 `ranking/` e `stats/`) |
 | `system-state`  | Singleton com timestamps de sync (`scoreSyncStartedAt`, `leaderboardRebuildAt`, etc) — substitui v1 `config/` |
@@ -136,9 +136,9 @@ src/
 │   ├── ui/         primitives shadcn (button, card, tabs, accordion, …)
 │   ├── layout/     AppShell, Header, BottomNav, AuthenticatedLayout
 │   ├── shared/     TeamCrest, EmptyState, LiveDot, StageBadge
-│   └── guards/     ProtectedRoute, PublicOnlyRoute, AdminRoute
+│   └── guards/     ProtectedRoute, PublicOnlyRoute, AdminRoute, ActiveRoute (todos em ProtectedRoute.tsx)
 ├── features/       uma pasta por tela (auth, home, bets, bolao, ranking, stats, admin)
-├── hooks/          wrappers de React Query (useMe, useStages, useMatches, useBets, …)
+├── hooks/          wrappers de React Query (useMe, useStages, useMatches, useBets, useWatchResults, usePwaInstall, …)
 ├── lib/            api (fetch + JWT), cn, format, scoring, stage, ranking, assets
 └── providers/      ThemeProvider, AuthProvider, QueryProvider
 ```
@@ -151,14 +151,14 @@ Definido em `frontend/src/router.tsx`:
 |-------------|------------------|---------------------|
 | `/login`    | `PublicOnlyRoute`| `LoginScreen`       |
 | `/`         | `ProtectedRoute` | `HomeScreen`        |
-| `/apostas`  | `ProtectedRoute` | `BetsScreen`        |
+| `/apostas`  | `ActiveRoute`    | `BetsScreen`        |
 | `/bolao`    | `ProtectedRoute` | `BolaoScreen`       |
 | `/ranking`  | `ProtectedRoute` | `RankingScreen`     |
 | `/stats`    | `ProtectedRoute` | `StatsScreen`       |
 | `/admin`    | `AdminRoute`     | `AdminScreen`       |
 | `*`         | —                | redirect → `/`      |
 
-`ProtectedRoute` exige sessão; `AdminRoute` exige sessão **e** `isAdmin: true` no JWT decodificado; `PublicOnlyRoute` redireciona usuários já logados para `/`.
+As rotas autenticadas ficam aninhadas sob `/` via `AuthenticatedLayout`. `ProtectedRoute` exige sessão; `ActiveRoute` exige sessão **e** `isActive: true` (espectador é redirecionado); `AdminRoute` exige sessão **e** `isAdmin: true` no JWT decodificado; `PublicOnlyRoute` redireciona usuários já logados para `/`.
 
 ### Estado servidor
 
@@ -175,13 +175,17 @@ O dev server faz **proxy** de `/api`, `/auth` e `/healthcheck` para `http://loca
 
 ## Pacote compartilhado (`shared/`)
 
-`@bolao/shared` é o ponto único de verdade para tipos cruzando frontend↔backend. Exporta:
+`@bolao/shared` é o ponto único de verdade para tipos cruzando frontend↔backend. Cada arquivo em `shared/src/` é reexportado por `index.ts`. Exporta:
 
-- **Enums:** `StageStatus`, `MatchStage`, `MatchStatus`
-- **Constantes:** `STAGE_ORDER`, `STAGE_DEADLINES`, `VALID_POINTS`
-- **Tipos:** `PointsEarned`, `ApiSuccess<T>`, `ApiErrorBody`, `ApiResponse<T>` + guard `isApiError`
-- **DTOs:** `AuthenticatedUser`, `ConfigPayload`, `StageVisibleItem`, `MatchListItem`, `BetListItem`, `BetUpdateItem`, `GroupedBet`, `GroupedBetItem`, `RankingItem`, `StatsOverview`, `UserAccuracy`, `Distribution`, `TeamPayload`
-- **Helpers de data:** `nowtoLocalISOString`
+- **Enums** (`enums.ts`): `MatchStage`, `StageState`, `MatchStatus`
+- **Constantes** (`enums.ts`): `STAGE_ORDER`, `STAGE_DEADLINES`, `STAGE_EXPECTED_MATCHES`, `STAGE_PREDECESSOR`, `VALID_POINTS` (+ tipo `PointsEarned`), `MAX_GOALS`
+- **Envelope de API** (`api.ts`): `ApiSuccess<T>`, `ApiErrorBody`, `ApiResponse<T>` + guard `isApiError`
+- **Pontuação** (`scoring.ts`): `SCORING_RULES`, `calculateBetScore`, `compareLeaderboardRows`, tipos `Score`, `BetScoreResult`, `LeaderboardRow`, `LeaderboardBreakdown`
+- **Estado de fase** (`stage-state.ts`): `getStageState`, `findPredecessor`, tipo `StageInput`
+- **De-para de status** (`match-status.ts`): `mapExternalStatus`, `isCanonicalTransition`, `CANONICAL_TRANSITIONS`, `EXTERNAL_STATUSES`
+- **Bandeiras** (`flag-emoji.ts`): `tlaToFlagEmoji`
+- **Datas** (`date.ts`): `nowtoLocalISOString`, `toLocalISOString`
+- **DTOs** (`dto.ts`): `AuthenticatedUser`, `UserPayload`, `TeamPayload`, `StagePayload`, `StageReadinessItem`, `MatchPayload`, `BetResult`, `MyBetItem`, `BetSubmitItem`, `BetSubmitPayload`, `GroupedBetParticipant`, `GroupedBetMatch`, `LeaderboardItem`, `LeaderboardPayload`, `StatsOverview`, `UserAccuracy`, `Distribution`, `SystemStatePayload`
 
 Build via `tsc`; consumido como `workspace:*`. Após qualquer alteração de contrato, rodar `pnpm build:shared` para que backend e frontend leiam o `dist/` atualizado.
 

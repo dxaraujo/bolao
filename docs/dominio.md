@@ -1,6 +1,8 @@
 # Domínio (v2)
 
-Conceitos, entidades e regras de negócio do Bolão da Copa 2026.
+Visão transversal do Bolão da Copa 2026: vocabulário, princípio norteador, fluxos que cruzam módulos e o conceito de espectador.
+
+> O **modelo de dados detalhado** (campos, índices) e as **regras por módulo** ficam nas specs: [`.spec/`](../.spec/README.md). A **tabela de pontuação** está em [`.spec/scoring.spec.md`](../.spec/scoring.spec.md).
 
 ## Glossário
 
@@ -21,147 +23,21 @@ Conceitos, entidades e regras de negócio do Bolão da Copa 2026.
 > **O palpite é a única coisa que o usuário cria; tudo o mais é derivável.**
 > `Match`/`Stage`/`Team` vêm do provedor externo, `Bet` é input do usuário, e ranking + estatísticas + estado da fase são views materializadas a partir desses três.
 
-## Entidades
+## Entidades (mapa)
 
-### `User`
+As sete entidades e onde cada uma é especificada:
 
-`backend/src/user/schemas/user.schema.ts`
-
-| Campo | Tipo | Descrição |
+| Entidade | O que é | Spec |
 |---|---|---|
-| `googleSub` | string unique | ID Google (`sub`) |
-| `name`, `email` | string | Vindos do Google |
-| `givenName` | string? | Primeiro nome do Google (`given_name`). Usado em UIs compactas (Pódio etc) |
-| `picture` | string? | URL original do avatar Google (pré-download) |
-| `avatar` | string? | Path local `/static/users/<id>.<ext>` (download via `MediaService`) |
-| `isAdmin` | boolean | Acesso ao painel admin |
-| `isActive` | boolean | **Participante pagante** (gate de palpite e leaderboard) |
-| `participationChangedAt` | Date? | Última transição de `isActive` |
-| `createdAt`, `updatedAt` | Date | Mongoose timestamps |
+| `User` | identidade + participação (`isActive`) | [user](../.spec/user.spec.md) |
+| `Team` | seleção (bandeira preferencial sobre escudo) | [team](../.spec/team.spec.md) |
+| `Stage` | fase com `deadline`; estado `LOCKED/OPEN/CLOSED` **derivado** | [stage](../.spec/stage.spec.md) |
+| `Match` | partida (vem do provedor; status interno reduzido) | [match](../.spec/match.spec.md) |
+| `Bet` | palpite esparso `{home, away}` | [bet](../.spec/bet.spec.md) |
+| `Leaderboard` | view materializada (singleton) | [leaderboard](../.spec/leaderboard.spec.md) |
+| `SystemState` | timestamps de sync (singleton) | [sync](../.spec/sync.spec.md) |
 
-> Usuários novos começam com `isActive: false` (espectador). Admin ativa via `PATCH /api/user/:id`.
-
-### `Team`
-
-| Campo | Descrição |
-|---|---|
-| `footballDataId` | ID externo (único) |
-| `name`, `shortName`, `tla` | Identificação |
-| `flagEmoji` | **Preferencial** — emoji de bandeira (🇧🇷, 🇦🇷, …) derivado do TLA |
-| `crest` | Fallback — URL `/static/teams/<TLA>.png` quando não há emoji |
-| `externalLastUpdated` | Última atualização do provedor |
-
-### `Stage`
-
-| Campo | Descrição |
-|---|---|
-| `code` | `MatchStage` enum, único |
-| `order` | 1..7 |
-| `deadline` | Data de encerramento das apostas (mutável por admin via `PATCH /api/stage/:code`) |
-| `expectedMatchCount` | Quantidade esperada de partidas — **fixo** via enum `STAGE_EXPECTED_MATCHES` (não editável) |
-
-`StagePayload` (resposta API) inclui dois contadores derivados, calculados via aggregate no Mongo:
-
-| Campo | Descrição |
-|---|---|
-| `importedMatchCount` | Total de matches importados nessa fase |
-| `finishedMatchCount` | Total de matches com `status: FINISHED` na fase (usado pra progress bar) |
-
-**Estado derivado** por `getStageState(stage, allStages, now)`:
-
-```
-LOCKED  → now < prev.deadline                    (anterior aberta ou prev=null)
-OPEN    → now >= prev.deadline AND now < deadline
-CLOSED  → now >= deadline
-```
-
-Exceção: `FINAL` referencia `SEMI_FINALS` como predecessora. `THIRD_PLACE` e `FINAL` podem coexistir em `OPEN`.
-
-### `Match`
-
-| Campo | Tipo | Descrição |
-|---|---|---|
-| `footballDataId` | number unique | ID externo |
-| `utcDate` | Date | Data/hora UTC |
-| `status` | `MatchStatus` | `SCHEDULED \| LIVE \| FINISHED \| CANCELLED` |
-| `stage` | ObjectId → Stage | **FK real** (não string) |
-| `group` | string? | Apenas para `GROUP_STAGE` (ex.: `GROUP_A`) |
-| `homeTeam`, `awayTeam` | ObjectId → Team | **Obrigatórios** (TBD não é importada) |
-| `score` | `{ home, away }?` | Subdocumento; só populado em LIVE/FINISHED |
-| `externalLastUpdated` | Date | Última atualização do provedor |
-
-`MatchStatus` interno tem 4 valores. O importador faz de-para via `mapExternalStatus`:
-
-```
-TIMED, SCHEDULED, POSTPONED  → SCHEDULED
-IN_PLAY, PAUSED              → LIVE
-FINISHED, AWARDED            → FINISHED
-CANCELLED, SUSPENDED         → CANCELLED
-```
-
-Transições não-canônicas (ex.: `FINISHED → LIVE`) geram **warning** no log mas são aceitas — provedor é fonte de verdade.
-
-### `Bet`
-
-| Campo | Tipo | Descrição |
-|---|---|---|
-| `user` | ObjectId → User | Apostador |
-| `match` | ObjectId → Match | Partida |
-| `score` | `{ home, away }` | **Sempre presente** (ambos preenchidos, integers `0..20`) |
-| `createdAt`, `updatedAt` | Date | timestamps |
-
-**Sparse**: só existe quando o usuário palpitou. Index único `{user, match}`. Não há mais flags (`exactScore`, `winnerWithGoal`, …) nem `totalPointsEarned` — tudo derivado por `calculateBetScore`.
-
-### `Leaderboard` (singleton)
-
-View materializada recomputada quando há mudança de placar (ou ativação/desativação de usuário).
-
-```ts
-{
-  key: 'singleton',
-  generatedAt: Date,
-  rows: [{
-    user, points,
-    breakdown: { exactScore, winnerWithGoal, correctWinner, oneGoalCorrect, wrong },
-    rank
-  }]
-}
-```
-
-Somente participantes ativos entram. Critério de desempate: `points → exactScore → winnerWithGoal → correctWinner → oneGoalCorrect`.
-
-### `SystemState` (singleton)
-
-Timestamps de sincronização (sem boolean de progresso — derivado):
-
-```ts
-{
-  key: 'singleton',
-  scoreSyncStartedAt: Date | null,
-  scoreSyncCompletedAt: Date | null,
-  leaderboardRebuildAt: Date | null,
-  lastMatchImportAt: Date | null
-}
-```
-
-`scoringInProgress = scoreSyncStartedAt && (!scoreSyncCompletedAt || scoreSyncStartedAt > scoreSyncCompletedAt)`.
-
-## Regras de pontuação
-
-Função pura `calculateBetScore(bet.score, match.score)` em [`shared/src/scoring.ts`](../shared/src/scoring.ts):
-
-| Situação | Flag | Pontos |
-|---|---|---|
-| Placar exato | `exactScore` | **5** |
-| Vencedor + um gol coincide | `winnerWithGoal` | **3** |
-| Apenas vencedor | `correctWinner` | **2** |
-| Errou vencedor, acertou um gol | `oneGoalCorrect` | **1** |
-| Errou totalmente | `wrong` | **0** |
-| Palpite ausente ou placar ausente | nenhuma | **0** |
-
-Constantes em `SCORING_RULES`. Frontend e backend importam da mesma fonte. **Não há override em runtime.**
-
-**LIVE pontua.** Ranking atualiza em tempo real conforme placares parciais chegam.
+Pontuação (`calculateBetScore`, desempate): [scoring](../.spec/scoring.spec.md). **LIVE pontua** — o ranking atualiza em tempo real.
 
 ## Fluxos principais
 
@@ -204,11 +80,11 @@ Apenas participantes ativos:
 
 Frontend (`useWatchResults`) consulta `leaderboardRebuildAt` a cada 30s; quando muda, invalida `['bets', 'leaderboard', 'matches', 'stages']`.
 
-### 5. Mudança de estado da fase
+### 4. Mudança de estado da fase
 
 **Não há "abrir/fechar manual"** — estado é derivado em todo request. Admin pode ajustar `deadline` via `PATCH /api/stage/:code { deadline }`.
 
-### 6. Ativar/desativar usuário
+### 5. Ativar/desativar usuário
 
 `PATCH /api/user/:id { isActive }`:
 - Atualiza flag + `participationChangedAt`

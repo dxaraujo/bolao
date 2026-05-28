@@ -180,15 +180,7 @@ Para popular o ambiente local pela primeira vez:
    ```
 5. Bets são **esparsos** — não há palpite em branco; vá em `/apostas` para criar.
 
-### Scripts auxiliares
-
-- `pnpm seed` (root) — popula 20 usuários fake + palpites aleatórios + leaderboard. Útil para testar UI sem login manual em múltiplas contas.
-- `backend/scripts/simulate.sh` — orquestra simulação ponta-a-ponta: avança 1 partida/min e fecha cada fase ao esgotar. `INTERVAL`/`BREAK`/`BASE`/`START_FROM` configuráveis via env.
-
-### Endpoints de simulação (públicos, ambiente local)
-
-- `GET /api/match/advance-next` / `:code` — sorteia placar LIVE ou FINISHED para a próxima SCHEDULED.
-- `GET /api/stage/advance-next/:code` — força fechamento da fase (deadline = now − 1s).
+> Para exercitar placares/leaderboard sem esperar a Copa, ajuste `deadline` das fases (`PATCH /api/stage/:code`) e os documentos de `Match` (status/score) direto no Mongo — o leaderboard recomputa no próximo sync ou via `POST /api/leaderboard/rebuild`.
 
 ## Atualizando o contrato compartilhado
 

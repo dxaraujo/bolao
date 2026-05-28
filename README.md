@@ -87,11 +87,11 @@ docker compose down -v           # apaga o volume do Mongo também
 
 Pacote `@bolao/shared` registrado como workspace pnpm. Expõe:
 
-- **Enums:** `StageStatus` (DISABLED, OPEN, BLOCKED), `MatchStage` (GROUP_STAGE…FINAL), `MatchStatus`
-- **Domínio:** `VALID_POINTS` + tipo `PointsEarned`, `STAGE_ORDER`, `STAGE_DEADLINES`
+- **Enums:** `MatchStage` (GROUP_STAGE…FINAL), `StageState` (LOCKED, OPEN, CLOSED — derivado), `MatchStatus` (SCHEDULED, LIVE, FINISHED, CANCELLED)
+- **Domínio:** `STAGE_ORDER`, `STAGE_DEADLINES`, `STAGE_EXPECTED_MATCHES`, `STAGE_PREDECESSOR`, `VALID_POINTS` (+ `PointsEarned`), `MAX_GOALS`
+- **Funções puras:** `calculateBetScore`, `compareLeaderboardRows` (`scoring.ts`), `getStageState` (`stage-state.ts`), `mapExternalStatus`/`isCanonicalTransition` (`match-status.ts`), `tlaToFlagEmoji` (`flag-emoji.ts`)
 - **API:** `ApiSuccess<T>`, `ApiErrorBody`, `ApiResponse<T>` + type guard `isApiError`
-- **DTOs:** contratos de request/response usados por backend e frontend
-- **Datas:** helpers de formatação compartilhada (`date-fns`)
+- **DTOs:** contratos de request/response usados por backend e frontend (`dto.ts`)
 
 Para consumir em outro workspace, declare como dependência:
 
@@ -101,7 +101,7 @@ Para consumir em outro workspace, declare como dependência:
 }
 ```
 
-Depois `import { StageStatus } from '@bolao/shared'`.
+Depois `import { MatchStage } from '@bolao/shared'`.
 
 ## Convenções gerais
 

@@ -6,25 +6,16 @@ Documentação oficial do **Bolão da Copa 2026**, app privado para amigos e fam
 
 ## Índice
 
-### Visão geral
+Esta pasta (`docs/`) é a **documentação narrativa** — o "como/por quê" transversal. O contrato por módulo (requisitos RF/RN, modelo de dados, endpoints, casos de borda) vive em **[`.spec/`](../.spec/README.md)**. A referência viva de endpoints é o Swagger em `/api/docs`.
 
 - [Arquitetura](./arquitetura.md) — monorepo, módulos, camadas, fluxo de dados
-- [Domínio](./dominio.md) — entidades, ciclo de vida das fases, regras de pontuação
-- [API REST](./api.md) — endpoints, contratos, autenticação
+- [Domínio](./dominio.md) — glossário, princípio norteador, fluxos transversais, espectadores
 - [Desenvolvimento](./desenvolvimento.md) — setup, scripts, variáveis de ambiente
 - [Plano v2](./v2-plan.md) — decisões e modelos da reescrita
 
-### Funcionalidades
+### Especificações por módulo → [`.spec/`](../.spec/README.md)
 
-- [Autenticação e sessão](./features/autenticacao.md)
-- [Tela Início (HomeScreen)](./features/home.md)
-- [Apostas (BetsScreen)](./features/apostas.md)
-- [Bolão (BolaoScreen)](./features/bolao.md)
-- [Ranking](./features/ranking.md)
-- [Estatísticas](./features/estatisticas.md)
-- [Painel Admin](./features/admin.md)
-- [Motor de pontuação](./features/pontuacao.md)
-- [Sincronização externa](./features/sincronizacao-externa.md)
+`auth` · `user` · `team` · `stage` · `match` · `bet` · `scoring` · `leaderboard` · `sync` · `frontend`
 
 ## O que mudou na v2
 
@@ -37,7 +28,6 @@ Documentação oficial do **Bolão da Copa 2026**, app privado para amigos e fam
 - **Score subdoc:** `Match.score` e `Bet.score` como `{home, away}`
 - **`MatchStatus` reduzido:** 4 valores internos, `mapExternalStatus` faz de-para
 - **1 cron unificada:** `MatchSyncTask` (`*/5 * * * *`) + bootstrap na subida — import de times+partidas, sync de placares e rebuild de leaderboard no mesmo fluxo
-- **Endpoints `@Public` de simulação:** `GET /api/match/advance-next[/:code]` e `GET /api/stage/advance-next/:code` para testes locais
 
 ## Convenções
 

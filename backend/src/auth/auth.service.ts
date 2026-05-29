@@ -2,7 +2,6 @@ import { Injectable, Logger, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { OAuth2Client, type TokenPayload } from 'google-auth-library'
-import { Types } from 'mongoose'
 
 import { UserService } from '../user/user.service'
 import type { UserDocument } from '../user/schemas/user.schema'

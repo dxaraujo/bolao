@@ -1,7 +1,6 @@
 import {
 	calculateBetScore,
 	getStageState,
-	MatchStage,
 	MatchStatus,
 	StageState,
 	type GroupedBetMatch,
@@ -12,12 +11,12 @@ import {
 } from '@bolao/shared'
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
-import { Model, Types } from 'mongoose'
+import { AnyBulkWriteOperation, Model, Types } from 'mongoose'
 
 import { Match, MatchDocument } from '../match/schemas/match.schema'
 import { Stage, StageDocument } from '../stage/schemas/stage.schema'
 import { StageService } from '../stage/stage.service'
-import { Team } from '../team/schemas/team.schema'
+import { TeamDocument } from '../team/schemas/team.schema'
 import { User } from '../user/schemas/user.schema'
 import { BetSubmitDto, BetSubmitItemDto } from './dto/update-bets.dto'
 import { Bet, BetDocument } from './schemas/bet.schema'
@@ -48,7 +47,7 @@ export class BetService {
 		const matches = await this.matchModel
 			.find({ stage: { $in: visibleStageIds } })
 			.sort({ utcDate: 1, footballDataId: 1 })
-			.populate<{ homeTeam: Team; awayTeam: Team }>(['homeTeam', 'awayTeam'])
+			.populate<{ homeTeam: TeamDocument; awayTeam: TeamDocument }>(['homeTeam', 'awayTeam'])
 			.populate<{ stage: StageDocument }>('stage')
 			.exec()
 
@@ -67,8 +66,8 @@ export class BetService {
 				stage: stage.code,
 				stageState,
 				group: m.group,
-				homeTeam: teamPayload(m.homeTeam as any),
-				awayTeam: teamPayload(m.awayTeam as any),
+				homeTeam: teamPayload(m.homeTeam),
+				awayTeam: teamPayload(m.awayTeam),
 				score: m.score ? { home: m.score.home, away: m.score.away } : undefined,
 			}
 			const bet = betByMatch.get(m._id.toString())
@@ -114,7 +113,7 @@ export class BetService {
 		}
 
 		const userObjId = new Types.ObjectId(userId)
-		const ops: any[] = dto.items.map((item) =>
+		const ops: AnyBulkWriteOperation<Bet>[] = dto.items.map((item) =>
 			item.score
 				? {
 						updateOne: {
@@ -170,7 +169,7 @@ export class BetService {
 		const matches = await this.matchModel
 			.find({ stage: { $in: closedStageIds } })
 			.sort({ utcDate: 1, footballDataId: 1 })
-			.populate<{ homeTeam: Team; awayTeam: Team }>(['homeTeam', 'awayTeam'])
+			.populate<{ homeTeam: TeamDocument; awayTeam: TeamDocument }>(['homeTeam', 'awayTeam'])
 			.populate<{ stage: StageDocument }>('stage')
 			.exec()
 
@@ -192,8 +191,8 @@ export class BetService {
 				stage: stage.code,
 				stageState: StageState.CLOSED,
 				group: m.group,
-				homeTeam: teamPayload(m.homeTeam as any),
-				awayTeam: teamPayload(m.awayTeam as any),
+				homeTeam: teamPayload(m.homeTeam),
+				awayTeam: teamPayload(m.awayTeam),
 				score: matchScore ?? undefined,
 			}
 			const totals = { exactScore: 0, winnerWithGoal: 0, correctWinner: 0, oneGoalCorrect: 0, wrong: 0, notBet: 0, total: 0 }
@@ -223,7 +222,7 @@ export class BetService {
 	}
 }
 
-function teamPayload(t: Team & { _id: { toString(): string } }): TeamPayload {
+function teamPayload(t: TeamDocument): TeamPayload {
 	return {
 		_id: t._id.toString(),
 		name: t.name,

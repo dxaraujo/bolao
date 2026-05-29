@@ -89,8 +89,8 @@ export class MatchService {
 				return result
 			}
 
-			const data = await response.json()
-			const matches = data.matches as FootballDataMatch[]
+			const data = (await response.json()) as { matches: FootballDataMatch[] }
+			const matches = data.matches
 
 			const stages = await this.stageModel.find().exec()
 			const stageIdByCode = new Map(stages.map((s) => [s.code, s._id]))
@@ -110,6 +110,7 @@ export class MatchService {
 				}
 
 				const externalLastUpdated = new Date(ext.lastUpdated)
+				const utcDate = new Date(ext.utcDate)
 				const status = mapExternalStatus(ext.status)
 				const score = extractScore(ext, status)
 
@@ -121,7 +122,7 @@ export class MatchService {
 
 				const $set: Record<string, unknown> = {
 					footballDataId: ext.id,
-					utcDate: new Date(ext.utcDate),
+					utcDate,
 					status,
 					stage: stageId,
 					group: ext.group,
@@ -136,7 +137,7 @@ export class MatchService {
 					const created = await this.model.create({ ...$set, score })
 					result.changedIds.push(created._id)
 					result.imported++
-				} else if (hasChanged(existing, { ...$set, score })) {
+				} else if (hasChanged(existing, { status, score, utcDate })) {
 					const update: Record<string, unknown> = { $set }
 					if (!score && existing.score) update.$unset = { score: 1 }
 					await this.model.updateOne({ _id: existing._id }, update).exec()
@@ -162,7 +163,7 @@ function extractScore(ext: FootballDataMatch, status: MatchStatus) {
 	return { home: full.home, away: full.away }
 }
 
-function hasChanged(existing: MatchDocument, $set: Record<string, any>): boolean {
-	const scoreDiff = ($set.score?.home ?? null) !== (existing.score?.home ?? null) || ($set.score?.away ?? null) !== (existing.score?.away ?? null)
-	return existing.status !== $set.status || scoreDiff || existing.utcDate.getTime() !== $set.utcDate.getTime()
+function hasChanged(existing: MatchDocument, next: { status: MatchStatus; score?: { home: number; away: number }; utcDate: Date }): boolean {
+	const scoreDiff = (next.score?.home ?? null) !== (existing.score?.home ?? null) || (next.score?.away ?? null) !== (existing.score?.away ?? null)
+	return existing.status !== next.status || scoreDiff || existing.utcDate.getTime() !== next.utcDate.getTime()
 }

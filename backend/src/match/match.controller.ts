@@ -10,7 +10,6 @@ import { SystemStateService } from '../system-state/system-state.service'
 import { Team } from '../team/schemas/team.schema'
 import { MatchService } from './match.service'
 import type { StageDocument } from '../stage/schemas/stage.schema'
-import { Public } from 'src/common/public.decorator'
 
 @ApiTags('match')
 @Controller('api/match')

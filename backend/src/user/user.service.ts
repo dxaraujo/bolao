@@ -59,7 +59,7 @@ export class UserService implements OnModuleInit {
 
 		// Se o avatar do usuário é uma URL externa, baixa o avatar para o disco.
 		if (this.isValidPicture(profile.picture)) {
-			const local = await this.media.downloadUserAvatar(user.id, profile.picture)
+			const local = await this.media.downloadUserAvatar(user._id.toString(), profile.picture)
 			if (local) {
 				return await this.userModel.findOneAndUpdate({ googleSub: profile.googleSub }, { $set: { avatar: local } }, { new: true, upsert: true }).exec()
 			}
@@ -141,7 +141,7 @@ export class UserService implements OnModuleInit {
 
 		// Baixa as fotos que estão faltando no disco
 		for (const user of missing) {
-			const localPicture = await this.media.downloadUserAvatar(user.id, user.picture)
+			const localPicture = await this.media.downloadUserAvatar(user._id.toString(), user.picture)
 			if (localPicture) {
 				await this.userModel.updateOne({ googleSub: user.googleSub }, { $set: { avatar: localPicture } }).exec()
 			}

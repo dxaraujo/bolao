@@ -56,8 +56,8 @@ export class TeamService {
 				this.logger.warn(`Football Data API error: ${response.statusText}`)
 				return
 			}
-			const data = await response.json()
-			const teams = data.teams as FootballDataTeam[]
+			const data = (await response.json()) as { teams: FootballDataTeam[] }
+			const teams = data.teams
 			this.logger.log(`Found ${teams.length} teams`)
 
 			for (const ext of teams) {

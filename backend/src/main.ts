@@ -1,3 +1,5 @@
+import type { ServerResponse } from 'node:http'
+
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { ConfigService } from '@nestjs/config'
@@ -25,7 +27,7 @@ async function bootstrap() {
 	await ensureStaticDir(staticDir)
 	app.useStaticAssets(staticDir, {
 		prefix: '/static/',
-		setHeaders: (res) => {
+		setHeaders: (res: ServerResponse) => {
 			res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
 		},
 	})
@@ -65,4 +67,4 @@ async function bootstrap() {
 	logger.log(`API listening on port ${port}`)
 }
 
-bootstrap()
+void bootstrap()

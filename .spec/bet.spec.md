@@ -32,12 +32,13 @@ Permitir que participantes ativos registrem previsões de placar (esparsas, tudo
 - **`PUT /api/bet`** — `BetSubmitDto { items: BetSubmitItem[] }`, `items` 1..200, `@ValidateNested`.
   - `BetSubmitItem { matchId: @IsMongoId, score: { home, away } | null }`, `home`/`away` `@IsInt @Min(0) @Max(MAX_GOALS=20)`.
   - `score` preenchido → upsert; `score: null` → delete. Retorno `{ upserted, deleted }`.
+  - `upserted = upsertedCount + modifiedCount` (criados + alterados). Reenviar um item com placar **idêntico** ao já gravado é no-op no Mongo (não conta em `modifiedCount`), logo `upserted` pode ser **menor** que o nº de itens enviados. O retorno reflete escritas efetivas, não itens recebidos — a UI não deve usá-lo para confirmar "todos os palpites salvos".
 - **`GET /api/bet`** → `MyBetItem[]` (partidas visíveis + bet do usuário + `result?`).
 - **`GET /api/bet/all`** → `GroupedBetMatch[]` (fases CLOSED, left-join ativos × bets, com `totals`).
 
 ## 5. Requisitos funcionais
 
-- **RF-BET-1** — `GET /api/bet` lista partidas em fases **não-LOCKED** (OPEN/CLOSED), ordenadas por `utcDate, footballDataId`, anexando o palpite do usuário (se houver) e `result` via `calculateBetScore`.
+- **RF-BET-1** — `GET /api/bet` lista partidas em fases **não-LOCKED** (OPEN/CLOSED), ordenadas por `utcDate, footballDataId`, anexando o palpite do usuário (se houver) e `result` via `calculateBetScore`. Partidas ainda sem placar (SCHEDULED/LIVE sem `score`) passam `matchScore = null` para `calculateBetScore` → `result` com todas as categorias `false` (palpite registrado mas ainda sem pontuação).
 - **RF-BET-2** — `PUT /api/bet` processa o lote como `bulkWrite` **ordenado** (score→upsert, null→delete). `upserted = upsertedCount + modifiedCount`.
 - **RF-BET-3** — `GET /api/bet/all` retorna partidas de fases **CLOSED** com um `participant` por usuário ativo (ordenado por `name`), incluindo quem não palpitou (`notBet`), e `totals` agregados por categoria. Vazio se não houver fase CLOSED.
 
@@ -48,7 +49,7 @@ Em ordem; qualquer falha aborta **todo** o lote (tudo-ou-nada):
 - **RN-BET-1** — Usuário existe e `isActive` (recheck no banco, não só JWT) → senão `404`/`403`.
 - **RN-BET-2** — Partida existe → senão `404`.
 - **RN-BET-3** — Partida tem `homeTeam` e `awayTeam` resolvidos → senão `409`.
-- **RN-BET-4** — `getStageState` da fase da partida é `OPEN` → senão `409`.
+- **RN-BET-4** — `getStageState` da fase da partida é `OPEN` → senão `409`. Fase não resolúvel (partida cuja `stage` não consta no mapa de estados) é tratada como `LOCKED` → `409` (fail-safe: nunca aceita palpite em fase de estado desconhecido).
 - **RN-BET-5** — `match.status === SCHEDULED` → senão `409` (já iniciou/finalizou).
 - **RN-BET-6** — `score.home`/`score.away` inteiros (DTO já garante `0..20`) → senão `400`.
 
@@ -59,6 +60,7 @@ Em ordem; qualquer falha aborta **todo** o lote (tudo-ou-nada):
 - **CB-BET-3** — `score: null` para palpite inexistente → `deleteOne` no-op; conta `deleted: 0`.
 - **CB-BET-4** — Partida em fase `LOCKED` ou `CLOSED` → `409` (`StageNotOpen`).
 - **CB-BET-5** — Bolão (`/api/bet/all`) só mostra fases CLOSED — evita vazar palpites de fase ainda OPEN.
+- **CB-BET-6** — Reenvio de placar idêntico ao gravado → `updateOne` no-op (não conta em `modifiedCount`); item válido, mas não incrementa `upserted` (ver §4).
 
 ## 8. Dependências
 

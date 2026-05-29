@@ -10,9 +10,12 @@
 		"dist"
 	],
 	"scripts": {
-		"build": "tsc"
+		"build": "tsc",
+		"format": "prettier --write \"src/**/*.ts\"",
+		"format:check": "prettier --check \"src/**/*.ts\""
 	},
 	"devDependencies": {
+		"prettier": "3.4.2",
 		"typescript": "^5.0.0"
 	}
 }

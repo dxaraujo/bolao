@@ -12,6 +12,8 @@
 		"build:shared": "pnpm --filter @bolao/shared build",
 		"build:frontend": "pnpm --filter ./frontend build",
 		"build:backend": "pnpm --filter ./backend build",
+		"format": "pnpm -r --parallel format",
+		"format:check": "pnpm -r --parallel format:check",
 		"install:all": "pnpm install"
 	},
 	"engines": {

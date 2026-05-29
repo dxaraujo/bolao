@@ -16,7 +16,8 @@
 		"typecheck": "tsc --noEmit",
 		"lint": "eslint \"src/**/*.ts\" --max-warnings=0",
 		"lint:fix": "eslint \"src/**/*.ts\" --fix",
-		"format": "prettier --write \"src/**/*.ts\""
+		"format": "prettier --write \"src/**/*.ts\"",
+		"format:check": "prettier --check \"src/**/*.ts\""
 	},
 	"dependencies": {
 		"@bolao/shared": "workspace:*",

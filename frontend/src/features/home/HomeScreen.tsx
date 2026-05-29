@@ -21,12 +21,8 @@ export function HomeScreen() {
 		const empty = { live: [] as MyBetItem[], upcoming: [] as MyBetItem[], recent: [] as MyBetItem[] }
 		if (!bets) return empty
 
-		const sortedAsc = [...bets].sort(
-			(a, b) => new Date(a.match.utcDate).getTime() - new Date(b.match.utcDate).getTime(),
-		)
-		const sortedDesc = [...bets].sort(
-			(a, b) => new Date(b.match.utcDate).getTime() - new Date(a.match.utcDate).getTime(),
-		)
+		const sortedAsc = [...bets].sort((a, b) => new Date(a.match.utcDate).getTime() - new Date(b.match.utcDate).getTime())
+		const sortedDesc = [...bets].sort((a, b) => new Date(b.match.utcDate).getTime() - new Date(a.match.utcDate).getTime())
 
 		const live = sortedAsc.filter((b) => b.match.status === MatchStatus.LIVE)
 

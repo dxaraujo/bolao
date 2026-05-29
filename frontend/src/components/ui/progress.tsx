@@ -7,11 +7,7 @@ export const Progress = React.forwardRef<
 	React.ElementRef<typeof ProgressPrimitive.Root>,
 	React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> & { value?: number }
 >(({ className, value = 0, ...props }, ref) => (
-	<ProgressPrimitive.Root
-		ref={ref}
-		className={cn('relative h-1 w-full overflow-hidden rounded-full bg-muted', className)}
-		{...props}
-	>
+	<ProgressPrimitive.Root ref={ref} className={cn('relative h-1 w-full overflow-hidden rounded-full bg-muted', className)} {...props}>
 		<ProgressPrimitive.Indicator
 			className="h-full bg-gradient-to-r from-acc to-green transition-transform"
 			style={{ transform: `translateX(-${100 - Math.min(100, value)}%)` }}

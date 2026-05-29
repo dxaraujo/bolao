@@ -13,8 +13,7 @@ export function useAdminUsers() {
 export function useUpdateUser() {
 	const qc = useQueryClient()
 	return useMutation({
-		mutationFn: ({ id, ...body }: { id: string; isActive?: boolean; isAdmin?: boolean }) =>
-			api.patch<UserPayload>(`/api/user/${id}`, body),
+		mutationFn: ({ id, ...body }: { id: string; isActive?: boolean; isAdmin?: boolean }) => api.patch<UserPayload>(`/api/user/${id}`, body),
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: ['admin', 'users'] })
 			qc.invalidateQueries({ queryKey: ['leaderboard'] })
@@ -33,8 +32,7 @@ export function useStageReadiness() {
 export function useUpdateStage() {
 	const qc = useQueryClient()
 	return useMutation({
-		mutationFn: ({ code, ...body }: { code: MatchStage; deadline?: string }) =>
-			api.patch<StagePayload>(`/api/stage/${code}`, body),
+		mutationFn: ({ code, ...body }: { code: MatchStage; deadline?: string }) => api.patch<StagePayload>(`/api/stage/${code}`, body),
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: ['stages'] })
 			qc.invalidateQueries({ queryKey: ['admin', 'stage-readiness'] })
@@ -77,10 +75,7 @@ export function useRebuildLeaderboard() {
 export function useAdvanceNextMatch() {
 	const qc = useQueryClient()
 	return useMutation({
-		mutationFn: () =>
-			api.post<{ _id: string; footballDataId: number; score: { home: number; away: number }; status: string }>(
-				'/api/match/advance-next',
-			),
+		mutationFn: () => api.post<{ _id: string; footballDataId: number; score: { home: number; away: number }; status: string }>('/api/match/advance-next'),
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: ['matches'] })
 			qc.invalidateQueries({ queryKey: ['leaderboard'] })

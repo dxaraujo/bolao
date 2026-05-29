@@ -29,10 +29,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
 	const setTheme = useCallback((t: Theme) => setThemeState(t), [])
 	const toggle = useCallback(() => setThemeState((t) => (t === 'dark' ? 'light' : 'dark')), [])
 
-	const value = useMemo<ThemeContextValue>(
-		() => ({ theme, isDark: theme === 'dark', toggle, setTheme }),
-		[theme, toggle, setTheme],
-	)
+	const value = useMemo<ThemeContextValue>(() => ({ theme, isDark: theme === 'dark', toggle, setTheme }), [theme, toggle, setTheme])
 
 	return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
 }

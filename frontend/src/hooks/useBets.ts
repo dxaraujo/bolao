@@ -23,8 +23,7 @@ export function useAllBets() {
 export function useSubmitBets() {
 	const qc = useQueryClient()
 	return useMutation({
-		mutationFn: (items: BetSubmitItem[]) =>
-			api.put<{ upserted: number; deleted: number }>('/api/bet', { items } satisfies BetSubmitPayload),
+		mutationFn: (items: BetSubmitItem[]) => api.put<{ upserted: number; deleted: number }>('/api/bet', { items } satisfies BetSubmitPayload),
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: ['bets'] })
 			qc.invalidateQueries({ queryKey: ['leaderboard'] })

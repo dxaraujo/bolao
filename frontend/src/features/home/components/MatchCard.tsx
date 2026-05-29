@@ -25,12 +25,7 @@ export function MatchCard({ item }: MatchCardProps) {
 				<span className="text-xs font-bold uppercase tracking-wide text-sub">{stageLabel}</span>
 				<div className="flex items-center gap-1.5">
 					{isLive && <LiveDot />}
-					<span
-						className={cn(
-							'text-xs font-bold',
-							isLive ? 'text-red' : match.status === MatchStatus.FINISHED ? 'text-sub' : 'text-acc',
-						)}
-					>
+					<span className={cn('text-xs font-bold', isLive ? 'text-red' : match.status === MatchStatus.FINISHED ? 'text-sub' : 'text-acc')}>
 						{isLive ? 'AO VIVO' : match.status === MatchStatus.FINISHED ? 'Encerrado' : formatMatchDate(match.utcDate)}
 					</span>
 				</div>

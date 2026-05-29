@@ -14,9 +14,7 @@ export function DistributionDonut({ data }: DistributionDonutProps) {
 		data.totalEvaluatedBets === 0
 			? 0
 			: Math.round(
-					((data.exact.count + data.winnerWithGoal.count + data.correctWinner.count + data.oneGoalCorrect.count) /
-						data.totalEvaluatedBets) *
-						100,
+					((data.exact.count + data.winnerWithGoal.count + data.correctWinner.count + data.oneGoalCorrect.count) / data.totalEvaluatedBets) * 100,
 				)
 
 	const segments: Segment[] = [
@@ -29,32 +27,30 @@ export function DistributionDonut({ data }: DistributionDonutProps) {
 
 	return (
 		<Card className="animate-fade-up p-3">
-			<div className="mb-3 text-xs font-bold uppercase tracking-wider text-sub">
-				Distribuição total do grupo
-			</div>
+			<div className="mb-3 text-xs font-bold uppercase tracking-wider text-sub">Distribuição total do grupo</div>
 			<div className="flex items-center gap-3.5">
 				<Donut segments={segments} percent={accuracy} />
 				<div className="flex flex-1 flex-col gap-2.5">
 					{segments.map((s) => {
 						const Icon = s.icon
 						return (
-						<div key={s.label}>
-							<div className="mb-1 flex items-center justify-between text-xs">
-								<span className="flex items-center gap-1.5 text-sub">
-									<Icon className={`h-3 w-3 ${s.tone}`} />
-									{s.label}
-								</span>
-								<span className="font-bold" style={{ color: s.color }}>
-									{s.pct}%
-								</span>
+							<div key={s.label}>
+								<div className="mb-1 flex items-center justify-between text-xs">
+									<span className="flex items-center gap-1.5 text-sub">
+										<Icon className={`h-3 w-3 ${s.tone}`} />
+										{s.label}
+									</span>
+									<span className="font-bold" style={{ color: s.color }}>
+										{s.pct}%
+									</span>
+								</div>
+								<div className="h-[5px] w-full overflow-hidden rounded-full bg-muted">
+									<div
+										className="h-full rounded-full transition-[width] duration-700 ease-out"
+										style={{ width: `${s.pct}%`, background: s.color }}
+									/>
+								</div>
 							</div>
-							<div className="h-[5px] w-full overflow-hidden rounded-full bg-muted">
-								<div
-									className="h-full rounded-full transition-[width] duration-700 ease-out"
-									style={{ width: `${s.pct}%`, background: s.color }}
-								/>
-							</div>
-						</div>
 						)
 					})}
 				</div>

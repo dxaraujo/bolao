@@ -19,12 +19,7 @@ export function BetRow({ participant, isMe }: BetRowProps) {
 	const score = participant.score
 
 	return (
-		<div
-			className={cn(
-				'grid grid-cols-[1fr_56px_104px_44px] items-center gap-2 px-4 py-2 text-sm',
-				isMe && 'bg-acc/[0.06]',
-			)}
-		>
+		<div className={cn('grid grid-cols-[1fr_56px_104px_44px] items-center gap-2 px-4 py-2 text-sm', isMe && 'bg-acc/[0.06]')}>
 			<div className="flex items-center gap-2 min-w-0">
 				<Avatar className="h-9 w-9 shrink-0">
 					<AvatarImage src={participant.user.avatar ? resolveAssetUrl(participant.user.avatar) : undefined} alt={participant.user.name} />
@@ -40,7 +35,17 @@ export function BetRow({ participant, isMe }: BetRowProps) {
 				{score ? (
 					<span
 						className={cn(
-							tone === 'green' ? 'text-green' : tone === 'gold' ? 'text-gold' : tone === 'acc' ? 'text-acc' : tone === 'purple' ? 'text-purple' : tone === 'red' ? 'text-red' : 'text-sub',
+							tone === 'green'
+								? 'text-green'
+								: tone === 'gold'
+									? 'text-gold'
+									: tone === 'acc'
+										? 'text-acc'
+										: tone === 'purple'
+											? 'text-purple'
+											: tone === 'red'
+												? 'text-red'
+												: 'text-sub',
 						)}
 					>
 						{score.home}–{score.away}

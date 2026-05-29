@@ -7,7 +7,7 @@ export const STAGE_LABELS: Record<MatchStage, { full: string; short: string }> =
 	[MatchStage.QUARTER_FINALS]: { full: 'Quartas de Final', short: 'Quartas' },
 	[MatchStage.SEMI_FINALS]: { full: 'Semifinais', short: 'Semi' },
 	[MatchStage.THIRD_PLACE]: { full: 'Disputa do 3º Lugar', short: '3º Lugar' },
-	[MatchStage.FINAL]: { full: 'Final', short: 'Final' }
+	[MatchStage.FINAL]: { full: 'Final', short: 'Final' },
 }
 
 export function groupLabel(group: string | null | undefined): string {

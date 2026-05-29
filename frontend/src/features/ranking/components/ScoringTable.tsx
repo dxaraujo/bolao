@@ -27,14 +27,14 @@ export function ScoringTable() {
 				{ROWS.map((row) => {
 					const Icon = row.icon
 					return (
-					<li key={row.label} className="flex items-center gap-3 px-4 py-2.5">
-						<Icon className={cn('h-4 w-4 shrink-0', row.value)} aria-hidden />
-						<span className="flex-1 text-sm font-medium">{row.label}</span>
-						<span className={cn('font-display text-lg leading-none tabular-nums', row.value)}>
-							{row.points > 0 ? `+${row.points}` : row.points}
-							<span className="ml-1 text-[11px] uppercase tracking-wide text-sub">{row.points === 1 ? 'pt' : 'pts'}</span>
-						</span>
-					</li>
+						<li key={row.label} className="flex items-center gap-3 px-4 py-2.5">
+							<Icon className={cn('h-4 w-4 shrink-0', row.value)} aria-hidden />
+							<span className="flex-1 text-sm font-medium">{row.label}</span>
+							<span className={cn('font-display text-lg leading-none tabular-nums', row.value)}>
+								{row.points > 0 ? `+${row.points}` : row.points}
+								<span className="ml-1 text-[11px] uppercase tracking-wide text-sub">{row.points === 1 ? 'pt' : 'pts'}</span>
+							</span>
+						</li>
 					)
 				})}
 			</ul>

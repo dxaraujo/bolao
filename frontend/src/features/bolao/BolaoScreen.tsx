@@ -17,10 +17,7 @@ export function BolaoScreen() {
 	const { data: groups, isLoading: groupsLoading } = useAllBets()
 	const { data: me } = useMe()
 
-	const closedStages = useMemo(
-		() => (stages ?? []).filter((s) => s.state === StageState.CLOSED),
-		[stages],
-	)
+	const closedStages = useMemo(() => (stages ?? []).filter((s) => s.state === StageState.CLOSED), [stages])
 
 	const [tab, setTab] = useState<MatchStage | null>(null)
 
@@ -55,13 +52,7 @@ export function BolaoScreen() {
 	}
 
 	if (closedStages.length === 0) {
-		return (
-			<EmptyState
-				icon={Search}
-				title="Nenhuma fase encerrada"
-				description="As apostas do grupo aparecem aqui após cada fase ser encerrada."
-			/>
-		)
+		return <EmptyState icon={Search} title="Nenhuma fase encerrada" description="As apostas do grupo aparecem aqui após cada fase ser encerrada." />
 	}
 
 	return (
@@ -76,9 +67,7 @@ export function BolaoScreen() {
 								return (
 									<TabsTrigger key={s.code} value={s.code}>
 										{STAGE_LABELS[s.code]?.short ?? s.code}
-										<span className="ml-1 rounded bg-muted px-1 text-[11px] font-bold text-muted-foreground">
-											{count}
-										</span>
+										<span className="ml-1 rounded bg-muted px-1 text-[11px] font-bold text-muted-foreground">{count}</span>
 									</TabsTrigger>
 								)
 							})}
@@ -93,9 +82,7 @@ export function BolaoScreen() {
 				) : groupedMatches ? (
 					Array.from(groupedMatches.entries()).map(([group, matches]) => (
 						<div key={group}>
-							<p className="mb-2 mt-4 text-xs font-bold uppercase tracking-widest text-sub first:mt-0">
-								{groupLabel(group)}
-							</p>
+							<p className="mb-2 mt-4 text-xs font-bold uppercase tracking-widest text-sub first:mt-0">{groupLabel(group)}</p>
 							<MatchAccordion groups={matches} currentUserId={me?._id} />
 						</div>
 					))

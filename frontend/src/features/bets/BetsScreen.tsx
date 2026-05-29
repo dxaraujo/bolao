@@ -127,9 +127,7 @@ export function BetsScreen() {
 							{stages.map((s) => (
 								<TabsTrigger key={s.code} value={s.code} className="relative">
 									{STAGE_LABELS[s.code]?.short ?? s.code}
-									{s.state === StageState.OPEN && (
-										<span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-green" />
-									)}
+									{s.state === StageState.OPEN && <span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-green" />}
 								</TabsTrigger>
 							))}
 						</TabsList>
@@ -146,12 +144,7 @@ export function BetsScreen() {
 						)}
 					>
 						<div className="flex flex-col gap-1">
-							<span
-								className={cn(
-									'flex items-center gap-2 text-xs font-bold',
-									isOpen ? 'text-green' : 'text-sub',
-								)}
-							>
+							<span className={cn('flex items-center gap-2 text-xs font-bold', isOpen ? 'text-green' : 'text-sub')}>
 								{isOpen ? (
 									<>
 										<CalendarClock className="h-3.5 w-3.5" /> Apostas abertas
@@ -178,9 +171,7 @@ export function BetsScreen() {
 					) : groupedItems ? (
 						Array.from(groupedItems.entries()).map(([group, items]) => (
 							<div key={group}>
-								<p className="mb-2 mt-4 text-xs font-bold uppercase tracking-widest text-md first:mt-0">
-									{groupLabel(group)}
-								</p>
+								<p className="mb-2 mt-4 text-xs font-bold uppercase tracking-widest text-md first:mt-0">{groupLabel(group)}</p>
 								<div className="flex flex-col gap-2">
 									{items.map((item) => (
 										<BetCard
@@ -225,8 +216,7 @@ export function BetsScreen() {
 						size="lg"
 						className="w-full font-display text-lg tracking-wider shadow-[0_8px_24px_-12px_rgb(var(--acc)/0.6)]"
 					>
-						<Save className="h-4 w-4" />{' '}
-						{submit.isPending ? 'SALVANDO…' : `SALVAR ${filled} PALPITE${filled === 1 ? '' : 'S'}`}
+						<Save className="h-4 w-4" /> {submit.isPending ? 'SALVANDO…' : `SALVAR ${filled} PALPITE${filled === 1 ? '' : 'S'}`}
 					</Button>
 				</div>
 			)}

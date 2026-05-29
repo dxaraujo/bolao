@@ -24,9 +24,7 @@ export function MatchAccordion({ groups, currentUserId }: MatchAccordionProps) {
 						<AccordionTrigger className="px-4 py-3">
 							<div className="flex w-full flex-col gap-3">
 								<div className="flex items-center justify-between">
-									<span className="text-xs font-bold uppercase tracking-wider text-sub">
-										{formatMatchDate(match.utcDate)}
-									</span>
+									<span className="text-xs font-bold uppercase tracking-wider text-sub">{formatMatchDate(match.utcDate)}</span>
 									<div className="flex gap-1.5">
 										{g.totals.exactScore > 0 && (
 											<Badge tone="green">

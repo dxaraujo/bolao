@@ -190,7 +190,11 @@ export class LeaderboardService {
 			if (!agg) continue
 			const match = matchById.get(bet.match.toString())
 			if (!match || !match.score) continue
-			const result: BetResult = calculateBetScore(bet.score, { home: match.score.home, away: match.score.away })
+			// Partida pontuável tem score íntegro (RN-LB-2). Score parcial inconsistente (home/away não-inteiro)
+			// é ignorado para preservar a invariante Σbreakdown === totalBets.
+			const { home, away } = match.score
+			if (!Number.isInteger(home) || !Number.isInteger(away)) continue
+			const result: BetResult = calculateBetScore(bet.score, { home, away })
 			agg.points += result.points
 			agg.totalBets += 1
 			if (result.exactScore) agg.breakdown.exactScore++
@@ -204,7 +208,9 @@ export class LeaderboardService {
 	}
 
 	private rank(aggregates: UserAggregate[]): Array<UserAggregate & { rank: number }> {
-		const sorted = [...aggregates].sort((a, b) => compareLeaderboardRows(a, b))
+		// Desempate por nome só ordena a exibição dentro de um empate; a atribuição de rank
+		// abaixo usa compareLeaderboardRows (sem nome), então empatados continuam com o mesmo rank.
+		const sorted = [...aggregates].sort((a, b) => compareLeaderboardRows(a, b) || a.user.name.localeCompare(b.user.name, 'pt-BR'))
 		const out: Array<UserAggregate & { rank: number }> = []
 		let currentRank = 1
 		let tied = 1

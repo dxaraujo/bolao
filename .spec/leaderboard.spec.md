@@ -39,9 +39,9 @@ Materializar o ranking como singleton recomputado sob demanda e derivar estatís
 ## 5. Regras de negócio
 
 - **RN-LB-1** — **Só participantes ativos** entram. 0 ativos → singleton com `rows: []`.
-- **RN-LB-2** — **Partida pontuável** = `status ∈ {LIVE, FINISHED}` **e** `score` presente. **LIVE pontua** (ranking em tempo real).
+- **RN-LB-2** — **Partida pontuável** = `status ∈ {LIVE, FINISHED}` **e** `score` presente. **LIVE pontua** (ranking em tempo real). O `score` de uma partida pontuável é sempre um `Score` íntegro (`home`/`away` inteiros ≥ 0); um score parcial inconsistente (não-inteiro) é **ignorado** no agregado — o bet não conta em `totalBets` nem no `breakdown`, preservando a invariante `Σ breakdown === totalBets` (cada bet contabilizado cai em exatamente uma categoria).
 - **RN-LB-3** — Ordenação e desempate via `compareLeaderboardRows` (`points → exactScore → winnerWithGoal → correctWinner → oneGoalCorrect`).
-- **RN-LB-4** — Ranking com empates: linhas empatadas compartilham o mesmo `rank`; o próximo rank pula pela quantidade de empatados (1,1,3,…).
+- **RN-LB-4** — Ranking com empates: linhas empatadas compartilham o mesmo `rank`; o próximo rank pula pela quantidade de empatados (1,1,3,…). A **ordem de exibição** dentro de um empate é por `name` (pt-BR), consistente com `stats/accuracy-by-user` — o desempate por nome afeta só a listagem, nunca o `rank` atribuído.
 - **RN-LB-5** — `rebuild()` é idempotente (recomputo total). Disparado por: sync com `changedIds>0`, `POST /import`, `POST /rebuild`, e mudança de `isActive` de usuário.
 - **RN-LB-6** — `totalMatches` em overview = soma de `STAGE_EXPECTED_MATCHES` (não importados); `pointsInPlay = (totalMatches − finishedMatches) × 5`.
 - **RN-LB-7** — `accuracyPct` por usuário = `round(exactScore / totalBets × 100)` (`totalBets` = bets sobre partidas pontuáveis); `groupAccuracyPct` overview = acertos (qualquer categoria ≠ wrong) / avaliados.
